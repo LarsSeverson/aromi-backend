@@ -1,0 +1,32 @@
+{
+  "name": "aromi-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "dev": "nodemon --exec ./dist/index.js",
+    "start": "npm run compile && node ./dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.11.0",
+    "@types/graphql": "^14.2.3",
+    "@types/pg": "^8.11.8",
+    "apollo-server": "^3.13.0",
+    "apollo-server-express": "^3.13.0",
+    "express": "^4.19.2",
+    "graphql": "^16.9.0",
+    "pg": "^8.12.0",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.4"
+  }
+}
