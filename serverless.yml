@@ -1,0 +1,36 @@
+org: aromi
+app: aromi-mobile
+service: aromi-backend
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-2
+
+functions:
+  graphql:
+    handler: handler.graphql
+    events:
+      - http:
+          path: graphql
+          method: post
+          cors: true
+      - http:
+          path: graphql
+          method: get
+          cors: true
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .vscode/**
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+build:
+  esbuild: false
