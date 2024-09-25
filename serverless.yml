@@ -28,9 +28,9 @@ package:
     - .vscode/**
 
 plugins:
-  - serverless-plugin-typescript
+  # - serverless-plugin-typescript
   - serverless-offline
   - serverless-dotenv-plugin
 
 build:
-  esbuild: false
+  esbuild: true 
