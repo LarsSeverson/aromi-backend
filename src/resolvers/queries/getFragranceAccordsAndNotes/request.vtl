@@ -1,0 +1,12 @@
+#set($id = $ctx.stash.id)
+
+{
+  "version": "2018-05-29",
+  "statements": [
+    "SELECT a.id, a.name, fa.concentration FROM fragrance_accords fa JOIN accords a ON fa.accord_id = a.id WHERE fa.fragrance_id = :ID",
+    "SELECT n.id, n.name, fn.note_type, fn.concentration FROM fragrance_notes fn JOIN notes n ON fn.note_id = n.id WHERE fn.fragrance_id = :ID"
+  ],
+  "variableMap": {
+    ":ID": $id 
+  }
+}

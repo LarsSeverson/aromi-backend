@@ -1,0 +1,11 @@
+#set($id = $ctx.stash.id)
+
+{
+  "version": "2018-05-29",
+  "statements": [
+    "SELECT * FROM fragrances WHERE id = :ID"
+  ],
+  "variableMap": {
+    ":ID": $id
+  }
+}

@@ -7,19 +7,6 @@ provider:
   runtime: nodejs20.x
   region: us-east-2
 
-functions:
-  graphql:
-    handler: handler.graphql
-    events:
-      - http:
-          path: graphql
-          method: post
-          cors: true
-      - http:
-          path: graphql
-          method: get
-          cors: true
-
 package:
   individually: true
   exclude:
@@ -28,9 +15,90 @@ package:
     - .vscode/**
 
 plugins:
-  # - serverless-plugin-typescript
-  - serverless-offline
+  - serverless-appsync-plugin
   - serverless-dotenv-plugin
 
-build:
-  esbuild: true 
+resources:
+  Resources:
+    aromiDBServiceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: appsync.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: AppSyncRDSAccess
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - rds-data:*
+                    - secretsmanager:GetSecretValue
+                    - ssm:GetParameter
+                  Resource: "*"
+
+appSync:
+  name: aromiAppSyncAPI
+
+  authentication:
+    type: API_KEY
+
+  apiKeys:
+    - name: defaultKey
+      description: Default API key for testing
+      expiresAfter: 1M
+
+  schema:
+    - src/schema/schema.graphql
+
+  dataSources:
+    aromiDB:
+      type: "RELATIONAL_DATABASE"
+      config:
+        dbClusterIdentifier: ${env:DB_CLUSTER}
+        databaseName: ${env:DB_NAME}
+        region: ${env:DB_REGION}
+        awsSecretStoreArn: ${ssm:/aromi/rds-secret-arn}
+        serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
+  
+  pipelineFunctions:
+    getFragranceByID:
+      dataSource: aromiDB
+      description: Get a fragrance by its ID
+      request: src/resolvers/queries/fragrance/request.vtl
+      response: src/resolvers/queries/fragrance/response.vtl
+    
+    getFragranceAccordsAndNotes:
+      dataSource: aromiDB
+      description: Gets the accords and notes associated with the fragrance using the fragrance ID
+      request: src/resolvers/queries/getFragranceAccordsAndNotes/request.vtl
+      response: src/resolvers/queries/getFragranceAccordsAndNotes/response.vtl
+
+  resolvers:
+    Query.fragrances:
+      kind: UNIT
+      dataSource: aromiDB
+      request: src/resolvers/queries/fragrances/request.vtl 
+      response: src/resolvers/queries/fragrances/response.vtl
+    
+    Query.fragrance:
+      kind: PIPELINE
+      dataSource: aromiDB
+      request: src/resolvers/queries/fragrance/initialRequest.vtl
+      functions:
+        - getFragranceByID
+      response: src/resolvers/queries/fragrance/finalResponse.vtl
+
+  logging:
+    level: ALL
+    retentionInDays: 7
+
+  esbuild:
+    target: 'esnext'
+
+useDotenv: true
