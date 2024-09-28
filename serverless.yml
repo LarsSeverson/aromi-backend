@@ -67,32 +67,35 @@ appSync:
         serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
   
   pipelineFunctions:
-    getFragranceByID:
+    fragrance:
       dataSource: aromiDB
-      description: Get a fragrance by its ID
-      request: src/resolvers/queries/fragrance/request.vtl
-      response: src/resolvers/queries/fragrance/response.vtl
-    
-    getFragranceAccordsAndNotes:
+      description: Gets a fragrance
+      code: src/resolvers/queries/fragrance.ts
+
+    fragranceAccords:
       dataSource: aromiDB
-      description: Gets the accords and notes associated with the fragrance using the fragrance ID
-      request: src/resolvers/queries/getFragranceAccordsAndNotes/request.vtl
-      response: src/resolvers/queries/getFragranceAccordsAndNotes/response.vtl
+      description: Gets the accords associated with the fragrance using the fragrance ID
+      code: src/resolvers/queries/fragranceAccords.ts
+
+    fragranceNotes:
+      dataSource: aromiDB
+      description: Gets the notes associated with the fragrance using the fragrance ID
+      code: src/resolvers/queries/fragranceNotes.ts
 
   resolvers:
     Query.fragrances:
       kind: UNIT
       dataSource: aromiDB
-      request: src/resolvers/queries/fragrances/request.vtl 
-      response: src/resolvers/queries/fragrances/response.vtl
+      code: src/resolvers/queries/fragrances.ts
     
     Query.fragrance:
       kind: PIPELINE
       dataSource: aromiDB
-      request: src/resolvers/queries/fragrance/initialRequest.vtl
+      code: src/resolvers/queries/fragrancePipeline.ts
       functions:
-        - getFragranceByID
-      response: src/resolvers/queries/fragrance/finalResponse.vtl
+        - fragrance
+        - fragranceAccords
+        - fragranceNotes
 
   logging:
     level: ALL

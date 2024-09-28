@@ -1,9 +1,9 @@
 type Fragrance {
-    id: ID!
+    id: Int!
     brand: String!
     name: String!
     rating: Float!
-    review_count: Int!
+    reviewCount: Int!
     likes: Int!
     dislikes: Int!
     gender: Float!
@@ -13,42 +13,37 @@ type Fragrance {
     balance: Float!
     allure: Float!
 
-    accords: [Accord]
-    notes: [Note]
+    accords: [FragranceAccord]
+    notes: [FragranceNote]
 }
 
-type Accord {
-    id: ID!
+type FragranceAccord {
+    fragranceID: Int!
+    accordID: Int!
     name: String!
-    concentration: Float
+    concentration: Float!
 }
 
-type Note {
-    id: ID!
+type FragranceNote {
+    fragranceID: Int!
+    noteID: Int!
     name: String!
-    note_type: String!
+    type: String!
     concentration: Float!
 }
 
 type Query {
-    # Test
     hello: String!
 
-    # Fetch all fragrances
     fragrances(limit: Int, offset: Int): [Fragrance]
 
-    # Fetch a fragrance by its ID
-    fragrance(id: ID!): Fragrance
+    fragrance(id: Int!): Fragrance
 
-    # Fetch all accords
-    accords: [Accord]
+    # accords: [Accord]
 
-    # Fetch an accord by its ID
-    accord(id: ID!): Accord
+    # accord(id: Int!): Accord
 
-    # Fetch all notes
-    notes: [Note]
+    # notes: [Note]
 
-    # Fetch a note by its ID
-    note(id: ID!): Note
+    # note(id: Int!): Note
 }

@@ -1,5 +1,0 @@
-#if($ctx.error)
-    $util.appendError($ctx.error.message, $ctx.error.type, $ctx.result)
-#else
-    $util.toJson($ctx.prev.result)
-#end
