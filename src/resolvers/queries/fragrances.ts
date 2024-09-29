@@ -10,7 +10,7 @@ interface FragrancesArgs {
 }
 
 export const request = (ctx: Context): RDSRequest => {
-  const { limit, offset }: FragrancesArgs = ctx.args
+  const { limit = 10, offset = 0 }: FragrancesArgs = ctx.args
 
   const query = sql`SELECT * FROM fragrances LIMIT ${limit} OFFSET ${offset}`
 

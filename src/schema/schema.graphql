@@ -1,4 +1,4 @@
-type Fragrance {
+type Fragrance @aws_iam @aws_cognito_user_pools {
     id: Int!
     brand: String!
     name: String!
@@ -35,15 +35,7 @@ type FragranceNote {
 type Query {
     hello: String!
 
-    fragrances(limit: Int, offset: Int): [Fragrance]
+    fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
 
-    fragrance(id: Int!): Fragrance
-
-    # accords: [Accord]
-
-    # accord(id: Int!): Accord
-
-    # notes: [Note]
-
-    # note(id: Int!): Note
+    fragrance(id: Int!): Fragrance @aws_iam
 }

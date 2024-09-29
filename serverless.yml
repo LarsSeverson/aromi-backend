@@ -6,6 +6,10 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-2
+  environment:
+    APPSYNC_ID: ${appsync:id}
+    APPSYNC_ARN: ${appsync:arn}
+    APPSYNC_URL: ${appsync:url}
 
 package:
   individually: true
@@ -42,16 +46,117 @@ resources:
                     - ssm:GetParameter
                   Resource: "*"
 
+    cognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UsernameAttributes:
+          - "email"
+          - "phone_number"
+        UserPoolName: aromiUserPool
+
+    cognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: aromiClient
+        UserPoolId: !Ref cognitoUserPool
+
+    cognitoUserGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        Description: "Users belong to this group"
+        GroupName: "user"
+        Precedence: 1
+        RoleArn: !GetAtt cognitoUserIAMRole.Arn
+        UserPoolId: !Ref cognitoUserPool
+
+    cognitoUserIAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: aromiUserRole
+        Description: "IAM role for Users"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated:
+                  - "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud": !Ref cognitoUserPool
+        Policies:
+          - PolicyName: "aromiUserGroupPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "rds-data:*"
+                  Resource:
+                    - ${env:DB_READ_ARN}
+
+    cognitoIdentityPool:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        AllowUnauthenticatedIdentities: true
+        CognitoIdentityProviders:
+          - ClientId: !Ref cognitoUserPoolClient
+            ProviderName: !GetAtt cognitoUserPool.ProviderName
+        IdentityPoolName: aromiIdentityPool
+
+    cognitoUnauthIAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: "aromiUnauthRole"
+        Description: "IAM role for guest users"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated:
+                  - "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated"
+        Policies:
+          - PolicyName: "aromiUnauthUserPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "appsync:GraphQL"
+                  Resource:
+                    - !Sub
+                      - "${appsyncApiArn}/types/Query/fields/fragrances"
+                      - appsyncApiArn: !GetAtt GraphQlApi.Arn
+                    - !Sub
+                      - "${appsyncApiArn}/types/Query/fields/fragrance"
+                      - appsyncApiArn: !GetAtt GraphQlApi.Arn
+
+    cognitoIdentityPoolRoleAttachment:
+      Type: AWS::Cognito::IdentityPoolRoleAttachment
+      Properties:
+        IdentityPoolId: !Ref cognitoIdentityPool
+        Roles:
+          unauthenticated: !GetAtt cognitoUnauthIAMRole.Arn
+
 appSync:
   name: aromiAppSyncAPI
 
   authentication:
-    type: API_KEY
-
-  apiKeys:
-    - name: defaultKey
-      description: Default API key for testing
-      expiresAfter: 1M
+    type: AMAZON_COGNITO_USER_POOLS
+    config:
+      userPoolId: ${env:USER_POOL_ID}
+  additionalAuthentications:
+    - type: AWS_IAM
 
   schema:
     - src/schema/schema.graphql
@@ -60,12 +165,12 @@ appSync:
     aromiDB:
       type: "RELATIONAL_DATABASE"
       config:
-        dbClusterIdentifier: ${env:DB_CLUSTER}
+        dbClusterIdentifier: ${env:DB_READ_CLUSTER}
         databaseName: ${env:DB_NAME}
         region: ${env:DB_REGION}
         awsSecretStoreArn: ${ssm:/aromi/rds-secret-arn}
         serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
-  
+
   pipelineFunctions:
     fragrance:
       dataSource: aromiDB
@@ -87,7 +192,7 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: src/resolvers/queries/fragrances.ts
-    
+
     Query.fragrance:
       kind: PIPELINE
       dataSource: aromiDB
@@ -102,6 +207,6 @@ appSync:
     retentionInDays: 7
 
   esbuild:
-    target: 'esnext'
+    target: "esnext"
 
 useDotenv: true
