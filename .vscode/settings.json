@@ -43,5 +43,8 @@
   },
   "[velocity]": {
     "editor.defaultFormatter": "luqimin.velocity"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
   }
 }

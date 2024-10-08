@@ -1,7 +1,7 @@
 import { Context, util } from '@aws-appsync/utils'
-import { FragranceAccords } from './fragranceAccords'
-import { Fragrance } from './fragrance'
-import { FragranceNotes } from './fragranceNotes'
+import { FragranceAccords } from '../fragranceAccords'
+import { Fragrance } from '../fragrance'
+import { FragranceNotes } from '../fragranceNotes'
 
 export interface FragrancePipeline extends Fragrance {
     accords?: FragranceAccords | null

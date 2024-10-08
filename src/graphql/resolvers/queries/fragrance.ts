@@ -46,5 +46,5 @@ export const response = (ctx: Context): any => {
 
   ctx.stash.fragrance = fragrance
 
-  return fragrance as Fragrance
+  return fragrance
 }

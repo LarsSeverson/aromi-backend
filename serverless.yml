@@ -4,7 +4,7 @@ service: aromi-backend
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: python3.11
   region: us-east-2
   environment:
     APPSYNC_ID: ${appsync:id}
@@ -159,7 +159,7 @@ appSync:
     - type: AWS_IAM
 
   schema:
-    - src/schema/schema.graphql
+    - src/graphql/schema/schema.graphql
 
   dataSources:
     aromiDB:
@@ -171,36 +171,61 @@ appSync:
         awsSecretStoreArn: ${ssm:/aromi/rds-secret-arn}
         serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
 
+    suggestedFragrancesLambda:
+      type: "AWS_LAMBDA"
+      config:
+        function:
+          functionName: get_suggested_fragrances
+          timeout: 30
+          handler: src/lambdas/scoreFragrances/handler.py
+
   pipelineFunctions:
+    fragrances:
+      dataSource: aromiDB
+      description: Gets fragrances
+      code: src/graphql/resolvers/queries/fragrances.ts
+
     fragrance:
       dataSource: aromiDB
       description: Gets a fragrance
-      code: src/resolvers/queries/fragrance.ts
+      code: src/graphql/resolvers/queries/fragrance.ts
 
     fragranceAccords:
       dataSource: aromiDB
       description: Gets the accords associated with the fragrance using the fragrance ID
-      code: src/resolvers/queries/fragranceAccords.ts
+      code: src/graphql/resolvers/queries/fragranceAccords.ts
 
     fragranceNotes:
       dataSource: aromiDB
       description: Gets the notes associated with the fragrance using the fragrance ID
-      code: src/resolvers/queries/fragranceNotes.ts
+      code: src/graphql/resolvers/queries/fragranceNotes.ts
+    
+    suggestedFragrances:
+      dataSource: suggestedFragrancesLambda
+      description: Processes fragrance data and scores it
+      code: src/graphql/resolvers/queries/suggestedFragrances.ts
 
   resolvers:
     Query.fragrances:
       kind: UNIT
       dataSource: aromiDB
-      code: src/resolvers/queries/fragrances.ts
+      code: src/graphql/resolvers/queries/fragrances.ts
 
     Query.fragrance:
       kind: PIPELINE
       dataSource: aromiDB
-      code: src/resolvers/queries/fragrancePipeline.ts
+      code: src/graphql/resolvers/queries/pipelines/fragrancePipeline.ts
       functions:
         - fragrance
         - fragranceAccords
         - fragranceNotes
+    
+    Query.suggestedFragrances:
+      kind: PIPELINE
+      code: src/graphql/resolvers/queries/pipelines/suggestedFragrancesPipeline.ts
+      functions:
+        - fragrances
+        - suggestedFragrances
 
   logging:
     level: ALL

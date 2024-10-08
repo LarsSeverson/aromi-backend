@@ -38,4 +38,6 @@ type Query {
     fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
 
     fragrance(id: Int!): Fragrance @aws_iam
+
+    suggestedFragrances(limit: Int): [Fragrance] @aws_iam
 }
