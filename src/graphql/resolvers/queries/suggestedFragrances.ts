@@ -2,6 +2,7 @@ import { Context, util } from '@aws-appsync/utils'
 
 export const request = (ctx: Context): any => {
   const { error, result } = ctx
+
   if (error) {
     return util.appendError(
       error.message,
@@ -27,7 +28,7 @@ export const response = (ctx: Context): any => {
     )
   }
 
-  const suggestedFragrances = result
+  const suggestedFragrances = result.suggestedFragrances
 
   ctx.stash.suggestedFragrances = suggestedFragrances
 

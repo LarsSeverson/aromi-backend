@@ -1,6 +1,5 @@
 import { Context, RDSRequest, util } from '@aws-appsync/utils'
 import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
-import { Fragrance } from './fragrance'
 
 interface FragrancesArgs {
   limit?: number
@@ -10,7 +9,7 @@ interface FragrancesArgs {
 export const request = (ctx: Context): RDSRequest => {
   const { limit = 30, offset = 0 }: FragrancesArgs = ctx.args
 
-  const query = sql`SELECT * FROM fragrances LIMIT ${limit} OFFSET ${offset}`
+  const query = sql`SELECT * FROM fragrances_view LIMIT ${limit} OFFSET ${offset}`
 
   return createPgStatement(query)
 }

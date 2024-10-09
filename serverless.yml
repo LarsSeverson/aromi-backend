@@ -4,7 +4,6 @@ service: aromi-backend
 
 provider:
   name: aws
-  runtime: python3.11
   region: us-east-2
   environment:
     APPSYNC_ID: ${appsync:id}
@@ -21,6 +20,7 @@ package:
 plugins:
   - serverless-appsync-plugin
   - serverless-dotenv-plugin
+  - serverless-python-requirements
 
 resources:
   Resources:
@@ -175,9 +175,10 @@ appSync:
       type: "AWS_LAMBDA"
       config:
         function:
+          runtime: python3.11
           functionName: get_suggested_fragrances
           timeout: 30
-          handler: src/lambdas/scoreFragrances/handler.py
+          handler: src/lambdas/suggestedFragrances/handler.get_suggested_fragrances
 
   pipelineFunctions:
     fragrances:

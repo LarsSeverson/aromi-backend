@@ -17,14 +17,14 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
     notes: [FragranceNote]
 }
 
-type FragranceAccord {
+type FragranceAccord @aws_iam @aws_cognito_user_pools {
     fragranceID: Int!
     accordID: Int!
     name: String!
     concentration: Float!
 }
 
-type FragranceNote {
+type FragranceNote @aws_iam @aws_cognito_user_pools {
     fragranceID: Int!
     noteID: Int!
     name: String!

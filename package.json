@@ -39,6 +39,7 @@
     "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^14.3.2",
     "serverless-plugin-typescript": "^2.1.5",
+    "serverless-python-requirements": "^6.1.1",
     "standard": "^17.1.2",
     "ts-jest": "^27.0.4",
     "ts-node": "^10.1.0",
@@ -56,6 +57,14 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "overrides": {
+    "serverless-plugin-requirements": {
+      "serverless": "$serverless"
+    },
+    "serverless-python-requirements": {
+      "serverless": "$serverless"
     }
   }
 }

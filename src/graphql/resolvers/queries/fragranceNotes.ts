@@ -1,8 +1,5 @@
 import { Context, RDSRequest, util } from '@aws-appsync/utils'
 import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
-import { FragranceNote } from './fragranceNote'
-
-export type FragranceNotes = FragranceNote[]
 
 interface FragranceNotesArgs {
   id: number
@@ -18,7 +15,7 @@ export const request = (ctx: Context): RDSRequest => {
         n.name,
         fn.type,
         fn.concentration
-    FROM "fragranceNotes" fn
+    FROM fragrance_notes_view fn
     JOIN notes n ON fn."noteID" = n.id
     WHERE fn."fragranceID" = ${id}
   `
@@ -40,5 +37,5 @@ export const response = (ctx: Context): any => {
 
   ctx.stash.notes = fragranceNotes
 
-  return fragranceNotes as FragranceNotes
+  return fragranceNotes
 }

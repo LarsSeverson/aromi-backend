@@ -1,32 +1,14 @@
 import { Context, RDSRequest, util } from '@aws-appsync/utils'
 import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
-import { FragranceAccords } from './fragranceAccords'
-import { FragranceNotes } from './fragranceNotes'
-
-export interface Fragrance {
-    id: number
-    brand: string
-    name: string
-    rating: number
-    reviewCount: number
-    likes: number
-    dislikes: number
-    gender: number
-    longevity: number
-    sillage: number
-    complexity: number
-    balance: number
-    allure: number
-}
 
 interface FragranceArgs {
-    id: number
+  id: number
 }
 
 export const request = (ctx: Context): RDSRequest => {
   const { id }: FragranceArgs = ctx.args
 
-  const query = sql`SELECT * FROM fragrances WHERE id = ${id}`
+  const query = sql`SELECT * FROM fragrances_view WHERE id = ${id}`
 
   return createPgStatement(query)
 }
