@@ -1,5 +1,6 @@
 import { Context, RDSRequest, util } from '@aws-appsync/utils'
-import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
+import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
+import { graphqlFields } from '@src/graphql/utils/graphqlFields'
 
 interface FragrancesArgs {
   limit?: number
@@ -9,7 +10,12 @@ interface FragrancesArgs {
 export const request = (ctx: Context): RDSRequest => {
   const { limit = 30, offset = 0 }: FragrancesArgs = ctx.args
 
-  const query = sql`SELECT * FROM fragrances_view LIMIT ${limit} OFFSET ${offset}`
+  const query = select({
+    table: 'fragrances_view',
+    limit,
+    columns: ctx.info.selectionSetList,
+    offset
+  })
 
   return createPgStatement(query)
 }

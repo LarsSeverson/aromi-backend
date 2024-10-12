@@ -1,19 +1,12 @@
 import { Context, util } from '@aws-appsync/utils'
-import { FragranceAccords } from '../fragranceAccords'
-import { Fragrance } from '../fragrance'
-import { FragranceNotes } from '../fragranceNotes'
-
-export interface FragrancePipeline extends Fragrance {
-    accords?: FragranceAccords | null
-    notes?: FragranceNotes | null
-}
+import { graphqlFields } from '@src/graphql/utils/graphqlFields'
 
 interface FragrancePipelineArgs {
-    id: number
+  id: number
 }
 
 export const request = (ctx: Context): void => {
-  const { id }: FragrancePipelineArgs = ctx.args
+//
 }
 
 export const response = (ctx: Context): any => {
@@ -30,9 +23,11 @@ export const response = (ctx: Context): any => {
   const fragrance = ctx.stash.fragrance
   const accords = ctx.stash.accords || null
   const notes = ctx.stash.notes || null
+  const images = ctx.stash.images || null
 
   fragrance.accords = accords
   fragrance.notes = notes
+  fragrance.images = images
 
-  return fragrance as FragrancePipeline
+  return fragrance
 }

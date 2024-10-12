@@ -5,7 +5,7 @@ interface FragranceArgs {
   id: number
 }
 
-export const request = (ctx: Context): RDSRequest => {
+export const request = (ctx: Context): any => {
   const { id }: FragranceArgs = ctx.args
 
   const query = sql`SELECT * FROM fragrances_view WHERE id = ${id}`

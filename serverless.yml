@@ -96,6 +96,12 @@ resources:
                     - "rds-data:*"
                   Resource:
                     - ${env:DB_READ_ARN}
+                - Effect: "Allow"
+                  Action:
+                    - "s3:GetObject"
+                    - "s3:PutObject"
+                  Resource:
+                    - "arn:aws:s3:::aromi-storage/*"
 
     cognitoIdentityPool:
       Type: AWS::Cognito::IdentityPool
@@ -140,6 +146,11 @@ resources:
                     - !Sub
                       - "${appsyncApiArn}/types/Query/fields/fragrance"
                       - appsyncApiArn: !GetAtt GraphQlApi.Arn
+                - Effect: "Allow"
+                  Action:
+                    - "s3:GetObject"
+                  Resource:
+                    - "arn:aws:s3:::aromi-storage/*"
 
     cognitoIdentityPoolRoleAttachment:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -201,6 +212,11 @@ appSync:
       description: Gets the notes associated with the fragrance using the fragrance ID
       code: src/graphql/resolvers/queries/fragranceNotes.ts
     
+    fragranceImages:
+      dataSource: aromiDB
+      description: Gets the images associated with the fragrance using the fragrance ID
+      code: src/graphql/resolvers/queries/fragranceImages.ts
+
     suggestedFragrances:
       dataSource: suggestedFragrancesLambda
       description: Processes fragrance data and scores it
@@ -212,6 +228,13 @@ appSync:
       dataSource: aromiDB
       code: src/graphql/resolvers/queries/fragrances.ts
 
+    Query.suggestedFragrances:
+      kind: PIPELINE
+      code: src/graphql/resolvers/queries/pipelines/suggestedFragrancesPipeline.ts
+      functions:
+        - fragrances
+        - suggestedFragrances
+
     Query.fragrance:
       kind: PIPELINE
       dataSource: aromiDB
@@ -220,14 +243,8 @@ appSync:
         - fragrance
         - fragranceAccords
         - fragranceNotes
+        - fragranceImages
     
-    Query.suggestedFragrances:
-      kind: PIPELINE
-      code: src/graphql/resolvers/queries/pipelines/suggestedFragrancesPipeline.ts
-      functions:
-        - fragrances
-        - suggestedFragrances
-
   logging:
     level: ALL
     retentionInDays: 7
