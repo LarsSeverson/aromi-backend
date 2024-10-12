@@ -1,23 +1,23 @@
 import { Context, RDSRequest, util } from '@aws-appsync/utils'
-import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
+import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceAccordsArgs {
   id: number
 }
 
-export const request = (ctx: Context): RDSRequest => {
+export const request = (ctx: Context): RDSRequest | null => {
   const { id }: FragranceAccordsArgs = ctx.args
 
-  const query = sql`
-    SELECT
-      fa."fragranceID",
-      fa."accordID",
-      a.name,
-      fa.concentration
-    FROM fragrance_accords_view fa
-    JOIN accords a ON fa."accordID" = a.id
-    WHERE fa."fragranceID" = ${id}
-  `
+  const fields = ctx.stash.fields?.accords || ctx.info.selectionSetList
+  if (!fields || fields.length === 0) {
+    return null
+  }
+
+  const query = select({
+    from: 'fragrance_accords_combined',
+    columns: fields,
+    where: { fragranceID: { eq: id } }
+  })
 
   return createPgStatement(query)
 }

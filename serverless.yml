@@ -195,42 +195,42 @@ appSync:
     fragrances:
       dataSource: aromiDB
       description: Gets fragrances
-      code: src/graphql/resolvers/queries/fragrances.ts
+      code: ${self:custom.queriesDir}/fragrances.ts
 
     fragrance:
       dataSource: aromiDB
       description: Gets a fragrance
-      code: src/graphql/resolvers/queries/fragrance.ts
+      code: ${self:custom.queriesDir}/fragrance.ts
 
     fragranceAccords:
       dataSource: aromiDB
       description: Gets the accords associated with the fragrance using the fragrance ID
-      code: src/graphql/resolvers/queries/fragranceAccords.ts
+      code: ${self:custom.queriesDir}/fragranceAccords.ts
 
     fragranceNotes:
       dataSource: aromiDB
       description: Gets the notes associated with the fragrance using the fragrance ID
-      code: src/graphql/resolvers/queries/fragranceNotes.ts
+      code: ${self:custom.queriesDir}/fragranceNotes.ts
     
     fragranceImages:
       dataSource: aromiDB
       description: Gets the images associated with the fragrance using the fragrance ID
-      code: src/graphql/resolvers/queries/fragranceImages.ts
+      code: ${self:custom.queriesDir}/fragranceImages.ts
 
     suggestedFragrances:
       dataSource: suggestedFragrancesLambda
       description: Processes fragrance data and scores it
-      code: src/graphql/resolvers/queries/suggestedFragrances.ts
+      code: ${self:custom.queriesDir}/suggestedFragrances.ts
 
   resolvers:
     Query.fragrances:
       kind: UNIT
       dataSource: aromiDB
-      code: src/graphql/resolvers/queries/fragrances.ts
+      code: ${self:custom.queriesDir}/fragrances.ts
 
     Query.suggestedFragrances:
       kind: PIPELINE
-      code: src/graphql/resolvers/queries/pipelines/suggestedFragrancesPipeline.ts
+      code: ${self:custom.queriesDir}/pipelines/suggestedFragrancesPipeline.ts
       functions:
         - fragrances
         - suggestedFragrances
@@ -238,12 +238,22 @@ appSync:
     Query.fragrance:
       kind: PIPELINE
       dataSource: aromiDB
-      code: src/graphql/resolvers/queries/pipelines/fragrancePipeline.ts
+      code: ${self:custom.queriesDir}/pipelines/fragrancePipeline.ts
       functions:
         - fragrance
         - fragranceAccords
         - fragranceNotes
         - fragranceImages
+      
+    Query.fragranceNotes:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceNotes.ts
+
+    Query.fragranceAccords:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceAccords.ts
     
   logging:
     level: ALL
@@ -251,5 +261,8 @@ appSync:
 
   esbuild:
     target: "esnext"
+
+custom:
+  queriesDir: src/graphql/resolvers/queries
 
 useDotenv: true

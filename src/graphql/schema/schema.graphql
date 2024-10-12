@@ -12,22 +12,6 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   complexity: Float!
   balance: Float!
   allure: Float!
-}
-
-type ExpandedFragrance @aws_iam @aws_cognito_user_pools {
-  id: Int!
-  brand: String!
-  name: String!
-  rating: Float!
-  reviewCount: Int!
-  likes: Int!
-  dislikes: Int!
-  gender: Float!
-  longevity: Float!
-  sillage: Float!
-  complexity: Float!
-  balance: Float!
-  allure: Float!
 
   accords: [FragranceAccord]
   notes: [FragranceNote]
@@ -62,9 +46,11 @@ type Query {
 
   suggestedFragrances(limit: Int): [Fragrance] @aws_iam
 
-  fragrance(id: Int!): ExpandedFragrance @aws_iam
+  fragrance(id: Int!): Fragrance @aws_iam
 
-  fragranceImages(id: Int!): [FragranceImage] @aws_iam
+  fragranceNotes(id: Int!): [FragranceNote] @aws_iam
+  fragranceAccords(id: Int!): [FragranceAccord] @aws_iam
+
 }
 # type Mutation {
 #     editFragrance(

@@ -1,8 +1,10 @@
 import { Context, util } from '@aws-appsync/utils'
+import { toJsonObject } from '@aws-appsync/utils/rds'
 import { graphqlFields } from '@src/graphql/utils/graphqlFields'
 
 export const request = (ctx: Context): void => {
   const fields = graphqlFields(ctx.info.selectionSetList, ctx.info.fieldName, ['accords', 'notes', 'images'])
+
   ctx.stash.fields = fields
 }
 
@@ -16,15 +18,4 @@ export const response = (ctx: Context): any => {
       result
     )
   }
-
-  const fragrance = ctx.stash.fragrance
-  const accords = ctx.stash.accords || null
-  const notes = ctx.stash.notes || null
-  const images = ctx.stash.images || null
-
-  fragrance.accords = accords
-  fragrance.notes = notes
-  fragrance.images = images
-
-  return fragrance
 }
