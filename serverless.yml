@@ -28,7 +28,6 @@ package:
     - .vscode/**
 
 plugins:
-  # - serverless-plugin-typescript
   - serverless-offline
   - serverless-dotenv-plugin
 

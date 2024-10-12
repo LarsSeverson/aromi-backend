@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-lambda'
 import dotenv from 'dotenv'
 import typeDefs from './src/schema/typeDefs'
-import resolvers from './src/resolvers/main'
+import resolvers from './src/graphql/resolvers/main'
 import context from './src/context'
 
 dotenv.config()

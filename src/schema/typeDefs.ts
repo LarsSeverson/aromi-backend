@@ -6,7 +6,7 @@ const typeDefs = gql`#graphql
     brand: String!
     name: String!
     rating: Float!
-    review_count: Int!
+    reviewCount: Int!
     likes: Int!
     dislikes: Int!
     gender: Float!
@@ -29,7 +29,7 @@ const typeDefs = gql`#graphql
   type Note {
     id: ID!
     name: String!
-    note_type: String!
+    type: String!
     concentration: Float!
   }
   

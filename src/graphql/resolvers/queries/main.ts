@@ -1,5 +1,6 @@
 import { accord, accords } from './accord'
-import { fragrances, fragrance } from './fragrance'
+import { fragrance } from './fragrance'
+import { fragrances } from './fragrances'
 import { note, notes } from './note'
 
 const Query = {
