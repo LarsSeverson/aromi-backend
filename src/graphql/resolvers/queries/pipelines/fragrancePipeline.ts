@@ -17,14 +17,18 @@ export const response = (ctx: Context): any => {
     )
   }
 
-  const fragrance = ctx.stash.fragrance
-  const accords = ctx.stash.accords || null
-  const notes = ctx.stash.notes || null
-  const images = ctx.stash.images || null
+  const results = ctx.prev.result
+  const fragrance = results.fragrance || {}
 
-  fragrance.accords = accords
-  fragrance.notes = notes
-  fragrance.images = images
+  if (results.accords) {
+    fragrance.accords = results.accords
+  }
+  if (results.notes) {
+    fragrance.notes = results.notes
+  }
+  if (results.images) {
+    fragrance.images = results.images
+  }
 
   return fragrance
 }

@@ -48,8 +48,9 @@ type Query {
 
   fragrance(id: Int!): Fragrance @aws_iam
 
-  fragranceNotes(id: Int!): [FragranceNote] @aws_iam
   fragranceAccords(id: Int!): [FragranceAccord] @aws_iam
+  fragranceNotes(id: Int!): [FragranceNote] @aws_iam
+  fragranceImages(id: Int!): [FragranceImage] @aws_iam
 
 }
 # type Mutation {

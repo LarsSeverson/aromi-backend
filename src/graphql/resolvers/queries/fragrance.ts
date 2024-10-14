@@ -1,14 +1,23 @@
-import { Context, RDSRequest, util } from '@aws-appsync/utils'
-import { sql, createPgStatement, toJsonObject } from '@aws-appsync/utils/rds'
+import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
+import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceArgs {
   id: number
 }
 
-export const request = (ctx: Context): any => {
+export const request = (ctx: Context): RDSRequest | never => {
   const { id }: FragranceArgs = ctx.args
 
-  const query = sql`SELECT * FROM fragrances_view WHERE id = ${id}`
+  const fields = ctx.stash.fields?.fragrance || ctx.info.selectionSetList
+  if (!fields || fields.length === 0) {
+    return runtime.earlyReturn({ fragrance: null })
+  }
+
+  const query = select({
+    from: 'fragrances_view',
+    columns: fields,
+    where: { id: { eq: id } }
+  })
 
   return createPgStatement(query)
 }
@@ -26,7 +35,5 @@ export const response = (ctx: Context): any => {
 
   const fragrance = toJsonObject(result)[0][0]
 
-  ctx.stash.fragrance = fragrance
-
-  return fragrance
+  return { fragrance }
 }

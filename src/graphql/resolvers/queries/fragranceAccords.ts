@@ -1,4 +1,4 @@
-import { Context, RDSRequest, util } from '@aws-appsync/utils'
+import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceAccordsArgs {
@@ -10,7 +10,7 @@ export const request = (ctx: Context): RDSRequest | null => {
 
   const fields = ctx.stash.fields?.accords || ctx.info.selectionSetList
   if (!fields || fields.length === 0) {
-    return null
+    return runtime.earlyReturn(ctx.prev?.result)
   }
 
   const query = select({
@@ -24,6 +24,7 @@ export const request = (ctx: Context): RDSRequest | null => {
 
 export const response = (ctx: Context): any => {
   const { error, result } = ctx
+
   if (error) {
     return util.appendError(
       error.message,
@@ -32,9 +33,13 @@ export const response = (ctx: Context): any => {
     )
   }
 
-  const fragranceAccords = toJsonObject(result)[0]
+  const accords = toJsonObject(result)[0]
+  const results = ctx.prev?.result
 
-  ctx.stash.accords = fragranceAccords
+  if (results) {
+    results.accords = accords
+    return results
+  }
 
-  return fragranceAccords
+  return accords
 }

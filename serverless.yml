@@ -255,6 +255,11 @@ appSync:
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceAccords.ts
     
+    Query.fragranceImages:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceImages.ts
+    
   logging:
     level: ALL
     retentionInDays: 7

@@ -1,4 +1,4 @@
-import { Context, RDSRequest, util } from '@aws-appsync/utils'
+import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceNotesArgs {
@@ -10,7 +10,7 @@ export const request = (ctx: Context): RDSRequest | null => {
 
   const fields = ctx.stash.fields?.notes || ctx.info.selectionSetList
   if (!fields || fields.length === 0) {
-    return null
+    return runtime.earlyReturn(ctx.prev?.result)
   }
 
   const query = select({
@@ -32,9 +32,13 @@ export const response = (ctx: Context): any => {
     )
   }
 
-  const fragranceNotes = toJsonObject(result)[0]
+  const notes = toJsonObject(result)[0]
+  const results = ctx.prev?.result
 
-  ctx.stash.notes = fragranceNotes
+  if (results) {
+    results.notes = notes
+    return results
+  }
 
-  return fragranceNotes
+  return notes
 }
