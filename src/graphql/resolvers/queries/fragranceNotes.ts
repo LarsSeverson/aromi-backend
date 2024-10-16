@@ -3,20 +3,23 @@ import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceNotesArgs {
   id: number
+  limit: number
 }
 
 export const request = (ctx: Context): RDSRequest | null => {
-  const { id }: FragranceNotesArgs = ctx.args
+  const { id, limit = 8 }: FragranceNotesArgs = { id: ctx.args.id || ctx.source.id, limit: ctx.args.limit }
 
-  const fields = ctx.stash.fields?.notes || ctx.info.selectionSetList
-  if (!fields || fields.length === 0) {
-    return runtime.earlyReturn(ctx.prev?.result)
+  if (ctx.source.notes) {
+    return runtime.earlyReturn(JSON.parse(ctx.source.notes))
   }
 
-  const query = select({
+  const columns = ctx.info.selectionSetList
+
+  const query = select<any>({
     from: 'fragrance_notes_combined',
-    columns: fields,
-    where: { fragranceID: { eq: id } }
+    columns,
+    where: { fragranceID: { eq: id } },
+    limit
   })
 
   return createPgStatement(query)
@@ -24,6 +27,7 @@ export const request = (ctx: Context): RDSRequest | null => {
 
 export const response = (ctx: Context): any => {
   const { error, result } = ctx
+
   if (error) {
     return util.appendError(
       error.message,
@@ -33,12 +37,6 @@ export const response = (ctx: Context): any => {
   }
 
   const notes = toJsonObject(result)[0]
-  const results = ctx.prev?.result
-
-  if (results) {
-    results.notes = notes
-    return results
-  }
 
   return notes
 }

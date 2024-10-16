@@ -236,14 +236,24 @@ appSync:
         - suggestedFragrances
 
     Query.fragrance:
-      kind: PIPELINE
+      kind: UNIT 
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/pipelines/fragrancePipeline.ts
-      functions:
-        - fragrance
-        - fragranceAccords
-        - fragranceNotes
-        - fragranceImages
+      code: ${self:custom.queriesDir}/fragrance.ts
+    
+    Fragrance.accords:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceAccords.ts
+
+    Fragrance.notes:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceNotes.ts
+      
+    Fragrance.images:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.queriesDir}/fragranceImages.ts
       
     Query.fragranceNotes:
       kind: UNIT
@@ -259,6 +269,7 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceImages.ts
+
     
   logging:
     level: ALL

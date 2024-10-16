@@ -3,20 +3,23 @@ import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceAccordsArgs {
   id: number
+  limit: number
 }
 
 export const request = (ctx: Context): RDSRequest | null => {
-  const { id }: FragranceAccordsArgs = ctx.args
+  const { id, limit = 8 }: FragranceAccordsArgs = { id: ctx.args.id || ctx.source.id, limit: ctx.args.limit }
 
-  const fields = ctx.stash.fields?.accords || ctx.info.selectionSetList
-  if (!fields || fields.length === 0) {
-    return runtime.earlyReturn(ctx.prev?.result)
+  if (ctx.source.accords) {
+    return runtime.earlyReturn(JSON.parse(ctx.source.accords))
   }
 
-  const query = select({
+  const columns = ctx.info.selectionSetList
+
+  const query = select<any>({
     from: 'fragrance_accords_combined',
-    columns: fields,
-    where: { fragranceID: { eq: id } }
+    columns,
+    where: { fragranceID: { eq: id } },
+    limit
   })
 
   return createPgStatement(query)
@@ -34,12 +37,6 @@ export const response = (ctx: Context): any => {
   }
 
   const accords = toJsonObject(result)[0]
-  const results = ctx.prev?.result
-
-  if (results) {
-    results.accords = accords
-    return results
-  }
 
   return accords
 }

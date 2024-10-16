@@ -13,20 +13,18 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   balance: Float!
   allure: Float!
 
-  accords: [FragranceAccord]
-  notes: [FragranceNote]
-  images: [FragranceImage]
+  accords(limit: Int): [FragranceAccord]
+  notes(limit: Int): [FragranceNote]
+  images(limit: Int): [FragranceImage]
 }
 
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
-  fragranceID: Int!
   accordID: Int!
   name: String!
   concentration: Float!
 }
 
 type FragranceNote @aws_iam @aws_cognito_user_pools {
-  fragranceID: Int!
   noteID: Int!
   name: String!
   type: String!
@@ -34,24 +32,18 @@ type FragranceNote @aws_iam @aws_cognito_user_pools {
 }
 
 type FragranceImage @aws_iam @aws_cognito_user_pools {
-  fragranceID: Int!
   imageID: Int!
   s3Key: String!
 }
 
 type Query {
-  hello: String!
+  fragrance(id: Int!): Fragrance @aws_iam
+  fragranceAccords(id: Int!, limit: Int): [FragranceAccord] @aws_iam
+  fragranceNotes(id: Int!, limit: Int): [FragranceNote] @aws_iam
+  fragranceImages(id: Int!, limit: Int): [FragranceImage] @aws_iam
 
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
-
   suggestedFragrances(limit: Int): [Fragrance] @aws_iam
-
-  fragrance(id: Int!): Fragrance @aws_iam
-
-  fragranceAccords(id: Int!): [FragranceAccord] @aws_iam
-  fragranceNotes(id: Int!): [FragranceNote] @aws_iam
-  fragranceImages(id: Int!): [FragranceImage] @aws_iam
-
 }
 # type Mutation {
 #     editFragrance(

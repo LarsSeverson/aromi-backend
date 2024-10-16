@@ -1,21 +1,25 @@
 import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
+import { graphqlFields } from '@src/graphql/utils/graphqlFields'
 
 interface FragranceArgs {
   id: number
 }
 
-export const request = (ctx: Context): RDSRequest | never => {
+export const request = (ctx: Context): RDSRequest | null => {
+  const fieldName = ctx.info.fieldName
+  const fields = graphqlFields(ctx.info.selectionSetList, fieldName)
+  const columns = fields[fieldName]
+
   const { id }: FragranceArgs = ctx.args
 
-  const fields = ctx.stash.fields?.fragrance || ctx.info.selectionSetList
-  if (!fields || fields.length === 0) {
-    return runtime.earlyReturn({ fragrance: null })
+  if (!fields || columns.length === 0) {
+    return runtime.earlyReturn({ id })
   }
 
-  const query = select({
+  const query = select<any>({
     from: 'fragrances_view',
-    columns: fields,
+    columns,
     where: { id: { eq: id } }
   })
 
@@ -35,5 +39,9 @@ export const response = (ctx: Context): any => {
 
   const fragrance = toJsonObject(result)[0][0]
 
-  return { fragrance }
+  if (!fragrance.id) {
+    fragrance.id = ctx.args.id
+  }
+
+  return fragrance
 }

@@ -3,20 +3,23 @@ import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
 
 interface FragranceImagesArgs {
   id: number
+  limit: number
 }
 
 export const request = (ctx: Context): RDSRequest | null => {
-  const { id }: FragranceImagesArgs = ctx.args
+  const { id, limit = 3 }: FragranceImagesArgs = { id: ctx.args.id || ctx.source.id, limit: ctx.args.limit }
 
-  const fields = ctx.stash.fields?.images || ctx.info.selectionSetList
-  if (!fields || fields.length === 0) {
-    return runtime.earlyReturn(ctx.prev?.result)
+  if (ctx.source.images) {
+    return runtime.earlyReturn(JSON.parse(ctx.source.images))
   }
 
-  const query = select({
+  const columns = ctx.info.selectionSetList
+
+  const query = select<any>({
     from: 'fragrance_images_view',
-    columns: fields,
-    where: { fragranceID: { eq: id } }
+    columns,
+    where: { fragranceID: { eq: id } },
+    limit
   })
 
   return createPgStatement(query)
@@ -34,12 +37,6 @@ export const response = (ctx: Context): any => {
   }
 
   const images = toJsonObject(result)[0]
-  const results = ctx.prev?.result
-
-  if (results) {
-    results.images = images
-    return results
-  }
 
   return images
 }

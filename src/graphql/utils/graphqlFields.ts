@@ -10,7 +10,6 @@ export const graphqlFields = (selectionSetList: string[], mainField: string, rel
   selectionSetList.forEach(field => {
     const parts = field.split('/')
 
-    // TODO: Nested within nested instead of just expectation of 2
     if (parts.length === 1) {
       if (!fieldsMap[parts[0]]) {
         fieldsMap[mainField].push(parts[0])
