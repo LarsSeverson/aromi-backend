@@ -18,7 +18,6 @@ export interface FragranceNote {
 export type FragranceNotes = FragranceNote[]
 
 export interface FragranceImage {
-  fragranceID: number
   imageID: number
   s3Key: string
 }
