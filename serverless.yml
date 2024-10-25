@@ -53,6 +53,14 @@ resources:
           - "email"
           - "phone_number"
         UserPoolName: aromiUserPool
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: false
+            RequireLowercase: false
+            RequireNumbers: true
+            RequireSymbols: false
+            TemporaryPasswordValidityDays: 7
 
     cognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
