@@ -45,6 +45,11 @@ resources:
                     - secretsmanager:GetSecretValue
                     - ssm:GetParameter
                   Resource: "*"
+    
+    aromiSES:
+      Type: AWS::SES::EmailIdentity
+      Properties:
+        EmailIdentity: 'aromi.io'
 
     cognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -53,6 +58,8 @@ resources:
           - "email"
           - "phone_number"
         UserPoolName: aromiUserPool
+        AutoVerifiedAttributes:
+          - email
         Policies:
           PasswordPolicy:
             MinimumLength: 8
@@ -61,6 +68,13 @@ resources:
             RequireNumbers: true
             RequireSymbols: false
             TemporaryPasswordValidityDays: 7
+        EmailConfiguration:
+          EmailSendingAccount: DEVELOPER
+          SourceArn: arn:aws:ses:us-east-2:490004620452:identity/donotreply@aromi.io
+        VerificationMessageTemplate:
+          DefaultEmailOption: CONFIRM_WITH_CODE
+          EmailSubject: "Your confirmation code"
+          EmailMessage: "Your confirmation code is {####}"
 
     cognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
