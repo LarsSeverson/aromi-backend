@@ -45,11 +45,11 @@ resources:
                     - secretsmanager:GetSecretValue
                     - ssm:GetParameter
                   Resource: "*"
-    
+
     aromiSES:
       Type: AWS::SES::EmailIdentity
       Properties:
-        EmailIdentity: 'aromi.io'
+        EmailIdentity: "aromi.io"
 
     cognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -107,7 +107,7 @@ resources:
                 - "sts:AssumeRoleWithWebIdentity"
               Condition:
                 StringEquals:
-                  "cognito-identity.amazonaws.com:aud": !Ref cognitoUserPool
+                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
         Policies:
           - PolicyName: "aromiUserGroupPolicy"
             PolicyDocument:
@@ -134,6 +134,42 @@ resources:
             ProviderName: !GetAtt cognitoUserPool.ProviderName
         IdentityPoolName: aromiIdentityPool
 
+    cognitoAuthIAMRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: "aromiAuthRole"
+        Description: "IAM role for authenticated users"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated:
+                  - "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": "authenticated"
+        Policies:
+          - PolicyName: "aromiAuthUserPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "rds-data:*"
+                    - "s3:GetObject"
+                    - "s3:PutObject"
+                    - "appsync:GraphQL"
+                  Resource:
+                    - "${env:DB_READ_ARN}"
+                    - "arn:aws:s3:::aromi-storage/*"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
+
     cognitoUnauthIAMRole:
       Type: AWS::IAM::Role
       Properties:
@@ -154,32 +190,26 @@ resources:
                 "ForAnyValue:StringLike":
                   "cognito-identity.amazonaws.com:amr": "unauthenticated"
         Policies:
-          - PolicyName: "aromiUnauthUserPolicy"
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action:
-                    - "appsync:GraphQL"
-                  Resource:
-                    - !Sub
-                      - "${appsyncApiArn}/types/Query/fields/fragrances"
-                      - appsyncApiArn: !GetAtt GraphQlApi.Arn
-                    - !Sub
-                      - "${appsyncApiArn}/types/Query/fields/fragrance"
-                      - appsyncApiArn: !GetAtt GraphQlApi.Arn
-                - Effect: "Allow"
-                  Action:
-                    - "s3:GetObject"
-                    - "s3:ListBucket"
-                  Resource:
-                    - "arn:aws:s3:::aromi-storage/*"
+            - PolicyName: "aromiUnauthUserPolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Action:
+                      - "appsync:GraphQL"
+                      - "s3:GetObject"
+                      - "s3:ListBucket"
+                    Resource:
+                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
+                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
+                      - "arn:aws:s3:::aromi-storage/*"
 
     cognitoIdentityPoolRoleAttachment:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
       Properties:
         IdentityPoolId: !Ref cognitoIdentityPool
         Roles:
+          authenticated: !GetAtt cognitoAuthIAMRole.Arn
           unauthenticated: !GetAtt cognitoUnauthIAMRole.Arn
 
 appSync:
@@ -234,7 +264,7 @@ appSync:
       dataSource: aromiDB
       description: Gets the notes associated with the fragrance using the fragrance ID
       code: ${self:custom.queriesDir}/fragranceNotes.ts
-    
+
     fragranceImages:
       dataSource: aromiDB
       description: Gets the images associated with the fragrance using the fragrance ID
@@ -259,10 +289,10 @@ appSync:
         - suggestedFragrances
 
     Query.fragrance:
-      kind: UNIT 
+      kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragrance.ts
-    
+
     Fragrance.accords:
       kind: UNIT
       dataSource: aromiDB
@@ -272,12 +302,12 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceNotes.ts
-      
+
     Fragrance.images:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceImages.ts
-      
+
     Query.fragranceNotes:
       kind: UNIT
       dataSource: aromiDB
@@ -287,13 +317,12 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceAccords.ts
-    
+
     Query.fragranceImages:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceImages.ts
 
-    
   logging:
     level: ALL
     retentionInDays: 7
