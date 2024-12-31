@@ -2,7 +2,7 @@ export interface FragranceAccord {
   fragranceId: number
   accordId: number
   name: string
-  concentration: number
+  votes: number
 }
 
 export type FragranceAccords = FragranceAccord[]
@@ -12,7 +12,7 @@ export interface FragranceNote {
   noteId: number
   name: string
   type: string
-  concentration: number
+  votes: number
 }
 
 export type FragranceNotes = FragranceNote[]
