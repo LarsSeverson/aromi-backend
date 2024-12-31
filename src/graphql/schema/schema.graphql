@@ -6,29 +6,34 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   reviewCount: Int!
   likes: Int!
   dislikes: Int!
-  gender: Float!
-  longevity: Float!
-  sillage: Float!
-  complexity: Float!
-  balance: Float!
-  allure: Float!
+
+  gender: FragranceTrait!
+  longevity: FragranceTrait!
+  sillage: FragranceTrait!
+  complexity: FragranceTrait!
+  balance: FragranceTrait!
+  allure: FragranceTrait!
 
   accords(limit: Int): [FragranceAccord]
   notes(limit: Int): [FragranceNote]
   images(limit: Int): [FragranceImage]
 }
 
+type FragranceTrait @aws_iam @aws_cognito_user_pools {
+  value: Float!
+}
+
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
   accordID: Int!
   name: String!
-  concentration: Float!
+  votes: Int!
 }
 
 type FragranceNote @aws_iam @aws_cognito_user_pools {
   noteID: Int!
   name: String!
   type: String!
-  concentration: Float!
+  votes: Int!
 }
 
 type FragranceImage @aws_iam @aws_cognito_user_pools {

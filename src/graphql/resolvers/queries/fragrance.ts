@@ -17,7 +17,7 @@ export const request = (ctx: Context): RDSRequest | null => {
     return runtime.earlyReturn({ id })
   }
 
-  const query = select<any>({
+  const query = select<number>({
     from: 'fragrances_view',
     columns,
     where: { id: { eq: id } }
