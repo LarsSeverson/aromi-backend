@@ -18,7 +18,7 @@ export const request = (ctx: Context): RDSRequest | null => {
   const query = select<any>({
     from: 'fragrance_notes_combined',
     columns,
-    where: { fragranceID: { eq: id } },
+    where: { fragranceId: { eq: id } },
     limit
   })
 

@@ -24,20 +24,20 @@ type FragranceTrait @aws_iam @aws_cognito_user_pools {
 }
 
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
-  accordID: Int!
+  accordId: Int!
   name: String!
   votes: Int!
 }
 
 type FragranceNote @aws_iam @aws_cognito_user_pools {
-  noteID: Int!
+  noteId: Int!
   name: String!
   type: String!
   votes: Int!
 }
 
 type FragranceImage @aws_iam @aws_cognito_user_pools {
-  imageID: Int!
+  imageId: Int!
   s3Key: String!
 }
 

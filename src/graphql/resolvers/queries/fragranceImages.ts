@@ -18,7 +18,7 @@ export const request = (ctx: Context): RDSRequest | null => {
   const query = select<any>({
     from: 'fragrance_images_view',
     columns,
-    where: { fragranceID: { eq: id } },
+    where: { fragranceId: { eq: id } },
     limit
   })
 

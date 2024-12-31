@@ -1,6 +1,6 @@
 export interface FragranceAccord {
-  fragranceID: number
-  accordID: number
+  fragranceId: number
+  accordId: number
   name: string
   concentration: number
 }
@@ -8,8 +8,8 @@ export interface FragranceAccord {
 export type FragranceAccords = FragranceAccord[]
 
 export interface FragranceNote {
-  fragranceID: number
-  noteID: number
+  fragranceId: number
+  noteId: number
   name: string
   type: string
   concentration: number
@@ -18,7 +18,7 @@ export interface FragranceNote {
 export type FragranceNotes = FragranceNote[]
 
 export interface FragranceImage {
-  imageID: number
+  imageId: number
   s3Key: string
 }
 
