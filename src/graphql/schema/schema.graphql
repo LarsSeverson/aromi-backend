@@ -23,6 +23,7 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
   accordId: Int!
   name: String!
+  color: String!
   votes: Int!
 }
 

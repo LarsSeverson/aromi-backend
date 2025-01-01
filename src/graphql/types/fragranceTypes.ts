@@ -2,6 +2,7 @@ export interface FragranceAccord {
   fragranceId: number
   accordId: number
   name: string
+  color: string
   votes: number
 }
 
