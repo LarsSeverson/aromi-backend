@@ -9,7 +9,7 @@ interface FragranceNotesArgs {
 export const request = (ctx: Context): RDSRequest | null => {
   const { id, limit = 8 }: FragranceNotesArgs = { id: ctx.args.id || ctx.source.id, limit: ctx.args.limit }
 
-  if (ctx.source.notes) {
+  if (ctx.source?.notes) {
     return runtime.earlyReturn(JSON.parse(ctx.source.notes))
   }
 

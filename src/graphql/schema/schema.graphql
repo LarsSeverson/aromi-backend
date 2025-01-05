@@ -14,9 +14,9 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   balance: Float!
   allure: Float!
 
-  accords(limit: Int): [FragranceAccord]
-  notes(limit: Int): [FragranceNote]
-  images(limit: Int): [FragranceImage]
+  accords(limit: Int, offset: Int): [FragranceAccord]
+  notes(limit: Int, offset: Int): [FragranceNote]
+  images(limit: Int, offset: Int): [FragranceImage]
 }
 
 
@@ -41,13 +41,14 @@ type FragranceImage @aws_iam @aws_cognito_user_pools {
 
 type Query {
   fragrance(id: Int!): Fragrance @aws_iam
-  fragranceAccords(id: Int!, limit: Int): [FragranceAccord] @aws_iam
-  fragranceNotes(id: Int!, limit: Int): [FragranceNote] @aws_iam
-  fragranceImages(id: Int!, limit: Int): [FragranceImage] @aws_iam
+  fragranceAccords(id: Int!, limit: Int, offset: Int): [FragranceAccord] @aws_iam
+  fragranceNotes(id: Int!, limit: Int, offset: Int): [FragranceNote] @aws_iam
+  fragranceImages(id: Int!, limit: Int, offset: Int): [FragranceImage] @aws_iam
 
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
   suggestedFragrances(limit: Int): [Fragrance] @aws_iam
 }
+
 # type Mutation {
 #     editFragrance(
 #         id: Int!

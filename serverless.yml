@@ -169,6 +169,8 @@ resources:
                     - "arn:aws:s3:::aromi-storage/*"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
 
     cognitoUnauthIAMRole:
       Type: AWS::IAM::Role
@@ -202,6 +204,8 @@ resources:
                     Resource:
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
+                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
+                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
                       - "arn:aws:s3:::aromi-storage/*"
 
     cognitoIdentityPoolRoleAttachment:

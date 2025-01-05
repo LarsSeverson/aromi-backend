@@ -9,7 +9,7 @@ interface FragranceImagesArgs {
 export const request = (ctx: Context): RDSRequest | null => {
   const { id, limit = 3 }: FragranceImagesArgs = { id: ctx.args.id || ctx.source.id, limit: ctx.args.limit }
 
-  if (ctx.source.images) {
+  if (ctx.source?.images) {
     return runtime.earlyReturn(JSON.parse(ctx.source.images))
   }
 
