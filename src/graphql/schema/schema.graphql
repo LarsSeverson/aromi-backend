@@ -41,7 +41,7 @@ type FragranceImage @aws_iam @aws_cognito_user_pools {
 
 type Query {
   fragrance(id: Int!): Fragrance @aws_iam
-  fragranceAccords(id: Int!, limit: Int, offset: Int): [FragranceAccord] @aws_iam
+  fragranceAccords(id: Int!, name: String, limit: Int, offset: Int): [FragranceAccord] @aws_iam
   fragranceNotes(id: Int!, limit: Int, offset: Int): [FragranceNote] @aws_iam
   fragranceImages(id: Int!, limit: Int, offset: Int): [FragranceImage] @aws_iam
 

@@ -171,6 +171,7 @@ resources:
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
 
     cognitoUnauthIAMRole:
       Type: AWS::IAM::Role
@@ -202,11 +203,12 @@ resources:
                       - "s3:GetObject"
                       - "s3:ListBucket"
                     Resource:
+                      - "arn:aws:s3:::aromi-storage/*"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
-                      - "arn:aws:s3:::aromi-storage/*"
+                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
 
     cognitoIdentityPoolRoleAttachment:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -278,7 +280,7 @@ appSync:
       dataSource: suggestedFragrancesLambda
       description: Processes fragrance data and scores it
       code: ${self:custom.queriesDir}/suggestedFragrances.ts
-
+    
   resolvers:
     Query.fragrances:
       kind: UNIT
@@ -326,7 +328,7 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.queriesDir}/fragranceImages.ts
-
+    
   logging:
     level: ALL
     retentionInDays: 7
