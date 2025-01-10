@@ -30,7 +30,7 @@ type FragranceAccord @aws_iam @aws_cognito_user_pools {
 type FragranceNote @aws_iam @aws_cognito_user_pools {
   noteId: Int!
   name: String!
-  type: String!
+  layer: String!
   votes: Int!
 }
 
@@ -39,10 +39,17 @@ type FragranceImage @aws_iam @aws_cognito_user_pools {
   s3Key: String!
 }
 
+enum NoteLayer {
+  top 
+  middle
+  base
+  fill
+}
+
 type Query {
   fragrance(id: Int!): Fragrance @aws_iam
   fragranceAccords(id: Int!, name: String, limit: Int, offset: Int): [FragranceAccord] @aws_iam
-  fragranceNotes(id: Int!, limit: Int, offset: Int): [FragranceNote] @aws_iam
+  fragranceNotes(id: Int!, layer: NoteLayer!, name: String, limit: Int, offset: Int, fill: Boolean): [FragranceNote] @aws_iam
   fragranceImages(id: Int!, limit: Int, offset: Int): [FragranceImage] @aws_iam
 
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam

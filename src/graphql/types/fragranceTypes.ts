@@ -12,7 +12,7 @@ export interface FragranceNote {
   fragranceId: number
   noteId: number
   name: string
-  type: string
+  layer: string
   votes: number
 }
 
@@ -46,3 +46,10 @@ export interface Fragrance {
 }
 
 export type Fragrances = Fragrance[]
+
+export enum NoteLayer {
+  TOP = 'top',
+  MIDDLE = 'middle',
+  BASE = 'base',
+  FILL = 'fill'
+}
