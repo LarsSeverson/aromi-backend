@@ -21,6 +21,7 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
 
 
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
+  id: Int!
   accordId: Int!
   name: String!
   color: String!
@@ -28,6 +29,7 @@ type FragranceAccord @aws_iam @aws_cognito_user_pools {
 }
 
 type FragranceNote @aws_iam @aws_cognito_user_pools {
+  id: Int!
   noteId: Int!
   name: String!
   layer: String!

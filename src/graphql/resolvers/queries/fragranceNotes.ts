@@ -1,5 +1,5 @@
 import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
-import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
+import { createPgStatement, toJsonObject, select, sql } from '@aws-appsync/utils/rds'
 import { NoteLayer } from '@src/graphql/types/fragranceTypes'
 
 interface FragranceNotesArgs {
@@ -30,9 +30,11 @@ export const request = (ctx: Context): RDSRequest | null => {
     : { layer: { eq: layer } }
 
   const where = {
-    fragranceId: { eq: id },
-    ...(name ? { name: { contains: name } } : {}),
-    ...fillFilter
+    and: [
+      { fragranceId: { eq: id } },
+      fillFilter
+    ],
+    ...(name ? { name: { contains: name } } : {})
   }
 
   const query = select<any>({

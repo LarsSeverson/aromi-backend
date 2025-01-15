@@ -1,4 +1,5 @@
 export interface FragranceAccord {
+  id: number,
   fragranceId: number
   accordId: number
   name: string
@@ -9,6 +10,7 @@ export interface FragranceAccord {
 export type FragranceAccords = FragranceAccord[]
 
 export interface FragranceNote {
+  id: number,
   fragranceId: number
   noteId: number
   name: string
