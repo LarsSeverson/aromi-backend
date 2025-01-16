@@ -38,7 +38,7 @@ export const request = (ctx: Context): RDSRequest | null => {
   }
 
   const query = select<any>({
-    from: 'fragrance_notes_combined',
+    from: `fragrance_notes_${layer}_layer`,
     columns,
     where,
     limit,
