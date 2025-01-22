@@ -172,6 +172,7 @@ resources:
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
+                    - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/createUser"
 
     cognitoUnauthIAMRole:
       Type: AWS::IAM::Role
@@ -209,6 +210,7 @@ resources:
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
                       - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
+                      - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/createUser"
 
     cognitoIdentityPoolRoleAttachment:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -254,38 +256,38 @@ appSync:
     fragrances:
       dataSource: aromiDB
       description: Gets fragrances
-      code: ${self:custom.queriesDir}/fragrances.ts
+      code: ${self:custom.fragranceQueriesDir}/fragrances.ts
 
     fragrance:
       dataSource: aromiDB
       description: Gets a fragrance
-      code: ${self:custom.queriesDir}/fragrance.ts
+      code: ${self:custom.fragranceQueriesDir}/fragrance.ts
 
     fragranceAccords:
       dataSource: aromiDB
       description: Gets the accords associated with the fragrance using the fragrance ID
-      code: ${self:custom.queriesDir}/fragranceAccords.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
 
     fragranceNotes:
       dataSource: aromiDB
       description: Gets the notes associated with the fragrance using the fragrance ID
-      code: ${self:custom.queriesDir}/fragranceNotes.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
 
     fragranceImages:
       dataSource: aromiDB
       description: Gets the images associated with the fragrance using the fragrance ID
-      code: ${self:custom.queriesDir}/fragranceImages.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
 
     suggestedFragrances:
       dataSource: suggestedFragrancesLambda
       description: Processes fragrance data and scores it
-      code: ${self:custom.queriesDir}/suggestedFragrances.ts
+      code: ${self:custom.fragranceQueriesDir}/suggestedFragrances.ts
     
   resolvers:
     Query.fragrances:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragrances.ts
+      code: ${self:custom.fragranceQueriesDir}/fragrances.ts
 
     Query.suggestedFragrances:
       kind: PIPELINE
@@ -297,37 +299,47 @@ appSync:
     Query.fragrance:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragrance.ts
+      code: ${self:custom.fragranceQueriesDir}/fragrance.ts
 
     Fragrance.accords:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceAccords.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
 
     Fragrance.notes:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceNotes.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
 
     Fragrance.images:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceImages.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
 
     Query.fragranceNotes:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceNotes.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
 
     Query.fragranceAccords:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceAccords.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
 
     Query.fragranceImages:
       kind: UNIT
       dataSource: aromiDB
-      code: ${self:custom.queriesDir}/fragranceImages.ts
+      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
+    
+    Query.user:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.userQueriesDir}/user.ts
+
+    Mutation.createUser:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.mutationsDir}/createUser.ts
     
   logging:
     level: ALL
@@ -338,5 +350,9 @@ appSync:
 
 custom:
   queriesDir: src/graphql/resolvers/queries
+  fragranceQueriesDir: ${self:custom.queriesDir}/fragrance
+  userQueriesDir: ${self:custom.queriesDir}/user
+
+  mutationsDir: src/graphql/resolvers/mutations
 
 useDotenv: true

@@ -42,9 +42,9 @@ export interface Fragrance {
   balance: number
   allure: number
 
-  accords?: FragranceAccords
-  notes?: FragranceNotes
-  images?: FragranceImages
+  accords?: FragranceAccords | undefined
+  notes?: FragranceNotes | undefined
+  images?: FragranceImages | undefined
 }
 
 export type Fragrances = Fragrance[]

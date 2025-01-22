@@ -48,6 +48,12 @@ enum NoteLayer {
   fill
 }
 
+type User @aws_iam @aws_cognito_user_pools {
+  id: Int!
+  username: String!
+  cognitoId: String!
+}
+
 type Query {
   fragrance(id: Int!): Fragrance @aws_iam
   fragranceAccords(id: Int!, name: String, limit: Int, offset: Int): [FragranceAccord] @aws_iam
@@ -56,6 +62,12 @@ type Query {
 
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
   suggestedFragrances(limit: Int): [Fragrance] @aws_iam
+
+  user(id: Int!): User @aws_iam
+}
+
+type Mutation {
+  createUser(username: String, cognitoId: String!): User @aws_iam
 }
 
 # type Mutation {
