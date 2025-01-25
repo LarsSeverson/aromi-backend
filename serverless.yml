@@ -167,12 +167,8 @@ resources:
                   Resource:
                     - "${env:DB_READ_ARN}"
                     - "arn:aws:s3:::aromi-storage/*"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
-                    - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/createUser"
+                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/*"
+                    - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/*"
 
     cognitoUnauthIAMRole:
       Type: AWS::IAM::Role
@@ -336,11 +332,31 @@ appSync:
       dataSource: aromiDB
       code: ${self:custom.userQueriesDir}/user.ts
 
+    Query.fragranceAccordUserVotes:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.userQueriesDir}/fragranceAccordUserVotes.ts
+
+    Query.fragranceNoteUserVotes:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.userQueriesDir}/fragranceNoteUserVotes.ts
+
     Mutation.createUser:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.mutationsDir}/createUser.ts
-    
+
+    Mutation.voteOnAccord:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.mutationsDir}/voteOnAccord.ts
+ 
+    Mutation.voteOnNote:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.mutationsDir}/voteOnNote.ts   
+
   logging:
     level: ALL
     retentionInDays: 7

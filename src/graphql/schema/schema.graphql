@@ -1,12 +1,10 @@
 type Fragrance @aws_iam @aws_cognito_user_pools {
   id: Int!
-  brand: String!
-  name: String!
-  rating: Float!
   reviewCount: Int!
   likes: Int!
   dislikes: Int!
 
+  rating: Float!
   gender: Float!
   longevity: Float!
   sillage: Float!
@@ -14,35 +12,61 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   balance: Float!
   allure: Float!
 
+  brand: String!
+  name: String!
+
   accords(limit: Int, offset: Int): [FragranceAccord]
   notes(limit: Int, offset: Int): [FragranceNote]
   images(limit: Int, offset: Int): [FragranceImage]
 }
 
-
 type FragranceAccord @aws_iam @aws_cognito_user_pools {
   id: Int!
   accordId: Int!
+  votes: Int!
+
   name: String!
   color: String!
-  votes: Int!
+}
+
+type FragranceAccordVote @aws_cognito_user_pools {
+  id: Int!
+  fragranceAccordId: Int!
+  userId: Int!
+
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String
 }
 
 type FragranceNote @aws_iam @aws_cognito_user_pools {
   id: Int!
   noteId: Int!
+
   name: String!
   layer: String!
+
   votes: Int!
+}
+
+type FragranceNoteVote @aws_cognito_user_pools {
+  id: Int!
+  fragranceNoteId: Int!
+  userId: Int!
+
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String
 }
 
 type FragranceImage @aws_iam @aws_cognito_user_pools {
   imageId: Int!
+
   s3Key: String!
 }
 
 enum NoteLayer {
-  top 
+  top
   middle
   base
   fill
@@ -50,14 +74,44 @@ enum NoteLayer {
 
 type User @aws_iam @aws_cognito_user_pools {
   id: Int!
+
   username: String!
   cognitoId: String!
 }
 
 type Query {
   fragrance(id: Int!): Fragrance @aws_iam
-  fragranceAccords(id: Int!, name: String, limit: Int, offset: Int): [FragranceAccord] @aws_iam
-  fragranceNotes(id: Int!, layer: NoteLayer!, name: String, limit: Int, offset: Int, fill: Boolean): [FragranceNote] @aws_iam
+
+  fragranceAccords(
+    id: Int!
+    name: String
+    limit: Int
+    offset: Int
+  ): [FragranceAccord] @aws_iam
+
+  fragranceNotes(
+    id: Int!
+    layer: NoteLayer!
+    name: String
+    limit: Int
+    offset: Int
+    fill: Boolean
+  ): [FragranceNote] @aws_iam
+
+  fragranceAccordUserVotes(
+    userId: Int!
+    fragranceAccordIds: [Int]!
+    limit: Int
+    offset: Int
+  ): [FragranceAccordVote] @aws_cognito_user_pools
+
+  fragranceNoteUserVotes(
+    userId: Int!
+    fragranceNoteIds: [Int]!
+    limit: Int
+    offset: Int
+  ): [FragranceNoteVote] @aws_cognito_user_pools
+
   fragranceImages(id: Int!, limit: Int, offset: Int): [FragranceImage] @aws_iam
 
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
@@ -68,6 +122,10 @@ type Query {
 
 type Mutation {
   createUser(username: String, cognitoId: String!): User @aws_iam
+
+  voteOnAccord(fragranceAccordId: Int!, userId: Int!): FragranceAccordVote
+
+  voteOnNote(fragranceNoteId: Int!, userId: Int!): FragranceNoteVote
 }
 
 # type Mutation {
