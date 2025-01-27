@@ -76,6 +76,7 @@ type User @aws_iam @aws_cognito_user_pools {
   id: Int!
 
   username: String!
+  email: String!
   cognitoId: String!
 }
 
@@ -117,11 +118,11 @@ type Query {
   fragrances(limit: Int, offset: Int): [Fragrance] @aws_iam
   suggestedFragrances(limit: Int): [Fragrance] @aws_iam
 
-  user(id: Int!): User @aws_iam
+  user(id: Int, cognitoId: String): User @aws_cognito_user_pools
 }
 
 type Mutation {
-  createUser(username: String, cognitoId: String!): User @aws_iam
+  createUser(cognitoId: String!, email: String!): User @aws_cognito_user_pools
 
   voteOnAccord(fragranceAccordId: Int!, userId: Int!): FragranceAccordVote
 
