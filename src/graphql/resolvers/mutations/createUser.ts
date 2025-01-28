@@ -7,8 +7,21 @@ interface CreateUserArgs {
  email: string
 }
 
-export const request = (ctx: Context): RDSRequest | null => {
+export const request = (ctx: Context): RDSRequest | void => {
   const { cognitoId, email }: CreateUserArgs = ctx.args
+
+  const identity = ctx.identity as AppSyncIdentityCognito
+
+  const srcCogId = identity.sub || undefined
+  const resCogId = cognitoId
+
+  if (srcCogId !== resCogId) {
+    return util.appendError(
+      'You are not authorized to perform this action',
+      '403',
+      { user: null }
+    )
+  }
 
   const query = sql`
     INSERT INTO users_view ("cognitoId", email)
@@ -34,21 +47,6 @@ export const response = (ctx: Context): Record<'user', User> | void => {
   }
 
   const user = toJsonObject(result)[0][0]
-
-  if (user.user) {
-    const identity = ctx.identity as AppSyncIdentityCognito
-
-    const srcCogId = identity.sub || undefined
-    const resCogId = user.user.cognitoId || undefined
-
-    if (srcCogId !== resCogId) {
-      return util.appendError(
-        'You are not authorized to get this users info',
-        '403',
-        { user: null }
-      )
-    }
-  }
 
   return user
 }
