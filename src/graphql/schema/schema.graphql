@@ -124,7 +124,7 @@ type Query {
 type Mutation {
   createUser(cognitoId: String!, email: String!): User @aws_cognito_user_pools
 
-  voteOnAccord(fragranceAccordId: Int!, userId: Int!): FragranceAccordVote
+  voteOnAccord(fragranceId: Int!, accordId: Int!, userId: Int!): FragranceAccordVote
 
   voteOnNote(fragranceNoteId: Int!, userId: Int!): FragranceNoteVote
 }
