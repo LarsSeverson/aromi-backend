@@ -1,41 +1,47 @@
-import { Context, RDSRequest, util } from '@aws-appsync/utils'
+import { AppSyncIdentityCognito, Context, RDSRequest, util } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, insert, sql, select } from '@aws-appsync/utils/rds'
 
 interface VoteOnAccordArgs {
  fragranceId: number
  accordId: number
- userId: number
 }
 
 export const request = (ctx: Context): RDSRequest | null => {
-  const { fragranceId, accordId, userId }: VoteOnAccordArgs = ctx.args
+  const { fragranceId, accordId }: VoteOnAccordArgs = ctx.args
+
+  const cogId = (ctx.identity as AppSyncIdentityCognito).sub
 
   const query = sql`
-    WITH fragrance_accord_cte AS (
-    INSERT INTO fragrance_accords (fragrance_id, accord_id)
-    SELECT ${fragranceId}, ${accordId} 
-    WHERE NOT EXISTS (
-        SELECT 1 FROM fragrance_accords 
-        WHERE fragrance_id = ${fragranceId} 
-          AND accord_id = ${accordId}
-    )
-    RETURNING id
-    ), fragrance_accord_id AS (
-        SELECT id FROM fragrance_accords 
-        WHERE fragrance_id = ${fragranceId}
-          AND accord_id = ${accordId}
-        UNION ALL
-        SELECT id FROM fragrance_accord_cte
+    WITH user_info AS (
+      SELECT id as user_id
+      FROM users
+      WHERE cognito_id = ${cogId}
+      LIMIT 1
+    ),
+    fragrance_accord AS (
+      INSERT INTO fragrance_accords (fragrance_id, accord_id)
+      VALUES (${fragranceId}, ${accordId})
+      ON CONFLICT (fragrance_id, accord_id) DO NOTHING
+      RETURNING id
+    ),
+    final_accord_id AS (
+      SELECT COALESCE(
+        (SELECT id FROM fragrance_accord),
+        (SELECT id FROM fragrance_accords 
+          WHERE fragrance_id = ${fragranceId} AND accord_id = ${accordId})
+      ) AS accord_id
     )
     INSERT INTO fragrance_accord_votes_view ("fragranceAccordId", "userId")
-    SELECT id, ${userId} FROM fragrance_accord_id
-    ON CONFLICT ("fragranceAccordId", "userId")
-    DO UPDATE SET "deletedAt" = CASE 
-      WHEN fragrance_accord_votes_view."deletedAt" IS NULL 
-        THEN CURRENT_TIMESTAMP 
-        ELSE NULL 
+    SELECT
+      (SELECT accord_id FROM final_accord_id),
+      (SELECT user_id FROM user_info)
+    ON CONFLICT ("fragranceAccordId", "userId") DO UPDATE SET
+      "deletedAt" = CASE
+        WHEN fragrance_accord_votes_view."deletedAt" IS NULL
+        THEN CURRENT_TIMESTAMP
+        ELSE NULL
       END,
-        "updatedAt" = CURRENT_TIMESTAMP
+      "updatedAt" = CURRENT_TIMESTAMP
     RETURNING *
   `
 

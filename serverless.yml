@@ -312,6 +312,16 @@ appSync:
       dataSource: aromiDB
       code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
 
+    Query.fragranceTraits:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.fragranceQueriesDir}/fragranceTraits.ts
+
+    Query.fragranceTraitVotes:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.fragranceQueriesDir}/fragranceTraitVotes.ts
+
     Query.fragranceNotes:
       kind: UNIT
       dataSource: aromiDB
@@ -346,6 +356,11 @@ appSync:
       kind: UNIT
       dataSource: aromiDB
       code: ${self:custom.mutationsDir}/createUser.ts
+
+    Mutation.voteOnTrait:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.mutationsDir}/voteOnTrait.ts
 
     Mutation.voteOnAccord:
       kind: UNIT

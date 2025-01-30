@@ -55,3 +55,30 @@ export enum NoteLayer {
   BASE = 'base',
   FILL = 'fill'
 }
+
+export enum FragranceTraitType {
+  GENDER = 'gender',
+  LONGEVITY = 'longevity',
+  SILLAGE = 'sillage',
+  COMPLEXITY = 'complexity',
+  BALANCE = 'balance',
+  ALLURE = 'allure'
+}
+
+export interface FragranceTrait {
+  id: number
+  fragranceTraitId: number
+  averageValue: number
+
+  trait: string
+}
+
+export interface FragranceTraitVote {
+  id: number
+  fragranceId: number
+  fragranceTraitId: number
+  userId: number
+  value: number
+
+  trait: string
+}
