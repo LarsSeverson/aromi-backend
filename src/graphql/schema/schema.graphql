@@ -1,8 +1,9 @@
 type Fragrance @aws_iam @aws_cognito_user_pools {
   id: Int!
+  
+  likesCount: Int!
+  dislikesCount: Int!
   reviewCount: Int!
-  likes: Int!
-  dislikes: Int!
 
   rating: Float!
   gender: Float!
@@ -18,6 +19,17 @@ type Fragrance @aws_iam @aws_cognito_user_pools {
   accords(limit: Int, offset: Int): [FragranceAccord]
   notes(limit: Int, offset: Int): [FragranceNote]
   images(limit: Int, offset: Int): [FragranceImage]
+}
+
+type FragranceReaction @aws_iam @aws_cognito_user_pools {
+  id: Int!
+  fragranceId: Int!
+  userId: Int!
+
+  type: String!
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String
 }
 
 type FragranceTrait @aws_iam @aws_cognito_user_pools {
@@ -83,6 +95,12 @@ type FragranceImage @aws_iam @aws_cognito_user_pools {
   imageId: Int!
 
   s3Key: String!
+}
+
+enum FragranceReactionType {
+  like
+  dislike
+  review
 }
 
 enum FragranceTraitType {
@@ -155,6 +173,8 @@ type Query {
 
 type Mutation {
   createUser(cognitoId: String!, email: String!): User
+
+  reactToFragrance(fragranceId: Int!, reaction: FragranceReactionType!): FragranceReaction
 
   voteOnAccord(fragranceId: Int!, accordId: Int!): FragranceAccordVote
 

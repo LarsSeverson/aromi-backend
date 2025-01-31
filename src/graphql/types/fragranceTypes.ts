@@ -56,6 +56,24 @@ export enum NoteLayer {
   FILL = 'fill'
 }
 
+export enum FragranceReactionType {
+  LIKE = 'like',
+  DISLIKE = 'dislike',
+  REVIEW = 'review'
+}
+
+export interface FragranceReaction {
+  id: number
+  fragranceId: number
+  userId: number
+
+  type: string
+
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
 export enum FragranceTraitType {
   GENDER = 'gender',
   LONGEVITY = 'longevity',

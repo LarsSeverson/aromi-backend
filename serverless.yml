@@ -357,6 +357,11 @@ appSync:
       dataSource: aromiDB
       code: ${self:custom.mutationsDir}/createUser.ts
 
+    Mutation.reactToFragrance:
+      kind: UNIT
+      dataSource: aromiDB
+      code: ${self:custom.mutationsDir}/reactToFragrance.ts
+
     Mutation.voteOnTrait:
       kind: UNIT
       dataSource: aromiDB
