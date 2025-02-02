@@ -1,45 +1,70 @@
-import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
-import { createPgStatement, toJsonObject, select } from '@aws-appsync/utils/rds'
-import { graphqlFields } from '@src/graphql/utils/graphqlFields'
+import { Context } from '@src/graphql/schema/context'
+import { Fragrance } from '@src/graphql/types/fragranceTypes'
+import { GraphQLResolveInfo } from 'graphql'
+import graphqlFields from 'graphql-fields'
+
+export interface FragranceReactionsFields {
+  likes: boolean
+  dislikes: boolean
+  reviews: boolean
+}
+
+const reactionPart = (fields: FragranceReactionsFields): string => {
+  const parts: string[] = []
+
+  if (fields.likes) parts.push("'likes', f.likes_count")
+  if (fields.dislikes) parts.push("'dislikes', f.dislikes_count")
+  if (fields.reviews) parts.push("'reviews', f.reviews_count")
+
+  return `JSONB_BUILD_OBJECT(${parts.join(', ')}) AS reactions`
+}
+
+export interface FragranceFields {
+  id: boolean
+  brand: boolean
+  name: boolean
+
+  reactions: FragranceReactionsFields
+}
+
+const fragranceQueryParts = (fields: FragranceFields): string[] => {
+  const parts: string[] = []
+
+  if (fields.id) parts.push("'id', f.id")
+  if (fields.brand) parts.push("'brand', f.brand")
+  if (fields.name) parts.push("'name', f.name")
+  if (fields.reactions) parts.push(reactionPart(fields.reactions))
+
+  return parts
+}
+
+export interface MyReactionsFields {
+  reaction: boolean
+}
 
 interface FragrancesArgs {
-  limit?: number
-  offset?: number
+  limit?: number | undefined
+  offset?: number | undefined
 }
 
-export const request = (ctx: Context): RDSRequest | null => {
-  const fieldName = ctx.info.fieldName
-  const fields = graphqlFields(ctx.info.selectionSetList, fieldName)
-  const columns = fields[fieldName]
+export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Context, info: GraphQLResolveInfo): Promise<Fragrance[] | null> => {
+  const { limit = 10, offset = 0 } = args
 
-  const { limit = 10, offset = 0 }: FragrancesArgs = ctx.args
+  const fields = graphqlFields(info)
 
-  if (!fields || columns.length === 0) {
-    return runtime.earlyReturn()
-  }
+  const parts = fragranceQueryParts(fields)
 
-  const query = select({
-    from: 'fragrances_view',
-    columns,
-    limit,
-    offset
-  })
+  const query = `
+    SELECT ${parts.join(', ')}
+    FROM fragrances f
+    LIMIT $1
+    OFFSET $2 
+  `
+  const values = [limit, offset]
 
-  return createPgStatement(query)
-}
+  const result = await ctx.pool.query<Fragrance>(query, values)
 
-export const response = (ctx: Context): any => {
-  const { error, result } = ctx
-
-  if (error) {
-    return util.appendError(
-      error.message,
-      error.type,
-      result
-    )
-  }
-
-  const fragrances = toJsonObject(result)[0]
+  const fragrances = result.rows
 
   return fragrances
 }

@@ -2,12 +2,12 @@ import { Context } from '@src/graphql/schema/context'
 import { User } from '@src/graphql/types/userTypes'
 import { GraphQLResolveInfo } from 'graphql'
 
-interface CreateUserArgs {
- cognitoId: string
- email: string
+interface UpsertUserArgs {
+  email: string
+  cognitoId: string
 }
 
-export const createUser = async (parent: undefined, args: CreateUserArgs, ctx: Context, info: GraphQLResolveInfo): Promise<User> => {
+export const createUser = async (parent: undefined, args: UpsertUserArgs, ctx: Context, info: GraphQLResolveInfo): Promise<User> => {
   const cogId = args.cognitoId
   const email = args.email
 

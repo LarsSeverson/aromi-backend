@@ -1,8 +1,7 @@
 export enum NoteLayerType {
   TOP = 'top',
   MIDDLE = 'middle',
-  BASE = 'base',
-  FILL = 'fill'
+  BASE = 'base'
 }
 
 export enum FragranceReactionType {
@@ -20,17 +19,9 @@ export enum FragranceTraitType {
   ALLURE = 'allure'
 }
 
-export interface FragranceReactions {
-  likes: number
-  dislikes: number
-  reviews: number
-}
-
-export interface FragranceTrait {
-  trait: FragranceTraitType
-
-  value: number
-  myVote: number
+export interface FragranceImage {
+  id: number
+  url: string
 }
 
 export interface FragranceAccord {
@@ -46,12 +37,9 @@ export interface FragranceAccord {
 
 export interface FragranceNote {
   id: number
-
   name: string
   layer: NoteLayerType
-
   votes: number
-
   myVote: boolean
 }
 
@@ -61,19 +49,34 @@ export interface FragranceNotes {
   base: FragranceNote[]
 }
 
-export interface FragranceImage {
-  id: number
-
-  url: string
+export interface FragranceTrait {
+  trait: FragranceTraitType
+  value: number
+  myVote: number
 }
 
-export interface FragranceReaction {
-  reaction: FragranceReactionType
+export interface FragranceTraits {
+  gender: FragranceTrait
+  longevity: FragranceTrait
+  sillage: FragranceTrait
+  complexity: FragranceTrait
+  balance: FragranceTrait
+  allure: FragranceTrait
+}
+
+export interface MyFragranceReactions {
+  like: boolean
+  dislike: boolean
+}
+
+export interface FragranceReactions {
+  likes: number
+  dislikes: number
+  reviews: number
 }
 
 export interface Fragrance {
   id: number
-
   brand: string
   name: string
 
@@ -81,9 +84,9 @@ export interface Fragrance {
 
   traits: FragranceTrait[]
 
+  notes: FragranceNotes
   accords: FragranceAccord[]
-  notes: FragranceNote[]
   images: FragranceImage[]
 
-  myReactions: FragranceReaction[]
+  myReactions: MyFragranceReactions
 }

@@ -15,17 +15,22 @@ type Fragrance {
 
   # Characteristics
   notes: FragranceNotes!
-  accords(limit: Int, offset: Int): [FragranceAccord]!
+  accords(limit: Int, offset: Int, fill: Boolean): [FragranceAccord!]!
   images(limit: Int, offset: Int): [FragranceImage!]!
 
   # User-specific
-  myReactions: FragranceReactions!
+  myReactions: MyFragranceReactions!
 }
 
 type FragranceReactions {
   likes: Int!
   dislikes: Int!
   reviews: Int!
+}
+
+type MyFragranceReactions {
+  like: Boolean!
+  dislike: Boolean!
 }
 
 type FragranceTraits {
@@ -37,24 +42,16 @@ type FragranceTraits {
   allure: FragranceTrait!
 }
 
-type FragranceNotes {
-  top(limit: Int, offset: Int): [FragranceNote!]!
-  middle(limit: Int, offset: Int): [FragranceNote!]!
-  base(limit: Int, offset: Int): [FragranceNote!]!
-}
-
 type FragranceTrait {
   trait: FragranceTraitType!
   value: Float!
-  myVote: Float # Current user's vote
+  myVote: Float! # Current user's vote
 }
 
-type FragranceAccord {
-  id: Int!
-  name: String!
-  color: String!
-  votes: Int!
-  myVote: Boolean # Whether current user voted
+type FragranceNotes {
+  top(limit: Int, offset: Int, fill: Boolean): [FragranceNote!]!
+  middle(limit: Int, offset: Int, fill: Boolean): [FragranceNote!]!
+  base(limit: Int, offset: Int, fill: Boolean): [FragranceNote!]!
 }
 
 type FragranceNote {
@@ -62,7 +59,15 @@ type FragranceNote {
   name: String!
   layer: NoteLayer!
   votes: Int!
-  myVote: Boolean # Whether current user voted
+  myVote: Boolean! # Whether current user voted
+}
+
+type FragranceAccord {
+  id: Int!
+  name: String!
+  color: String!
+  votes: Int!
+  myVote: Boolean! # Whether current user voted
 }
 
 type FragranceImage {
@@ -70,15 +75,10 @@ type FragranceImage {
   url: String! # Derived from s3Key
 }
 
-type FragranceReaction {
-  reaction: FragranceReactionType!
-}
-
 type User {
   id: Int!
   username: String!
   email: String!
-  fragrances: [Fragrance!]!
 
   cognitoId: String!
 }
@@ -90,34 +90,23 @@ type Query {
   # Get a list of fragrances (with pagination)
   fragrances(limit: Int, offset: Int): [Fragrance!]!
 
-  # Get suggested fragrances for the current user
-  suggestedFragrances(limit: Int, offset: Int): [Fragrance!]!
-
   # Get the current user
   me: User
-
-  # Get user-specific reactions for a fragrance
-  myReactions(fragranceId: Int!): [FragranceReaction!]! 
-
-  # Get user-specific votes for fragrance traits, accords, and notes
-  myTraitVotes(fragranceId: Int!): [FragranceTrait!]! 
-  myAccordVotes(fragranceId: Int!): [FragranceAccord!]!
-  myNotevotes(fragranceId: Int!): [FragranceNote!]!
 }
 
 type Mutation {
-  # Temp
-  createUser(cognitoId: String!, email: String!): User
+  # Get or create a user
+  upsertUser(email: String!, cognitoId: String!): User
   # Reactions
-  reactToFragrance(
-    fragranceId: Int!
-    type: FragranceReactionType!
-  ): FragranceReaction
+  # reactToFragrance(
+  #   fragranceId: Int!
+  #   type: FragranceReactionType!
+  # ): FragranceReaction
 
   # Voting
-  voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!): FragranceTrait
-  voteOnAccord(fragranceId: Int!, accordId: Int!): FragranceAccord
-  voteOnNote(fragranceId: Int!, accordId: Int!): FragranceNote
+  # voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!): FragranceTrait
+  # voteOnAccord(fragranceId: Int!, accordId: Int!): FragranceAccord
+  # voteOnNote(fragranceId: Int!, accordId: Int!): FragranceNote
 }
 
 # Enums
@@ -138,6 +127,5 @@ enum NoteLayer {
   top
   middle
   base
-  fill
 }
 `
