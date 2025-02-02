@@ -1,15 +1,23 @@
 import { ApolloServer } from 'apollo-server-lambda'
 import dotenv from 'dotenv'
-import typeDefs from './src/schema/typeDefs'
-import resolvers from './src/graphql/resolvers/main'
-import context from './src/context'
+import { getContext } from './src/graphql/schema/context'
+import { schema } from './src/graphql/schema/schema'
+import { Mutation } from './src/graphql/resolvers/mutations/mutations'
+import { FragranceQuery, FragranceNotesQuery, Query, FragranceTraitsQuery } from './src/graphql/resolvers/queries/queries'
 
 dotenv.config()
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context,
+  typeDefs: schema,
+  resolvers: {
+    Mutation,
+
+    Query,
+    Fragrance: FragranceQuery,
+    FragranceTraits: FragranceTraitsQuery,
+    FragranceNotes: FragranceNotesQuery
+  },
+  context: getContext,
   introspection: true
 })
 

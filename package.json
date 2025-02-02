@@ -50,11 +50,23 @@
     "apollo-server-lambda": "^3.13.0",
     "dotenv": "^16.4.5",
     "graphql": "^16.9.0",
-    "pg": "^8.13.0"
+    "graphql-fields": "^2.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "pg": "^8.13.0",
+    "tslib": "^2.7.0"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "overrides": {
+    "serverless-plugin-requirements": {
+      "serverless": "$serverless"
+    },
+    "serverless-python-requirements": {
+      "serverless": "$serverless"
     }
   }
 }
