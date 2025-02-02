@@ -1,52 +1,33 @@
-import { AppSyncIdentityCognito, Context, RDSRequest, util } from '@aws-appsync/utils'
-import { createPgStatement, toJsonObject, insert, sql } from '@aws-appsync/utils/rds'
+import { Context } from '@src/graphql/schema/context'
 import { User } from '@src/graphql/types/userTypes'
+import { GraphQLResolveInfo } from 'graphql'
 
 interface CreateUserArgs {
  cognitoId: string
  email: string
 }
 
-export const request = (ctx: Context): RDSRequest | void => {
-  const { cognitoId, email }: CreateUserArgs = ctx.args
+export const createUser = async (parent: undefined, args: CreateUserArgs, ctx: Context, info: GraphQLResolveInfo): Promise<User> => {
+  const cogId = args.cognitoId
+  const email = args.email
 
-  const identity = ctx.identity as AppSyncIdentityCognito
-
-  const srcCogId = identity.sub || undefined
-  const resCogId = cognitoId
-
-  if (srcCogId !== resCogId) {
-    return util.appendError(
-      'You are not authorized to perform this action',
-      '403',
-      { user: null }
-    )
-  }
-
-  const query = sql`
-    INSERT INTO users_view ("cognitoId", email)
-    VALUES (${cognitoId}, ${email})
+  const res = await ctx.pool.query(`
+    INSERT INTO users (cognito_id, email)
+    VALUES ($1, $2)
     ON CONFLICT (email)
-    DO UPDATE 
+    DO UPDATE
       SET email = EXCLUDED.email
-    RETURNING *
-  `
+    RETURNING *;
+  `, [cogId, email])
 
-  return createPgStatement(query)
-}
+  const userRes = res.rows[0]
 
-export const response = (ctx: Context): Record<'user', User> | void => {
-  const { error, result } = ctx
-
-  if (error) {
-    return util.appendError(
-      error.message,
-      error.type,
-      result
-    )
+  const user: User = {
+    id: userRes.id,
+    email: userRes.email,
+    username: userRes.username,
+    cognitoId: userRes.cognito_id
   }
-
-  const user = toJsonObject(result)[0][0]
 
   return user
 }

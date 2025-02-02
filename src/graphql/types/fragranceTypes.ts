@@ -1,55 +1,4 @@
-export interface FragranceAccord {
-  id: number,
-  fragranceId: number
-  accordId: number
-  name: string
-  color: string
-  votes: number
-}
-
-export type FragranceAccords = FragranceAccord[]
-
-export interface FragranceNote {
-  id: number,
-  fragranceId: number
-  noteId: number
-  name: string
-  layer: string
-  votes: number
-}
-
-export type FragranceNotes = FragranceNote[]
-
-export interface FragranceImage {
-  imageId: number
-  s3Key: string
-}
-
-export type FragranceImages = FragranceImage[]
-
-export interface Fragrance {
-  id: number
-  brand: string
-  name: string
-  rating: number
-  reviewCount: number
-  likes: number
-  dislikes: number
-  gender: number
-  longevity: number
-  sillage: number
-  complexity: number
-  balance: number
-  allure: number
-
-  accords?: FragranceAccords | undefined
-  notes?: FragranceNotes | undefined
-  images?: FragranceImages | undefined
-}
-
-export type Fragrances = Fragrance[]
-
-export enum NoteLayer {
+export enum NoteLayerType {
   TOP = 'top',
   MIDDLE = 'middle',
   BASE = 'base',
@@ -62,18 +11,6 @@ export enum FragranceReactionType {
   REVIEW = 'review'
 }
 
-export interface FragranceReaction {
-  id: number
-  fragranceId: number
-  userId: number
-
-  type: string
-
-  createdAt: string
-  updatedAt: string
-  deletedAt: string | null
-}
-
 export enum FragranceTraitType {
   GENDER = 'gender',
   LONGEVITY = 'longevity',
@@ -83,20 +20,70 @@ export enum FragranceTraitType {
   ALLURE = 'allure'
 }
 
-export interface FragranceTrait {
-  id: number
-  fragranceTraitId: number
-  averageValue: number
-
-  trait: string
+export interface FragranceReactions {
+  likes: number
+  dislikes: number
+  reviews: number
 }
 
-export interface FragranceTraitVote {
-  id: number
-  fragranceId: number
-  fragranceTraitId: number
-  userId: number
-  value: number
+export interface FragranceTrait {
+  trait: FragranceTraitType
 
-  trait: string
+  value: number
+  myVote: number
+}
+
+export interface FragranceAccord {
+  id: number
+
+  name: string
+  color: string
+
+  votes: number
+
+  myVote: boolean
+}
+
+export interface FragranceNote {
+  id: number
+
+  name: string
+  layer: NoteLayerType
+
+  votes: number
+
+  myVote: boolean
+}
+
+export interface FragranceNotes {
+  top: FragranceNote[]
+  middle: FragranceNote[]
+  base: FragranceNote[]
+}
+
+export interface FragranceImage {
+  id: number
+
+  url: string
+}
+
+export interface FragranceReaction {
+  reaction: FragranceReactionType
+}
+
+export interface Fragrance {
+  id: number
+
+  brand: string
+  name: string
+
+  reactions: FragranceReactions
+
+  traits: FragranceTrait[]
+
+  accords: FragranceAccord[]
+  notes: FragranceNote[]
+  images: FragranceImage[]
+
+  myReactions: FragranceReaction[]
 }

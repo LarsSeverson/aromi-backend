@@ -24,7 +24,7 @@ export const request = (ctx: Context): RDSRequest | null => {
     SELECT
       ${fragranceId},
       (SELECT user_id FROM user_info),
-      ${reaction}::text 
+      ${reaction}::fragrance_reaction 
     ON CONFLICT ("fragranceId", "userId", reaction) DO UPDATE SET
       "deletedAt" = CASE
         WHEN fragrance_reactions_view."deletedAt" IS NULL

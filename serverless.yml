@@ -5,10 +5,20 @@ service: aromi-backend
 provider:
   name: aws
   region: us-east-2
-  environment:
-    APPSYNC_ID: ${appsync:id}
-    APPSYNC_ARN: ${appsync:arn}
-    APPSYNC_URL: ${appsync:url}
+  runtime: nodejs20.x
+
+functions:
+  graphql:
+    handler: handler.graphql
+    events:
+      - http:
+          path: graphql
+          method: post
+          cors: true
+      - http:
+          path: graphql
+          method: get
+          cors: true
 
 package:
   individually: true
@@ -18,377 +28,292 @@ package:
     - .vscode/**
 
 plugins:
-  - serverless-appsync-plugin
   - serverless-dotenv-plugin
-  - serverless-python-requirements
+  - serverless-offline
 
-resources:
-  Resources:
-    aromiDBServiceRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service: appsync.amazonaws.com
-              Action: sts:AssumeRole
-        Policies:
-          - PolicyName: AppSyncRDSAccess
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - rds-data:*
-                    - secretsmanager:GetSecretValue
-                    - ssm:GetParameter
-                  Resource: "*"
+build:
+  esbuild: true
 
-    aromiSES:
-      Type: AWS::SES::EmailIdentity
-      Properties:
-        EmailIdentity: "aromi.io"
+# resources:
+#   Resources:
+#     aromiDBServiceRole:
+#       Type: AWS::IAM::Role
+#       Properties:
+#         AssumeRolePolicyDocument:
+#           Version: "2012-10-17"
+#           Statement:
+#             - Effect: Allow
+#               Principal:
+#                 Service: appsync.amazonaws.com
+#               Action: sts:AssumeRole
+#         Policies:
+#           - PolicyName: AppSyncRDSAccess
+#             PolicyDocument:
+#               Version: "2012-10-17"
+#               Statement:
+#                 - Effect: Allow
+#                   Action:
+#                     - rds-data:*
+#                     - secretsmanager:GetSecretValue
+#                     - ssm:GetParameter
+#                   Resource: "*"
 
-    cognitoUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UsernameAttributes:
-          - "email"
-          - "phone_number"
-        UserPoolName: aromiUserPool
-        AutoVerifiedAttributes:
-          - email
-        Policies:
-          PasswordPolicy:
-            MinimumLength: 8
-            RequireUppercase: false
-            RequireLowercase: false
-            RequireNumbers: true
-            RequireSymbols: false
-            TemporaryPasswordValidityDays: 7
-        EmailConfiguration:
-          EmailSendingAccount: DEVELOPER
-          SourceArn: arn:aws:ses:us-east-2:490004620452:identity/donotreply@aromi.io
-        VerificationMessageTemplate:
-          DefaultEmailOption: CONFIRM_WITH_CODE
-          EmailSubject: "Your confirmation code"
-          EmailMessage: "Your confirmation code is {####}"
+#     aromiSES:
+#       Type: AWS::SES::EmailIdentity
+#       Properties:
+#         EmailIdentity: "aromi.io"
 
-    cognitoUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: aromiClient
-        UserPoolId: !Ref cognitoUserPool
+#     cognitoUserPool:
+#       Type: AWS::Cognito::UserPool
+#       Properties:
+#         UsernameAttributes:
+#           - "email"
+#           - "phone_number"
+#         UserPoolName: aromiUserPool
+#         AutoVerifiedAttributes:
+#           - email
+#         Policies:
+#           PasswordPolicy:
+#             MinimumLength: 8
+#             RequireUppercase: false
+#             RequireLowercase: false
+#             RequireNumbers: true
+#             RequireSymbols: false
+#             TemporaryPasswordValidityDays: 7
+#         EmailConfiguration:
+#           EmailSendingAccount: DEVELOPER
+#           SourceArn: arn:aws:ses:us-east-2:490004620452:identity/donotreply@aromi.io
+#         VerificationMessageTemplate:
+#           DefaultEmailOption: CONFIRM_WITH_CODE
+#           EmailSubject: "Your confirmation code"
+#           EmailMessage: "Your confirmation code is {####}"
 
-    cognitoUserGroup:
-      Type: AWS::Cognito::UserPoolGroup
-      Properties:
-        Description: "Users belong to this group"
-        GroupName: "user"
-        Precedence: 1
-        RoleArn: !GetAtt cognitoUserIAMRole.Arn
-        UserPoolId: !Ref cognitoUserPool
+#     cognitoUserPoolClient:
+#       Type: AWS::Cognito::UserPoolClient
+#       Properties:
+#         ClientName: aromiClient
+#         UserPoolId: !Ref cognitoUserPool
 
-    cognitoUserIAMRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: aromiUserRole
-        Description: "IAM role for Users"
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Federated:
-                  - "cognito-identity.amazonaws.com"
-              Action:
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals:
-                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
-        Policies:
-          - PolicyName: "aromiUserGroupPolicy"
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action:
-                    - "rds-data:*"
-                  Resource:
-                    - ${env:DB_READ_ARN}
-                - Effect: "Allow"
-                  Action:
-                    - "s3:GetObject"
-                    - "s3:PutObject"
-                  Resource:
-                    - "arn:aws:s3:::aromi-storage/*"
+#     cognitoUserGroup:
+#       Type: AWS::Cognito::UserPoolGroup
+#       Properties:
+#         Description: "Users belong to this group"
+#         GroupName: "user"
+#         Precedence: 1
+#         RoleArn: !GetAtt cognitoUserIAMRole.Arn
+#         UserPoolId: !Ref cognitoUserPool
 
-    cognitoIdentityPool:
-      Type: AWS::Cognito::IdentityPool
-      Properties:
-        AllowUnauthenticatedIdentities: true
-        CognitoIdentityProviders:
-          - ClientId: !Ref cognitoUserPoolClient
-            ProviderName: !GetAtt cognitoUserPool.ProviderName
-        IdentityPoolName: aromiIdentityPool
+#     cognitoUserIAMRole:
+#       Type: AWS::IAM::Role
+#       Properties:
+#         RoleName: aromiUserRole
+#         Description: "IAM role for Users"
+#         AssumeRolePolicyDocument:
+#           Version: "2012-10-17"
+#           Statement:
+#             - Effect: "Allow"
+#               Principal:
+#                 Federated:
+#                   - "cognito-identity.amazonaws.com"
+#               Action:
+#                 - "sts:AssumeRoleWithWebIdentity"
+#               Condition:
+#                 StringEquals:
+#                   "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
+#         Policies:
+#           - PolicyName: "aromiUserGroupPolicy"
+#             PolicyDocument:
+#               Version: "2012-10-17"
+#               Statement:
+#                 - Effect: "Allow"
+#                   Action:
+#                     - "rds-data:*"
+#                   Resource:
+#                     - ${env:DB_READ_ARN}
+#                 - Effect: "Allow"
+#                   Action:
+#                     - "s3:GetObject"
+#                     - "s3:PutObject"
+#                   Resource:
+#                     - "arn:aws:s3:::aromi-storage/*"
 
-    cognitoAuthIAMRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: "aromiAuthRole"
-        Description: "IAM role for authenticated users"
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Federated:
-                  - "cognito-identity.amazonaws.com"
-              Action:
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals:
-                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
-                "ForAnyValue:StringLike":
-                  "cognito-identity.amazonaws.com:amr": "authenticated"
-        Policies:
-          - PolicyName: "aromiAuthUserPolicy"
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action:
-                    - "rds-data:*"
-                    - "s3:GetObject"
-                    - "s3:PutObject"
-                    - "appsync:GraphQL"
-                  Resource:
-                    - "${env:DB_READ_ARN}"
-                    - "arn:aws:s3:::aromi-storage/*"
-                    - !Sub "${GraphQlApi.Arn}/types/Query/fields/*"
-                    - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/*"
+#     cognitoIdentityPool:
+#       Type: AWS::Cognito::IdentityPool
+#       Properties:
+#         AllowUnauthenticatedIdentities: true
+#         CognitoIdentityProviders:
+#           - ClientId: !Ref cognitoUserPoolClient
+#             ProviderName: !GetAtt cognitoUserPool.ProviderName
+#         IdentityPoolName: aromiIdentityPool
 
-    cognitoUnauthIAMRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: "aromiUnauthRole"
-        Description: "IAM role for guest users"
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Federated:
-                  - "cognito-identity.amazonaws.com"
-              Action:
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals:
-                  "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
-                "ForAnyValue:StringLike":
-                  "cognito-identity.amazonaws.com:amr": "unauthenticated"
-        Policies:
-            - PolicyName: "aromiUnauthUserPolicy"
-              PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                  - Effect: "Allow"
-                    Action:
-                      - "appsync:GraphQL"
-                      - "s3:GetObject"
-                      - "s3:ListBucket"
-                    Resource:
-                      - "arn:aws:s3:::aromi-storage/*"
-                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
-                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
-                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
-                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
-                      - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
-                      - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/createUser"
+#     cognitoAuthIAMRole:
+#       Type: AWS::IAM::Role
+#       Properties:
+#         RoleName: "aromiAuthRole"
+#         Description: "IAM role for authenticated users"
+#         AssumeRolePolicyDocument:
+#           Version: "2012-10-17"
+#           Statement:
+#             - Effect: "Allow"
+#               Principal:
+#                 Federated:
+#                   - "cognito-identity.amazonaws.com"
+#               Action:
+#                 - "sts:AssumeRoleWithWebIdentity"
+#               Condition:
+#                 StringEquals:
+#                   "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
+#                 "ForAnyValue:StringLike":
+#                   "cognito-identity.amazonaws.com:amr": "authenticated"
+#         Policies:
+#           - PolicyName: "aromiAuthUserPolicy"
+#             PolicyDocument:
+#               Version: "2012-10-17"
+#               Statement:
+#                 - Effect: "Allow"
+#                   Action:
+#                     - "rds-data:*"
+#                     - "s3:GetObject"
+#                     - "s3:PutObject"
+#                     - "appsync:GraphQL"
+#                   Resource:
+#                     - "${env:DB_READ_ARN}"
+#                     - "arn:aws:s3:::aromi-storage/*"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/*"
+#                     - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/*"
 
-    cognitoIdentityPoolRoleAttachment:
-      Type: AWS::Cognito::IdentityPoolRoleAttachment
-      Properties:
-        IdentityPoolId: !Ref cognitoIdentityPool
-        Roles:
-          authenticated: !GetAtt cognitoAuthIAMRole.Arn
-          unauthenticated: !GetAtt cognitoUnauthIAMRole.Arn
+#     cognitoUnauthIAMRole:
+#       Type: AWS::IAM::Role
+#       Properties:
+#         RoleName: "aromiUnauthRole"
+#         Description: "IAM role for guest users"
+#         AssumeRolePolicyDocument:
+#           Version: "2012-10-17"
+#           Statement:
+#             - Effect: "Allow"
+#               Principal:
+#                 Federated:
+#                   - "cognito-identity.amazonaws.com"
+#               Action:
+#                 - "sts:AssumeRoleWithWebIdentity"
+#               Condition:
+#                 StringEquals:
+#                   "cognito-identity.amazonaws.com:aud": !Ref cognitoIdentityPool
+#                 "ForAnyValue:StringLike":
+#                   "cognito-identity.amazonaws.com:amr": "unauthenticated"
+#         Policies:
+#           - PolicyName: "aromiUnauthUserPolicy"
+#             PolicyDocument:
+#               Version: "2012-10-17"
+#               Statement:
+#                 - Effect: "Allow"
+#                   Action:
+#                     - "appsync:GraphQL"
+#                     - "s3:GetObject"
+#                     - "s3:ListBucket"
+#                   Resource:
+#                     - "arn:aws:s3:::aromi-storage/*"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrances"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragrance"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceAccords"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/fragranceNotes"
+#                     - !Sub "${GraphQlApi.Arn}/types/Query/fields/searchFragranceAccords"
+#                     - !Sub "${GraphQlApi.Arn}/types/Mutation/fields/createUser"
 
-appSync:
-  name: aromiAppSyncAPI
+#     cognitoIdentityPoolRoleAttachment:
+#       Type: AWS::Cognito::IdentityPoolRoleAttachment
+#       Properties:
+#         IdentityPoolId: !Ref cognitoIdentityPool
+#         Roles:
+#           authenticated: !GetAtt cognitoAuthIAMRole.Arn
+#           unauthenticated: !GetAtt cognitoUnauthIAMRole.Arn
 
-  authentication:
-    type: AMAZON_COGNITO_USER_POOLS
-    config:
-      userPoolId: ${env:USER_POOL_ID}
-  additionalAuthentications:
-    - type: AWS_IAM
+# appSync:
+#   name: aromiAppSyncAPI
 
-  schema:
-    - src/graphql/schema/schema.graphql
+#   authentication:
+#     type: AMAZON_COGNITO_USER_POOLS
+#     config:
+#       userPoolId: ${env:USER_POOL_ID}
+#   additionalAuthentications:
+#     - type: AWS_IAM
 
-  dataSources:
-    aromiDB:
-      type: "RELATIONAL_DATABASE"
-      config:
-        dbClusterIdentifier: ${env:DB_READ_CLUSTER}
-        databaseName: ${env:DB_NAME}
-        region: ${env:DB_REGION}
-        awsSecretStoreArn: ${ssm:/aromi/rds-secret-arn}
-        serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
+#   schema:
+#     - src/graphql/schema/schema.graphql
 
-    suggestedFragrancesLambda:
-      type: "AWS_LAMBDA"
-      config:
-        function:
-          runtime: python3.11
-          functionName: get_suggested_fragrances
-          timeout: 30
-          handler: src/lambdas/suggestedFragrances/handler.get_suggested_fragrances
+#   dataSources:
+#     aromiDB:
+#       type: "RELATIONAL_DATABASE"
+#       config:
+#         dbClusterIdentifier: ${env:DB_READ_CLUSTER}
+#         databaseName: ${env:DB_NAME}
+#         region: ${env:DB_REGION}
+#         awsSecretStoreArn: ${ssm:/aromi/rds-secret-arn}
+#         serviceRoleArn: !GetAtt aromiDBServiceRole.Arn
 
-  pipelineFunctions:
-    fragrances:
-      dataSource: aromiDB
-      description: Gets fragrances
-      code: ${self:custom.fragranceQueriesDir}/fragrances.ts
+#     suggestedFragrancesLambda:
+#       type: "AWS_LAMBDA"
+#       config:
+#         function:
+#           runtime: python3.11
+#           functionName: get_suggested_fragrances
+#           timeout: 30
+#           handler: src/lambdas/suggestedFragrances/handler.get_suggested_fragrances
 
-    fragrance:
-      dataSource: aromiDB
-      description: Gets a fragrance
-      code: ${self:custom.fragranceQueriesDir}/fragrance.ts
+#   pipelineFunctions:
+#     fragrances:
+#       dataSource: aromiDB
+#       description: Gets fragrances
+#       code: ${self:custom.fragranceQueriesDir}/fragrances.ts
 
-    fragranceAccords:
-      dataSource: aromiDB
-      description: Gets the accords associated with the fragrance using the fragrance ID
-      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
+#     fragrance:
+#       dataSource: aromiDB
+#       description: Gets a fragrance
+#       code: ${self:custom.fragranceQueriesDir}/fragrance.ts
 
-    fragranceNotes:
-      dataSource: aromiDB
-      description: Gets the notes associated with the fragrance using the fragrance ID
-      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
+#     fragranceAccords:
+#       dataSource: aromiDB
+#       description: Gets the accords associated with the fragrance using the fragrance ID
+#       code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
 
-    fragranceImages:
-      dataSource: aromiDB
-      description: Gets the images associated with the fragrance using the fragrance ID
-      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
+#     fragranceNotes:
+#       dataSource: aromiDB
+#       description: Gets the notes associated with the fragrance using the fragrance ID
+#       code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
 
-    suggestedFragrances:
-      dataSource: suggestedFragrancesLambda
-      description: Processes fragrance data and scores it
-      code: ${self:custom.fragranceQueriesDir}/suggestedFragrances.ts
-    
-  resolvers:
-    Query.fragrances:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragrances.ts
+#     fragranceImages:
+#       dataSource: aromiDB
+#       description: Gets the images associated with the fragrance using the fragrance ID
+#       code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
 
-    Query.suggestedFragrances:
-      kind: PIPELINE
-      code: ${self:custom.queriesDir}/pipelines/suggestedFragrancesPipeline.ts
-      functions:
-        - fragrances
-        - suggestedFragrances
+#     suggestedFragrances:
+#       dataSource: suggestedFragrancesLambda
+#       description: Processes fragrance data and scores it
+#       code: ${self:custom.fragranceQueriesDir}/suggestedFragrances.ts
 
-    Query.fragrance:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragrance.ts
+#   resolvers:
+#     Query.fragrance:
+#       kind: UNIT
+#       dataSource: aromiDB
+#       code: ${self:custom.fragranceQueriesDir}/fragrance.ts
 
-    Fragrance.accords:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
+#     Mutation.createUser:
+#       kind: UNIT
+#       dataSource: aromiDB
+#       code: ${self:custom.mutationsDir}/createUser.ts
 
-    Fragrance.notes:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
+#   logging:
+#     level: ALL
+#     retentionInDays: 7
 
-    Fragrance.images:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
+#   esbuild:
+#     target: "esnext"
 
-    Query.fragranceTraits:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceTraits.ts
+# custom:
+#   queriesDir: src/graphql/resolvers/queries
+#   fragranceQueriesDir: ${self:custom.queriesDir}/fragrance
+#   userQueriesDir: ${self:custom.queriesDir}/user
 
-    Query.fragranceTraitVotes:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceTraitVotes.ts
+#   mutationsDir: src/graphql/resolvers/mutations
 
-    Query.fragranceNotes:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceNotes.ts
-
-    Query.fragranceAccords:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceAccords.ts
-
-    Query.fragranceImages:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.fragranceQueriesDir}/fragranceImages.ts
-    
-    Query.user:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.userQueriesDir}/user.ts
-
-    Query.fragranceAccordUserVotes:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.userQueriesDir}/fragranceAccordUserVotes.ts
-
-    Query.fragranceNoteUserVotes:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.userQueriesDir}/fragranceNoteUserVotes.ts
-
-    Mutation.createUser:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.mutationsDir}/createUser.ts
-
-    Mutation.reactToFragrance:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.mutationsDir}/reactToFragrance.ts
-
-    Mutation.voteOnTrait:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.mutationsDir}/voteOnTrait.ts
-
-    Mutation.voteOnAccord:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.mutationsDir}/voteOnAccord.ts
- 
-    Mutation.voteOnNote:
-      kind: UNIT
-      dataSource: aromiDB
-      code: ${self:custom.mutationsDir}/voteOnNote.ts   
-
-  logging:
-    level: ALL
-    retentionInDays: 7
-
-  esbuild:
-    target: "esnext"
-
-custom:
-  queriesDir: src/graphql/resolvers/queries
-  fragranceQueriesDir: ${self:custom.queriesDir}/fragrance
-  userQueriesDir: ${self:custom.queriesDir}/user
-
-  mutationsDir: src/graphql/resolvers/mutations
-
-useDotenv: true
+# useDotenv: true

@@ -1,11 +1,11 @@
 import { Context, RDSRequest, util, runtime } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, select, sql } from '@aws-appsync/utils/rds'
-import { NoteLayer } from '@src/graphql/types/fragranceTypes'
+import { NoteLayerType } from '@src/graphql/types/fragranceTypes'
 
 interface FragranceNotesArgs {
   id: number
   name: string
-  layer: NoteLayer
+  layer: NoteLayerType
   limit: number
   offset: number
   fill: boolean

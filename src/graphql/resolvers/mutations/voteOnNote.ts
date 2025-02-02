@@ -1,12 +1,12 @@
 import { AppSyncIdentityCognito, Context, RDSRequest, util } from '@aws-appsync/utils'
 import { createPgStatement, toJsonObject, insert, sql, select } from '@aws-appsync/utils/rds'
-import { NoteLayer } from '@src/graphql/types/fragranceTypes'
+import { NoteLayerType } from '@src/graphql/types/fragranceTypes'
 
 interface VoteOnNoteArgs {
  fragranceId: number
  noteId: number
 
- layer: NoteLayer
+ layer: NoteLayerType
 }
 
 export const request = (ctx: Context): RDSRequest | null => {
