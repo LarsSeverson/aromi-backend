@@ -104,8 +104,8 @@ type Mutation {
   # ): FragranceReaction
 
   # Voting
-  # voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!): FragranceTrait
-  # voteOnAccord(fragranceId: Int!, accordId: Int!): FragranceAccord
+  voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
+  voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   # voteOnNote(fragranceId: Int!, accordId: Int!): FragranceNote
 }
 

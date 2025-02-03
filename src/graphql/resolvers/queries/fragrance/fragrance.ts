@@ -4,7 +4,6 @@ import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
 export interface FragranceFields {
-  id: boolean
   brand: boolean
   name: boolean
   likes: boolean
@@ -13,9 +12,8 @@ export interface FragranceFields {
 }
 
 const fragranceQueryParts = (fields: FragranceFields): string[] => {
-  const parts: string[] = []
+  const parts: string[] = ["'id', f.id"]
 
-  if (fields.id) parts.push("'id', f.id")
   if (fields.brand) parts.push("'brand', f.brand")
   if (fields.name) parts.push("'name', f.name")
   if (fields.likes) parts.push("'likes', f.likes_count")
@@ -42,17 +40,16 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
 
   const parts = fragranceQueryParts(fields)
 
-  const query = `
-    SELECT
-      JSONB_BUILD_OBJECT(${parts.join(', ')}) AS fragrance
+  const query = `--sql
+    SELECT ${parts.join(', ')}
     FROM fragrances f
     WHERE f.id = $1;
   `
   const values = [fragranceId]
 
-  const result = await ctx.pool.query<{ 'fragrance': Fragrance }>(query, values)
+  const result = await ctx.pool.query<Fragrance>(query, values)
 
-  const fragrance = result.rows[0].fragrance
+  const fragrance = result.rows[0]
 
   return fragrance
 }

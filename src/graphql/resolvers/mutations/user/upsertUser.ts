@@ -7,27 +7,27 @@ interface UpsertUserArgs {
   cognitoId: string
 }
 
-export const createUser = async (parent: undefined, args: UpsertUserArgs, ctx: Context, info: GraphQLResolveInfo): Promise<User> => {
-  const cogId = args.cognitoId
-  const email = args.email
+export const upsertUser = async (parent: undefined, args: UpsertUserArgs, ctx: Context, info: GraphQLResolveInfo): Promise<User | null> => {
+  const ctxUser = ctx.user
+  const { email, cognitoId } = args
 
-  const res = await ctx.pool.query(`
-    INSERT INTO users (cognito_id, email)
+  if (ctxUser && ctxUser.cognitoId !== cognitoId) return null
+
+  const query = `
+    INSERT INTO users (email, cognito_id)
     VALUES ($1, $2)
     ON CONFLICT (email)
     DO UPDATE
       SET email = EXCLUDED.email
-    RETURNING *;
-  `, [cogId, email])
+    RETURNING 
+      id,
+      email,
+      username,
+      cognito_id AS "cognitoId"
+  `
 
-  const userRes = res.rows[0]
+  const res = await ctx.pool.query(query, [email, cognitoId])
+  const user = res.rows[0]
 
-  const user: User = {
-    id: userRes.id,
-    email: userRes.email,
-    username: userRes.username,
-    cognitoId: userRes.cognito_id
-  }
-
-  return user
+  return user || null
 }

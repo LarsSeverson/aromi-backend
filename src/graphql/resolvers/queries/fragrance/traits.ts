@@ -20,14 +20,12 @@ const traitsQueryParts = (fields: TraitsFields): string[] => {
 }
 
 interface FragranceTraitsArgs {
-  limit: number
-  offset: number
+  id: number
 }
 
-export const traits = async (parent: Fragrance, args: FragranceTraitsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceTrait[] | null> => {
-  const userId = ctx.userId || null
+export const traits = async (parent: Fragrance, args: FragranceTraitsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceTrait | null> => {
+  const user = ctx.user
   const fragranceId = parent.id
-  const { limit = 10, offset = 0 } = args
 
   if (!fragranceId) return null
 
@@ -36,8 +34,8 @@ export const traits = async (parent: Fragrance, args: FragranceTraitsArgs, ctx: 
   const parts = traitsQueryParts(fields)
   const trait: FragranceTraitType = info.fieldName as FragranceTraitType
 
-  const query = `
-    SELECT JSONB_BUILD_OBJECT(${parts.join(',')}) AS trait
+  const query = `--sql
+    SELECT ${parts.join(',')}
     FROM fragrance_traits ft
     LEFT JOIN LATERAL (
       SELECT value
@@ -48,14 +46,12 @@ export const traits = async (parent: Fragrance, args: FragranceTraitsArgs, ctx: 
     ) ftv ON true
     WHERE ft.fragrance_id = $1
       AND ft.trait = $3::fragrance_trait
-    LIMIT $4
-    OFFSET $5
   `
-  const values = [fragranceId, userId, trait, limit, offset]
+  const values = [fragranceId, user?.id, trait]
 
-  const result = await ctx.pool.query<{'trait': FragranceTrait[]}>(query, values)
+  const result = await ctx.pool.query<FragranceTrait>(query, values)
 
-  const traits = result.rows[0].trait
+  const fragranceTrait = result.rows[0]
 
-  return traits
+  return fragranceTrait
 }

@@ -16,8 +16,8 @@ export const Query = {
 }
 
 export const FragranceQuery = {
-  traits: (parent: Fragrance): Fragrance => { return parent },
-  notes: (parent: Fragrance): Fragrance => { return parent },
+  traits: (parent: Fragrance): Fragrance => parent,
+  notes: (parent: Fragrance): Fragrance => parent,
 
   accords,
   images,

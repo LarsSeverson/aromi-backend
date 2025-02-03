@@ -3,13 +3,14 @@ import aromidb from './datasources'
 import { JwtHeader, JwtPayload, SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import { requiredEnv } from '../utils/requiredEnv'
+import { User } from '../types/userTypes'
 
 export interface Context {
   pool: Pool
 
   token?: string | undefined
 
-  userId?: number | null | undefined
+  user?: User | undefined
 }
 
 const client = new JwksClient({ jwksUri: requiredEnv('USER_POOL_JWKS') })
@@ -37,16 +38,28 @@ const decodeToken = async (token?: string | undefined) => {
 
     return decoded
   } catch (error) {
+    console.log(error)
+
     return null
   }
 }
 
-const getUserId = async (cognitoId: string, pool: Pool): Promise<number> => {
-  const res = await pool.query('SELECT id FROM users WHERE cognito_id = $1', [cognitoId])
+const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | null> => {
+  const query = `
+    SELECT
+      id,
+      email,
+      username,
+      cognito_id as "cognitoId"
+      FROM users
+      WHERE cognito_id = $1
+  `
+  const values = [cognitoId]
 
-  const userId: number = res.rows[0].id
+  const res = await pool.query<User>(query, values)
+  const user = res.rows[0]
 
-  return userId
+  return user || null
 }
 
 export const getContext = async ({ event }: { event: any }): Promise<Context> => {
@@ -58,11 +71,10 @@ export const getContext = async ({ event }: { event: any }): Promise<Context> =>
   const ctx: Context = { pool, token }
 
   const decoded = await decodeToken(token)
-
-  const cognitoId = decoded?.sub || null
+  const cognitoId = decoded?.sub || undefined
 
   if (cognitoId) {
-    ctx.userId = await getUserId(cognitoId, pool)
+    ctx.user = await getCurrentUser(cognitoId, pool) || undefined
   }
 
   return ctx
