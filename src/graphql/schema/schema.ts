@@ -28,6 +28,11 @@ type FragranceReactions {
   reviews: Int!
 }
 
+type FragranceReaction {
+  reaction: FragranceReactionType!
+  myReaction: Boolean!
+}
+
 type MyFragranceReactions {
   like: Boolean!
   dislike: Boolean!
@@ -97,16 +102,14 @@ type Query {
 type Mutation {
   # Get or create a user
   upsertUser(email: String!, cognitoId: String!): User
+
   # Reactions
-  # reactToFragrance(
-  #   fragranceId: Int!
-  #   type: FragranceReactionType!
-  # ): FragranceReaction
+  reactToFragrance(fragranceId: Int!, reaction: FragranceReactionType!, myReaction: Boolean!): FragranceReaction
 
   # Voting
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
-  # voteOnNote(fragranceId: Int!, accordId: Int!): FragranceNote
+  voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
 }
 
 # Enums

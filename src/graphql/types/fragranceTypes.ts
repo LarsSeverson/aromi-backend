@@ -75,6 +75,11 @@ export interface FragranceReactions {
   reviews: number
 }
 
+export interface FragranceReaction {
+  reaction: FragranceReactionType
+  myReaction: boolean
+}
+
 export interface Fragrance {
   id: number
   brand: string

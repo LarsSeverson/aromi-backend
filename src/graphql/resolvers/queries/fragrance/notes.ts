@@ -3,7 +3,7 @@ import { Fragrance, FragranceNote, NoteLayerType } from '@src/graphql/types/frag
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
-const noFillQuery = (queryParts: string[]) => `
+const noFillQuery = (queryParts: string[]) => `--sql
   SELECT COALESCE(JSONB_AGG(
     JSONB_BUILD_OBJECT(${queryParts.join(', ')})
     ORDER BY fn.votes DESC
@@ -21,7 +21,7 @@ const noFillQuery = (queryParts: string[]) => `
   OFFSET $5
 `
 
-const fillQuery = (queryParts: string[], fillerParts: string[]) => `
+const fillQuery = (queryParts: string[], fillerParts: string[]) => `--sql
   SELECT COALESCE(JSONB_AGG(t.item ORDER BY t.order_votes DESC), '[]'::JSONB) AS notes,
   $2 AS _dummy
   FROM (
@@ -89,7 +89,7 @@ interface FragranceNotesArgs {
 }
 
 export const notes = async (parent: Fragrance, args: FragranceNotesArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceNote[] | null> => {
-  const userId = ctx.userId || null
+  const user = ctx.user || null
   const fragranceId = parent.id
 
   const { limit = 10, offset = 0, fill = false } = args
@@ -103,7 +103,7 @@ export const notes = async (parent: Fragrance, args: FragranceNotesArgs, ctx: Co
   const fillerParts = (fill && notesFillerQueryParts(fields, layer)) || []
 
   const query = fill ? fillQuery(parts, fillerParts) : noFillQuery(parts)
-  const values = [fragranceId, userId, layer, limit, offset]
+  const values = [fragranceId, user?.id, layer, limit, offset]
 
   const result = await ctx.pool.query<{'notes': FragranceNote[]}>(query, values)
 

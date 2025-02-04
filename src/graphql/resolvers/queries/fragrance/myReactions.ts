@@ -34,10 +34,11 @@ const getSelect = (fields: MyReactionsFields): string => {
 }
 
 export const myReactions = async (parent: Fragrance, args: undefined, ctx: Context, info: GraphQLResolveInfo): Promise<MyFragranceReactions | null> => {
-  const userId = ctx.userId
-  if (!userId) {
+  const user = ctx.user
+  if (!user) {
     return { dislike: false, like: false }
   }
+
   const fragranceId = parent.id
   if (!fragranceId) return null
 
@@ -47,7 +48,7 @@ export const myReactions = async (parent: Fragrance, args: undefined, ctx: Conte
   const query = `
     SELECT ${select}
   `
-  const values = [fragranceId, userId]
+  const values = [fragranceId, user.id]
 
   const result = await ctx.pool.query(query, values)
 

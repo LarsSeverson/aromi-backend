@@ -3,7 +3,7 @@ import { Fragrance, FragranceAccord } from '@src/graphql/types/fragranceTypes'
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
-const noFillQuery = (queryParts: string[]) => `
+const noFillQuery = (queryParts: string[]) => `--sql
   SELECT COALESCE(JSONB_AGG(
     JSONB_BUILD_OBJECT(${queryParts.join(', ')})
     ORDER BY fa.votes DESC
@@ -21,7 +21,7 @@ const noFillQuery = (queryParts: string[]) => `
   OFFSET $4
 `
 
-const fillQuery = (queryParts: string[], fillerParts: string[]) => `
+const fillQuery = (queryParts: string[], fillerParts: string[]) => `--sql
   SELECT COALESCE(JSONB_AGG(t.item ORDER BY t.order_votes DESC), '[]'::JSONB) AS accords,
   $2 AS _dummy
   FROM (
@@ -89,13 +89,14 @@ interface FragranceAccordsArgs {
 }
 
 export const accords = async (parent: Fragrance, args: FragranceAccordsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceAccord[] | null> => {
-  const userId = ctx.userId || null
+  const user = ctx.user
   const fragranceId = parent.id
 
   const { limit = 10, offset = 0, fill = false } = args
 
   if (!fragranceId) return null
 
+  const userId = user?.id || null
   const fields: AccordsFields = graphqlFields(info)
 
   const parts = accordsQueryParts(fields)

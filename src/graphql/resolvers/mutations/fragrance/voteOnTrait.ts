@@ -1,6 +1,5 @@
 import { Context } from '@src/graphql/schema/context'
 import { FragranceTrait, FragranceTraitType } from '@src/graphql/types/fragranceTypes'
-import { User } from '@src/graphql/types/userTypes'
 import { GraphQLResolveInfo } from 'graphql'
 
 interface VoteOnTraitArgs {
@@ -23,18 +22,7 @@ export const voteOnTrait = async (parent: undefined, args: VoteOnTraitArgs, ctx:
       INSERT INTO fragrance_traits (fragrance_id, trait, value)
       VALUES ($1, $2, $3)
       ON CONFLICT (fragrance_id, trait)
-      DO UPDATE SET value = (
-        SELECT AVG(vote_value)
-        FROM (
-          SELECT value as vote_value
-          FROM fragrance_trait_votes
-          WHERE fragrance_trait_id = fragrance_traits.id
-            AND user_id != $4
-          UNION ALL
-          SELECT $3 AS vote_value
-        ) AS votes
-        WHERE vote_value IS NOT NULL
-      )
+      DO NOTHING 
       RETURNING id, value
     ),
     vote AS (
