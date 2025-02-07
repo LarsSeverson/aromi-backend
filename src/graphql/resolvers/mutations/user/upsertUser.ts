@@ -11,7 +11,9 @@ export const upsertUser = async (parent: undefined, args: UpsertUserArgs, ctx: C
   const ctxUser = ctx.user
   const { email, cognitoId } = args
 
-  if (ctxUser && ctxUser.cognitoId !== cognitoId) return null
+  if (!ctxUser) return null
+
+  if (ctxUser.cognitoId !== cognitoId) return null
 
   const query = `--sql
     INSERT INTO users (email, cognito_id)

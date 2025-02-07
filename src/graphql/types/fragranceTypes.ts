@@ -6,7 +6,6 @@ export enum NoteLayerType {
 
 export enum FragranceReactionType {
   LIKE = 'like',
-  DISLIKE = 'dislike',
   REVIEW = 'review'
 }
 
@@ -66,7 +65,6 @@ export interface FragranceTraits {
 
 export interface MyFragranceReactions {
   like: boolean
-  dislike: boolean
 }
 
 export interface FragranceReactions {

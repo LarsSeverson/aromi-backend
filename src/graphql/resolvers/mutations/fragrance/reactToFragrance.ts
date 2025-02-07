@@ -6,7 +6,7 @@ interface ReactToFragranceArgs {
   fragranceId: number
   reaction: FragranceReactionType
 
-  myReaction: boolean
+  myReaction: boolean | null
 }
 
 export const reactToFragrance = async (parent: undefined, args: ReactToFragranceArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceReaction | null> => {
@@ -15,38 +15,49 @@ export const reactToFragrance = async (parent: undefined, args: ReactToFragrance
   if (!ctxUser) return null
 
   const { id: userId } = ctxUser
-  const { fragranceId, reaction, myReaction } = args
-
-  const reactionColumn = `${reaction}s_count`
+  const { fragranceId, reaction, myReaction = null } = args
 
   const query = `--sql
-    WITH updated AS (
-      UPDATE fragrances
-      SET ${reactionColumn} = ${reactionColumn} + 
-        (CASE
-          WHEN COALESCE(
-            (SELECT (deleted_at IS NULL) FROM fragrance_reactions
-            WHERE fragrance_id = $1 AND user_id = $4),
-            false
-          ) <> $3 THEN
-            CASE WHEN $3 IS FALSE THEN -1 ELSE 1 END
-          ELSE 0
-        END)
-      WHERE id = $1
+    WITH current_reaction AS (
+      SELECT value
+      FROM fragrance_reactions
+      WHERE fragrance_id = $1 
+        AND user_id = $4 
+        AND reaction = $2 
+        AND deleted_at IS NULL
     ),
-    reaction AS (
-      INSERT INTO fragrance_reactions (fragrance_id, reaction, user_id)
-      VALUES ($1, $2, $4)
+    update_fragrance AS (
+      UPDATE fragrances f
+      SET
+        likes_count = f.likes_count + 
+          CASE
+            WHEN $3 = true AND cr.value IS NULL THEN 1
+            WHEN $3 = true AND cr.value IS DISTINCT FROM true THEN 1
+            WHEN ($3 = false OR $3 IS NULL) AND cr.value = true THEN -1
+            ELSE 0
+          END,
+        dislikes_count = f.dislikes_count + 
+          CASE
+            WHEN $3 = false AND cr.value IS NULL THEN 1
+            WHEN $3 = false AND cr.value IS DISTINCT FROM false THEN 1
+            WHEN ($3 = true OR $3 IS NULL) AND cr.value = false THEN -1
+            ELSE 0
+          END
+      FROM (SELECT 1) dummy
+      LEFT JOIN current_reaction cr ON true
+      WHERE f.id = $1
+      RETURNING f.id
+    ),
+    upsert_reaction AS (
+      INSERT INTO fragrance_reactions (fragrance_id, reaction, user_id, value, deleted_at)
+      VALUES ($1, $2, $4, $3, CASE WHEN $3 IS NULL THEN CURRENT_TIMESTAMP ELSE NULL END)
       ON CONFLICT (fragrance_id, reaction, user_id)
-      DO UPDATE SET deleted_at = 
-        CASE 
-          WHEN (fragrance_reactions.deleted_at IS NULL AND $3 IS FALSE) THEN CURRENT_TIMESTAMP
-          WHEN (fragrance_reactions.deleted_at IS NOT NULL AND $3 IS TRUE) THEN NULL
-          ELSE fragrance_reactions.deleted_at
-        END
+      DO UPDATE SET 
+        value = EXCLUDED.value,
+        deleted_at = CASE WHEN EXCLUDED.value IS NULL THEN CURRENT_TIMESTAMP ELSE NULL END
     )
-    SELECT
-      $2 AS reaction,
+    SELECT 
+      $2 AS reaction, 
       $3 AS "myReaction"
   `
   const values = [fragranceId, reaction, myReaction, userId]

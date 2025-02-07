@@ -48,7 +48,8 @@ interface FragrancesArgs {
 }
 
 export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Context, info: GraphQLResolveInfo): Promise<Fragrance[] | null> => {
-  const { limit = 10, offset = 0 } = args
+  const limit = args.limit ?? 10
+  const offset = args.offset ?? 0
 
   const fields = graphqlFields(info)
 
@@ -57,6 +58,7 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
   const query = `
     SELECT ${parts.join(', ')}
     FROM fragrances f
+    ORDER BY id
     LIMIT $1
     OFFSET $2 
   `

@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-lambda'
 
 export const schema = gql`#graphql
-  
+
 type Fragrance {
   id: Int!
   brand: String!
@@ -30,12 +30,11 @@ type FragranceReactions {
 
 type FragranceReaction {
   reaction: FragranceReactionType!
-  myReaction: Boolean!
+  myReaction: Boolean
 }
 
 type MyFragranceReactions {
-  like: Boolean!
-  dislike: Boolean!
+  like: Boolean
 }
 
 type FragranceTraits {
@@ -104,7 +103,7 @@ type Mutation {
   upsertUser(email: String!, cognitoId: String!): User
 
   # Reactions
-  reactToFragrance(fragranceId: Int!, reaction: FragranceReactionType!, myReaction: Boolean!): FragranceReaction
+  reactToFragrance(fragranceId: Int!, reaction: FragranceReactionType!, myReaction: Boolean): FragranceReaction
 
   # Voting
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
@@ -116,7 +115,6 @@ type Mutation {
 enum FragranceReactionType {
   like
   dislike
-  review
 }
 enum FragranceTraitType {
   gender

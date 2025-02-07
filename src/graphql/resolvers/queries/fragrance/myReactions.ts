@@ -8,47 +8,31 @@ export interface MyReactionsFields {
   dislike: boolean
 }
 
-const getSelect = (fields: MyReactionsFields): string => {
-  let select = ''
-  if (fields.like) {
-    select += `EXISTS(
-      SELECT 1 FROM fragrance_reactions 
-      WHERE user_id = $2 
-        AND fragrance_id = $1 
-        AND reaction = 'like' 
-        AND deleted_at IS NULL
-    ) AS "like"`
-  }
-  if (fields.dislike) {
-    if (select) select += ','
-    select += `EXISTS(
-      SELECT 1 FROM fragrance_reactions 
-      WHERE user_id = $2 
-        AND fragrance_id = $1 
-        AND reaction = 'dislike' 
-        AND deleted_at IS NULL
-    ) AS "dislike"`
-  }
-
-  return select
-}
-
 export const myReactions = async (parent: Fragrance, args: undefined, ctx: Context, info: GraphQLResolveInfo): Promise<MyFragranceReactions | null> => {
   const user = ctx.user
   if (!user) {
-    return { dislike: false, like: false }
+    return { like: false }
   }
 
   const fragranceId = parent.id
   if (!fragranceId) return null
+  const userId = user.id
 
   const fields: MyReactionsFields = graphqlFields(info)
-  const select = getSelect(fields)
 
-  const query = `
-    SELECT ${select}
+  const query = `--sql
+    SELECT
+      COALESCE((
+        SELECT
+          bool_or(value)
+          FROM fragrance_reactions
+          WHERE fragrance_id = $1
+            AND user_id = $2
+            AND reaction = 'like'
+            AND deleted_at IS NULL
+      ), NULL) as like
   `
-  const values = [fragranceId, user.id]
+  const values = [fragranceId, userId]
 
   const result = await ctx.pool.query(query, values)
 

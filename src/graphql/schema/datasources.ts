@@ -1,5 +1,5 @@
 import { Pool } from 'pg'
-import { requiredEnv } from '../utils/requiredEnv'
+import { requiredEnv } from '../../utils/requiredEnv'
 
 const aromidb = new Pool({
   host: requiredEnv('DB_HOST'),

@@ -2,7 +2,7 @@ import { Pool } from 'pg'
 import aromidb from './datasources'
 import { JwtHeader, JwtPayload, SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
-import { requiredEnv } from '../utils/requiredEnv'
+import { requiredEnv } from '../../utils/requiredEnv'
 import { User } from '../types/userTypes'
 
 export interface Context {
@@ -63,7 +63,7 @@ const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | nul
 }
 
 export const getContext = async ({ event }: { event: any }): Promise<Context> => {
-  const authHeader = event.headers.authorization || ''
+  const authHeader = event.headers.Authorization || ''
 
   const pool = aromidb
   const token = authHeader.replace('Bearer ', '')
