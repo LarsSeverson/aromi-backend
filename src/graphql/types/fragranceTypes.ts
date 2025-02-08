@@ -25,17 +25,16 @@ export interface FragranceImage {
 
 export interface FragranceAccord {
   id: number
-
+  accordId: number
   name: string
   color: string
-
   votes: number
-
   myVote: boolean
 }
 
 export interface FragranceNote {
   id: number
+  noteId: number
   name: string
   layer: NoteLayerType
   votes: number
@@ -71,6 +70,7 @@ export interface FragranceReactions {
   likes: number
   dislikes: number
   reviews: number
+  rating: number
 }
 
 export interface FragranceReaction {
@@ -85,7 +85,7 @@ export interface Fragrance {
 
   reactions: FragranceReactions
 
-  traits: FragranceTrait[]
+  traits: FragranceTraits
 
   notes: FragranceNotes
   accords: FragranceAccord[]

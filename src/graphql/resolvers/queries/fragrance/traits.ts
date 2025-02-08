@@ -14,7 +14,7 @@ const traitsQueryParts = (fields: TraitsFields): string[] => {
 
   if (fields.trait) parts.push("'trait', ft.trait")
   if (fields.value) parts.push("'value', ft.value")
-  if (fields.myVote) parts.push("'myVote', COALESCE(ftv.value, 0.0)")
+  if (fields.myVote) parts.push('COALESCE(ftv.value, 50.0) AS "myVote"')
 
   return parts
 }

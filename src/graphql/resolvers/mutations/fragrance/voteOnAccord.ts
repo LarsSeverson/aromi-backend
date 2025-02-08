@@ -70,7 +70,13 @@ export const voteOnAccord = async (parent: undefined, args: VoteOnAccordArgs, ct
         END
       RETURNING *
     )
-    SELECT ${parts.join(', ')}
+    SELECT
+      i.id,
+      a.id AS "accordId",
+      a.name,
+      a.color,
+      i.votes,
+      $3 AS "myVote"
     FROM inserted i
     JOIN accords a ON a.id = i.accord_id
   `

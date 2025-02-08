@@ -30,7 +30,7 @@ export interface FragranceFields {
 const fragranceQueryParts = (fields: FragranceFields): string[] => {
   const parts: string[] = []
 
-  if (fields.id) parts.push("'id', f.id")
+  parts.push("'id', f.id")
   if (fields.brand) parts.push("'brand', f.brand")
   if (fields.name) parts.push("'name', f.name")
   if (fields.reactions) parts.push(reactionPart(fields.reactions))

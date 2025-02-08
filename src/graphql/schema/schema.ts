@@ -26,6 +26,7 @@ type FragranceReactions {
   likes: Int!
   dislikes: Int!
   reviews: Int!
+  rating: Float!
 }
 
 type FragranceReaction {
@@ -60,6 +61,7 @@ type FragranceNotes {
 
 type FragranceNote {
   id: Int!
+  noteId: Int!
   name: String!
   layer: NoteLayer!
   votes: Int!
@@ -68,6 +70,7 @@ type FragranceNote {
 
 type FragranceAccord {
   id: Int!
+  accordId: Int!
   name: String!
   color: String!
   votes: Int!
