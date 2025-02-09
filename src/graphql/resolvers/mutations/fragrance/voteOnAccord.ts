@@ -11,18 +11,6 @@ interface VoteOnAccordsFields {
   myVote: boolean
 }
 
-const voteOnAccordsQueryParts = (fields: VoteOnAccordsFields): string[] => {
-  const parts: string[] = []
-
-  if (fields.id) parts.push('a.id')
-  if (fields.name) parts.push('a.name')
-  if (fields.color) parts.push('a.color')
-  if (fields.votes) parts.push('i.votes')
-  if (fields.myVote) parts.push('$3 as "myVote"')
-
-  return parts
-}
-
 interface VoteOnAccordArgs {
   fragranceId: number
   accordId: number
@@ -39,7 +27,6 @@ export const voteOnAccord = async (parent: undefined, args: VoteOnAccordArgs, ct
   const { fragranceId, accordId, myVote } = args
 
   const fields = graphqlFields(info)
-  const parts = voteOnAccordsQueryParts(fields)
 
   const query = `--sql
     WITH inserted AS (

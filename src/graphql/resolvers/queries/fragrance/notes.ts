@@ -50,7 +50,7 @@ const fillQuery = () => `--sql
   fillers AS (
     SELECT
       n.id,
-      n.id AS "accordId",
+      n.id AS "noteId",
       n.name,
       $2 AS layer,
       0 AS votes,

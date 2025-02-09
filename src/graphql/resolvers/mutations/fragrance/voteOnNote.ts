@@ -11,18 +11,6 @@ interface VoteOnAccordsFields {
   myVote: boolean
 }
 
-const voteOnNotesQueryParts = (fields: VoteOnAccordsFields): string[] => {
-  const parts: string[] = []
-
-  if (fields.id) parts.push('n.id')
-  if (fields.name) parts.push('n.name')
-  if (fields.layer) parts.push('$3 as "layer"')
-  if (fields.votes) parts.push('i.votes')
-  if (fields.myVote) parts.push('$4 as "myVote"')
-
-  return parts
-}
-
 interface VoteOnNoteArgs {
   fragranceId: number
   noteId: number
@@ -40,7 +28,6 @@ export const voteOnNote = async (parent: undefined, args: VoteOnNoteArgs, ctx: C
   const { fragranceId, noteId, layer, myVote } = args
 
   const fields = graphqlFields(info)
-  const parts = voteOnNotesQueryParts(fields)
 
   const query = `--sql
     WITH inserted AS (
@@ -71,7 +58,13 @@ export const voteOnNote = async (parent: undefined, args: VoteOnNoteArgs, ctx: C
         END
       RETURNING *
     )
-    SELECT ${parts.join(', ')}
+    SELECT
+      i.id,
+      n.id AS "noteId",
+      n.name,
+      i.votes,
+      $3 AS layer,
+      $4 AS "myVote"
     FROM inserted i
     JOIN notes n ON n.id = i.note_id
   `
