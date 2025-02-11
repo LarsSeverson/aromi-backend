@@ -1,12 +1,11 @@
-import { reactToFragrance } from './fragrance/reactToFragrance'
+import { voteOnFragrance } from './fragrance/voteOnFragrance'
 import { voteOnAccord } from './fragrance/voteOnAccord'
 import { voteOnNote } from './fragrance/voteOnNote'
 import { voteOnTrait } from './fragrance/voteOnTrait'
 import { upsertUser } from './user/upsertUser'
 
 export const Mutation = {
-  reactToFragrance,
-
+  voteOnFragrance,
   voteOnTrait,
   voteOnAccord,
   voteOnNote,

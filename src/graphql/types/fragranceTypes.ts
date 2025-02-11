@@ -4,11 +4,6 @@ export enum NoteLayerType {
   BASE = 'base'
 }
 
-export enum FragranceReactionType {
-  LIKE = 'like',
-  REVIEW = 'review'
-}
-
 export enum FragranceTraitType {
   GENDER = 'gender',
   LONGEVITY = 'longevity',
@@ -62,20 +57,10 @@ export interface FragranceTraits {
   allure: FragranceTrait
 }
 
-export interface MyFragranceReactions {
-  like: boolean
-}
-
-export interface FragranceReactions {
+export interface FragranceVote {
   likes: number
   dislikes: number
-  reviews: number
-  rating: number
-}
-
-export interface FragranceReaction {
-  reaction: FragranceReactionType
-  myReaction: boolean
+  myVote: boolean | null
 }
 
 export interface Fragrance {
@@ -83,13 +68,11 @@ export interface Fragrance {
   brand: string
   name: string
 
-  reactions: FragranceReactions
+  vote: FragranceVote
 
   traits: FragranceTraits
 
   notes: FragranceNotes
   accords: FragranceAccord[]
   images: FragranceImage[]
-
-  myReactions: MyFragranceReactions
 }

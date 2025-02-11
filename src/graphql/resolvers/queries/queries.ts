@@ -5,7 +5,6 @@ import { notes } from './fragrance/notes'
 import { me } from './user/me'
 import { images } from './fragrance/images'
 import { traits } from './fragrance/traits'
-import { myReactions } from './fragrance/myReactions'
 import { fragrances } from './fragrance/fragrances'
 
 export const Query = {
@@ -20,9 +19,7 @@ export const FragranceQuery = {
   notes: (parent: Fragrance): Fragrance => parent,
 
   accords,
-  images,
-
-  myReactions
+  images
 }
 
 export const FragranceNotesQuery = {

@@ -9,33 +9,12 @@ export interface FragranceReactionsFields {
   reviews: boolean
 }
 
-const reactionPart = (fields: FragranceReactionsFields): string => {
-  const parts: string[] = []
-
-  if (fields.likes) parts.push("'likes', f.likes_count")
-  if (fields.dislikes) parts.push("'dislikes', f.dislikes_count")
-  if (fields.reviews) parts.push("'reviews', f.reviews_count")
-
-  return `JSONB_BUILD_OBJECT(${parts.join(', ')}) AS reactions`
-}
-
 export interface FragranceFields {
   id: boolean
   brand: boolean
   name: boolean
 
   reactions: FragranceReactionsFields
-}
-
-const fragranceQueryParts = (fields: FragranceFields): string[] => {
-  const parts: string[] = []
-
-  parts.push("'id', f.id")
-  if (fields.brand) parts.push("'brand', f.brand")
-  if (fields.name) parts.push("'name', f.name")
-  if (fields.reactions) parts.push(reactionPart(fields.reactions))
-
-  return parts
 }
 
 export interface MyReactionsFields {
@@ -53,14 +32,22 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
 
   const fields = graphqlFields(info)
 
-  const parts = fragranceQueryParts(fields)
-
-  const query = `
-    SELECT ${parts.join(', ')}
+  const query = `--sql
+    SELECT
+      f.id,
+      f.brand,
+      f.name,
+      JSONB_BUILD_OBJECT(
+        'id', f.id,
+        'likes', f.likes_count,
+        'dislikes', f.dislikes_count,
+        'reviews', f.reviews_count,
+        'rating', f.rating
+      ) AS reactions
     FROM fragrances f
     ORDER BY id
     LIMIT $1
-    OFFSET $2 
+    OFFSET $2
   `
   const values = [limit, offset]
 

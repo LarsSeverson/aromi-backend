@@ -9,16 +9,6 @@ export interface TraitsFields {
   myVote: boolean
 }
 
-const traitsQueryParts = (fields: TraitsFields): string[] => {
-  const parts: string[] = []
-
-  if (fields.trait) parts.push("'trait', ft.trait")
-  if (fields.value) parts.push("'value', ft.value")
-  if (fields.myVote) parts.push('COALESCE(ftv.value, 50.0) AS "myVote"')
-
-  return parts
-}
-
 interface FragranceTraitsArgs {
   id: number
 }
@@ -30,12 +20,14 @@ export const traits = async (parent: Fragrance, args: FragranceTraitsArgs, ctx: 
   if (!fragranceId) return null
 
   const fields: TraitsFields = graphqlFields(info)
-
-  const parts = traitsQueryParts(fields)
   const trait: FragranceTraitType = info.fieldName as FragranceTraitType
 
   const query = `--sql
-    SELECT ${parts.join(',')}
+    SELECT
+      ft.id,
+      ft.value,
+      COALESCE(ftv.value, 50.0) AS "myVote",
+      ft.trait
     FROM fragrance_traits ft
     LEFT JOIN LATERAL (
       SELECT value

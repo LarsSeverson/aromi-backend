@@ -45,12 +45,12 @@ const decodeToken = async (token?: string | undefined) => {
 }
 
 const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | null> => {
-  const query = `
+  const query = `--sql
     SELECT
       id,
       email,
       username,
-      cognito_id as "cognitoId"
+      cognito_id AS "cognitoId"
       FROM users
       WHERE cognito_id = $1
   `

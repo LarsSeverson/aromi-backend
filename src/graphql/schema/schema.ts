@@ -6,9 +6,10 @@ type Fragrance {
   id: Int!
   brand: String!
   name: String!
+  rating: Float!
 
-  # Reactions
-  reactions: FragranceReactions!
+  # Vote
+  vote: FragranceVote!
 
   # Traits
   traits: FragranceTraits!
@@ -18,24 +19,14 @@ type Fragrance {
   accords(limit: Int, offset: Int, fill: Boolean): [FragranceAccord!]!
   images(limit: Int, offset: Int): [FragranceImage!]!
 
-  # User-specific
-  myReactions: MyFragranceReactions!
+  # Reviews TODO
+  reviews: Int!
 }
 
-type FragranceReactions {
+type FragranceVote {
   likes: Int!
   dislikes: Int!
-  reviews: Int!
-  rating: Float!
-}
-
-type FragranceReaction {
-  reaction: FragranceReactionType!
-  myReaction: Boolean
-}
-
-type MyFragranceReactions {
-  like: Boolean
+  myVote: Boolean
 }
 
 type FragranceTraits {
@@ -48,6 +39,7 @@ type FragranceTraits {
 }
 
 type FragranceTrait {
+  id: Int!
   trait: FragranceTraitType!
   value: Float!
   myVote: Float! # Current user's vote
@@ -105,20 +97,14 @@ type Mutation {
   # Get or create a user
   upsertUser(email: String!, cognitoId: String!): User
 
-  # Reactions
-  reactToFragrance(fragranceId: Int!, reaction: FragranceReactionType!, myReaction: Boolean): FragranceReaction
-
   # Voting
+  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote!
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
 }
 
 # Enums
-enum FragranceReactionType {
-  like
-  dislike
-}
 enum FragranceTraitType {
   gender
   longevity

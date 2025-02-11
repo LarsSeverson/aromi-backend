@@ -3,45 +3,12 @@ import { Fragrance } from '@src/graphql/types/fragranceTypes'
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
-export interface FragranceReactionsFields {
-  likes: boolean
-  dislikes: boolean
-  reviews: boolean
-  rating: boolean
-}
-
-const reactionPart = (fields: FragranceReactionsFields): string => {
-  const parts: string[] = []
-
-  if (fields.likes) parts.push("'likes', f.likes_count")
-  if (fields.dislikes) parts.push("'dislikes', f.dislikes_count")
-  if (fields.reviews) parts.push("'reviews', f.reviews_count")
-  if (fields.rating) parts.push("'rating', f.rating")
-
-  return `JSONB_BUILD_OBJECT(${parts.join(', ')}) AS reactions`
-}
-
 export interface FragranceFields {
   id: boolean
   brand: boolean
   name: boolean
 
-  reactions: FragranceReactionsFields
-}
-
-const fragranceQueryParts = (fields: FragranceFields): string[] => {
-  const parts: string[] = []
-
-  parts.push("'id', f.id")
-  if (fields.brand) parts.push("'brand', f.brand")
-  if (fields.name) parts.push("'name', f.name")
-  if (fields.reactions) parts.push(reactionPart(fields.reactions))
-
-  return parts
-}
-
-export interface MyReactionsFields {
-  reaction: boolean
+  reactions: boolean
 }
 
 interface FragranceArgs {
@@ -49,22 +16,54 @@ interface FragranceArgs {
 }
 
 export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context, info: GraphQLResolveInfo): Promise<Fragrance | null> => {
+  const user = ctx.user
   const { id } = args
 
   if (!id) {
     return null
   }
 
-  const fields = graphqlFields(info)
+  const fields: FragranceFields = graphqlFields(info)
+  const userId = user?.id
 
-  const parts = fragranceQueryParts(fields)
-
-  const query = `
-    SELECT ${parts.join(', ')}
-    FROM fragrances f
-    WHERE f.id = $1
+  const query = `--sql
+    WITH fragrance_data AS (
+      SELECT
+        id,
+        brand,
+        name,
+        rating,
+        reviews_count AS "reviews",
+        likes_count,
+        dislikes_count
+      FROM fragrances
+      WHERE id = $1
+    ),
+    user_vote AS (
+      SELECT
+        id,
+        vote
+      FROM fragrance_votes
+      WHERE fragrance_id = $1
+        AND user_id = $2
+        AND deleted_at IS NULL
+      LIMIT 1
+    )
+    SELECT
+      fd.id,
+      fd.brand,
+      fd.name,
+      fd.rating,
+      fd.reviews,
+      JSONB_BUILD_OBJECT(
+        'likes', fd.likes_count, 
+        'dislikes', fd.dislikes_count, 
+        'myVote', CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END
+      ) AS vote
+    FROM fragrance_data fd
+    LEFT JOIN user_vote uv ON TRUE
   `
-  const values = [id]
+  const values = [id, userId]
 
   const result = await ctx.pool.query<Fragrance>(query, values)
 

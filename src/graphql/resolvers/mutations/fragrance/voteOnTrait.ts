@@ -22,7 +22,7 @@ export const voteOnTrait = async (parent: undefined, args: VoteOnTraitArgs, ctx:
       INSERT INTO fragrance_traits (fragrance_id, trait, value)
       VALUES ($1, $2, $3)
       ON CONFLICT (fragrance_id, trait)
-      DO NOTHING 
+      DO UPDATE SET value = EXCLUDED.value 
       RETURNING id, value
     ),
     vote AS (
@@ -33,6 +33,7 @@ export const voteOnTrait = async (parent: undefined, args: VoteOnTraitArgs, ctx:
       RETURNING *
     )
     SELECT
+      id,
       $2 AS trait,
       value,
       $3 AS "myVote"
