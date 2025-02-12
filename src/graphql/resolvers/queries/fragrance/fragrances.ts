@@ -27,29 +27,53 @@ interface FragrancesArgs {
 }
 
 export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Context, info: GraphQLResolveInfo): Promise<Fragrance[] | null> => {
+  const user = ctx.user
   const limit = args.limit ?? 10
   const offset = args.offset ?? 0
 
   const fields = graphqlFields(info)
+  const userId = user?.id
 
   const query = `--sql
+    WITH fragrance_data AS (
+      SELECT
+        id,
+        brand,
+        name,
+        rating,
+        reviews_count AS reviews,
+        likes_count,
+        dislikes_count
+      FROM fragrances
+      ORDER BY id
+      LIMIT $1
+      OFFSET $2
+    ),
+    user_vote AS (
+      SELECT
+        fragrance_id,
+        vote
+      FROM fragrance_votes
+      WHERE user_id = $3
+        AND deleted_at IS NULL
+    )
     SELECT
-      f.id,
-      f.brand,
-      f.name,
+      fd.id,
+      fd.brand,
+      fd.name,
+      fd.rating,
+      fd.reviews,
       JSONB_BUILD_OBJECT(
-        'id', f.id,
-        'likes', f.likes_count,
-        'dislikes', f.dislikes_count,
-        'reviews', f.reviews_count,
-        'rating', f.rating
-      ) AS reactions
-    FROM fragrances f
-    ORDER BY id
-    LIMIT $1
-    OFFSET $2
+        'id', fd.id,
+        'likes', fd.likes_count, 
+        'dislikes', fd.dislikes_count, 
+        'myVote', CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END
+      ) AS vote
+    FROM fragrance_data fd
+    LEFT JOIN user_vote uv ON uv.fragrance_id = fd.id 
+    ORDER BY fd.id
   `
-  const values = [limit, offset]
+  const values = [limit, offset, userId]
 
   const result = await ctx.pool.query<Fragrance>(query, values)
 

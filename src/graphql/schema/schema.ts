@@ -24,6 +24,7 @@ type Fragrance {
 }
 
 type FragranceVote {
+  id: Int!
   likes: Int!
   dislikes: Int!
   myVote: Boolean

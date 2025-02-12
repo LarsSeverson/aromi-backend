@@ -45,7 +45,10 @@ export const voteOnFragrance = async (parent: undefined, args: VoteOnFragranceAr
         END
       FROM old
       WHERE f.id = $1
-      RETURNING f.likes_count, f.dislikes_count
+      RETURNING 
+        f.id, 
+        f.likes_count, 
+        f.dislikes_count
     ),
     upsert_vote AS (
       INSERT INTO fragrance_votes (fragrance_id, user_id, vote, deleted_at)
@@ -62,6 +65,7 @@ export const voteOnFragrance = async (parent: undefined, args: VoteOnFragranceAr
       RETURNING vote
     )
     SELECT
+      uf.id,
       uf.likes_count AS likes,
       uf.dislikes_count AS dislikes,
       CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END AS "myVote"

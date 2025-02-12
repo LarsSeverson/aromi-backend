@@ -33,7 +33,7 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
         brand,
         name,
         rating,
-        reviews_count AS "reviews",
+        reviews_count AS reviews,
         likes_count,
         dislikes_count
       FROM fragrances
@@ -56,6 +56,7 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
       fd.rating,
       fd.reviews,
       JSONB_BUILD_OBJECT(
+        'id', fd.id,
         'likes', fd.likes_count, 
         'dislikes', fd.dislikes_count, 
         'myVote', CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END

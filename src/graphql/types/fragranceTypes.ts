@@ -58,6 +58,7 @@ export interface FragranceTraits {
 }
 
 export interface FragranceVote {
+  id: number
   likes: number
   dislikes: number
   myVote: boolean | null
@@ -67,6 +68,8 @@ export interface Fragrance {
   id: number
   brand: string
   name: string
+  rating: number
+  reviews: number
 
   vote: FragranceVote
 
