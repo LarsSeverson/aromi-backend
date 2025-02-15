@@ -22,8 +22,9 @@ export const images = async (parent: Fragrance, args: FragranceImagesArgs, ctx: 
   const fields: ImagesFields = graphqlFields(info)
 
   const query = `--sql
-    id,
-    s3_key AS url
+    SELECT
+      id,
+      s3_key AS url
     FROM fragrance_images
     WHERE fragrance_id = $1
     LIMIT $2

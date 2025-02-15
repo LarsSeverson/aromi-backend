@@ -80,7 +80,7 @@ type FragranceImage {
 type FragranceReview {
   id: Int!
   rating: Float!
-  text: String!
+  review: String!
   dCreated: Date!
   dModified: Date!
   dDeleted: Date

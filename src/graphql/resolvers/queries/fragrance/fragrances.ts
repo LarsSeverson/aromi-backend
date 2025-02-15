@@ -61,8 +61,8 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
       fd.id,
       fd.brand,
       fd.name,
-      fd.rating,
-      fd.reviews AS "reviewsCount",
+      COALESCE(fd.rating, 0) AS rating,
+      fd.reviews_count AS "reviewsCount",
       JSONB_BUILD_OBJECT(
         'id', fd.id,
         'likes', fd.likes_count, 
@@ -76,7 +76,6 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
   const values = [limit, offset, userId]
 
   const result = await ctx.pool.query<Fragrance>(query, values)
-
   const fragrances = result.rows
 
   return fragrances

@@ -53,7 +53,7 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
       fd.id,
       fd.brand,
       fd.name,
-      fd.rating,
+      COALESCE(fd.rating, 0) AS rating,
       fd.reviews_count AS "reviewsCount",
       JSONB_BUILD_OBJECT(
         'id', fd.id,

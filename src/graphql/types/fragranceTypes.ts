@@ -87,4 +87,5 @@ export interface Fragrance {
   notes: FragranceNotes
   accords: FragranceAccord[]
   images: FragranceImage[]
+  reviews: FragranceReview[]
 }

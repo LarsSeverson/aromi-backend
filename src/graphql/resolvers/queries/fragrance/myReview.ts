@@ -25,7 +25,7 @@ export const myReview = async (parent: Fragrance, _: undefined, ctx: Context, in
     SELECT
       fr.id,
       fr.rating,
-      fr.review_text AS text,
+      fr.review_text AS review,
       fr.created_at AS "dCreated",
       fr.updated_at AS "dModified",
       fr.deleted_at AS "dDeleted",

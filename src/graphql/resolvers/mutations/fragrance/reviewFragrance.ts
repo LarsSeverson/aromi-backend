@@ -46,7 +46,7 @@ export const reviewFragrance = async (_: undefined, args: ReviewFragranceArgs, c
     SELECT 
       ir.id,
       ir.rating,
-      ir.review_text AS text,
+      ir.review_text AS review,
       ir.created_at AS "dCreated",
       ir.updated_at AS "dModified",
       ir.deleted_at AS "dDeleted",
