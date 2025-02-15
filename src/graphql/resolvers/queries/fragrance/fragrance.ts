@@ -33,7 +33,7 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
         brand,
         name,
         rating,
-        reviews_count AS reviews,
+        reviews_count,
         likes_count,
         dislikes_count
       FROM fragrances
@@ -54,7 +54,7 @@ export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context,
       fd.brand,
       fd.name,
       fd.rating,
-      fd.reviews,
+      fd.reviews_count AS "reviewsCount",
       JSONB_BUILD_OBJECT(
         'id', fd.id,
         'likes', fd.likes_count, 

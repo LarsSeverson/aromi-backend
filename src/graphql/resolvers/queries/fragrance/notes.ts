@@ -101,7 +101,7 @@ export const notes = async (parent: Fragrance, args: FragranceNotesArgs, ctx: Co
   const fragranceId = parent.id
 
   const {
-    limit = 10,
+    limit = 8,
     offset = 0,
     fill = false
   } = args

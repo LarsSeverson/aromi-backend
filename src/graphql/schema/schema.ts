@@ -7,6 +7,7 @@ type Fragrance {
   brand: String!
   name: String!
   rating: Float!
+  reviewsCount: Int!
 
   # Vote
   vote: FragranceVote!
@@ -19,8 +20,9 @@ type Fragrance {
   accords(limit: Int, offset: Int, fill: Boolean): [FragranceAccord!]!
   images(limit: Int, offset: Int): [FragranceImage!]!
 
-  # Reviews TODO
-  reviews: Int!
+  # Reviews
+  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  myReview: FragranceReview
 }
 
 type FragranceVote {
@@ -75,12 +77,28 @@ type FragranceImage {
   url: String! # Derived from s3Key
 }
 
+type FragranceReview {
+  id: Int!
+  rating: Float!
+  text: String!
+  dCreated: Date!
+  dModified: Date!
+  dDeleted: Date
+
+  user: PublicUser!
+}
+
 type User {
   id: Int!
   username: String!
   email: String!
 
   cognitoId: String!
+}
+
+type PublicUser {
+  id: Int!
+  username: String!
 }
 
 type Query {
@@ -103,6 +121,9 @@ type Mutation {
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
+
+  # Reviews
+  reviewFragrance(fragranceId: Int!, myRating: Float!, myReview: String!): FragranceReview
 }
 
 # Enums
@@ -119,4 +140,7 @@ enum NoteLayer {
   middle
   base
 }
+
+# Scalars
+scalar Date
 `

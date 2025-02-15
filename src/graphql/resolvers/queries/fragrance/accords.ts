@@ -96,7 +96,7 @@ export const accords = async (parent: Fragrance, args: FragranceAccordsArgs, ctx
   const fragranceId = parent.id
 
   const {
-    limit = 10,
+    limit = 8,
     offset = 0,
     fill = false
   } = args

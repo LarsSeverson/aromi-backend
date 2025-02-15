@@ -64,12 +64,21 @@ export interface FragranceVote {
   myVote: boolean | null
 }
 
+export interface FragranceReview {
+  id: number
+  rating: number
+  text: string
+  dCreated: Date
+  dModified: Date
+  dDeleted: Date | null
+}
+
 export interface Fragrance {
   id: number
   brand: string
   name: string
   rating: number
-  reviews: number
+  reviewsCount: number
 
   vote: FragranceVote
 

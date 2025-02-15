@@ -41,7 +41,7 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
         brand,
         name,
         rating,
-        reviews_count AS reviews,
+        reviews_count,
         likes_count,
         dislikes_count
       FROM fragrances
@@ -62,7 +62,7 @@ export const fragrances = async (_: undefined, args: FragrancesArgs, ctx: Contex
       fd.brand,
       fd.name,
       fd.rating,
-      fd.reviews,
+      fd.reviews AS "reviewsCount",
       JSONB_BUILD_OBJECT(
         'id', fd.id,
         'likes', fd.likes_count, 
