@@ -45,7 +45,7 @@ type FragranceTrait {
   id: Int!
   trait: FragranceTraitType!
   value: Float!
-  myVote: Float! # Current user's vote
+  myVote: Float # Current user's vote
 }
 
 type FragranceNotes {
@@ -60,7 +60,7 @@ type FragranceNote {
   name: String!
   layer: NoteLayer!
   votes: Int!
-  myVote: Boolean! # Whether current user voted
+  myVote: Boolean # Whether current user voted
 }
 
 type FragranceAccord {
@@ -69,7 +69,7 @@ type FragranceAccord {
   name: String!
   color: String!
   votes: Int!
-  myVote: Boolean! # Whether current user voted
+  myVote: Boolean # Whether current user voted
 }
 
 type FragranceImage {
@@ -81,11 +81,13 @@ type FragranceReview {
   id: Int!
   rating: Float!
   review: String!
+  votes: Int!
   dCreated: Date!
   dModified: Date!
   dDeleted: Date
 
   user: PublicUser!
+  myVote: Boolean
 }
 
 type User {
@@ -117,10 +119,11 @@ type Mutation {
   upsertUser(email: String!, cognitoId: String!): User
 
   # Voting
-  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote!
+  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
+  voteOnReview(reviewId: Int!, myVote: Boolean): FragranceReview
 
   # Reviews
   reviewFragrance(fragranceId: Int!, myRating: Float!, myReview: String!): FragranceReview

@@ -40,10 +40,8 @@ export const voteOnTrait = async (parent: undefined, args: VoteOnTraitArgs, ctx:
     FROM inserted
   `
   const values = [fragranceId, trait, myVote, userId]
-
-  const res = await ctx.pool.query<FragranceTrait>(query, values)
-
-  const fragranceTrait = res.rows[0]
+  const result = await ctx.pool.query<FragranceTrait>(query, values)
+  const fragranceTrait = result.rows[0]
 
   return fragranceTrait
 }

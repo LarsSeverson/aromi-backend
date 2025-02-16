@@ -68,14 +68,12 @@ export const voteOnFragrance = async (parent: undefined, args: VoteOnFragranceAr
       uf.id,
       uf.likes_count AS likes,
       uf.dislikes_count AS dislikes,
-      CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END AS "myVote"
+      $2 AS "myVote"
     FROM update_fragrance uf
     CROSS JOIN upsert_vote uv
   `
   const values = [fragranceId, myVote, userId]
-
   const res = await ctx.pool.query<FragranceVote>(query, values)
-
   const fragranceReaction = res.rows[0]
 
   return fragranceReaction

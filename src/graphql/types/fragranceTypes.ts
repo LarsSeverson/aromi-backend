@@ -70,11 +70,13 @@ export interface FragranceReview {
   id: number
   rating: number
   review: string
+  votes: number
   dCreated: Date
   dModified: Date
   dDeleted: Date | null
 
   user: User
+  myVote: boolean | null
 }
 
 export interface Fragrance {
