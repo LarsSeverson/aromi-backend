@@ -1,3 +1,5 @@
+import { User } from './userTypes'
+
 export enum NoteLayerType {
   TOP = 'top',
   MIDDLE = 'middle',
@@ -67,10 +69,12 @@ export interface FragranceVote {
 export interface FragranceReview {
   id: number
   rating: number
-  text: string
+  review: string
   dCreated: Date
   dModified: Date
   dDeleted: Date | null
+
+  user: User
 }
 
 export interface Fragrance {
