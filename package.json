@@ -4,7 +4,7 @@
   "description": "Backend to aromi",
   "author": "aromi-dev",
   "scripts": {
-    "dev": "",
+    "dev": "sudo sls offline",
     "start": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/src/index.js",
     "build": "tsc -p tsconfig.prod.json",
     "test": "jest",

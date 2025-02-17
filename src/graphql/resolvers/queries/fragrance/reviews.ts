@@ -38,7 +38,7 @@ export const reviews = async (parent: Fragrance, args: FragranceReviewsArgs, ctx
       CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
     FROM fragrance_reviews fr
     JOIN users u ON u.id = fr.user_id
-    JOIN fragrance_review_votes rv ON rv.review_id = fr.id
+    JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id
     WHERE fragrance_id = $1
     LIMIT $2
     OFFSET $3
