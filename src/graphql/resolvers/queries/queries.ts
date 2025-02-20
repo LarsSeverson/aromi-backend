@@ -8,6 +8,7 @@ import { traits } from './fragrance/traits'
 import { fragrances } from './fragrance/fragrances'
 import { reviews } from './fragrance/reviews'
 import { myReview } from './fragrance/myReview'
+import { reviewDistribution } from './fragrance/reviewDistribution'
 
 export const Query = {
   fragrance,
@@ -23,7 +24,8 @@ export const FragranceQuery = {
   accords,
   images,
   reviews,
-  myReview
+  myReview,
+  reviewDistribution
 }
 
 export const FragranceNotesQuery = {

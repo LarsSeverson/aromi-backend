@@ -23,6 +23,7 @@ type Fragrance {
   # Reviews
   reviews(limit: Int, offset: Int): [FragranceReview!]!
   myReview: FragranceReview
+  reviewDistribution: FragranceReviewDistribution!
 }
 
 type FragranceVote {
@@ -88,6 +89,15 @@ type FragranceReview {
 
   user: PublicUser!
   myVote: Boolean
+}
+
+# This may be handled a better way
+type FragranceReviewDistribution {
+  one: Int!
+  two: Int!
+  three: Int!
+  four: Int!
+  five: Int!
 }
 
 type User {

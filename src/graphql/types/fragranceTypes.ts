@@ -79,6 +79,14 @@ export interface FragranceReview {
   myVote: boolean | null
 }
 
+export interface FragranceReviewDistribution {
+  one: number
+  two: number
+  three: number
+  four: number
+  five: number
+}
+
 export interface Fragrance {
   id: number
   brand: string
@@ -94,4 +102,5 @@ export interface Fragrance {
   accords: FragranceAccord[]
   images: FragranceImage[]
   reviews: FragranceReview[]
+  reviewDistribution: FragranceReviewDistribution
 }

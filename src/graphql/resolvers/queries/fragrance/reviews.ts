@@ -18,12 +18,14 @@ interface FragranceReviewsArgs {
 }
 
 export const reviews = async (parent: Fragrance, args: FragranceReviewsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceReview[] | null> => {
+  const user = ctx.user
   const fragranceId = parent.id
   const { limit = 15, offset = 0 } = args
 
   if (!fragranceId) return null
 
   const fields: ReviewsFields = graphqlFields(info)
+  const userId = user?.id
 
   const query = `--sql
     SELECT
@@ -38,12 +40,13 @@ export const reviews = async (parent: Fragrance, args: FragranceReviewsArgs, ctx
       CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
     FROM fragrance_reviews fr
     JOIN users u ON u.id = fr.user_id
-    JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id
+    LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $4
     WHERE fragrance_id = $1
+    ORDER BY fr.votes DESC
     LIMIT $2
     OFFSET $3
   `
-  const values = [fragranceId, limit, offset]
+  const values = [fragranceId, limit, offset, userId]
   const result = await ctx.pool.query<FragranceReview>(query, values)
   const reviews = result.rows
 
