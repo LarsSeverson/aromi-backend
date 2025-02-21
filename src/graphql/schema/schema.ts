@@ -80,7 +80,7 @@ type FragranceImage {
 
 type FragranceReview {
   id: Int!
-  rating: Float!
+  rating: Int!
   review: String!
   votes: Int!
   dCreated: Date!
@@ -136,7 +136,7 @@ type Mutation {
   voteOnReview(reviewId: Int!, myVote: Boolean): FragranceReview
 
   # Reviews
-  reviewFragrance(fragranceId: Int!, myRating: Float!, myReview: String!): FragranceReview
+  reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
 }
 
 # Enums

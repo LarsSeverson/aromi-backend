@@ -102,5 +102,6 @@ export interface Fragrance {
   accords: FragranceAccord[]
   images: FragranceImage[]
   reviews: FragranceReview[]
+  myReview: FragranceReview
   reviewDistribution: FragranceReviewDistribution
 }

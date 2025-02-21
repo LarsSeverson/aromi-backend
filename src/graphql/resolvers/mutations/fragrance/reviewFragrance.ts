@@ -32,6 +32,7 @@ export const reviewFragrance = async (_: undefined, args: ReviewFragranceArgs, c
         fragrance_id,
         rating, 
         review_text, 
+        votes,
         created_at, 
         updated_at, 
         deleted_at, 
@@ -47,12 +48,15 @@ export const reviewFragrance = async (_: undefined, args: ReviewFragranceArgs, c
       ir.id,
       ir.rating,
       ir.review_text AS review,
+      ir.votes,
       ir.created_at AS "dCreated",
       ir.updated_at AS "dModified",
       ir.deleted_at AS "dDeleted",
-      JSONB_BUILD_OBJECT('id', u.id, 'username', u.username) AS user
+      JSONB_BUILD_OBJECT('id', u.id, 'username', u.username) AS user,
+      CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
     FROM inserted_review ir
     JOIN users u ON u.id = ir.user_id
+    LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = ir.id AND rv.user_id = $4
   `
   const values = [fragranceId, myRating, myReview, userId]
 
