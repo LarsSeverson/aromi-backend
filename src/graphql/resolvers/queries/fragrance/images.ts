@@ -1,5 +1,6 @@
 import { Context } from '@src/graphql/schema/context'
 import { Fragrance, FragranceImage } from '@src/graphql/types/fragranceTypes'
+import { generateSignedUrl } from '@src/utils/s3'
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
@@ -32,9 +33,18 @@ export const images = async (parent: Fragrance, args: FragranceImagesArgs, ctx: 
   `
   const values = [fragranceId, limit, offset]
 
-  const result = await ctx.pool.query<FragranceImage>(query, values)
+  const { rows } = await ctx.pool.query<FragranceImage>(query, values)
 
-  const images = result.rows
+  const images = await Promise.all(rows.map<Promise<FragranceImage>>(async image => {
+    try {
+      const url = await generateSignedUrl(image.url) || ''
+      return { id: image.id, url }
+    } catch (error) {
+      return { id: image.id, url: '' }
+    }
+  }))
+
+  console.log(images)
 
   return images
 }

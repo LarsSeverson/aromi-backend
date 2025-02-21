@@ -48,6 +48,7 @@
   "dependencies": {
     "@types/pg": "^8.11.10",
     "apollo-server-lambda": "^3.13.0",
+    "aws-sdk": "^2.1692.0",
     "dotenv": "^16.4.5",
     "graphql": "^16.9.0",
     "graphql-fields": "^2.0.3",

@@ -6,6 +6,8 @@ provider:
   name: aws
   region: us-east-2
   runtime: nodejs20.x
+  environment:
+    S3_BUCKET: ${env:S3_BUCKET}
 
 functions:
   graphql:
