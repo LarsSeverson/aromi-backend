@@ -60,6 +60,7 @@ type FragranceNote {
   noteId: Int!
   name: String!
   layer: NoteLayer!
+  icon: String!
   votes: Int!
   myVote: Boolean # Whether current user voted
 }

@@ -37,14 +37,12 @@ export const images = async (parent: Fragrance, args: FragranceImagesArgs, ctx: 
 
   const images = await Promise.all(rows.map<Promise<FragranceImage>>(async image => {
     try {
-      const url = await generateSignedUrl(image.url) || ''
+      const url = await generateSignedUrl(image.url)
       return { id: image.id, url }
     } catch (error) {
       return { id: image.id, url: '' }
     }
   }))
-
-  console.log(images)
 
   return images
 }

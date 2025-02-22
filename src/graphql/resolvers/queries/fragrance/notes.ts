@@ -1,5 +1,6 @@
 import { Context } from '@src/graphql/schema/context'
 import { Fragrance, FragranceNote, NoteLayerType } from '@src/graphql/types/fragranceTypes'
+import { generateSignedUrl } from '@src/utils/s3'
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
 
@@ -8,6 +9,7 @@ const noFillQuery = () => `--sql
     fn.id,
     n.id AS "noteId",
     n.name,
+    n.s3_key as icon,
     fn.layer,
     fn.votes,
     EXISTS(
@@ -33,6 +35,7 @@ const fillQuery = () => `--sql
       fn.id,
       n.id AS "noteId",
       n.name,
+      n.s3_key as icon,
       fn.layer,
       fn.votes,
       EXISTS(
@@ -52,6 +55,7 @@ const fillQuery = () => `--sql
       n.id,
       n.id AS "noteId",
       n.name,
+      n.s3_key as icon,
       $2 AS layer,
       0 AS votes,
       false AS "myVote"
@@ -68,6 +72,7 @@ const fillQuery = () => `--sql
     id,
     "noteId",
     name,
+    icon,
     layer,
     votes,
     "myVote"
@@ -115,9 +120,16 @@ export const notes = async (parent: Fragrance, args: FragranceNotesArgs, ctx: Co
   const query = fill ? fillQuery() : noFillQuery()
   const values = [fragranceId, layer, userId, limit, offset]
 
-  const result = await ctx.pool.query<FragranceNote>(query, values)
+  const { rows } = await ctx.pool.query<FragranceNote>(query, values)
 
-  const notes = result.rows
+  const notes = await Promise.all(rows.map<Promise<FragranceNote>>(async note => {
+    try {
+      const url = await generateSignedUrl(note.icon)
+      return { ...note, iconUrl: url }
+    } catch (error) {
+      return { ...note, iconUrl: '' }
+    }
+  }))
 
   return notes
 }

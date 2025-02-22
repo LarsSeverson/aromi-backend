@@ -34,6 +34,7 @@ export interface FragranceNote {
   noteId: number
   name: string
   layer: NoteLayerType
+  icon: string
   votes: number
   myVote: boolean
 }
