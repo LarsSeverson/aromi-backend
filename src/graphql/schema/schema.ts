@@ -88,7 +88,7 @@ type FragranceReview {
   dModified: Date!
   dDeleted: Date
 
-  user: PublicUser!
+  author: String!
   myVote: Boolean
 }
 
@@ -105,13 +105,13 @@ type User {
   id: Int!
   username: String!
   email: String!
-
   cognitoId: String!
 }
 
-type PublicUser {
+type UserCollection {
   id: Int!
-  username: String!
+  name: String!
+  fragrances: [Fragrance!]!
 }
 
 type Query {

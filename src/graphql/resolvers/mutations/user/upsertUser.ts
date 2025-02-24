@@ -12,7 +12,6 @@ export const upsertUser = async (parent: undefined, args: UpsertUserArgs, ctx: C
   const { email, cognitoId } = args
 
   if (!ctxUser) return null
-
   if (ctxUser.cognitoId !== cognitoId) return null
 
   const query = `--sql
@@ -25,11 +24,11 @@ export const upsertUser = async (parent: undefined, args: UpsertUserArgs, ctx: C
       id,
       email,
       username,
-      cognito_id AS "cognitoId"
+      cognito_id as "cognitoId"
   `
-
-  const res = await ctx.pool.query(query, [email, cognitoId])
-  const user = res.rows[0]
+  const values = [email, cognitoId]
+  const { rows } = await ctx.pool.query<User>(query, values)
+  const user = rows.at(0)
 
   return user || null
 }

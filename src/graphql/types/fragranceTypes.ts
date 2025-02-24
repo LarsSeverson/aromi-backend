@@ -76,7 +76,7 @@ export interface FragranceReview {
   dModified: Date
   dDeleted: Date | null
 
-  user: User
+  author: string
   myVote: boolean | null
 }
 

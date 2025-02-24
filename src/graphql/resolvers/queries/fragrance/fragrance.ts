@@ -12,7 +12,7 @@ export interface FragranceFields {
 }
 
 interface FragranceArgs {
-  id: boolean
+  id: number
 }
 
 export const fragrance = async (_: undefined, args: FragranceArgs, ctx: Context, info: GraphQLResolveInfo): Promise<Fragrance | null> => {

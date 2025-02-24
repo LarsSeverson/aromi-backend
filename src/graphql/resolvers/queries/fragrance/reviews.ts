@@ -36,7 +36,7 @@ export const reviews = async (parent: Fragrance, args: FragranceReviewsArgs, ctx
       fr.created_at AS "dCreated",
       fr.updated_at AS "dModified",
       fr.deleted_at AS "dDeleted",
-      JSONB_BUILD_OBJECT('id', u.id, 'username', u.username) AS user,
+      u.username AS author,
       CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
     FROM fragrance_reviews fr
     JOIN users u ON u.id = fr.user_id
