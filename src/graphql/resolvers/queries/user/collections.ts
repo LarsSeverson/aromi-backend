@@ -1,30 +1,30 @@
 import { Context } from '@src/graphql/schema/context'
-import { UserCollection } from '@src/graphql/types/userTypes'
+import { User } from '@src/graphql/types/userTypes'
 import { GraphQLResolveInfo } from 'graphql'
 import graphqlFields from 'graphql-fields'
+import { FragranceCollection } from '@src/graphql/types/fragranceTypes'
 
 interface CollectionsArgs {
-  userId: number
   limit?: number | undefined
   offset?: number | undefined
 }
 
-export const collections = async (_: undefined, args: CollectionsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<UserCollection[]> => {
-  const { userId, limit, offset } = args
+export const collections = async (parent: User, args: CollectionsArgs, ctx: Context, info: GraphQLResolveInfo): Promise<FragranceCollection[]> => {
+  const { id } = parent
+  const { limit, offset } = args
   const fields = graphqlFields(info)
 
   const query = `--sql
-    SELECT 
+    SELECT
       id,
       name
-    FROM user_collections
+    FROM fragrance_collections
     WHERE user_id = $1
     LIMIT $2
     OFFSET $3
   `
-  const values = [userId, limit, offset]
+  const values = [id, limit, offset]
+  const { rows } = await ctx.pool.query<FragranceCollection>(query, values)
 
-  const { rows: collections } = await ctx.pool.query<UserCollection>(query, values)
-
-  return collections
+  return rows
 }

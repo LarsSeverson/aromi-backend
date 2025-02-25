@@ -106,3 +106,10 @@ export interface Fragrance {
   myReview: FragranceReview
   reviewDistribution: FragranceReviewDistribution
 }
+
+export interface FragranceCollection {
+  id: number
+  name: number
+  fragrances: Fragrance[]
+  user: User
+}

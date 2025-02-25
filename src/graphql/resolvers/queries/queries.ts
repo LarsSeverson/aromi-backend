@@ -7,14 +7,18 @@ import { images } from './fragrance/images'
 import { traits } from './fragrance/traits'
 import { fragrances } from './fragrance/fragrances'
 import { reviews } from './fragrance/reviews'
-import { myReview } from './fragrance/myReview'
-import { reviewDistribution } from './fragrance/reviewDistribution'
+import { myReview } from './fragrance/my-review'
+import { reviewDistribution } from './fragrance/review-distribution'
+import { collections } from './user/collections'
+import { collectionFragrances } from './fragrance/collection-fragrances'
+import { user } from './user/user'
 
 export const Query = {
   fragrance,
   fragrances,
 
-  me
+  me,
+  user
 }
 
 export const FragranceQuery = {
@@ -41,4 +45,13 @@ export const FragranceTraitsQuery = {
   complexity: traits,
   balance: traits,
   allure: traits
+}
+
+export const UserQuery = {
+  collections
+}
+
+export const FragranceCollectionQuery = {
+  fragrances: collectionFragrances,
+  user
 }

@@ -9,18 +9,14 @@ type Fragrance {
   rating: Float!
   reviewsCount: Int!
 
-  # Vote
   vote: FragranceVote!
 
-  # Traits
   traits: FragranceTraits!
 
-  # Characteristics
   notes: FragranceNotes!
   accords(limit: Int, offset: Int, fill: Boolean): [FragranceAccord!]!
   images(limit: Int, offset: Int): [FragranceImage!]!
 
-  # Reviews
   reviews(limit: Int, offset: Int): [FragranceReview!]!
   myReview: FragranceReview
   reviewDistribution: FragranceReviewDistribution!
@@ -46,7 +42,7 @@ type FragranceTrait {
   id: Int!
   trait: FragranceTraitType!
   value: Float!
-  myVote: Float # Current user's vote
+  myVote: Float
 }
 
 type FragranceNotes {
@@ -62,7 +58,7 @@ type FragranceNote {
   layer: NoteLayer!
   icon: String!
   votes: Int!
-  myVote: Boolean # Whether current user voted
+  myVote: Boolean 
 }
 
 type FragranceAccord {
@@ -71,12 +67,12 @@ type FragranceAccord {
   name: String!
   color: String!
   votes: Int!
-  myVote: Boolean # Whether current user voted
+  myVote: Boolean
 }
 
 type FragranceImage {
   id: Int!
-  url: String! # Derived from s3Key
+  url: String!
 }
 
 type FragranceReview {
@@ -101,32 +97,35 @@ type FragranceReviewDistribution {
   five: Int!
 }
 
+type FragranceCollection {
+  id: Int!
+  name: String!
+  fragrances(limit: Int, offset: Int): [Fragrance!]!
+  user: User!
+}
+
 type User {
   id: Int!
   username: String!
   email: String!
   cognitoId: String!
-}
 
-type UserCollection {
-  id: Int!
-  name: String!
-  fragrances: [Fragrance!]!
+  followers: Int!
+  following: Int!
+  collections(limit: Int, offset: Int): [FragranceCollection!]!
 }
 
 type Query {
-  # Get a single fragrance by its id
   fragrance(id: Int!): Fragrance
 
-  # Get a list of fragrances (with pagination)
-  fragrances(limit: Int, offset: Int): [Fragrance!]!
+  fragrances(limit: Int, offset: Int): [Fragrance!]
 
-  # Get the current user
   me: User
+
+  user(id: Int!): User
 }
 
 type Mutation {
-  # Get or create a user
   upsertUser(email: String!, cognitoId: String!): User
 
   # Voting
@@ -136,11 +135,9 @@ type Mutation {
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
   voteOnReview(reviewId: Int!, myVote: Boolean): FragranceReview
 
-  # Reviews
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
 }
 
-# Enums
 enum FragranceTraitType {
   gender
   longevity
@@ -155,6 +152,5 @@ enum NoteLayer {
   base
 }
 
-# Scalars
 scalar Date
 `

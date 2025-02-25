@@ -1,4 +1,4 @@
-import { Fragrance } from './fragranceTypes'
+import { Fragrance, FragranceCollection } from './fragranceTypes'
 
 export interface User {
   id: number
@@ -8,10 +8,6 @@ export interface User {
 
   followers: number
   following: number
-}
 
-export interface UserCollection {
-  id: number
-  name: number
-  fragrances: Fragrance[]
+  collections: FragranceCollection[]
 }
