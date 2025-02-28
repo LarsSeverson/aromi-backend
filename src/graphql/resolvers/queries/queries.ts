@@ -12,6 +12,8 @@ import { reviewDistribution } from './fragrance/review-distribution'
 import { collections } from './user/collections'
 import { collectionFragrances } from './fragrance/collection-fragrances'
 import { user } from './user/user'
+import { userReviews } from './user/reviews'
+import { userLikes } from './user/likes'
 
 export const Query = {
   fragrance,
@@ -48,7 +50,9 @@ export const FragranceTraitsQuery = {
 }
 
 export const UserQuery = {
-  collections
+  collections,
+  reviews: userReviews,
+  likes: userLikes
 }
 
 export const FragranceCollectionQuery = {

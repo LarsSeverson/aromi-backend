@@ -112,7 +112,10 @@ type User {
 
   followers: Int!
   following: Int!
+
   collections(limit: Int, offset: Int): [FragranceCollection!]!
+  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  likes(limit: Int, offset: Int): [Fragrance!]!
 }
 
 type Query {
