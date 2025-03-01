@@ -1,12 +1,14 @@
-import { s3 } from '@src/graphql/schema/datasources'
+import { GetObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { s3 } from '@src/datasources'
 
 export const generateSignedUrl = async (key: string): Promise<string> => {
-  const bucket = process.env.S3_BUCKET || null
-  if (!bucket) return ''
+  const bucket = process.env.S3_BUCKET
+  if (bucket === undefined || bucket === '') return ''
 
-  return s3.getSignedUrlPromise('getObject', {
-    Bucket: bucket,
-    Key: key,
-    Expires: 60
-  })
+  const command = new GetObjectCommand({ Bucket: bucket, Key: key })
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const url = await getSignedUrl(s3, command, { expiresIn: 3600 }) as string
+
+  return url ?? ''
 }

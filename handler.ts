@@ -1,27 +1,23 @@
-import { ApolloServer } from 'apollo-server-lambda'
-import { GraphQLDateTime } from 'graphql-scalars'
-import { getContext } from './src/graphql/schema/context'
-import { schema } from './src/graphql/schema/schema'
-import { Mutation } from './src/graphql/resolvers/mutations/mutations'
-import { FragranceQuery, FragranceNotesQuery, Query, FragranceTraitsQuery, UserQuery, FragranceCollectionQuery } from './src/graphql/resolvers/queries/queries'
+import { ApolloServer } from '@apollo/server'
+import { startStandaloneServer } from '@apollo/server/standalone'
+import { getContext } from './src/context'
+import { readFileSync } from 'fs'
+import resolvers from './src/resolvers/resolvers'
+
+const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 
 const server = new ApolloServer({
-  typeDefs: schema,
-  resolvers: {
-    Mutation,
-    Query,
-
-    Fragrance: FragranceQuery,
-    FragranceTraits: FragranceTraitsQuery,
-    FragranceNotes: FragranceNotesQuery,
-    FragranceCollection: FragranceCollectionQuery,
-
-    User: UserQuery,
-
-    Date: GraphQLDateTime
-  },
-  context: getContext,
+  typeDefs,
+  resolvers,
   introspection: true
 })
 
-export const graphql = server.createHandler()
+export const start = async (): Promise<void> => {
+  const { url } = await startStandaloneServer(server, {
+    context: getContext
+  })
+
+  console.log(`🚀 Server ready at ${url}`)
+}
+
+void start()

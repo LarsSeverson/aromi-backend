@@ -1,0 +1,145 @@
+scalar Date
+
+type Fragrance {
+  accords(fill: Boolean, limit: Int, offset: Int): [FragranceAccord!]!
+  brand: String!
+  id: Int!
+  images(limit: Int, offset: Int): [FragranceImage!]!
+  myReview: FragranceReview
+  name: String!
+  notes: FragranceNotes!
+  rating: Float!
+  reviewDistribution: FragranceReviewDistribution!
+  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  reviewsCount: Int!
+  traits: FragranceTraits!
+  vote: FragranceVote!
+}
+
+type FragranceAccord {
+  accordId: Int!
+  color: String!
+  id: Int!
+  myVote: Boolean
+  name: String!
+  votes: Int!
+}
+
+type FragranceCollection {
+  fragrances(limit: Int, offset: Int): [Fragrance!]!
+  id: Int!
+  name: String!
+  user: User!
+}
+
+type FragranceImage {
+  id: Int!
+  url: String!
+}
+
+type FragranceNote {
+  icon: String!
+  id: Int!
+  layer: NoteLayer!
+  myVote: Boolean
+  name: String!
+  noteId: Int!
+  votes: Int!
+}
+
+type FragranceNotes {
+  base(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
+  fragranceId: Int!
+  id: Int!
+  middle(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
+  top(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
+}
+
+type FragranceReview {
+  author: String!
+  dCreated: Date!
+  dDeleted: Date
+  dModified: Date!
+  id: Int!
+  myVote: Boolean
+  rating: Int!
+  review: String!
+  votes: Int!
+}
+
+type FragranceReviewDistribution {
+  five: Int!
+  four: Int!
+  one: Int!
+  three: Int!
+  two: Int!
+}
+
+type FragranceTrait {
+  id: Int!
+  myVote: Float
+  trait: FragranceTraitType!
+  value: Float!
+}
+
+enum FragranceTraitType {
+  allure
+  balance
+  complexity
+  gender
+  longevity
+  sillage
+}
+
+type FragranceTraits {
+  allure: FragranceTrait!
+  balance: FragranceTrait!
+  complexity: FragranceTrait!
+  fragranceId: Int!
+  gender: FragranceTrait!
+  id: Int!
+  longevity: FragranceTrait!
+  sillage: FragranceTrait!
+}
+
+type FragranceVote {
+  dislikes: Int!
+  id: Int!
+  likes: Int!
+  myVote: Boolean
+}
+
+type Mutation {
+  reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
+  upsertUser(cognitoId: String!, email: String!): User
+  voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
+  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote
+  voteOnNote(fragranceId: Int!, layer: NoteLayer!, myVote: Boolean!, noteId: Int!): FragranceNote
+  voteOnReview(myVote: Boolean, reviewId: Int!): FragranceReview
+  voteOnTrait(fragranceId: Int!, myVote: Float!, trait: FragranceTraitType!): FragranceTrait
+}
+
+enum NoteLayer {
+  base
+  middle
+  top
+}
+
+type Query {
+  fragrance(id: Int!): Fragrance
+  fragrances(limit: Int, offset: Int): [Fragrance!]
+  me: User
+  user(id: Int!): User
+}
+
+type User {
+  cognitoId: String!
+  collections(limit: Int, offset: Int): [FragranceCollection!]!
+  email: String!
+  followers: Int!
+  following: Int!
+  id: Int!
+  likes(limit: Int, offset: Int): [Fragrance!]!
+  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  username: String!
+}
