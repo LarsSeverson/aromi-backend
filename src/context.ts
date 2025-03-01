@@ -4,8 +4,7 @@ import { type JwtHeader, type JwtPayload, type SigningKeyCallback, verify } from
 import { JwksClient } from 'jwks-rsa'
 import { requiredEnv } from './utils/requiredEnv'
 import { type User } from './generated/gql-types'
-import { type ContextFunction } from '@apollo/server'
-import { type StandaloneServerContextFunctionArgument } from '@apollo/server/dist/esm/standalone'
+import { type APIGatewayProxyEventV2, type Context as LambdaContext } from 'aws-lambda'
 
 export interface Context {
   pool: Pool
@@ -61,11 +60,13 @@ const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | nul
   return rows.at(0) ?? null
 }
 
-export const getContext: ContextFunction<[StandaloneServerContextFunctionArgument], Context> = async ({ req, res }): Promise<Context> => {
-  const { authorization } = req.headers
+export const getContext = async ({ event, context }: { event: APIGatewayProxyEventV2, context: LambdaContext }): Promise<Context> => {
+  const { headers } = event
+  const { authorization } = headers
   const token = authorization?.replace('Bearer ', '') ?? undefined
 
   const ctx: Context = { pool: aromidb, token }
+
   const decoded = await decodeToken(token)
   const cognitoId = decoded?.sub ?? undefined
 

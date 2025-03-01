@@ -11,16 +11,14 @@ provider:
 
 functions:
   graphql:
-    handler: handler.graphql
+    handler: src/server.graphqlHandler
     events:
-      - http:
-          path: graphql
-          method: post
-          cors: true
-      - http:
-          path: graphql
-          method: get
-          cors: true
+      - httpApi:
+          path: / 
+          method: POST
+      - httpApi:
+          path: /
+          method: GET
 
 package:
   individually: true
@@ -30,7 +28,6 @@ package:
     - .vscode/**
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-offline
 
 build:

@@ -6,17 +6,18 @@
   "author": "aromi-dev",
   "scripts": {
     "dev": "sudo sls offline --host 0.0.0.0",
-    "start": "npm run build && node dist/handler.js",
+    "start": "npm run build && node dist/src/server.js",
     "build": "tsc && tsc-alias && copyfiles -u 2 src/generated/schema.graphql dist/src/generated",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix 'src/**/*.ts'",
-    "generate": "graphql-codegen"
+    "codegen": "graphql-codegen --config src/scripts/codegen.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
+    "@as-integrations/aws-lambda": "^3.1.0",
     "@aws-sdk/client-s3": "^3.758.0",
     "@aws-sdk/s3-request-presigner": "^3.758.0",
     "dotenv": "^16.4.7",
@@ -40,6 +41,7 @@
     "copyfiles": "^2.4.1",
     "eslint": "^8.57.1",
     "eslint-config-standard-with-typescript": "^43.0.1",
+    "serverless-offline": "^14.4.0",
     "standard": "^17.1.2",
     "tsc-alias": "^1.8.11",
     "typescript": "^5.7.3"

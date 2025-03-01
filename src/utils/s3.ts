@@ -7,8 +7,7 @@ export const generateSignedUrl = async (key: string): Promise<string> => {
   if (bucket === undefined || bucket === '') return ''
 
   const command = new GetObjectCommand({ Bucket: bucket, Key: key })
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const url = await getSignedUrl(s3, command, { expiresIn: 3600 }) as string
+  const url = await getSignedUrl(s3, command, { expiresIn: 3600 })
 
   return url ?? ''
 }
