@@ -1,3 +1,7 @@
+input CreateCollectionInput {
+  name: String!
+}
+
 scalar Date
 
 type Fragrance {
@@ -26,10 +30,22 @@ type FragranceAccord {
 }
 
 type FragranceCollection {
+  dCreated: Date!
+  dModified: Date!
   fragrances(limit: Int, offset: Int): [Fragrance!]!
   id: Int!
   name: String!
   user: User!
+}
+
+type FragranceCollectionConnection {
+  edges: [FragranceCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionEdge {
+  cursor: String!
+  node: FragranceCollection!
 }
 
 type FragranceImage {
@@ -50,7 +66,6 @@ type FragranceNote {
 type FragranceNotes {
   base(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
   fragranceId: Int!
-  id: Int!
   middle(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
   top(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
 }
@@ -97,7 +112,6 @@ type FragranceTraits {
   complexity: FragranceTrait!
   fragranceId: Int!
   gender: FragranceTrait!
-  id: Int!
   longevity: FragranceTrait!
   sillage: FragranceTrait!
 }
@@ -110,6 +124,9 @@ type FragranceVote {
 }
 
 type Mutation {
+  addFragranceToCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
+  createCollection(input: CreateCollectionInput!): FragranceCollection
+  removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
   upsertUser(cognitoId: String!, email: String!): User
   voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
@@ -125,6 +142,13 @@ enum NoteLayer {
   top
 }
 
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
 type Query {
   fragrance(id: Int!): Fragrance
   fragrances(limit: Int, offset: Int): [Fragrance!]
@@ -132,9 +156,25 @@ type Query {
   user(id: Int!): User
 }
 
+enum SortBy {
+  created
+  id
+  updated
+}
+
+input SortByInput {
+  by: SortBy!
+  direction: SortDirection! = desc
+}
+
+enum SortDirection {
+  asc
+  desc
+}
+
 type User {
   cognitoId: String!
-  collections(limit: Int, offset: Int): [FragranceCollection!]!
+  collections(after: String, first: Int, sortBy: SortByInput): FragranceCollectionConnection!
   email: String!
   followers: Int!
   following: Int!

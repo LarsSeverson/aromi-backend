@@ -18,6 +18,10 @@ export type Scalars = {
   Date: { input: any; output: any; }
 };
 
+export type CreateCollectionInput = {
+  name: Scalars['String']['input'];
+};
+
 export type Fragrance = {
   __typename?: 'Fragrance';
   accords: Array<FragranceAccord>;
@@ -66,6 +70,8 @@ export type FragranceAccord = {
 
 export type FragranceCollection = {
   __typename?: 'FragranceCollection';
+  dCreated: Scalars['Date']['output'];
+  dModified: Scalars['Date']['output'];
   fragrances: Array<Fragrance>;
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
@@ -76,6 +82,18 @@ export type FragranceCollection = {
 export type FragranceCollectionFragrancesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type FragranceCollectionConnection = {
+  __typename?: 'FragranceCollectionConnection';
+  edges: Array<FragranceCollectionEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceCollectionEdge = {
+  __typename?: 'FragranceCollectionEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceCollection;
 };
 
 export type FragranceImage = {
@@ -99,7 +117,6 @@ export type FragranceNotes = {
   __typename?: 'FragranceNotes';
   base: Array<FragranceNote>;
   fragranceId: Scalars['Int']['output'];
-  id: Scalars['Int']['output'];
   middle: Array<FragranceNote>;
   top: Array<FragranceNote>;
 };
@@ -171,7 +188,6 @@ export type FragranceTraits = {
   complexity: FragranceTrait;
   fragranceId: Scalars['Int']['output'];
   gender: FragranceTrait;
-  id: Scalars['Int']['output'];
   longevity: FragranceTrait;
   sillage: FragranceTrait;
 };
@@ -186,6 +202,9 @@ export type FragranceVote = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addFragranceToCollection?: Maybe<FragranceCollection>;
+  createCollection?: Maybe<FragranceCollection>;
+  removeFragranceFromCollection?: Maybe<FragranceCollection>;
   reviewFragrance?: Maybe<FragranceReview>;
   upsertUser?: Maybe<User>;
   voteOnAccord?: Maybe<FragranceAccord>;
@@ -193,6 +212,23 @@ export type Mutation = {
   voteOnNote?: Maybe<FragranceNote>;
   voteOnReview?: Maybe<FragranceReview>;
   voteOnTrait?: Maybe<FragranceTrait>;
+};
+
+
+export type MutationAddFragranceToCollectionArgs = {
+  collectionId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
+};
+
+
+export type MutationCreateCollectionArgs = {
+  input: CreateCollectionInput;
+};
+
+
+export type MutationRemoveFragranceFromCollectionArgs = {
+  collectionId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
 };
 
 
@@ -248,6 +284,14 @@ export enum NoteLayer {
   Top = 'top'
 }
 
+export type PageInfo = {
+  __typename?: 'PageInfo';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   fragrance?: Maybe<Fragrance>;
@@ -272,10 +316,26 @@ export type QueryUserArgs = {
   id: Scalars['Int']['input'];
 };
 
+export enum SortBy {
+  Created = 'created',
+  Id = 'id',
+  Updated = 'updated'
+}
+
+export type SortByInput = {
+  by: SortBy;
+  direction?: SortDirection;
+};
+
+export enum SortDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+
 export type User = {
   __typename?: 'User';
   cognitoId: Scalars['String']['output'];
-  collections: Array<FragranceCollection>;
+  collections: FragranceCollectionConnection;
   email: Scalars['String']['output'];
   followers: Scalars['Int']['output'];
   following: Scalars['Int']['output'];
@@ -287,8 +347,9 @@ export type User = {
 
 
 export type UserCollectionsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<SortByInput>;
 };
 
 
@@ -376,11 +437,14 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CreateCollectionInput: CreateCollectionInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Fragrance: ResolverTypeWrapper<Fragrance>;
   FragranceAccord: ResolverTypeWrapper<FragranceAccord>;
   FragranceCollection: ResolverTypeWrapper<FragranceCollection>;
+  FragranceCollectionConnection: ResolverTypeWrapper<FragranceCollectionConnection>;
+  FragranceCollectionEdge: ResolverTypeWrapper<FragranceCollectionEdge>;
   FragranceImage: ResolverTypeWrapper<FragranceImage>;
   FragranceNote: ResolverTypeWrapper<FragranceNote>;
   FragranceNotes: ResolverTypeWrapper<FragranceNotes>;
@@ -393,7 +457,11 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   NoteLayer: NoteLayer;
+  PageInfo: ResolverTypeWrapper<PageInfo>;
   Query: ResolverTypeWrapper<{}>;
+  SortBy: SortBy;
+  SortByInput: SortByInput;
+  SortDirection: SortDirection;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<User>;
 }>;
@@ -401,11 +469,14 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  CreateCollectionInput: CreateCollectionInput;
   Date: Scalars['Date']['output'];
   Float: Scalars['Float']['output'];
   Fragrance: Fragrance;
   FragranceAccord: FragranceAccord;
   FragranceCollection: FragranceCollection;
+  FragranceCollectionConnection: FragranceCollectionConnection;
+  FragranceCollectionEdge: FragranceCollectionEdge;
   FragranceImage: FragranceImage;
   FragranceNote: FragranceNote;
   FragranceNotes: FragranceNotes;
@@ -416,7 +487,9 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceVote: FragranceVote;
   Int: Scalars['Int']['output'];
   Mutation: {};
+  PageInfo: PageInfo;
   Query: {};
+  SortByInput: SortByInput;
   String: Scalars['String']['output'];
   User: User;
 }>;
@@ -453,10 +526,24 @@ export type FragranceAccordResolvers<ContextType = Context, ParentType extends R
 }>;
 
 export type FragranceCollectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceCollection'] = ResolversParentTypes['FragranceCollection']> = ResolversObject<{
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   fragrances?: Resolver<Array<ResolversTypes['Fragrance']>, ParentType, ContextType, Partial<FragranceCollectionFragrancesArgs>>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceCollectionConnection'] = ResolversParentTypes['FragranceCollectionConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceCollectionEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionEdgeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceCollectionEdge'] = ResolversParentTypes['FragranceCollectionEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -480,7 +567,6 @@ export type FragranceNoteResolvers<ContextType = Context, ParentType extends Res
 export type FragranceNotesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceNotes'] = ResolversParentTypes['FragranceNotes']> = ResolversObject<{
   base?: Resolver<Array<ResolversTypes['FragranceNote']>, ParentType, ContextType, Partial<FragranceNotesBaseArgs>>;
   fragranceId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   middle?: Resolver<Array<ResolversTypes['FragranceNote']>, ParentType, ContextType, Partial<FragranceNotesMiddleArgs>>;
   top?: Resolver<Array<ResolversTypes['FragranceNote']>, ParentType, ContextType, Partial<FragranceNotesTopArgs>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -522,7 +608,6 @@ export type FragranceTraitsResolvers<ContextType = Context, ParentType extends R
   complexity?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
   fragranceId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   gender?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   longevity?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
   sillage?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -537,6 +622,9 @@ export type FragranceVoteResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  addFragranceToCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationAddFragranceToCollectionArgs, 'collectionId' | 'fragranceId'>>;
+  createCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
+  removeFragranceFromCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionArgs, 'collectionId' | 'fragranceId'>>;
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
   upsertUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpsertUserArgs, 'cognitoId' | 'email'>>;
   voteOnAccord?: Resolver<Maybe<ResolversTypes['FragranceAccord']>, ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'accordId' | 'fragranceId' | 'myVote'>>;
@@ -544,6 +632,14 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   voteOnNote?: Resolver<Maybe<ResolversTypes['FragranceNote']>, ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'fragranceId' | 'layer' | 'myVote' | 'noteId'>>;
   voteOnReview?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationVoteOnReviewArgs, 'reviewId'>>;
   voteOnTrait?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType, RequireFields<MutationVoteOnTraitArgs, 'fragranceId' | 'myVote' | 'trait'>>;
+}>;
+
+export type PageInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  startCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
@@ -555,7 +651,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   cognitoId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  collections?: Resolver<Array<ResolversTypes['FragranceCollection']>, ParentType, ContextType, Partial<UserCollectionsArgs>>;
+  collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   followers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   following?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -571,6 +667,8 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
   FragranceCollection?: FragranceCollectionResolvers<ContextType>;
+  FragranceCollectionConnection?: FragranceCollectionConnectionResolvers<ContextType>;
+  FragranceCollectionEdge?: FragranceCollectionEdgeResolvers<ContextType>;
   FragranceImage?: FragranceImageResolvers<ContextType>;
   FragranceNote?: FragranceNoteResolvers<ContextType>;
   FragranceNotes?: FragranceNotesResolvers<ContextType>;
@@ -580,6 +678,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   FragranceTraits?: FragranceTraitsResolvers<ContextType>;
   FragranceVote?: FragranceVoteResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;

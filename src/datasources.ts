@@ -1,5 +1,5 @@
 import { Pool } from 'pg'
-import { requiredEnv } from './utils/requiredEnv'
+import { requiredEnv } from './common/env-util'
 import { S3Client } from '@aws-sdk/client-s3'
 
 const aromidb = new Pool({

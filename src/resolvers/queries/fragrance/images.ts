@@ -1,5 +1,5 @@
 import { type FragranceImage, type FragranceResolvers } from '@src/generated/gql-types'
-import { generateSignedUrl } from '@src/utils/s3'
+import { generateSignedUrl } from '@src/common/s3'
 
 const IMAGES_QUERY = `--sql
   SELECT

@@ -2,7 +2,7 @@ import type { Pool } from 'pg'
 import aromidb from './datasources'
 import { type JwtHeader, type JwtPayload, type SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
-import { requiredEnv } from './utils/requiredEnv'
+import { requiredEnv } from './common/env-util'
 import { type User } from './generated/gql-types'
 import { type APIGatewayProxyEventV2, type Context as LambdaContext } from 'aws-lambda'
 
@@ -21,7 +21,7 @@ const getKey = (header: JwtHeader, callback: SigningKeyCallback): void => {
 }
 
 const decodeToken = async (token: string | undefined): Promise<JwtPayload | null> => {
-  if (token === undefined || token === '') return null
+  if (token == null) return null
 
   try {
     const decoded = await new Promise<JwtPayload>((resolve, reject) => {

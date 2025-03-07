@@ -2,3 +2,26 @@ type Query
 type Mutation
 
 scalar Date
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+enum SortDirection {
+  asc
+  desc
+}
+
+enum SortBy {
+  id
+  created 
+  updated 
+}
+
+input SortByInput {
+  by: SortBy!
+  direction: SortDirection! = desc
+}

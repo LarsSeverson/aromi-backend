@@ -12,5 +12,5 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["src/generated/**", "dist/**", "node_modules/**", ".serverless/**"]
+  "ignorePatterns": ["dist/**", "node_modules/**", ".serverless/**"]
 }

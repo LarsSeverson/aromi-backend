@@ -99,6 +99,9 @@ type FragranceCollection {
   name: String!
   fragrances(limit: Int, offset: Int): [Fragrance!]!
   user: User!
+
+  dModified: Date!
+  dCreated: Date!
 }
 
 extend type Query {
@@ -112,8 +115,10 @@ extend type Mutation {
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote
   voteOnReview(reviewId: Int!, myVote: Boolean): FragranceReview
-
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
+
+  addFragranceToCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
+  removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
 }
 
 enum FragranceTraitType {
@@ -129,4 +134,14 @@ enum NoteLayer {
   top
   middle
   base
+}
+
+type FragranceCollectionEdge {
+  cursor: String!
+  node: FragranceCollection!
+}
+
+type FragranceCollectionConnection {
+  edges: [FragranceCollectionEdge!]!
+  pageInfo: PageInfo!
 }
