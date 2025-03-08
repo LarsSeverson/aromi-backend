@@ -7,8 +7,8 @@ const BASE_QUERY = /* sql */`
   SELECT
     id,
     name,
-    updated_at AS "dModified",
-    created_at AS "dCreated"
+    created_at AS "dCreated",
+    updated_at AS "dModified"
   FROM fragrance_collections
   WHERE user_id = $1 
 `

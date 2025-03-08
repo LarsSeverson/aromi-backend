@@ -7,7 +7,9 @@ import { decodeCursor, encodeCursor } from '@src/common/cursor'
 const IMAGES_QUERY = /* sql */`
   SELECT
     id,
-    s3_key AS url
+    s3_key AS url,
+    created_at AS "dCreated",
+    updated_at AS "dModified"
   FROM fragrance_images
   WHERE fragrance_id = $1
 `

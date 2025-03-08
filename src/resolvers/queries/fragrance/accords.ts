@@ -11,7 +11,9 @@ const NO_FILL_BASE_QUERY = /* sql */`
     a.name,
     a.color,
     fa.votes,
-    CASE WHEN fav.id IS NOT NULL THEN true ELSE false END AS "myVote"
+    CASE WHEN fav.id IS NOT NULL THEN true ELSE false END AS "myVote",
+    fa.created_at AS "dCreated",
+    fa.updated_at AS "dModified"
   FROM fragrance_accords fa
   JOIN accords a ON a.id = fa.accord_id
   LEFT JOIN fragrance_accord_votes fav ON fav.fragrance_accord_id = fa.id
@@ -28,7 +30,9 @@ const FILL_BASE_QUERY = /* sql */`
       a.name,
       a.color,
       fa.votes,
-      CASE WHEN fav.id IS NOT NULL THEN true ELSE false END AS "myVote"
+      CASE WHEN fav.id IS NOT NULL THEN true ELSE false END AS "myVote",
+      fa.created_at AS "dCreated",
+      fa.updated_at AS "dModified"
     FROM fragrance_accords fa
     JOIN accords a ON a.id = fa.accord_id
     LEFT JOIN fragrance_accord_votes fav ON fav.fragrance_accord_id = fa.id
@@ -43,7 +47,9 @@ const FILL_BASE_QUERY = /* sql */`
       a.name,
       a.color,
       0 AS votes,
-      false AS "myVote"
+      false AS "myVote",
+      a.created_at AS "dCreated",
+      a.updated_at AS "dModified"
     FROM accords a
     WHERE NOT EXISTS (
       SELECT 1
