@@ -1,6 +1,6 @@
 import { type FragranceNote, type MutationResolvers } from '@src/generated/gql-types'
 
-const VOTE_ON_NOTE_QUERY = `--sql
+const VOTE_ON_NOTE_QUERY = /* sql */`
   WITH inserted AS (
     INSERT INTO fragrance_notes (fragrance_id, note_id, layer)
     VALUES ($1, $2, $3)

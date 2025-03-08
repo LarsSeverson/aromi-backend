@@ -1,3 +1,8 @@
+input AccordsInput {
+  fill: Boolean
+  pagination: VotePaginationInput
+}
+
 input CreateCollectionInput {
   name: String!
 }
@@ -5,19 +10,21 @@ input CreateCollectionInput {
 scalar Date
 
 type Fragrance {
-  accords(fill: Boolean, limit: Int, offset: Int): [FragranceAccord!]!
+  accords(input: AccordsInput): FragranceAccordConnection!
   brand: String!
+  dCreated: Date!
+  dModified: Date!
   id: Int!
-  images(limit: Int, offset: Int): [FragranceImage!]!
+  images(input: QueryInput): FragranceImageConnection!
   myReview: FragranceReview
   name: String!
   notes: FragranceNotes!
   rating: Float!
   reviewDistribution: FragranceReviewDistribution!
-  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  reviews(input: VoteQueryInput): FragranceReviewConnection!
   reviewsCount: Int!
   traits: FragranceTraits!
-  vote: FragranceVote!
+  votes: FragranceVote!
 }
 
 type FragranceAccord {
@@ -29,10 +36,20 @@ type FragranceAccord {
   votes: Int!
 }
 
+type FragranceAccordConnection {
+  edges: [FragranceAccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceAccordEdge {
+  cursor: String!
+  node: FragranceAccord!
+}
+
 type FragranceCollection {
   dCreated: Date!
   dModified: Date!
-  fragrances(limit: Int, offset: Int): [Fragrance!]!
+  fragrances(input: QueryInput): FragranceConnection!
   id: Int!
   name: String!
   user: User!
@@ -48,9 +65,29 @@ type FragranceCollectionEdge {
   node: FragranceCollection!
 }
 
+type FragranceConnection {
+  edges: [FragranceEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceEdge {
+  cursor: String!
+  node: Fragrance!
+}
+
 type FragranceImage {
   id: Int!
   url: String!
+}
+
+type FragranceImageConnection {
+  edges: [FragranceImageEdge!]!
+  pageInfo: PageInfo
+}
+
+type FragranceImageEdge {
+  cursor: String!
+  node: FragranceImage!
 }
 
 type FragranceNote {
@@ -63,11 +100,21 @@ type FragranceNote {
   votes: Int!
 }
 
+type FragranceNoteConnection {
+  edges: [FragranceNoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceNoteEdge {
+  cursor: String!
+  node: FragranceNote!
+}
+
 type FragranceNotes {
-  base(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
+  base(input: NotesInput): FragranceNoteConnection!
   fragranceId: Int!
-  middle(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
-  top(fill: Boolean, limit: Int, offset: Int): [FragranceNote!]!
+  middle(input: NotesInput): FragranceNoteConnection!
+  top(input: NotesInput): FragranceNoteConnection!
 }
 
 type FragranceReview {
@@ -82,12 +129,22 @@ type FragranceReview {
   votes: Int!
 }
 
+type FragranceReviewConnection {
+  edges: [FragranceReviewEdge!]!
+  pageInfo: PageInfo!
+}
+
 type FragranceReviewDistribution {
   five: Int!
   four: Int!
   one: Int!
   three: Int!
   two: Int!
+}
+
+type FragranceReviewEdge {
+  cursor: String!
+  node: FragranceReview!
 }
 
 type FragranceTrait {
@@ -107,13 +164,13 @@ enum FragranceTraitType {
 }
 
 type FragranceTraits {
-  allure: FragranceTrait!
-  balance: FragranceTrait!
-  complexity: FragranceTrait!
+  allure: FragranceTrait
+  balance: FragranceTrait
+  complexity: FragranceTrait
   fragranceId: Int!
-  gender: FragranceTrait!
-  longevity: FragranceTrait!
-  sillage: FragranceTrait!
+  gender: FragranceTrait
+  longevity: FragranceTrait
+  sillage: FragranceTrait
 }
 
 type FragranceVote {
@@ -142,6 +199,11 @@ enum NoteLayer {
   top
 }
 
+input NotesInput {
+  fill: Boolean
+  pagination: VotePaginationInput
+}
+
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -149,17 +211,27 @@ type PageInfo {
   startCursor: String
 }
 
+input PaginationInput {
+  after: String
+  first: Int
+  sortBy: SortByInput
+}
+
 type Query {
   fragrance(id: Int!): Fragrance
-  fragrances(limit: Int, offset: Int): [Fragrance!]
+  fragrances(input: QueryInput): FragranceConnection!
   me: User
   user(id: Int!): User
+}
+
+input QueryInput {
+  pagination: PaginationInput
 }
 
 enum SortBy {
   created
   id
-  updated
+  modified
 }
 
 input SortByInput {
@@ -174,12 +246,34 @@ enum SortDirection {
 
 type User {
   cognitoId: String!
-  collections(after: String, first: Int, sortBy: SortByInput): FragranceCollectionConnection!
+  collections(input: QueryInput): FragranceCollectionConnection!
   email: String!
   followers: Int!
   following: Int!
   id: Int!
-  likes(limit: Int, offset: Int): [Fragrance!]!
-  reviews(limit: Int, offset: Int): [FragranceReview!]!
+  likes(input: QueryInput): FragranceConnection!
+  reviews(input: VoteQueryInput): FragranceReviewConnection!
   username: String!
+}
+
+input VotePaginationInput {
+  after: String
+  first: Int
+  sortBy: VoteSortByInput
+}
+
+input VoteQueryInput {
+  pagination: VotePaginationInput
+}
+
+enum VoteSortBy {
+  created
+  id
+  modified
+  votes
+}
+
+input VoteSortByInput {
+  by: VoteSortBy!
+  direction: SortDirection! = desc
 }

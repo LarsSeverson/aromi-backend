@@ -45,7 +45,7 @@ const decodeToken = async (token: string | undefined): Promise<JwtPayload | null
 }
 
 const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | null> => {
-  const query = `--sql
+  const query = /* sql */`
     SELECT
       id,
       email,

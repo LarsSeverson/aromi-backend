@@ -1,6 +1,6 @@
 import { type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
 
-const FRAGRANCE_QUERY = `--sql
+const FRAGRANCE_QUERY = /* sql */`
   WITH fragrance_data AS (
     SELECT
       id,
@@ -34,7 +34,7 @@ const FRAGRANCE_QUERY = `--sql
       'likes', fd.likes_count,
       'dislikes', fd.dislikes_count,
       'myVote', CASE WHEN uv.vote = 1 THEN true WHEN uv.vote = -1 THEN false ELSE null END
-    ) AS vote
+    ) AS votes
   FROM fragrance_data fd
   LEFT JOIN user_vote uv ON TRUE
 `

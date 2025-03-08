@@ -1,59 +1,55 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { dbSortMapping, gqlSortMapping } from '@src/common/sort-map'
-import { type FragranceCollection, type FragranceCollectionEdge, type PageInfo, SortBy, SortDirection, type UserResolvers } from '@src/generated/gql-types'
+import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getSortColumns } from '@src/common/sort-map'
+import { type FragranceCollection, type FragranceCollectionEdge, type UserResolvers } from '@src/generated/gql-types'
+
+const BASE_QUERY = /* sql */`
+  SELECT
+    id,
+    name,
+    updated_at AS "dModified",
+    created_at AS "dCreated"
+  FROM fragrance_collections
+  WHERE user_id = $1 
+`
 
 export const collections: UserResolvers['collections'] = async (parent, args, context, info) => {
   const { id } = parent
+  const { input } = args
+  const { first, after, sortInput } = getPaginationInput(input?.pagination)
   const { pool } = context
-  const { first, after, sortBy } = args
 
-  const sortInput = sortBy ?? { by: SortBy.Updated, direction: SortDirection.Desc }
-  const gqlColumn = gqlSortMapping[sortInput.by]
-  const dbColumn = dbSortMapping[sortInput.by]
+  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
+
   const values: Array<string | number> = [id]
-
-  let query = /* sql */`
-    SELECT
-      id,
-      name,
-      updated_at AS "dModified",
-      created_at AS "dCreated"
-    FROM fragrance_collections
-    WHERE user_id = $1
-  `
+  const queryParts = [BASE_QUERY]
 
   if (after != null) {
-    const decodedAfter = decodeCursor(after)
-    query += ` AND ${dbColumn} ${sortInput.direction === SortDirection.Asc
-      ? '>'
-      : '<'} $${values.length + 1}`
-    values.push(decodedAfter)
+    const sortPart = /* sql */`
+      AND ${dbColumn} ${getSortDirectionChar(sortInput.direction)} 
+      $${values.length + 1}
+    `
+    queryParts.push(sortPart)
+    values.push(decodeCursor(after))
   }
 
-  query += ` ORDER BY "${gqlColumn}" ${sortInput.direction}`
+  const pagePart = /* sql */`
+    ORDER BY "${gqlColumn}" ${sortInput.direction}
+    LIMIT $${values.length + 1}
+  `
 
-  if (first != null) {
-    query += ` LIMIT $${values.length + 1}`
-    values.push(first + 1)
-  }
+  queryParts.push(pagePart)
+  values.push(first + 1)
 
+  const query = queryParts.join('\n')
   const { rows } = await pool.query<FragranceCollection>(query, values)
 
-  const hasNextPage = (first != null) && rows.length > first
   const edges = rows.map<FragranceCollectionEdge>(row => ({
     node: { ...row, user: parent },
     cursor: encodeCursor(row[gqlColumn])
   }))
 
-  const startCursor = edges.at(0)?.cursor ?? null
-  const endCursor = edges.at(-1)?.cursor ?? null
-
-  const pageInfo: PageInfo = {
-    hasNextPage,
-    hasPreviousPage: Boolean(after),
-    startCursor,
-    endCursor
-  }
+  const pageInfo = getPageInfo(edges, first, after)
 
   return { edges, pageInfo }
 }

@@ -1,6 +1,6 @@
 import { type FragranceResolvers, type FragranceReview, type FragranceReviewDistribution } from '@src/generated/gql-types'
 
-const REVIEW_DIST_QUERY = `--sql
+const REVIEW_DIST_QUERY = /* sql */`
   SELECT rating, COUNT(*) AS count 
   FROM fragrance_reviews
   WHERE fragrance_id = $1

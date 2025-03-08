@@ -1,6 +1,6 @@
 import { type FragranceTraitType, type FragranceTrait, type FragranceTraitsResolvers } from '@src/generated/gql-types'
 
-const TRAITS_QUERY = `--sql
+const TRAITS_QUERY = /* sql */`
   SELECT
     ft.id,
     ft.value,
@@ -26,5 +26,5 @@ export const traits: FragranceTraitsResolvers['allure'] = async (parent, args, c
   const values = [fragranceId, user?.id, trait]
   const { rows } = await pool.query<FragranceTrait>(TRAITS_QUERY, values)
 
-  return rows[0]
+  return rows.at(0) ?? null
 }

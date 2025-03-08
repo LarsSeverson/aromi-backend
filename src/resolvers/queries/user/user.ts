@@ -1,6 +1,6 @@
 import { type User, type QueryResolvers } from '@src/generated/gql-types'
 
-const USER_QUERY = `--sql
+const USER_QUERY = /* sql */`
   SELECT 
     id,
     username,

@@ -11,3 +11,14 @@ export const generateSignedUrl = async (key: string): Promise<string> => {
 
   return url ?? ''
 }
+
+export const getSignedImages = async <T extends Record<K, string>, K extends string>(images: T[], key: K): Promise<T[]> => {
+  return await Promise.all(images.map(async image => {
+    try {
+      const url = await generateSignedUrl(image[key])
+      return { ...image, [key]: url }
+    } catch (error) {
+      return { ...image, [key]: '' }
+    }
+  }))
+}

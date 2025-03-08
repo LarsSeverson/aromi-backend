@@ -1,6 +1,6 @@
 import { type FragranceReview, type FragranceResolvers } from '@src/generated/gql-types'
 
-const MY_REVIEW_QUERY = `--sql
+const MY_REVIEW_QUERY = /* sql */`
   SELECT
     fr.id,
     fr.rating,

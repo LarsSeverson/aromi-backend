@@ -1,6 +1,6 @@
 import { type User, type MutationResolvers } from '@src/generated/gql-types'
 
-const UPSERT_USER_QUERY = `--sql
+const UPSERT_USER_QUERY = /* sql */`
   INSERT INTO users (email, cognito_id)
   VALUES ($1, $2)
   ON CONFLICT (email)

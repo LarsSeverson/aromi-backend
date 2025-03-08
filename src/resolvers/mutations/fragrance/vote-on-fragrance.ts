@@ -1,6 +1,6 @@
 import { type FragranceVote, type MutationResolvers } from '@src/generated/gql-types'
 
-const VOTE_ON_FRAGRANCE_QUERY = `--sql
+const VOTE_ON_FRAGRANCE_QUERY = /* sql */`
   WITH old AS (
     SELECT (
       SELECT vote AS old_vote

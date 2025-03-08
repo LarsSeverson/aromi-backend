@@ -1,32 +1,55 @@
-import { type FragranceImage, type FragranceResolvers } from '@src/generated/gql-types'
-import { generateSignedUrl } from '@src/common/s3'
+import { type FragranceImageEdge, type FragranceImage, type FragranceResolvers } from '@src/generated/gql-types'
+import { getSignedImages } from '@src/common/images'
+import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getSortColumns } from '@src/common/sort-map'
+import { decodeCursor, encodeCursor } from '@src/common/cursor'
 
-const IMAGES_QUERY = `--sql
+const IMAGES_QUERY = /* sql */`
   SELECT
     id,
     s3_key AS url
   FROM fragrance_images
   WHERE fragrance_id = $1
-  LIMIT $2
-  OFFSET $3
 `
 
 export const images: FragranceResolvers['images'] = async (parent, args, context, info) => {
   const { id } = parent
   const { pool } = context
-  const { limit = 5, offset = 0 } = args
+  const { input } = args
+  const { first, after, sortInput } = getPaginationInput(input?.pagination)
 
-  const values = [id, limit, offset]
-  const { rows } = await pool.query<FragranceImage>(IMAGES_QUERY, values)
+  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
 
-  const signedImgs = await Promise.all(rows.map<Promise<FragranceImage>>(async image => {
-    try {
-      const url = await generateSignedUrl(image.url)
-      return { id: image.id, url }
-    } catch (error) {
-      return { id: image.id, url: '' }
-    }
+  const values: Array<string | number> = [id]
+  const queryParts = [IMAGES_QUERY]
+
+  if (after != null) {
+    const sortPart = /* sql */`
+      WHERE "${dbColumn}" ${getSortDirectionChar(sortInput.direction)} 
+      $${values.length + 1}
+    `
+    queryParts.push(sortPart)
+    values.push(decodeCursor(after))
+  }
+
+  const pagePart = /* sql */`
+    ORDER BY "${gqlColumn}" ${sortInput.direction} 
+    LIMIT $${values.length + 1}
+  `
+
+  queryParts.push(pagePart)
+  values.push(first + 1)
+
+  const query = queryParts.join('\n')
+  const { rows } = await pool.query<FragranceImage>(query, values)
+
+  const signedImgs = await getSignedImages(rows, 'url')
+  const edges = signedImgs.map<FragranceImageEdge>(row => ({
+    node: row,
+    cursor: encodeCursor(row[gqlColumn])
   }))
 
-  return signedImgs
+  const pageInfo = getPageInfo(edges, first, after)
+
+  return { edges, pageInfo }
 }

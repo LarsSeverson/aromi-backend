@@ -18,10 +18,42 @@ enum SortDirection {
 enum SortBy {
   id
   created 
-  updated 
+  modified 
+}
+
+enum VoteSortBy {
+  id
+  created
+  modified
+  votes
 }
 
 input SortByInput {
   by: SortBy!
   direction: SortDirection! = desc
+}
+
+input VoteSortByInput {
+  by: VoteSortBy!
+  direction: SortDirection! = desc
+}
+
+input PaginationInput {
+  first: Int
+  after: String
+  sortBy: SortByInput
+}
+
+input VotePaginationInput {
+  first: Int
+  after: String
+  sortBy: VoteSortByInput
+}
+
+input QueryInput {
+  pagination: PaginationInput
+}
+
+input VoteQueryInput {
+  pagination: VotePaginationInput
 }

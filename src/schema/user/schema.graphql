@@ -7,9 +7,9 @@ type User {
   followers: Int!
   following: Int!
 
-  collections(first: Int, after: String, sortBy: SortByInput): FragranceCollectionConnection!
-  reviews(limit: Int, offset: Int): [FragranceReview!]!
-  likes(limit: Int, offset: Int): [Fragrance!]!
+  collections(input: QueryInput): FragranceCollectionConnection!
+  likes(input: QueryInput): FragranceConnection! 
+  reviews(input: VoteQueryInput): FragranceReviewConnection! 
 }
 
 extend type Query {

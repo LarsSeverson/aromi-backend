@@ -1,6 +1,6 @@
 import { type FragranceReview, type MutationResolvers } from '@src/generated/gql-types'
 
-const REVIEW_FRAGRANCE_QUERY = `--sql
+const REVIEW_FRAGRANCE_QUERY = /* sql */`
   WITH inserted_review AS (
     INSERT INTO fragrance_reviews (fragrance_id, rating, review_text, user_id)
     VALUES ($1, $2, $3, $4)
