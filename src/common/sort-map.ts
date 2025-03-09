@@ -22,7 +22,7 @@ export const gqlVoteSortMapping: Record<VoteSortBy, string> = {
 export const dbVoteSortMapping: Record<VoteSortBy, string> = {
   [VoteSortBy.Id]: 'id',
   [VoteSortBy.Created]: 'created_at',
-  [VoteSortBy.Modified]: 'modified_at',
+  [VoteSortBy.Modified]: 'updated_at',
   [VoteSortBy.Votes]: 'votes'
 }
 

@@ -40,8 +40,8 @@ export function getPaginationInput (input?: InputMaybe<VotePaginationInput>, max
 export function getPaginationInput (input?: InputMaybe<PaginationInput | VotePaginationInput>, maxLimit: number = 30): NonNullablePaginationInput | NonNullableVotePaginationInput {
   input = input ?? {}
 
-  if (input.sortBy != null && isVoteSortByInput(input.sortBy)) {
-    const sortInput = getVoteSortInput(input.sortBy)
+  if (input.sort != null && isVoteSortByInput(input.sort)) {
+    const sortInput = getVoteSortInput(input.sort)
 
     return {
       first: Math.min((input.first ?? 20), maxLimit),
@@ -50,7 +50,7 @@ export function getPaginationInput (input?: InputMaybe<PaginationInput | VotePag
     }
   }
 
-  const sortInput = getSortInput((input as PaginationInput).sortBy)
+  const sortInput = getSortInput((input as PaginationInput).sort)
   return {
     first: Math.min((input.first ?? 20), maxLimit),
     after: input.after,
@@ -62,14 +62,21 @@ export const getSortDirectionChar = (direction: SortDirection): string => {
   return direction === SortDirection.Asc ? '>' : '<'
 }
 
-export const getPageInfo = <T extends { cursor: string }>(edges: T[], first: number, after: InputMaybe<string> | undefined): PageInfo => {
-  const startCursor = edges.at(0)?.cursor ?? null
-  const endCursor = edges.at(-1)?.cursor ?? null
+export interface Page<T> { edges: T[], pageInfo: PageInfo }
 
-  return {
+export const getPage = <T extends { cursor: string }>(edges: T[], first: number, after: InputMaybe<string> | undefined): Page<T> => {
+  const hasExtraRow = edges.length > first
+  const trimmed = hasExtraRow ? edges.slice(0, first) : edges
+
+  const startCursor = trimmed.at(0)?.cursor ?? null
+  const endCursor = trimmed.at(-1)?.cursor ?? null
+
+  const pageInfo: PageInfo = {
     hasNextPage: edges.length > first,
     hasPreviousPage: Boolean(after),
     startCursor,
     endCursor
   }
+
+  return { edges: trimmed, pageInfo }
 }

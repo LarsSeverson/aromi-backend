@@ -41,13 +41,13 @@ input VoteSortByInput {
 input PaginationInput {
   first: Int
   after: String
-  sortBy: SortByInput
+  sort: SortByInput
 }
 
 input VotePaginationInput {
   first: Int
   after: String
-  sortBy: VoteSortByInput
+  sort: VoteSortByInput
 }
 
 input QueryInput {

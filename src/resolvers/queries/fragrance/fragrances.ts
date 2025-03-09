@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { INVALID_ID } from '@src/common/types'
 import { type FragranceEdge, type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
@@ -37,25 +37,32 @@ const BASE_QUERY = /* sql */`
 export const fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
   const { input } = args
   const { first, after, sortInput } = getPaginationInput(input?.pagination)
+  const { by, direction } = sortInput
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
 
-  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
+  const { gqlColumn, dbColumn } = getSortColumns(by)
 
   const values: Array<string | number> = [userId]
   const queryParts = [BASE_QUERY]
 
   if (after != null) {
+    const { sortValue, id } = decodeCursor(after)
+    const char = getSortDirectionChar(direction)
     const sortPart = /* sql */`
-      WHERE f.${dbColumn} ${getSortDirectionChar(sortInput.direction)}
-      $${values.length + 1}
+      WHERE f.${dbColumn} ${char} $${values.length + 1}
+        OR (
+          f.${dbColumn} = $${values.length + 1}
+            AND f.id ${char} $${values.length + 2}
+        )
     `
     queryParts.push(sortPart)
-    values.push(decodeCursor(after))
+    values.push(sortValue, id)
   }
 
   const pagePart = /* sql */` 
-    ORDER BY "${gqlColumn}" ${sortInput.direction}
+    ORDER BY 
+      f."${gqlColumn}" ${direction}, f.id ${direction}
     LIMIT $${values.length + 1}
   `
 
@@ -67,10 +74,8 @@ export const fragrances: QueryResolvers['fragrances'] = async (parent, args, con
 
   const edges = rows.map<FragranceEdge>(row => ({
     node: row,
-    cursor: encodeCursor(row[gqlColumn])
+    cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 
-  const pageInfo = getPageInfo(edges, first, after)
-
-  return { edges, pageInfo }
+  return getPage(edges, first, after)
 }

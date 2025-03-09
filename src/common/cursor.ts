@@ -1,9 +1,10 @@
-export const encodeCursor = <T>(value: T): string => {
-  if (value instanceof Date) return Buffer.from(value.toISOString()).toString('base64')
-
-  return Buffer.from(String(value)).toString('base64')
+export const encodeCursor = <T>(sortValue: T, id: number): string => {
+  const value = sortValue instanceof Date ? sortValue.toISOString() : String(sortValue)
+  return Buffer.from(`${value}|${id}`).toString('base64')
 }
 
-export const decodeCursor = (cursor: string): string => {
-  return Buffer.from(cursor, 'base64').toString('ascii')
+export const decodeCursor = (cursor: string): { sortValue: string, id: number } => {
+  const decoded = Buffer.from(cursor, 'base64').toString('ascii')
+  const [sortValue, id] = decoded.split('|')
+  return { sortValue, id: Number(id) }
 }

@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { type FragranceReviewEdge, type FragranceReview, type UserResolvers } from '@src/generated/gql-types'
 
@@ -24,24 +24,32 @@ export const userReviews: UserResolvers['reviews'] = async (parent, args, contex
   const { id } = parent
   const { input } = args
   const { first, after, sortInput } = getPaginationInput(input?.pagination)
+  const { by, direction } = sortInput
+  const { gqlColumn, dbColumn } = getSortColumns(by)
   const { pool } = context
-
-  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
 
   const values: Array<string | number> = [id]
   const queryParts = [BASE_QUERY]
 
   if (after != null) {
+    const { sortValue, id } = decodeCursor(after)
+    const char = getSortDirectionChar(direction)
     const sortPart = /* sql */`
-      WHERE fr.${dbColumn} ${getSortDirectionChar(sortInput.direction)}
-      $${values.length + 1}
+      AND (
+        fr.${dbColumn} ${char} $${values.length + 1}
+        OR (
+          fr.${dbColumn} = $${values.length + 1}
+            AND fr.id ${char} $${values.length + 2}
+        )
+      )
     `
     queryParts.push(sortPart)
-    values.push(decodeCursor(after))
+    values.push(sortValue, id)
   }
 
   const pagePart = /* sql */`
-    ORDER BY "${gqlColumn}" ${sortInput.direction}
+    ORDER BY 
+      fr."${gqlColumn}" ${direction}, fr.id ${direction}
     LIMIT $${values.length + 1}
   `
 
@@ -53,10 +61,8 @@ export const userReviews: UserResolvers['reviews'] = async (parent, args, contex
 
   const edges = rows.map<FragranceReviewEdge>(row => ({
     node: row,
-    cursor: encodeCursor(row[gqlColumn])
+    cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 
-  const pageInfo = getPageInfo(edges, first, after)
-
-  return { edges, pageInfo }
+  return getPage(edges, first, after)
 }

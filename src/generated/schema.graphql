@@ -214,7 +214,7 @@ type PageInfo {
 input PaginationInput {
   after: String
   first: Int
-  sortBy: SortByInput
+  sort: SortByInput
 }
 
 type Query {
@@ -259,7 +259,7 @@ type User {
 input VotePaginationInput {
   after: String
   first: Int
-  sortBy: VoteSortByInput
+  sort: VoteSortByInput
 }
 
 input VoteQueryInput {

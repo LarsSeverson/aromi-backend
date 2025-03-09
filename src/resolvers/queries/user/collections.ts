@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { type FragranceCollection, type FragranceCollectionEdge, type UserResolvers } from '@src/generated/gql-types'
 
@@ -17,24 +17,32 @@ export const collections: UserResolvers['collections'] = async (parent, args, co
   const { id } = parent
   const { input } = args
   const { first, after, sortInput } = getPaginationInput(input?.pagination)
+  const { by, direction } = sortInput
+  const { gqlColumn, dbColumn } = getSortColumns(by)
   const { pool } = context
-
-  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
 
   const values: Array<string | number> = [id]
   const queryParts = [BASE_QUERY]
 
   if (after != null) {
+    const { sortValue, id } = decodeCursor(after)
+    const char = getSortDirectionChar(direction)
     const sortPart = /* sql */`
-      AND ${dbColumn} ${getSortDirectionChar(sortInput.direction)} 
-      $${values.length + 1}
+      AND (
+        ${dbColumn} ${char} $${values.length + 1}
+        OR (
+          ${dbColumn} = $${values.length + 1}
+            AND id ${char} $${values.length + 2}
+        )
+      )
     `
     queryParts.push(sortPart)
-    values.push(decodeCursor(after))
+    values.push(sortValue, id)
   }
 
   const pagePart = /* sql */`
-    ORDER BY "${gqlColumn}" ${sortInput.direction}
+    ORDER BY 
+      "${gqlColumn}" ${direction}, id ${direction}
     LIMIT $${values.length + 1}
   `
 
@@ -46,10 +54,8 @@ export const collections: UserResolvers['collections'] = async (parent, args, co
 
   const edges = rows.map<FragranceCollectionEdge>(row => ({
     node: { ...row, user: parent },
-    cursor: encodeCursor(row[gqlColumn])
+    cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 
-  const pageInfo = getPageInfo(edges, first, after)
-
-  return { edges, pageInfo }
+  return getPage(edges, first, after)
 }

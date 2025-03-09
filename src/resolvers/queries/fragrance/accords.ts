@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { INVALID_ID } from '@src/common/types'
 import { type FragranceAccordEdge, type FragranceAccord, type FragranceResolvers } from '@src/generated/gql-types'
@@ -68,12 +68,12 @@ const FILL_BASE_QUERY = /* sql */`
 export const accords: FragranceResolvers['accords'] = async (parent, args, context, info) => {
   const { id } = parent
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination, 15)
+  const { first, after, sortInput } = getPaginationInput(input?.pagination, 30)
+  const { by, direction } = sortInput
+  const { gqlColumn } = getSortColumns(by)
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
   const fill = input?.fill ?? false
-
-  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
 
   const values: Array<string | number> = [id, userId]
   const baseQuery = fill ? FILL_BASE_QUERY : NO_FILL_BASE_QUERY
@@ -85,16 +85,22 @@ export const accords: FragranceResolvers['accords'] = async (parent, args, conte
   queryParts.push(wrapPart)
 
   if (after != null) {
+    const { sortValue, id } = decodeCursor(after)
+    const char = getSortDirectionChar(direction)
     const sortPart = /* sql */`
-      WHERE x.${dbColumn} ${getSortDirectionChar(sortInput.direction)}
-      $${values.length + 1}
+      WHERE x."${gqlColumn}" ${char} $${values.length + 1}
+        OR (
+          x."${gqlColumn}" = $${values.length + 1} 
+            AND x.id ${char} $${values.length + 2}
+        )
     `
     queryParts.push(sortPart)
-    values.push(decodeCursor(after))
+    values.push(sortValue, id)
   }
 
   const pagePart = /* sql */`
-    ORDER BY x."${gqlColumn}" ${sortInput.direction}
+    ORDER BY 
+      x."${gqlColumn}" ${direction}, x.id ${direction}
     LIMIT $${values.length + 1}
   `
 
@@ -106,10 +112,8 @@ export const accords: FragranceResolvers['accords'] = async (parent, args, conte
 
   const edges = rows.map<FragranceAccordEdge>(row => ({
     node: row,
-    cursor: encodeCursor(row[gqlColumn])
+    cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 
-  const pageInfo = getPageInfo(edges, first, after)
-
-  return { edges, pageInfo }
+  return getPage(edges, first, after)
 }

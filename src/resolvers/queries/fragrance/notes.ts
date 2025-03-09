@@ -1,5 +1,5 @@
 import { type FragranceNote, type NoteLayer, type FragranceNotesResolvers, type FragranceNoteEdge } from '@src/generated/gql-types'
-import { getPageInfo, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
 import { INVALID_ID } from '@src/common/types'
 import { getSortColumns } from '@src/common/sort-map'
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
@@ -16,7 +16,7 @@ const NO_FILL_BASE_QUERY = /* sql */`
     CASE WHEN fnv.id IS NOT NULL THEN true ELSE false END AS "myVote"
   FROM fragrance_notes fn
   JOIN notes n ON n.id = fn.note_id
-  LEFT JOIN fragrance_note_votes fnv ON fnv.fragrnace_note_id = fn.id
+  LEFT JOIN fragrance_note_votes fnv ON fnv.fragrance_note_id = fn.id
     AND fnv.user_id = $3
     AND fnv.deleted_at IS NULL
   WHERE fn.fragrance_id = $1
@@ -37,7 +37,7 @@ const FILL_BASE_QUERY = /* sql */`
       fn.updated_at AS "dModified"
     FROM fragrance_notes fn
     JOIN notes n ON n.id = fn.note_id
-    LEFT JOIN fragrance_note_votes fnv ON fnv.fragrnace_note_id = fn.id
+    LEFT JOIN fragrance_note_votes fnv ON fnv.fragrance_note_id = fn.id
       AND fnv.user_id = $3
       AND fnv.deleted_at IS NULL
     WHERE fn.fragrance_id = $1
@@ -73,13 +73,13 @@ const FILL_BASE_QUERY = /* sql */`
 export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (parent, args, context, info) => {
   const { fragranceId } = parent
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination, 15)
+  const { first, after, sortInput } = getPaginationInput(input?.pagination, 30)
+  const { by, direction } = sortInput
+  const { gqlColumn } = getSortColumns(by)
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
   const fill = input?.fill ?? false
   const layer = info.fieldName as NoteLayer
-
-  const { gqlColumn, dbColumn } = getSortColumns(sortInput.by)
 
   const values: Array<string | number> = [fragranceId, layer, userId]
   const baseQuery = fill ? FILL_BASE_QUERY : NO_FILL_BASE_QUERY
@@ -91,16 +91,22 @@ export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (
   queryParts.push(wrapPart)
 
   if (after != null) {
+    const { sortValue, id } = decodeCursor(after)
+    const char = getSortDirectionChar(direction)
     const sortPart = /* sql */`
-      WHERE x.${dbColumn} ${getSortDirectionChar(sortInput.direction)}
-      $${values.length + 1}
+      WHERE x."${gqlColumn}" ${char} $${values.length + 1}
+        OR (
+          x."${gqlColumn}" = $${values.length + 1}
+            AND x.id ${char} $${values.length + 2}
+        )
     `
     queryParts.push(sortPart)
-    values.push(decodeCursor(after))
+    values.push(sortValue, id)
   }
 
   const pagePart = /* sql */`
-    ORDER BY x."${gqlColumn}" ${sortInput.direction}
+    ORDER BY 
+      x."${gqlColumn}" ${direction}, x.id ${direction}
     LIMIT $${values.length + 1}
   `
 
@@ -113,10 +119,8 @@ export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (
   const signedIcons = await getSignedImages(rows, 'icon')
   const edges = signedIcons.map<FragranceNoteEdge>(row => ({
     node: row,
-    cursor: encodeCursor(row[gqlColumn])
+    cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 
-  const pageInfo = getPageInfo(edges, first, after)
-
-  return { edges, pageInfo }
+  return getPage(edges, first, after)
 }

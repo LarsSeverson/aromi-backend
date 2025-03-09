@@ -356,7 +356,7 @@ export type PageInfo = {
 export type PaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<SortByInput>;
+  sort?: InputMaybe<SortByInput>;
 };
 
 export type Query = {
@@ -433,7 +433,7 @@ export type UserReviewsArgs = {
 export type VotePaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  sortBy?: InputMaybe<VoteSortByInput>;
+  sort?: InputMaybe<VoteSortByInput>;
 };
 
 export type VoteQueryInput = {
