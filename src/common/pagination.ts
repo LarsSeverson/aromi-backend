@@ -1,16 +1,10 @@
-import { SortBy, SortDirection, type VotePaginationInput, type PaginationInput, VoteSortBy, type InputMaybe, type SortByInput, type VoteSortByInput, type PageInfo } from '@src/generated/gql-types'
+import { SortBy, SortDirection, type PaginationInput, type InputMaybe, type SortByInput, type PageInfo } from '@src/generated/gql-types'
 import { type NonNullableType } from './types'
 
 export interface NonNullablePaginationInput {
   first: NonNullable<PaginationInput['first']>
   after: PaginationInput['after']
   sortInput: NonNullableType<SortByInput>
-}
-
-export interface NonNullableVotePaginationInput {
-  first: NonNullable<VotePaginationInput['first']>
-  after: VotePaginationInput['after']
-  sortInput: NonNullableType<VoteSortByInput>
 }
 
 export const getSortInput = (input?: InputMaybe<SortByInput>): NonNullableType<SortByInput> => {
@@ -21,36 +15,10 @@ export const getSortInput = (input?: InputMaybe<SortByInput>): NonNullableType<S
   }
 }
 
-export const getVoteSortInput = (input?: InputMaybe<VoteSortByInput>): NonNullableType<VoteSortByInput> => {
-  input = input ?? { by: VoteSortBy.Votes, direction: undefined }
-  return {
-    by: input.by,
-    direction: input?.direction ?? SortDirection.Desc
-  }
-}
-
-export const isVoteSortByInput = (input?: SortByInput | VoteSortByInput): input is VoteSortByInput => {
-  if (input == null) return false
-  const voteSortValues = [VoteSortBy.Votes, VoteSortBy.Id, VoteSortBy.Created, VoteSortBy.Modified]
-  return voteSortValues.includes(input.by as VoteSortBy)
-}
-
-export function getPaginationInput (input?: InputMaybe<PaginationInput>, maxLimit?: number): NonNullablePaginationInput
-export function getPaginationInput (input?: InputMaybe<VotePaginationInput>, maxLimit?: number): NonNullableVotePaginationInput
-export function getPaginationInput (input?: InputMaybe<PaginationInput | VotePaginationInput>, maxLimit: number = 30): NonNullablePaginationInput | NonNullableVotePaginationInput {
+export function getPaginationInput (input?: InputMaybe<PaginationInput>, maxLimit: number = 30): NonNullablePaginationInput {
   input = input ?? {}
 
-  if (input.sort != null && isVoteSortByInput(input.sort)) {
-    const sortInput = getVoteSortInput(input.sort)
-
-    return {
-      first: Math.min((input.first ?? 20), maxLimit),
-      after: input.after,
-      sortInput
-    }
-  }
-
-  const sortInput = getSortInput((input as PaginationInput).sort)
+  const sortInput = getSortInput(input.sort)
   return {
     first: Math.min((input.first ?? 20), maxLimit),
     after: input.after,
@@ -60,6 +28,31 @@ export function getPaginationInput (input?: InputMaybe<PaginationInput | VotePag
 
 export const getSortDirectionChar = (direction: SortDirection): string => {
   return direction === SortDirection.Asc ? '>' : '<'
+}
+
+export const getSortPart = (direction: SortDirection, column: string, valuesLen: number, preColumn: string = '', where: boolean = false): string => {
+  preColumn = preColumn.length > 0 ? `${preColumn}.` : preColumn
+  const char = getSortDirectionChar(direction)
+  const sortPart = /* sql */`
+    ${where ? 'WHERE' : 'AND'} (
+      ${preColumn}"${column}" ${char} $${valuesLen + 1}
+      OR (
+        ${preColumn}"${column}" = $${valuesLen + 1}
+          AND ${preColumn}id ${char} $${valuesLen + 2}
+      )
+    )
+  `
+  return sortPart
+}
+
+export const getPagePart = (direction: SortDirection, column: string, valuesLen: number, preColumn: string = ''): string => {
+  preColumn = preColumn.length > 0 ? `${preColumn}.` : preColumn
+
+  return /* sql */`
+    ORDER BY
+      ${preColumn}"${column}" ${direction}, ${preColumn}id ${direction}
+    LIMIT $${valuesLen + 1}
+  `
 }
 
 export interface Page<T> { edges: T[], pageInfo: PageInfo }

@@ -1,6 +1,6 @@
 input AccordsInput {
   fill: Boolean
-  pagination: VotePaginationInput
+  pagination: PaginationInput
 }
 
 input CreateCollectionInput {
@@ -21,7 +21,7 @@ type Fragrance {
   notes: FragranceNotes!
   rating: Float!
   reviewDistribution: FragranceReviewDistribution!
-  reviews(input: VoteQueryInput): FragranceReviewConnection!
+  reviews(input: QueryInput): FragranceReviewConnection!
   reviewsCount: Int!
   traits: FragranceTraits!
   votes: FragranceVote!
@@ -49,8 +49,8 @@ type FragranceAccordEdge {
 type FragranceCollection {
   dCreated: Date!
   dModified: Date!
-  fragrances(input: QueryInput): FragranceConnection!
   id: Int!
+  items(input: QueryInput): FragranceCollectionItemConnection!
   name: String!
   user: User!
 }
@@ -63,6 +63,23 @@ type FragranceCollectionConnection {
 type FragranceCollectionEdge {
   cursor: String!
   node: FragranceCollection!
+}
+
+type FragranceCollectionItem {
+  collection: FragranceCollection!
+  dAdded: Date!
+  fragrance: Fragrance!
+  id: Int!
+}
+
+type FragranceCollectionItemConnection {
+  edges: [FragranceCollectionItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionItemEdge {
+  cursor: String!
+  node: FragranceCollectionItem!
 }
 
 type FragranceConnection {
@@ -201,7 +218,7 @@ enum NoteLayer {
 
 input NotesInput {
   fill: Boolean
-  pagination: VotePaginationInput
+  pagination: PaginationInput
 }
 
 type PageInfo {
@@ -229,9 +246,11 @@ input QueryInput {
 }
 
 enum SortBy {
+  added
   created
   id
   modified
+  votes
 }
 
 input SortByInput {
@@ -252,28 +271,6 @@ type User {
   following: Int!
   id: Int!
   likes(input: QueryInput): FragranceConnection!
-  reviews(input: VoteQueryInput): FragranceReviewConnection!
+  reviews(input: QueryInput): FragranceReviewConnection!
   username: String!
-}
-
-input VotePaginationInput {
-  after: String
-  first: Int
-  sort: VoteSortByInput
-}
-
-input VoteQueryInput {
-  pagination: VotePaginationInput
-}
-
-enum VoteSortBy {
-  created
-  id
-  modified
-  votes
-}
-
-input VoteSortByInput {
-  by: VoteSortBy!
-  direction: SortDirection! = desc
 }

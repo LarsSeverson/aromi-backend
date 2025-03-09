@@ -9,7 +9,7 @@ type User {
 
   collections(input: QueryInput): FragranceCollectionConnection!
   likes(input: QueryInput): FragranceConnection! 
-  reviews(input: VoteQueryInput): FragranceReviewConnection! 
+  reviews(input: QueryInput): FragranceReviewConnection! 
 }
 
 extend type Query {

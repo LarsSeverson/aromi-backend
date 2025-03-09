@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPagePart, getPaginationInput, getSortPart } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { INVALID_ID } from '@src/common/types'
 import { type FragranceEdge, type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
@@ -47,25 +47,13 @@ export const fragrances: QueryResolvers['fragrances'] = async (parent, args, con
   const queryParts = [BASE_QUERY]
 
   if (after != null) {
-    const { sortValue, id } = decodeCursor(after)
-    const char = getSortDirectionChar(direction)
-    const sortPart = /* sql */`
-      WHERE f.${dbColumn} ${char} $${values.length + 1}
-        OR (
-          f.${dbColumn} = $${values.length + 1}
-            AND f.id ${char} $${values.length + 2}
-        )
-    `
+    const sortPart = getSortPart(direction, dbColumn, values.length, 'f', true)
     queryParts.push(sortPart)
+    const { sortValue, id } = decodeCursor(after)
     values.push(sortValue, id)
   }
 
-  const pagePart = /* sql */` 
-    ORDER BY 
-      f."${gqlColumn}" ${direction}, f.id ${direction}
-    LIMIT $${values.length + 1}
-  `
-
+  const pagePart = getPagePart(direction, dbColumn, values.length, 'f')
   queryParts.push(pagePart)
   values.push(first + 1)
 

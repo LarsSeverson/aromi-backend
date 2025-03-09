@@ -1,8 +1,8 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPagePart, getPaginationInput, getSortPart } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { INVALID_ID } from '@src/common/types'
-import { type FragranceEdge, type Fragrance, type FragranceCollectionResolvers } from '@src/generated/gql-types'
+import { type FragranceCollectionResolvers, type FragranceCollectionItem, type FragranceCollectionItemEdge } from '@src/generated/gql-types'
 
 const BASE_QUERY = /* sql */`
   WITH votes_data AS (
@@ -17,26 +17,29 @@ const BASE_QUERY = /* sql */`
     WHERE user_id = $2
   )
   SELECT
-    f.id,
-    f.brand,
-    f.name,
-    f.reviews_count AS "reviewsCount",
-    COALESCE(f.rating, 0) AS rating,
+    cf.id,
     JSONB_BUILD_OBJECT(
       'id', f.id,
-      'likes', f.likes_count,
-      'dislikes', f.dislikes_count,
-      'myVote', vd.vote
-    ) AS votes,
-    f.created_at AS "dCreated",
-    f.updated_at AS "dModified"
+      'brand', f.brand,
+      'name', f.name,
+      'reviewsCount', f.reviews_count,
+      'rating', COALESCE(f.rating, 0),
+      'votes', JSONB_BUILD_OBJECT(
+        'id', f.id,
+        'likes', f.likes_count,
+        'dislikes', f.dislikes_count,
+        'myVote', vd.vote
+      )
+    ) AS fragrance,
+    cf.created_at AS "dAdded",
+    cf.updated_at AS "dModified"
   FROM collection_fragrances cf
   JOIN fragrances f ON f.id = cf.fragrance_id
   LEFT JOIN votes_data vd ON vd.fragrance_id = f.id
-  WHERE cf.collection_id = $1
+  WHERE cf.collection_id = $1 AND cf.deleted_at IS NULL
 `
 
-export const collectionFragrances: FragranceCollectionResolvers['fragrances'] = async (parent, args, context, info) => {
+export const collectionItems: FragranceCollectionResolvers['items'] = async (parent, args, context, info) => {
   const { id } = parent
   const { input } = args
   const { first, after, sortInput } = getPaginationInput(input?.pagination)
@@ -49,35 +52,24 @@ export const collectionFragrances: FragranceCollectionResolvers['fragrances'] = 
   const queryParts = [BASE_QUERY]
 
   if (after != null) {
-    const { sortValue, id } = decodeCursor(after)
-    const char = getSortDirectionChar(direction)
-    const sortPart = /* sql */`
-      AND (
-        f.${dbColumn} ${char} $${values.length + 1}
-        OR (
-          f.${dbColumn} = $${values.length + 1}
-            AND f.id ${char} $${values.length + 2}
-        )
-      )
-    `
+    const sortPart = getSortPart(direction, dbColumn, values.length, 'cf')
     queryParts.push(sortPart)
+    const { sortValue, id } = decodeCursor(after)
     values.push(sortValue, id)
   }
 
-  const pagePart = /* sql */`
-    ORDER BY 
-      f."${gqlColumn}" ${direction}, f.id ${direction}
-    LIMIT $${values.length + 1}
-  `
-
+  const pagePart = getPagePart(direction, dbColumn, values.length, 'cf')
   queryParts.push(pagePart)
   values.push(first + 1)
 
   const query = queryParts.join('\n')
-  const { rows } = await pool.query<Fragrance>(query, values)
+  const { rows } = await pool.query<FragranceCollectionItem>(query, values)
 
-  const edges = rows.map<FragranceEdge>(row => ({
-    node: row,
+  const edges = rows.map<FragranceCollectionItemEdge>(row => ({
+    node: {
+      ...row,
+      collection: parent
+    },
     cursor: encodeCursor(row[gqlColumn], row.id)
   }))
 

@@ -9,7 +9,7 @@ import { reviews } from './fragrance/reviews'
 import { myReview } from './fragrance/my-review'
 import { reviewDistribution } from './fragrance/review-distribution'
 import { collections } from './user/collections'
-import { collectionFragrances } from './fragrance/collection-fragrances'
+import { collectionItems } from './fragrance/collection-items'
 import { user } from './user/user'
 import { userReviews } from './user/reviews'
 import { userLikes } from './user/likes'
@@ -56,6 +56,6 @@ export const UserQuery: UserResolvers = {
 }
 
 export const FragranceCollectionQuery: FragranceCollectionResolvers = {
-  fragrances: collectionFragrances,
+  items: collectionItems,
   user: (parent) => parent.user
 }

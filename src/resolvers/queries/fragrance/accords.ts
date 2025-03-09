@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPage, getPaginationInput, getSortDirectionChar } from '@src/common/pagination'
+import { getPage, getPagePart, getPaginationInput, getSortPart } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { INVALID_ID } from '@src/common/types'
 import { type FragranceAccordEdge, type FragranceAccord, type FragranceResolvers } from '@src/generated/gql-types'
@@ -85,25 +85,13 @@ export const accords: FragranceResolvers['accords'] = async (parent, args, conte
   queryParts.push(wrapPart)
 
   if (after != null) {
-    const { sortValue, id } = decodeCursor(after)
-    const char = getSortDirectionChar(direction)
-    const sortPart = /* sql */`
-      WHERE x."${gqlColumn}" ${char} $${values.length + 1}
-        OR (
-          x."${gqlColumn}" = $${values.length + 1} 
-            AND x.id ${char} $${values.length + 2}
-        )
-    `
+    const sortPart = getSortPart(direction, gqlColumn, values.length, 'x', true)
     queryParts.push(sortPart)
+    const { sortValue, id } = decodeCursor(after)
     values.push(sortValue, id)
   }
 
-  const pagePart = /* sql */`
-    ORDER BY 
-      x."${gqlColumn}" ${direction}, x.id ${direction}
-    LIMIT $${values.length + 1}
-  `
-
+  const pagePart = getPagePart(direction, gqlColumn, values.length, 'x')
   queryParts.push(pagePart)
   values.push(first + 1)
 
