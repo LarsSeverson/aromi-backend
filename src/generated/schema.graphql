@@ -24,7 +24,7 @@ type Fragrance {
   reviews(input: QueryInput): FragranceReviewConnection!
   reviewsCount: Int!
   traits: FragranceTraits!
-  votes: FragranceVote!
+  votes: FragranceVotes!
 }
 
 type FragranceAccord {
@@ -67,7 +67,8 @@ type FragranceCollectionEdge {
 
 type FragranceCollectionItem {
   collection: FragranceCollection!
-  dAdded: Date!
+  dCreated: Date!
+  dModified: Date!
   fragrance: Fragrance!
   id: Int!
 }
@@ -190,7 +191,7 @@ type FragranceTraits {
   sillage: FragranceTrait
 }
 
-type FragranceVote {
+type FragranceVotes {
   dislikes: Int!
   id: Int!
   likes: Int!
@@ -204,7 +205,7 @@ type Mutation {
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
   upsertUser(cognitoId: String!, email: String!): User
   voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
-  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote
+  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVotes
   voteOnNote(fragranceId: Int!, layer: NoteLayer!, myVote: Boolean!, noteId: Int!): FragranceNote
   voteOnReview(myVote: Boolean, reviewId: Int!): FragranceReview
   voteOnTrait(fragranceId: Int!, myVote: Float!, trait: FragranceTraitType!): FragranceTrait

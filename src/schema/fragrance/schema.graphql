@@ -5,7 +5,7 @@ type Fragrance {
   rating: Float!
   reviewsCount: Int!
 
-  votes: FragranceVote!
+  votes: FragranceVotes!
 
   traits: FragranceTraits!
 
@@ -21,7 +21,7 @@ type Fragrance {
   dModified: Date!
 }
 
-type FragranceVote {
+type FragranceVotes {
   id: Int!
   likes: Int!
   dislikes: Int!
@@ -102,15 +102,16 @@ type FragranceCollection {
   name: String!
   items(input: QueryInput): FragranceCollectionItemConnection! 
   user: User!
-  dModified: Date!
   dCreated: Date!
+  dModified: Date!
 }
 
 type FragranceCollectionItem {
   id: Int!
   fragrance: Fragrance!
   collection: FragranceCollection!
-  dAdded: Date!
+  dCreated: Date!
+  dModified: Date!
 }
 
 extend type Query {
@@ -119,7 +120,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVote
+  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVotes
   voteOnTrait(fragranceId: Int!, trait: FragranceTraitType!, myVote: Float!): FragranceTrait
   voteOnAccord(fragranceId: Int!, accordId: Int!, myVote: Boolean!): FragranceAccord
   voteOnNote(fragranceId: Int!, noteId: Int!, layer: NoteLayer!, myVote: Boolean!): FragranceNote

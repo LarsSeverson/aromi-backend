@@ -43,7 +43,7 @@ export type Fragrance = {
   reviews: FragranceReviewConnection;
   reviewsCount: Scalars['Int']['output'];
   traits: FragranceTraits;
-  votes: FragranceVote;
+  votes: FragranceVotes;
 };
 
 
@@ -113,7 +113,8 @@ export type FragranceCollectionEdge = {
 export type FragranceCollectionItem = {
   __typename?: 'FragranceCollectionItem';
   collection: FragranceCollection;
-  dAdded: Scalars['Date']['output'];
+  dCreated: Scalars['Date']['output'];
+  dModified: Scalars['Date']['output'];
   fragrance: Fragrance;
   id: Scalars['Int']['output'];
 };
@@ -268,8 +269,8 @@ export type FragranceTraits = {
   sillage?: Maybe<FragranceTrait>;
 };
 
-export type FragranceVote = {
-  __typename?: 'FragranceVote';
+export type FragranceVotes = {
+  __typename?: 'FragranceVotes';
   dislikes: Scalars['Int']['output'];
   id: Scalars['Int']['output'];
   likes: Scalars['Int']['output'];
@@ -284,7 +285,7 @@ export type Mutation = {
   reviewFragrance?: Maybe<FragranceReview>;
   upsertUser?: Maybe<User>;
   voteOnAccord?: Maybe<FragranceAccord>;
-  voteOnFragrance?: Maybe<FragranceVote>;
+  voteOnFragrance?: Maybe<FragranceVotes>;
   voteOnNote?: Maybe<FragranceNote>;
   voteOnReview?: Maybe<FragranceReview>;
   voteOnTrait?: Maybe<FragranceTrait>;
@@ -555,7 +556,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceTrait: ResolverTypeWrapper<FragranceTrait>;
   FragranceTraitType: FragranceTraitType;
   FragranceTraits: ResolverTypeWrapper<FragranceTraits>;
-  FragranceVote: ResolverTypeWrapper<FragranceVote>;
+  FragranceVotes: ResolverTypeWrapper<FragranceVotes>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   NoteLayer: NoteLayer;
@@ -603,7 +604,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceReviewEdge: FragranceReviewEdge;
   FragranceTrait: FragranceTrait;
   FragranceTraits: FragranceTraits;
-  FragranceVote: FragranceVote;
+  FragranceVotes: FragranceVotes;
   Int: Scalars['Int']['output'];
   Mutation: {};
   NotesInput: NotesInput;
@@ -635,7 +636,7 @@ export type FragranceResolvers<ContextType = Context, ParentType extends Resolve
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<FragranceReviewsArgs>>;
   reviewsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   traits?: Resolver<ResolversTypes['FragranceTraits'], ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['FragranceVotes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -685,7 +686,8 @@ export type FragranceCollectionEdgeResolvers<ContextType = Context, ParentType e
 
 export type FragranceCollectionItemResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceCollectionItem'] = ResolversParentTypes['FragranceCollectionItem']> = ResolversObject<{
   collection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType>;
-  dAdded?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -817,7 +819,7 @@ export type FragranceTraitsResolvers<ContextType = Context, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceVoteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceVote'] = ResolversParentTypes['FragranceVote']> = ResolversObject<{
+export type FragranceVotesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceVotes'] = ResolversParentTypes['FragranceVotes']> = ResolversObject<{
   dislikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -832,7 +834,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
   upsertUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpsertUserArgs, 'cognitoId' | 'email'>>;
   voteOnAccord?: Resolver<Maybe<ResolversTypes['FragranceAccord']>, ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'accordId' | 'fragranceId' | 'myVote'>>;
-  voteOnFragrance?: Resolver<Maybe<ResolversTypes['FragranceVote']>, ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'fragranceId'>>;
+  voteOnFragrance?: Resolver<Maybe<ResolversTypes['FragranceVotes']>, ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'fragranceId'>>;
   voteOnNote?: Resolver<Maybe<ResolversTypes['FragranceNote']>, ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'fragranceId' | 'layer' | 'myVote' | 'noteId'>>;
   voteOnReview?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationVoteOnReviewArgs, 'reviewId'>>;
   voteOnTrait?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType, RequireFields<MutationVoteOnTraitArgs, 'fragranceId' | 'myVote' | 'trait'>>;
@@ -893,7 +895,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   FragranceReviewEdge?: FragranceReviewEdgeResolvers<ContextType>;
   FragranceTrait?: FragranceTraitResolvers<ContextType>;
   FragranceTraits?: FragranceTraitsResolvers<ContextType>;
-  FragranceVote?: FragranceVoteResolvers<ContextType>;
+  FragranceVotes?: FragranceVotesResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

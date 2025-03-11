@@ -31,7 +31,7 @@ const BASE_QUERY = /* sql */`
         'myVote', vd.vote
       )
     ) AS fragrance,
-    cf.created_at AS "dAdded",
+    cf.created_at AS "dCreated",
     cf.updated_at AS "dModified"
   FROM collection_fragrances cf
   JOIN fragrances f ON f.id = cf.fragrance_id

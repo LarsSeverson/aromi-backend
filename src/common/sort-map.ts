@@ -5,7 +5,7 @@ export const gqlSortMapping: Record<SortBy, string> = {
   [SortBy.Created]: 'dCreated',
   [SortBy.Modified]: 'dModified',
   [SortBy.Votes]: 'votes',
-  [SortBy.Added]: 'dAdded'
+  [SortBy.Added]: 'dCreated'
 }
 
 export const dbSortMapping: Record<SortBy, string> = {

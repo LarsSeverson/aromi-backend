@@ -10,7 +10,9 @@ const UPSERT_USER_QUERY = /* sql */`
     id,
     email,
     username,
-    cognito_id as "cognitoId"
+    cognito_id as "cognitoId",
+    0 AS followers,
+    0 AS following
 `
 
 export const upsertUser: MutationResolvers['upsertUser'] = async (parent, args, context, info) => {
