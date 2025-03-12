@@ -36,8 +36,8 @@ const BASE_QUERY = /* sql */`
 
 export const fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination)
-  const { by, direction } = sortInput
+  const { first, after, sort } = getPaginationInput(input?.pagination)
+  const { by, direction } = sort
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
 

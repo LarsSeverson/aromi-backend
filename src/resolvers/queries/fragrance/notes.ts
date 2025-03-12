@@ -73,8 +73,8 @@ const FILL_BASE_QUERY = /* sql */`
 export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (parent, args, context, info) => {
   const { fragranceId } = parent
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination, 30)
-  const { by, direction } = sortInput
+  const { first, after, sort } = getPaginationInput(input?.pagination, 30)
+  const { by, direction } = sort
   const { gqlColumn } = getSortColumns(by)
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID

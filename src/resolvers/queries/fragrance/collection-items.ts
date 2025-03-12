@@ -42,8 +42,8 @@ const BASE_QUERY = /* sql */`
 export const collectionItems: FragranceCollectionResolvers['items'] = async (parent, args, context, info) => {
   const { id } = parent
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination)
-  const { by, direction } = sortInput
+  const { first, after, sort } = getPaginationInput(input?.pagination)
+  const { by, direction } = sort
   const { gqlColumn, dbColumn } = getSortColumns(by)
   const { user, pool } = context
   const userId = user?.id ?? INVALID_ID

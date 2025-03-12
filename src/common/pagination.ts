@@ -4,7 +4,7 @@ import { type NonNullableType } from './types'
 export interface NonNullablePaginationInput {
   first: NonNullable<PaginationInput['first']>
   after: PaginationInput['after']
-  sortInput: NonNullableType<SortByInput>
+  sort: NonNullableType<SortByInput>
 }
 
 export const getSortInput = (input?: InputMaybe<SortByInput>): NonNullableType<SortByInput> => {
@@ -18,11 +18,11 @@ export const getSortInput = (input?: InputMaybe<SortByInput>): NonNullableType<S
 export function getPaginationInput (input?: InputMaybe<PaginationInput>, maxLimit: number = 30): NonNullablePaginationInput {
   input = input ?? {}
 
-  const sortInput = getSortInput(input.sort)
+  const sort = getSortInput(input.sort)
   return {
     first: Math.min((input.first ?? 20), maxLimit),
     after: input.after,
-    sortInput
+    sort
   }
 }
 

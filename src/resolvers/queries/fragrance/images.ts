@@ -18,8 +18,8 @@ export const images: FragranceResolvers['images'] = async (parent, args, context
   const { id } = parent
   const { pool } = context
   const { input } = args
-  const { first, after, sortInput } = getPaginationInput(input?.pagination)
-  const { by, direction } = sortInput
+  const { first, after, sort } = getPaginationInput(input?.pagination)
+  const { by, direction } = sort
 
   const { gqlColumn, dbColumn } = getSortColumns(by)
 
