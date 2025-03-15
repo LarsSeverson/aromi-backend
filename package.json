@@ -5,7 +5,7 @@
   "description": "Backend to aromi",
   "author": "aromi-dev",
   "scripts": {
-    "dev": "sudo sls offline --host 0.0.0.0",
+    "dev": "sls offline --host 0.0.0.0",
     "start": "npm run build && node dist/src/server.js",
     "build": "tsc && tsc-alias && copyfiles -u 2 src/generated/schema.graphql dist/src/generated",
     "test": "jest",
