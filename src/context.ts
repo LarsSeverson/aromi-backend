@@ -3,16 +3,27 @@ import aromidb from './datasources'
 import { type JwtHeader, type JwtPayload, type SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import { requiredEnv } from './common/env-util'
-import { type User } from './generated/gql-types'
+import { type FragranceImage, type User } from './generated/gql-types'
 import { type APIGatewayProxyEventV2, type Context as LambdaContext } from 'aws-lambda'
+import { createFragranceImagesLoader, type ImagesKey } from './common/dataloader/images-loader'
+import type DataLoader from 'dataloader'
 
 export interface Context {
   pool: Pool
   token?: string | undefined
   user?: User | undefined
+
+  dataLoaders: {
+    fragranceImages: DataLoader<ImagesKey, FragranceImage[]>
+  }
 }
 
-const client = new JwksClient({ jwksUri: requiredEnv('USER_POOL_JWKS') })
+const client = new JwksClient({
+  jwksUri: requiredEnv('USER_POOL_JWKS'),
+  cache: true,
+  cacheMaxEntries: 5,
+  cacheMaxAge: 600000
+})
 
 const getKey = (header: JwtHeader, callback: SigningKeyCallback): void => {
   client.getSigningKey(header.kid, (err, key) => {
@@ -21,7 +32,7 @@ const getKey = (header: JwtHeader, callback: SigningKeyCallback): void => {
 }
 
 const decodeToken = async (token: string | undefined): Promise<JwtPayload | null> => {
-  if (token == null) return null
+  if (token == null || token.length === 0) return null
 
   try {
     const decoded = await new Promise<JwtPayload>((resolve, reject) => {
@@ -60,12 +71,18 @@ const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | nul
   return rows.at(0) ?? null
 }
 
-export const getContext = async ({ event, context }: { event: APIGatewayProxyEventV2, context: LambdaContext }): Promise<Context> => {
+export const getContext = async ({ event }: { event: APIGatewayProxyEventV2, context: LambdaContext }): Promise<Context> => {
   const { headers } = event
   const { authorization } = headers
   const token = authorization?.replace('Bearer ', '') ?? undefined
 
-  const ctx: Context = { pool: aromidb, token }
+  const ctx: Context = {
+    pool: aromidb,
+    token,
+    dataLoaders: {
+      fragranceImages: createFragranceImagesLoader(aromidb)
+    }
+  }
 
   const decoded = await decodeToken(token)
   const cognitoId = decoded?.sub ?? undefined

@@ -152,7 +152,7 @@ export type FragranceImage = {
 export type FragranceImageConnection = {
   __typename?: 'FragranceImageConnection';
   edges: Array<FragranceImageEdge>;
-  pageInfo?: Maybe<PageInfo>;
+  pageInfo: PageInfo;
 };
 
 export type FragranceImageEdge = {
@@ -260,13 +260,13 @@ export enum FragranceTraitType {
 
 export type FragranceTraits = {
   __typename?: 'FragranceTraits';
-  allure?: Maybe<FragranceTrait>;
-  balance?: Maybe<FragranceTrait>;
-  complexity?: Maybe<FragranceTrait>;
+  allure: FragranceTrait;
+  balance: FragranceTrait;
+  complexity: FragranceTrait;
   fragranceId: Scalars['Int']['output'];
-  gender?: Maybe<FragranceTrait>;
-  longevity?: Maybe<FragranceTrait>;
-  sillage?: Maybe<FragranceTrait>;
+  gender: FragranceTrait;
+  longevity: FragranceTrait;
+  sillage: FragranceTrait;
 };
 
 export type FragranceVotes = {
@@ -725,7 +725,7 @@ export type FragranceImageResolvers<ContextType = Context, ParentType extends Re
 
 export type FragranceImageConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceImageConnection'] = ResolversParentTypes['FragranceImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceImageEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<Maybe<ResolversTypes['PageInfo']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -809,13 +809,13 @@ export type FragranceTraitResolvers<ContextType = Context, ParentType extends Re
 }>;
 
 export type FragranceTraitsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceTraits'] = ResolversParentTypes['FragranceTraits']> = ResolversObject<{
-  allure?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
-  balance?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
-  complexity?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
+  allure?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
+  balance?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
+  complexity?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
   fragranceId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  gender?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
-  longevity?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
-  sillage?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
+  gender?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
+  longevity?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
+  sillage?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

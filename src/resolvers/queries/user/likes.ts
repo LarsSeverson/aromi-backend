@@ -14,6 +14,7 @@ const BASE_QUERY = /* sql */`
       END AS vote
     FROM fragrance_votes
     WHERE user_id = $1
+      AND vote IS NOT NULL
   )
   SELECT
     f.id,

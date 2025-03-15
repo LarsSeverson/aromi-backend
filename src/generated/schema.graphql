@@ -100,7 +100,7 @@ type FragranceImage {
 
 type FragranceImageConnection {
   edges: [FragranceImageEdge!]!
-  pageInfo: PageInfo
+  pageInfo: PageInfo!
 }
 
 type FragranceImageEdge {
@@ -182,13 +182,13 @@ enum FragranceTraitType {
 }
 
 type FragranceTraits {
-  allure: FragranceTrait
-  balance: FragranceTrait
-  complexity: FragranceTrait
+  allure: FragranceTrait!
+  balance: FragranceTrait!
+  complexity: FragranceTrait!
   fragranceId: Int!
-  gender: FragranceTrait
-  longevity: FragranceTrait
-  sillage: FragranceTrait
+  gender: FragranceTrait!
+  longevity: FragranceTrait!
+  sillage: FragranceTrait!
 }
 
 type FragranceVotes {

@@ -30,12 +30,12 @@ type FragranceVotes {
 
 type FragranceTraits {
   fragranceId: Int!
-  gender: FragranceTrait
-  longevity: FragranceTrait
-  sillage: FragranceTrait
-  complexity: FragranceTrait
-  balance: FragranceTrait
-  allure: FragranceTrait
+  gender: FragranceTrait!
+  longevity: FragranceTrait!
+  sillage: FragranceTrait!
+  complexity: FragranceTrait!
+  balance: FragranceTrait!
+  allure: FragranceTrait!
 }
 
 type FragranceTrait {
@@ -173,7 +173,7 @@ type FragranceImageEdge {
 
 type FragranceImageConnection {
   edges: [FragranceImageEdge!]!
-  pageInfo: PageInfo
+  pageInfo: PageInfo!
 }
 
 type FragranceAccordEdge {

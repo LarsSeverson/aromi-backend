@@ -18,6 +18,12 @@ const TRAITS_QUERY = /* sql */`
     AND ft.trait = $3::fragrance_trait
 `
 
+const emptyTrait = (trait: FragranceTraitType): FragranceTrait => ({
+  id: 0,
+  trait,
+  value: 0
+})
+
 export const traits: FragranceTraitsResolvers['allure'] = async (parent, args, context, info) => {
   const { fragranceId } = parent
   const { user, pool } = context
@@ -26,5 +32,5 @@ export const traits: FragranceTraitsResolvers['allure'] = async (parent, args, c
   const values = [fragranceId, user?.id, trait]
   const { rows } = await pool.query<FragranceTrait>(TRAITS_QUERY, values)
 
-  return rows.at(0) ?? null
+  return rows.at(0) ?? emptyTrait(trait)
 }
