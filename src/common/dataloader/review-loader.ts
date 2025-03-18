@@ -27,12 +27,13 @@ export const createFragranceReviewLoader = (pool: Pool): DataLoader<ReviewKey, F
       SELECT
         id,
         rating,
+        review,
         votes,
-        review_text AS review,
-        created_at AS "dCreated",
-        updated_at AS "dModified",
-        deleted_at AS "dDeleted",
-        user_id AS "userId"
+        dCreated,
+        dModified,
+        dDeleted,
+        author,
+        myVote
       FROM fragrance_reviews
       WHERE fragrance_id IN (${fragranceIds.map((_, i) => '$' + (i + 1)).join(', ')})
     `
