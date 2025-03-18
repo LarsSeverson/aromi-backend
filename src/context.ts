@@ -3,9 +3,10 @@ import aromidb from './datasources'
 import { type JwtHeader, type JwtPayload, type SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import { requiredEnv } from './common/env-util'
-import { type FragranceImage, type User } from './generated/gql-types'
+import { type FragranceImage, type FragranceReview, type User } from './generated/gql-types'
 import { type APIGatewayProxyEventV2, type Context as LambdaContext } from 'aws-lambda'
 import { createFragranceImagesLoader, type ImagesKey } from './common/dataloader/images-loader'
+import { createFragranceReviewLoader, type ReviewKey } from './common/dataloader/review-loader'
 import type DataLoader from 'dataloader'
 
 export interface Context {
@@ -15,6 +16,7 @@ export interface Context {
 
   dataLoaders: {
     fragranceImages: DataLoader<ImagesKey, FragranceImage[]>
+    fragranceReviews: DataLoader<ReviewKey, FragranceReview[]>
   }
 }
 
@@ -80,7 +82,8 @@ export const getContext = async ({ event }: { event: APIGatewayProxyEventV2, con
     pool: aromidb,
     token,
     dataLoaders: {
-      fragranceImages: createFragranceImagesLoader(aromidb)
+      fragranceImages: createFragranceImagesLoader(aromidb),
+      fragranceReviews: createFragranceReviewLoader(aromidb)
     }
   }
 
