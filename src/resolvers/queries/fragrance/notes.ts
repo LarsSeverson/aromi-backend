@@ -13,7 +13,9 @@ const NO_FILL_BASE_QUERY = /* sql */`
     n.s3_key as icon,
     fn.layer,
     fn.votes,
-    CASE WHEN fnv.id IS NOT NULL THEN true ELSE false END AS "myVote"
+    CASE WHEN fnv.id IS NOT NULL THEN true ELSE false END AS "myVote",
+    fn.created_at AS "dCreated",
+    fn.updated_at AS "dModified"
   FROM fragrance_notes fn
   JOIN notes n ON n.id = fn.note_id
   LEFT JOIN fragrance_note_votes fnv ON fnv.fragrance_note_id = fn.id
