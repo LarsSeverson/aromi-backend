@@ -18,6 +18,16 @@ export type Scalars = {
   Date: { input: any; output: any; }
 };
 
+export type Accord = {
+  __typename?: 'Accord';
+  color: Scalars['String']['output'];
+  dCreated: Scalars['Date']['output'];
+  dDeleted?: Maybe<Scalars['Date']['output']>;
+  dModified: Scalars['Date']['output'];
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type AccordsInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationInput>;
@@ -355,6 +365,16 @@ export type MutationVoteOnTraitArgs = {
   trait: FragranceTraitType;
 };
 
+export type Note = {
+  __typename?: 'Note';
+  dCreated: Scalars['Date']['output'];
+  dDeleted?: Maybe<Scalars['Date']['output']>;
+  dModified: Scalars['Date']['output'];
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  s3Key: Scalars['String']['output'];
+};
+
 export enum NoteLayer {
   Base = 'base',
   Middle = 'middle',
@@ -382,10 +402,24 @@ export type PaginationInput = {
 
 export type Query = {
   __typename?: 'Query';
+  accordById?: Maybe<Accord>;
+  accordByLikeName?: Maybe<Array<Accord>>;
   fragrance?: Maybe<Fragrance>;
   fragrances: FragranceConnection;
   me?: Maybe<User>;
+  noteById?: Maybe<Note>;
+  noteByLikeName?: Maybe<Array<Note>>;
   user?: Maybe<User>;
+};
+
+
+export type QueryAccordByIdArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryAccordByLikeNameArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -396,6 +430,16 @@ export type QueryFragranceArgs = {
 
 export type QueryFragrancesArgs = {
   input?: InputMaybe<QueryInput>;
+};
+
+
+export type QueryNoteByIdArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryNoteByLikeNameArgs = {
+  name: Scalars['String']['input'];
 };
 
 
@@ -525,6 +569,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  Accord: ResolverTypeWrapper<Accord>;
   AccordsInput: AccordsInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreateCollectionInput: CreateCollectionInput;
@@ -559,6 +604,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceVotes: ResolverTypeWrapper<FragranceVotes>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  Note: ResolverTypeWrapper<Note>;
   NoteLayer: NoteLayer;
   NotesInput: NotesInput;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -574,6 +620,7 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  Accord: Accord;
   AccordsInput: AccordsInput;
   Boolean: Scalars['Boolean']['output'];
   CreateCollectionInput: CreateCollectionInput;
@@ -607,6 +654,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceVotes: FragranceVotes;
   Int: Scalars['Int']['output'];
   Mutation: {};
+  Note: Note;
   NotesInput: NotesInput;
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
@@ -615,6 +663,16 @@ export type ResolversParentTypes = ResolversObject<{
   SortByInput: SortByInput;
   String: Scalars['String']['output'];
   User: User;
+}>;
+
+export type AccordResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Accord'] = ResolversParentTypes['Accord']> = ResolversObject<{
+  color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dDeleted?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -840,6 +898,16 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   voteOnTrait?: Resolver<Maybe<ResolversTypes['FragranceTrait']>, ParentType, ContextType, RequireFields<MutationVoteOnTraitArgs, 'fragranceId' | 'myVote' | 'trait'>>;
 }>;
 
+export type NoteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dDeleted?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  s3Key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PageInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -849,9 +917,13 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  accordById?: Resolver<Maybe<ResolversTypes['Accord']>, ParentType, ContextType, RequireFields<QueryAccordByIdArgs, 'id'>>;
+  accordByLikeName?: Resolver<Maybe<Array<ResolversTypes['Accord']>>, ParentType, ContextType, RequireFields<QueryAccordByLikeNameArgs, 'name'>>;
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType, RequireFields<QueryFragranceArgs, 'id'>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  noteById?: Resolver<Maybe<ResolversTypes['Note']>, ParentType, ContextType, RequireFields<QueryNoteByIdArgs, 'id'>>;
+  noteByLikeName?: Resolver<Maybe<Array<ResolversTypes['Note']>>, ParentType, ContextType, RequireFields<QueryNoteByLikeNameArgs, 'name'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 
@@ -869,6 +941,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 }>;
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
+  Accord?: AccordResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
@@ -897,6 +970,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   FragranceTraits?: FragranceTraitsResolvers<ContextType>;
   FragranceVotes?: FragranceVotesResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Note?: NoteResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

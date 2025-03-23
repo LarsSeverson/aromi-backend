@@ -1,3 +1,12 @@
+type Accord {
+  color: String!
+  dCreated: Date!
+  dDeleted: Date
+  dModified: Date!
+  id: Int!
+  name: String!
+}
+
 input AccordsInput {
   fill: Boolean
   pagination: PaginationInput
@@ -211,6 +220,15 @@ type Mutation {
   voteOnTrait(fragranceId: Int!, myVote: Float!, trait: FragranceTraitType!): FragranceTrait
 }
 
+type Note {
+  dCreated: Date!
+  dDeleted: Date
+  dModified: Date!
+  id: Int!
+  name: String!
+  s3Key: String!
+}
+
 enum NoteLayer {
   base
   middle
@@ -236,9 +254,13 @@ input PaginationInput {
 }
 
 type Query {
+  accordById(id: Int!): Accord
+  accordByLikeName(name: String!): [Accord!]
   fragrance(id: Int!): Fragrance
   fragrances(input: QueryInput): FragranceConnection!
   me: User
+  noteById(id: Int!): Note
+  noteByLikeName(name: String!): [Note!]
   user(id: Int!): User
 }
 

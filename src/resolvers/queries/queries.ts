@@ -1,3 +1,5 @@
+import { accordById, accordByLikeName } from './accords'
+import { noteById, noteByLikeName } from './notes'
 import { accords } from './fragrance/accords'
 import { fragrance } from './fragrance/fragrance'
 import { notes } from './fragrance/notes'
@@ -20,7 +22,12 @@ export const Query: QueryResolvers = {
   fragrances,
 
   me,
-  user
+  user,
+
+  accordById,
+  accordByLikeName,
+  noteById,
+  noteByLikeName
 }
 
 export const FragranceQuery: FragranceResolvers = {
