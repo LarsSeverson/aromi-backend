@@ -14,6 +14,8 @@ const NOTE_REQUEST_BY_QUERY = /* sql */`
   WHERE id = $1 AND deleted_at IS NULL
 `
 
+// If you pull in anything from the User table, it wont work.
+// I need to learn how to fix that. The core table without Querying User works
 export const noteRequest: QueryResolvers['noteRequest'] = async (parent, args, context, info) => {
   const { pool } = context
   const { id } = args
