@@ -421,6 +421,7 @@ export type Query = {
   me?: Maybe<User>;
   noteById?: Maybe<Note>;
   noteByLikeName?: Maybe<Array<Note>>;
+  noteRequest?: Maybe<NoteRequest>;
   user?: Maybe<User>;
 };
 
@@ -452,6 +453,11 @@ export type QueryNoteByIdArgs = {
 
 export type QueryNoteByLikeNameArgs = {
   name: Scalars['String']['input'];
+};
+
+
+export type QueryNoteRequestArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -958,6 +964,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   noteById?: Resolver<Maybe<ResolversTypes['Note']>, ParentType, ContextType, RequireFields<QueryNoteByIdArgs, 'id'>>;
   noteByLikeName?: Resolver<Maybe<Array<ResolversTypes['Note']>>, ParentType, ContextType, RequireFields<QueryNoteByLikeNameArgs, 'name'>>;
+  noteRequest?: Resolver<Maybe<ResolversTypes['NoteRequest']>, ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 

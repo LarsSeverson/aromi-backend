@@ -9,6 +9,10 @@ type NoteRequest{
   state: State!
 }
 
+extend type Query {
+  noteRequest(id: Int!): NoteRequest
+}
+
 enum State{
   pending
   approved

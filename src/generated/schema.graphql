@@ -272,6 +272,7 @@ type Query {
   me: User
   noteById(id: Int!): Note
   noteByLikeName(name: String!): [Note!]
+  noteRequest(id: Int!): NoteRequest
   user(id: Int!): User
 }
 
