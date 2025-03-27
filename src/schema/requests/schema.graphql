@@ -1,0 +1,17 @@
+type NoteRequest{
+  id: Int!
+  name: String!
+  url: String!
+  dCreated: Date!
+  dModified: Date!
+  dDeleted: Date
+  user: User!
+  state: State!
+}
+
+enum State{
+  pending
+  approved
+  declined
+  inactive
+}

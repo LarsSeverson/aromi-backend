@@ -372,7 +372,7 @@ export type Note = {
   dModified: Scalars['Date']['output'];
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  s3Key: Scalars['String']['output'];
+  url: Scalars['String']['output'];
 };
 
 export enum NoteLayer {
@@ -380,6 +380,18 @@ export enum NoteLayer {
   Middle = 'middle',
   Top = 'top'
 }
+
+export type NoteRequest = {
+  __typename?: 'NoteRequest';
+  dCreated: Scalars['Date']['output'];
+  dDeleted?: Maybe<Scalars['Date']['output']>;
+  dModified: Scalars['Date']['output'];
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  state: State;
+  url: Scalars['String']['output'];
+  user: User;
+};
 
 export type NotesInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
@@ -467,6 +479,13 @@ export type SortByInput = {
 export enum SortDirection {
   Asc = 'asc',
   Desc = 'desc'
+}
+
+export enum State {
+  Approved = 'approved',
+  Declined = 'declined',
+  Inactive = 'inactive',
+  Pending = 'pending'
 }
 
 export type User = {
@@ -606,6 +625,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Note: ResolverTypeWrapper<Note>;
   NoteLayer: NoteLayer;
+  NoteRequest: ResolverTypeWrapper<NoteRequest>;
   NotesInput: NotesInput;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
@@ -614,6 +634,7 @@ export type ResolversTypes = ResolversObject<{
   SortBy: SortBy;
   SortByInput: SortByInput;
   SortDirection: SortDirection;
+  State: State;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<User>;
 }>;
@@ -655,6 +676,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   Mutation: {};
   Note: Note;
+  NoteRequest: NoteRequest;
   NotesInput: NotesInput;
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
@@ -904,7 +926,19 @@ export type NoteResolvers<ContextType = Context, ParentType extends ResolversPar
   dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  s3Key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestResolvers<ContextType = Context, ParentType extends ResolversParentTypes['NoteRequest'] = ResolversParentTypes['NoteRequest']> = ResolversObject<{
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dDeleted?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['State'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -971,6 +1005,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   FragranceVotes?: FragranceVotesResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Note?: NoteResolvers<ContextType>;
+  NoteRequest?: NoteRequestResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
