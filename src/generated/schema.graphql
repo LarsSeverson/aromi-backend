@@ -7,6 +7,17 @@ type Accord {
   name: String!
 }
 
+type AccordRequest {
+  color: String!
+  dCreated: Date!
+  dDeleted: Date
+  dModified: Date!
+  id: Int!
+  name: String!
+  state: State!
+  user: User!
+}
+
 input AccordsInput {
   fill: Boolean
   pagination: PaginationInput
@@ -267,6 +278,7 @@ input PaginationInput {
 type Query {
   accordById(id: Int!): Accord
   accordByLikeName(name: String!): [Accord!]
+  accordRequest(id: Int!): AccordRequest
   fragrance(id: Int!): Fragrance
   fragrances(input: QueryInput): FragranceConnection!
   me: User

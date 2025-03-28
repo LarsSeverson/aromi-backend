@@ -9,8 +9,20 @@ type NoteRequest{
   state: State!
 }
 
+type AccordRequest{
+  id: Int!
+  name: String!
+  color: String!
+  dCreated: Date!
+  dModified: Date!
+  dDeleted: Date
+  user: User!
+  state: State!
+}
+
 extend type Query {
   noteRequest(id: Int!): NoteRequest
+  accordRequest(id: Int!): AccordRequest
 }
 
 enum State{

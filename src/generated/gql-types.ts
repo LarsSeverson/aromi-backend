@@ -28,6 +28,18 @@ export type Accord = {
   name: Scalars['String']['output'];
 };
 
+export type AccordRequest = {
+  __typename?: 'AccordRequest';
+  color: Scalars['String']['output'];
+  dCreated: Scalars['Date']['output'];
+  dDeleted?: Maybe<Scalars['Date']['output']>;
+  dModified: Scalars['Date']['output'];
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  state: State;
+  user: User;
+};
+
 export type AccordsInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
   pagination?: InputMaybe<PaginationInput>;
@@ -416,6 +428,7 @@ export type Query = {
   __typename?: 'Query';
   accordById?: Maybe<Accord>;
   accordByLikeName?: Maybe<Array<Accord>>;
+  accordRequest?: Maybe<AccordRequest>;
   fragrance?: Maybe<Fragrance>;
   fragrances: FragranceConnection;
   me?: Maybe<User>;
@@ -433,6 +446,11 @@ export type QueryAccordByIdArgs = {
 
 export type QueryAccordByLikeNameArgs = {
   name: Scalars['String']['input'];
+};
+
+
+export type QueryAccordRequestArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -595,6 +613,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   Accord: ResolverTypeWrapper<Accord>;
+  AccordRequest: ResolverTypeWrapper<AccordRequest>;
   AccordsInput: AccordsInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreateCollectionInput: CreateCollectionInput;
@@ -648,6 +667,7 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Accord: Accord;
+  AccordRequest: AccordRequest;
   AccordsInput: AccordsInput;
   Boolean: Scalars['Boolean']['output'];
   CreateCollectionInput: CreateCollectionInput;
@@ -700,6 +720,18 @@ export type AccordResolvers<ContextType = Context, ParentType extends ResolversP
   dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AccordRequest'] = ResolversParentTypes['AccordRequest']> = ResolversObject<{
+  color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  dDeleted?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['State'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -959,6 +991,7 @@ export type PageInfoResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   accordById?: Resolver<Maybe<ResolversTypes['Accord']>, ParentType, ContextType, RequireFields<QueryAccordByIdArgs, 'id'>>;
   accordByLikeName?: Resolver<Maybe<Array<ResolversTypes['Accord']>>, ParentType, ContextType, RequireFields<QueryAccordByLikeNameArgs, 'name'>>;
+  accordRequest?: Resolver<Maybe<ResolversTypes['AccordRequest']>, ParentType, ContextType, RequireFields<QueryAccordRequestArgs, 'id'>>;
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType, RequireFields<QueryFragranceArgs, 'id'>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -983,6 +1016,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Accord?: AccordResolvers<ContextType>;
+  AccordRequest?: AccordRequestResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
