@@ -1,10 +1,10 @@
 import { type Pool } from 'pg'
 import DataLoader from 'dataloader'
 import { type FragranceReview, type PaginationInput, type SortByInput } from '@src/generated/gql-types'
-import { type NonNullableType } from '../types'
-import { getSortColumns } from '../sort-map'
-import { getPagePart, getSortPart } from '../pagination'
-import { decodeCursor } from '../cursor'
+import { type NonNullableType } from '@src/common/types'
+import { getSortColumns } from '@src/common/sort-map'
+import { getPagePart, getSortPart } from '@src/common/pagination'
+import { decodeCursor } from '@src/common/cursor'
 
 export interface ReviewKey {
   fragranceId: number
@@ -21,28 +21,13 @@ export const createFragranceReviewLoader = (pool: Pool): DataLoader<ReviewKey, F
     const { by, direction } = sort
 
     const { dbColumn } = getSortColumns(by)
-    const values: Array<number | string> = [...fragranceIds]
+    const values = [...fragranceIds]
 
-    /*
-      The types defined in the graphql schema are structured differently
-      in the db. For example the FragranceReview type has myVote, but the db
-      table fragrance_reviews fr has no stored knowledge of myVote (because this
-      property is meant to be the current users vote on a review). To get the
-      myVote property you have to JOIN another table fragrance_review_votes rv
-      to set myVote:
-        CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
-
-      Also note the "AS "myVote"". In the base query, you use "dCreated, dModified, author, review,
-      and myVote" as if those are the columns stored in the table, but they are not. If you open your
-      eyes, you'll see that the fragrance_reviews table uses different naming conventions (for best
-      db practices) than graphql does. For example, dCreated is stored as fr.created_at in fr, so you
-      have to alias the returned column: fr.created_at AS "dCreated".
-    */
     const baseQuery = /* sql */`
       SELECT
         fr.id,
         fr.rating,
-        fr.review,
+        fr.review_text AS review,
         fr.votes,
         fr.dCreated,
         fr.dModified,

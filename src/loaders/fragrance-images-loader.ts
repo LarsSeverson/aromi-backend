@@ -1,21 +1,21 @@
 import { type Pool } from 'pg'
 import DataLoader from 'dataloader'
 import { type FragranceImage, type PaginationInput, type SortByInput } from '@src/generated/gql-types'
-import { type NonNullableType } from '../types'
-import { getSortColumns } from '../sort-map'
-import { getPagePart, getSortPart } from '../pagination'
-import { decodeCursor } from '../cursor'
-import { getSignedImages } from '../images'
+import { type NonNullableType } from '@src/common/types'
+import { getSortColumns } from '@src/common/sort-map'
+import { getPagePart, getSortPart } from '@src/common/pagination'
+import { decodeCursor } from '@src/common/cursor'
+import { getSignedImages } from '@src/common/images'
 
-export interface ImagesKey {
+export interface FragranceImageKey {
   fragranceId: number
   sort: NonNullableType<SortByInput>
   first: NonNullable<PaginationInput['first']>
   after: PaginationInput['after']
 }
 
-export const createFragranceImagesLoader = (pool: Pool): DataLoader<ImagesKey, FragranceImage[]> =>
-  new DataLoader<ImagesKey, FragranceImage[]>(async (keys) => {
+export const createFragranceImagesLoader = (pool: Pool): DataLoader<FragranceImageKey, FragranceImage[]> =>
+  new DataLoader<FragranceImageKey, FragranceImage[]>(async (keys) => {
     const fragranceIds = keys.map(key => key.fragranceId)
     const key = keys[0]
     const { sort, first, after } = key

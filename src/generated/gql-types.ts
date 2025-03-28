@@ -231,14 +231,15 @@ export type FragranceNotesTopArgs = {
 
 export type FragranceReview = {
   __typename?: 'FragranceReview';
-  author: Scalars['String']['output'];
   dCreated: Scalars['Date']['output'];
   dDeleted?: Maybe<Scalars['Date']['output']>;
   dModified: Scalars['Date']['output'];
+  fragrance: Fragrance;
   id: Scalars['Int']['output'];
   myVote?: Maybe<Scalars['Boolean']['output']>;
   rating: Scalars['Int']['output'];
   review: Scalars['String']['output'];
+  user: User;
   votes: Scalars['Int']['output'];
 };
 
@@ -885,14 +886,15 @@ export type FragranceNotesResolvers<ContextType = Context, ParentType extends Re
 }>;
 
 export type FragranceReviewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
-  author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dCreated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   dDeleted?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   dModified?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   review?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

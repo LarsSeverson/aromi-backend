@@ -156,14 +156,15 @@ type FragranceNotes {
 }
 
 type FragranceReview {
-  author: String!
   dCreated: Date!
   dDeleted: Date
   dModified: Date!
+  fragrance: Fragrance!
   id: Int!
   myVote: Boolean
   rating: Int!
   review: String!
+  user: User!
   votes: Int!
 }
 

@@ -16,6 +16,7 @@ const ACCORD_REQUEST_BY_QUERY = /* sql */`
 
 // If you pull in anything from the User table, it wont work.
 // I need to learn how to fix that. The core table without Querying User works
+// ANDY: Look at how I do it for the User.reviews. Each review has a user field and fragrance
 export const accordRequest: QueryResolvers['accordRequest'] = async (parent, args, context, info) => {
   const { pool } = context
   const { id } = args

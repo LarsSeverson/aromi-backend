@@ -22,5 +22,8 @@
   },
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "eslint.format.enable": true,
-  "terminal.integrated.confirmOnExit": "never"
+  "terminal.integrated.confirmOnExit": "never",
+  "[graphql]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

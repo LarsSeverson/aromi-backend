@@ -85,7 +85,8 @@ type FragranceReview {
   dModified: Date!
   dDeleted: Date
 
-  author: String!
+  user: User!
+  fragrance: Fragrance!
   myVote: Boolean
 }
 

@@ -3,21 +3,25 @@ import aromidb from './datasources'
 import { type JwtHeader, type JwtPayload, type SigningKeyCallback, verify } from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import { requiredEnv } from './common/env-util'
-import { type FragranceImage, type FragranceReview, type User } from './generated/gql-types'
+import { type Fragrance, type FragranceImage, type FragranceReview, type User } from './generated/gql-types'
 import { type APIGatewayProxyEventV2, type Context as LambdaContext } from 'aws-lambda'
-import { createFragranceImagesLoader, type ImagesKey } from './common/dataloader/images-loader'
-import { createFragranceReviewLoader, type ReviewKey } from './common/dataloader/review-loader'
 import type DataLoader from 'dataloader'
+import { createUserReviewsLoader, type UserReviewKey } from './loaders/user-reviews-loader'
+import { createFragranceImagesLoader, type FragranceImageKey } from './loaders/fragrance-images-loader'
+import { createReviewFragranceLoader, type ReviewFragranceKey } from './loaders/review-fragrance-loader'
+
+export interface ContextLoaders {
+  fragranceImages: DataLoader<FragranceImageKey, FragranceImage[]>
+  userReviews: DataLoader<UserReviewKey, FragranceReview[]>
+  reviewFragrance: DataLoader<ReviewFragranceKey, Fragrance>
+}
 
 export interface Context {
   pool: Pool
   token?: string | undefined
   user?: User | undefined
 
-  dataLoaders: {
-    fragranceImages: DataLoader<ImagesKey, FragranceImage[]>
-    fragranceReviews: DataLoader<ReviewKey, FragranceReview[]>
-  }
+  dataLoaders: ContextLoaders
 }
 
 const client = new JwksClient({
@@ -83,7 +87,8 @@ export const getContext = async ({ event }: { event: APIGatewayProxyEventV2, con
     token,
     dataLoaders: {
       fragranceImages: createFragranceImagesLoader(aromidb),
-      fragranceReviews: createFragranceReviewLoader(aromidb)
+      userReviews: createUserReviewsLoader(aromidb),
+      reviewFragrance: createReviewFragranceLoader(aromidb)
     }
   }
 
