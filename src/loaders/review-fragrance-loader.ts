@@ -2,7 +2,7 @@ import { type Fragrance } from '@src/generated/gql-types'
 import DataLoader from 'dataloader'
 import { type Pool } from 'pg'
 
-const QUERY = /* sql */`
+const BASE_QUERY = /* sql */`
   SELECT
     fr.id AS "reviewId",
     f.id,
@@ -33,7 +33,7 @@ export const createReviewFragranceLoader = (pool: Pool): DataLoader<ReviewFragra
     const { myUserId } = keys[0]
     const values = [reviewIds, myUserId]
 
-    const { rows } = await pool.query<Fragrance & { reviewId: number }>(QUERY, values)
+    const { rows } = await pool.query<Fragrance & { reviewId: number }>(BASE_QUERY, values)
 
     const reviews = reviewIds.map(id => {
       const fragrance = rows.find(row => row.reviewId === id)

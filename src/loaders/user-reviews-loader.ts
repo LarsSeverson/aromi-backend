@@ -6,6 +6,26 @@ import { getSortColumns } from '@src/common/sort-map'
 import { getPagePart, getSortPart } from '@src/common/pagination'
 import { decodeCursor } from '@src/common/cursor'
 
+const BASE_QUERY = /* sql */`
+  SELECT
+    fr.user_id as "userId",
+    fr.id,
+    fr.rating,
+    fr.votes,
+    fr.review_text AS review,
+    fr.created_at AS "dCreated",
+    fr.updated_at AS "dModified",
+    fr.deleted_at AS "dDeleted",
+    CASE 
+      WHEN rv.vote = 1 THEN true 
+      WHEN rv.vote = -1 THEN false 
+      ELSE null 
+    END AS "myVote"
+  FROM fragrance_reviews fr
+  LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $2
+  WHERE fr.user_id = ANY($1) 
+`
+
 export interface UserReviewKey {
   userId: number
   myUserId: number | undefined
@@ -23,27 +43,7 @@ export const createUserReviewsLoader = (pool: Pool): DataLoader<UserReviewKey, F
 
     const { dbColumn } = getSortColumns(by)
     const values: unknown[] = [userIds, myUserId]
-
-    const baseQuery = /* sql */`
-      SELECT
-        fr.user_id as "userId",
-        fr.id,
-        fr.rating,
-        fr.votes,
-        fr.review_text AS review,
-        fr.created_at AS "dCreated",
-        fr.updated_at AS "dModified",
-        fr.deleted_at AS "dDeleted",
-        CASE 
-          WHEN rv.vote = 1 THEN true 
-          WHEN rv.vote = -1 THEN false 
-          ELSE null 
-        END AS "myVote"
-      FROM fragrance_reviews fr
-      LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $2
-      WHERE fr.user_id = ANY($1) 
-    `
-    const queryParts = [baseQuery]
+    const queryParts = [BASE_QUERY]
 
     if (after != null) {
       const sortPart = getSortPart(direction, dbColumn, values.length, 'fr')

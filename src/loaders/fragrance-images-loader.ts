@@ -7,6 +7,17 @@ import { getPagePart, getSortPart } from '@src/common/pagination'
 import { decodeCursor } from '@src/common/cursor'
 import { getSignedImages } from '@src/common/images'
 
+const BASE_QUERY = /* sql */`
+  SELECT
+    id,
+    s3_key AS url,
+    created_at AS "dCreated",
+    updated_at AS "dModified",
+    fragrance_id AS "fragranceId"
+  FROM fragrance_images
+  WHERE fragrance_id = ANY($1) 
+`
+
 export interface FragranceImageKey {
   fragranceId: number
   sort: NonNullableType<SortByInput>
@@ -20,21 +31,10 @@ export const createFragranceImagesLoader = (pool: Pool): DataLoader<FragranceIma
     const key = keys[0]
     const { sort, first, after } = key
     const { by, direction } = sort
-
     const { dbColumn } = getSortColumns(by)
-    const values: Array<number | string> = [...fragranceIds]
 
-    const baseQuery = /* sql */`
-      SELECT
-        id,
-        s3_key AS url,
-        created_at AS "dCreated",
-        updated_at AS "dModified",
-        fragrance_id AS "fragranceId"
-      FROM fragrance_images
-      WHERE fragrance_id IN (${fragranceIds.map((_, i) => '$' + (i + 1)).join(', ')})
-    `
-    const queryParts = [baseQuery]
+    const values: unknown[] = [fragranceIds]
+    const queryParts = [BASE_QUERY]
 
     if (after != null) {
       const sortPart = getSortPart(direction, dbColumn, values.length)

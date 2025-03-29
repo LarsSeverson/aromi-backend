@@ -1,55 +1,26 @@
-import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getPage, getPagePart, getPaginationInput, getSortPart } from '@src/common/pagination'
+import { encodeCursor } from '@src/common/cursor'
+import { getPage, getPaginationInput } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
-import { INVALID_ID } from '@src/common/types'
-import { type FragranceReviewEdge, type FragranceResolvers, type FragranceReview } from '@src/generated/gql-types'
-
-const BASE_QUERY = /* sql */`
-  SELECT
-    fr.id,
-    fr.rating,
-    fr.votes,
-    fr.review_text AS review,
-    fr.created_at AS "dCreated",
-    fr.updated_at AS "dModified",
-    fr.deleted_at AS "dDeleted",
-    u.username AS author,
-    CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
-  FROM fragrance_reviews fr
-  JOIN users u ON u.id = fr.user_id
-  LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $2
-  WHERE fr.fragrance_id = $1
-`
+import { type FragranceReviewEdge, type FragranceResolvers } from '@src/generated/gql-types'
+import { type FragranceReviewKey } from '@src/loaders/fragrance-review-loader'
 
 export const reviews: FragranceResolvers['reviews'] = async (parent, args, context, info) => {
-  const { id } = parent
+  const { id: fragranceId } = parent
   const { input } = args
   const { first, after, sort } = getPaginationInput(input?.pagination)
-  const { by, direction } = sort
-  const { gqlColumn, dbColumn } = getSortColumns(by)
-  const { user, pool } = context
-  const userId = user?.id ?? INVALID_ID
+  const { by } = sort
+  const { gqlColumn } = getSortColumns(by)
+  const { user, dataLoaders } = context
 
-  const values: Array<string | number> = [id, userId]
-  const queryParts = [BASE_QUERY]
+  const key: FragranceReviewKey = { fragranceId, myUserId: user?.id, sort, first, after }
+  const reviews = await dataLoaders.fragranceReviews.load(key)
 
-  if (after != null) {
-    const sortPart = getSortPart(direction, dbColumn, values.length, 'fr')
-    queryParts.push(sortPart)
-    const { sortValue, id } = decodeCursor(after)
-    values.push(sortValue, id)
-  }
-
-  const pagePart = getPagePart(direction, dbColumn, values.length, 'fr')
-  queryParts.push(pagePart)
-  values.push(first + 1)
-
-  const query = queryParts.join('\n')
-  const { rows } = await pool.query<FragranceReview>(query, values)
-
-  const edges = rows.map<FragranceReviewEdge>(row => ({
-    node: row,
-    cursor: encodeCursor(row[gqlColumn], row.id)
+  const edges = reviews.map<FragranceReviewEdge>(review => ({
+    node: {
+      ...review,
+      fragrance: parent
+    },
+    cursor: encodeCursor(review[gqlColumn], review.id)
   }))
 
   return getPage(edges, first, after)
