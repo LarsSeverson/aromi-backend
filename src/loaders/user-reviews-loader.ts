@@ -8,6 +8,7 @@ import { decodeCursor } from '@src/common/cursor'
 
 export interface UserReviewKey {
   userId: number
+  myUserId: number | undefined
   sort: NonNullableType<SortByInput>
   first: NonNullable<PaginationInput['first']>
   after: PaginationInput['after']
@@ -17,11 +18,11 @@ export const createUserReviewsLoader = (pool: Pool): DataLoader<UserReviewKey, F
   new DataLoader<UserReviewKey, FragranceReview[]>(async (keys) => {
     const userIds = keys.map(key => key.userId)
     const key = keys[0]
-    const { sort, first, after } = key
+    const { sort, first, after, myUserId } = key
     const { by, direction } = sort
 
     const { dbColumn } = getSortColumns(by)
-    const values: Array<number[] | number | string> = [userIds]
+    const values: unknown[] = [userIds, myUserId]
 
     const baseQuery = /* sql */`
       SELECT
@@ -33,9 +34,13 @@ export const createUserReviewsLoader = (pool: Pool): DataLoader<UserReviewKey, F
         fr.created_at AS "dCreated",
         fr.updated_at AS "dModified",
         fr.deleted_at AS "dDeleted",
-        CASE WHEN rv.vote = 1 THEN true WHEN rv.vote = -1 THEN false ELSE null END AS "myVote"
+        CASE 
+          WHEN rv.vote = 1 THEN true 
+          WHEN rv.vote = -1 THEN false 
+          ELSE null 
+        END AS "myVote"
       FROM fragrance_reviews fr
-      LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = fr.user_id
+      LEFT JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $2
       WHERE fr.user_id = ANY($1) 
     `
     const queryParts = [baseQuery]

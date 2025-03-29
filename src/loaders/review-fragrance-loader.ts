@@ -24,14 +24,14 @@ const QUERY = /* sql */`
 
 export interface ReviewFragranceKey {
   reviewId: number
-  userId: number
+  myUserId: number | undefined
 }
 
 export const createReviewFragranceLoader = (pool: Pool): DataLoader<ReviewFragranceKey, Fragrance> =>
   new DataLoader<ReviewFragranceKey, Fragrance>(async (keys) => {
     const reviewIds = keys.map(key => key.reviewId)
-    const { userId } = keys[0]
-    const values = [reviewIds, userId]
+    const { myUserId } = keys[0]
+    const values = [reviewIds, myUserId]
 
     const { rows } = await pool.query<Fragrance & { reviewId: number }>(QUERY, values)
 

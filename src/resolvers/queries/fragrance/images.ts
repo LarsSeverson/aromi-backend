@@ -2,7 +2,7 @@ import { type FragranceResolvers } from '@src/generated/gql-types'
 import { getPage, getPaginationInput } from '@src/common/pagination'
 import { getSortColumns } from '@src/common/sort-map'
 import { encodeCursor } from '@src/common/cursor'
-import { type FragranceImageKey } from '@src/common/loaders/fragrance-images-loader'
+import { type FragranceImageKey } from '@src/loaders/fragrance-images-loader'
 
 export const images: FragranceResolvers['images'] = async (parent, args, context, info) => {
   const { id: fragranceId } = parent

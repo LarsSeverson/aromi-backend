@@ -9,9 +9,9 @@ export const userReviews: UserResolvers['reviews'] = async (parent, args, contex
   const { input } = args
   const { first, after, sort } = getPaginationInput(input?.pagination)
   const { gqlColumn } = getSortColumns(sort.by)
-  const { dataLoaders } = context
+  const { user, dataLoaders } = context
 
-  const key: UserReviewKey = { userId, sort, first, after }
+  const key: UserReviewKey = { userId, sort, first, after, myUserId: user?.id }
   const reviews = await dataLoaders.userReviews.load(key)
 
   const edges = reviews.map<FragranceReviewEdge>(review => ({

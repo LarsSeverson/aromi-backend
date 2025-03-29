@@ -21,27 +21,26 @@ export const createFragranceReviewLoader = (pool: Pool): DataLoader<ReviewKey, F
     const { by, direction } = sort
 
     const { dbColumn } = getSortColumns(by)
-    const values = [...fragranceIds]
+    const values: Array<number[] | number | string> = [...fragranceIds]
 
     const baseQuery = /* sql */`
       SELECT
+        fr.fragrance_id AS "fragranceId",
         fr.id,
         fr.rating,
-        fr.review_text AS review,
         fr.votes,
-        fr.dCreated,
-        fr.dModified,
-        fr.dDeleted,
-        fr.author,
+        fr.review_text AS review,
+        fr.created_at AS "dCreated",
+        fr.updated_at AS "dModified",
+        fr.deleted_at AS "dDeleted",
         CASE
           WHEN rv.vote = 1 THEN true
           WHEN rv.vote = -1 THEN false
           ELSE null
         END AS "myVote"
-      FROM fragrance_reviews as fr
-      JOIN fragrance_review_votes as rv ON rv.fragrance_review_id = fr.id 
-                                        AND rv.user_id = 1
-      WHERE fragrance_id IN (${fragranceIds.map((_, i) => '$' + (i + 1)).join(', ')})
+      FROM fragrance_reviews fr
+      JOIN fragrance_review_votes rv ON rv.fragrance_review_id = fr.id AND rv.user_id = $2
+      WHERE fr.fragrance_id = ANY($1)
     `
     const queryParts = [baseQuery]
 
@@ -57,22 +56,6 @@ export const createFragranceReviewLoader = (pool: Pool): DataLoader<ReviewKey, F
     values.push(first + 1)
 
     const query = queryParts.join('\n')
-    /*
-      Type T in pool.query<T> is telling the pool.query function what type is returned for
-      each row returned. When you say FragranceReview & { fragranceId: number } you're
-      telling the function the returned type is whatever is contained in the FragranceReview
-      type AND a key fragranceId which is a number. However, the base query you made does not
-      actually get the fragranceId (fr.fragrance_id AS "fragranceId"), so this would likely error
-      or returned undefined in the return statement.
-    */
     const { rows } = await pool.query<FragranceReview & { fragranceId: number }>(query, values)
     return fragranceIds.map(id => rows.filter(row => row.fragranceId === id))
   })
-
-/*
-    You can test this loader by using it in the reviews resolver function
-    similar to how the loader for fragrance images is used in resolvers/fragrance/images.
-    You can log how long the function takes with and without the loader and see if there's
-    a speed up. The main idea of dataloaders is to do exactly what an individual resolver would
-    except batched, so there aren't N + 1 hits to the db for every resolver call.
-  */
