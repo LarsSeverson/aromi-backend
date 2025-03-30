@@ -4,18 +4,6 @@ import { getSortColumns } from '@src/common/sort-map'
 import { type FragranceEdge, type Fragrance, type UserResolvers } from '@src/generated/gql-types'
 
 const BASE_QUERY = /* sql */`
-  WITH votes_data AS (
-    SELECT
-      fragrance_id,
-      CASE
-        WHEN vote = 1 THEN true
-        WHEN vote = -1 THEN false
-        ELSE NULL
-      END AS vote
-    FROM fragrance_votes
-    WHERE user_id = $1
-      AND vote IS NOT NULL
-  )
   SELECT
     f.id,
     f.brand,
@@ -26,14 +14,13 @@ const BASE_QUERY = /* sql */`
       'id', f.id,
       'likes', f.likes_count,
       'dislikes', f.dislikes_count,
-      'myVote', vd.vote
+      'myVote', true
     ) AS votes,
     f.created_at AS "dCreated",
     f.updated_at AS "dModified"
   FROM fragrance_votes fv
   JOIN fragrances f ON f.id = fv.fragrance_id
-  LEFT JOIN votes_data vd ON vd.fragrance_id = f.id
-  WHERE fv.user_id = $1
+  WHERE fv.user_id = $1 AND fv.vote = 1
 `
 
 export const userLikes: UserResolvers['likes'] = async (parent, args, context, info) => {

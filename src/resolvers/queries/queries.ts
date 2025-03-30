@@ -19,6 +19,7 @@ import { noteRequest } from './request/note'
 import { accordRequest } from './request/accord'
 import { type QueryResolvers, type FragranceResolvers, type FragranceTraits, type FragranceNotes, type FragranceNotesResolvers, type FragranceTraitsResolvers, type UserResolvers, type FragranceCollectionResolvers, type FragranceReviewResolvers } from '@src/generated/gql-types'
 import { reviewFragrance } from './review/fragrance'
+import { reviewUser } from './review/user'
 
 export const Query: QueryResolvers = {
   fragrance,
@@ -69,7 +70,8 @@ export const UserQuery: UserResolvers = {
 }
 
 export const FragranceReviewQuery: FragranceReviewResolvers = {
-  fragrance: reviewFragrance
+  fragrance: reviewFragrance,
+  user: reviewUser
 }
 
 export const FragranceCollectionQuery: FragranceCollectionResolvers = {

@@ -10,12 +10,14 @@ import { createUserReviewsLoader, type UserReviewKey } from './loaders/user-revi
 import { createFragranceImagesLoader, type FragranceImageKey } from './loaders/fragrance-images-loader'
 import { createReviewFragranceLoader, type ReviewFragranceKey } from './loaders/review-fragrance-loader'
 import { createFragranceReviewLoader, type FragranceReviewKey } from './loaders/fragrance-review-loader'
+import { createReviewUserLoader, type ReviewUserKey } from './loaders/review-user-loader'
 
 export interface ContextLoaders {
   fragranceImages: DataLoader<FragranceImageKey, FragranceImage[]>
   fragranceReviews: DataLoader<FragranceReviewKey, FragranceReview[]>
   userReviews: DataLoader<UserReviewKey, FragranceReview[]>
   reviewFragrance: DataLoader<ReviewFragranceKey, Fragrance>
+  reviewUser: DataLoader<ReviewUserKey, User>
 }
 
 export interface Context {
@@ -91,7 +93,8 @@ export const getContext = async ({ event }: { event: APIGatewayProxyEventV2, con
       fragranceImages: createFragranceImagesLoader(aromidb),
       fragranceReviews: createFragranceReviewLoader(aromidb),
       userReviews: createUserReviewsLoader(aromidb),
-      reviewFragrance: createReviewFragranceLoader(aromidb)
+      reviewFragrance: createReviewFragranceLoader(aromidb),
+      reviewUser: createReviewUserLoader(aromidb)
     }
   }
 

@@ -35,12 +35,12 @@ export const createReviewFragranceLoader = (pool: Pool): DataLoader<ReviewFragra
 
     const { rows } = await pool.query<Fragrance & { reviewId: number }>(BASE_QUERY, values)
 
-    const reviews = reviewIds.map(id => {
+    const fragrances = reviewIds.map(id => {
       const fragrance = rows.find(row => row.reviewId === id)
       if (fragrance == null) throw new Error(`Fragrance not found for reviewId ${id}`)
 
       return fragrance
     })
 
-    return reviews
+    return fragrances
   })
