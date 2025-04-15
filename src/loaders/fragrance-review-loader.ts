@@ -34,7 +34,7 @@ export interface FragranceReviewKey {
   after: PaginationInput['after']
 }
 
-export const createFragranceReviewLoader = (pool: Pool): DataLoader<FragranceReviewKey, FragranceReview[]> =>
+export const createFragranceReviewsLoader = (pool: Pool): DataLoader<FragranceReviewKey, FragranceReview[]> =>
   new DataLoader<FragranceReviewKey, FragranceReview[]>(async (keys) => {
     const fragranceIds = keys.map(key => key.fragranceId)
     const key = keys[0]

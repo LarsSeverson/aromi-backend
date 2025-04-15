@@ -430,6 +430,7 @@ export type Query = {
   accordById?: Maybe<Accord>;
   accordByLikeName?: Maybe<Array<Accord>>;
   accordRequest?: Maybe<AccordRequest>;
+  collection?: Maybe<FragranceCollection>;
   fragrance?: Maybe<Fragrance>;
   fragrances: FragranceConnection;
   me?: Maybe<User>;
@@ -451,6 +452,11 @@ export type QueryAccordByLikeNameArgs = {
 
 
 export type QueryAccordRequestArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryCollectionArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -994,6 +1000,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   accordById?: Resolver<Maybe<ResolversTypes['Accord']>, ParentType, ContextType, RequireFields<QueryAccordByIdArgs, 'id'>>;
   accordByLikeName?: Resolver<Maybe<Array<ResolversTypes['Accord']>>, ParentType, ContextType, RequireFields<QueryAccordByLikeNameArgs, 'name'>>;
   accordRequest?: Resolver<Maybe<ResolversTypes['AccordRequest']>, ParentType, ContextType, RequireFields<QueryAccordRequestArgs, 'id'>>;
+  collection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<QueryCollectionArgs, 'id'>>;
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType, RequireFields<QueryFragranceArgs, 'id'>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;

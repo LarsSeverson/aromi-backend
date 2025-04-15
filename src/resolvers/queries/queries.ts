@@ -20,10 +20,13 @@ import { accordRequest } from './request/accord'
 import { type QueryResolvers, type FragranceResolvers, type FragranceTraits, type FragranceNotes, type FragranceNotesResolvers, type FragranceTraitsResolvers, type UserResolvers, type FragranceCollectionResolvers, type FragranceReviewResolvers } from '@src/generated/gql-types'
 import { reviewFragrance } from './review/fragrance'
 import { reviewUser } from './review/user'
+import { collection } from './collection/collection'
 
 export const Query: QueryResolvers = {
   fragrance,
   fragrances,
+
+  collection,
 
   me,
   user,

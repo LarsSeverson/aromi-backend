@@ -9,8 +9,9 @@ import type DataLoader from 'dataloader'
 import { createUserReviewsLoader, type UserReviewKey } from './loaders/user-reviews-loader'
 import { createFragranceImagesLoader, type FragranceImageKey } from './loaders/fragrance-images-loader'
 import { createReviewFragranceLoader, type ReviewFragranceKey } from './loaders/review-fragrance-loader'
-import { createFragranceReviewLoader, type FragranceReviewKey } from './loaders/fragrance-review-loader'
+import { createFragranceReviewsLoader, type FragranceReviewKey } from './loaders/fragrance-review-loader'
 import { createReviewUserLoader, type ReviewUserKey } from './loaders/review-user-loader'
+import { createCollectionUserLoader, type CollectionUserKey } from './loaders/collection-user-loader'
 
 export interface ContextLoaders {
   fragranceImages: DataLoader<FragranceImageKey, FragranceImage[]>
@@ -18,6 +19,7 @@ export interface ContextLoaders {
   userReviews: DataLoader<UserReviewKey, FragranceReview[]>
   reviewFragrance: DataLoader<ReviewFragranceKey, Fragrance>
   reviewUser: DataLoader<ReviewUserKey, User>
+  collectionUser: DataLoader<CollectionUserKey, User>
 }
 
 export interface Context {
@@ -81,29 +83,74 @@ const getCurrentUser = async (cognitoId: string, pool: Pool): Promise<User | nul
   return rows.at(0) ?? null
 }
 
+const createContext = (pool: Pool, token: string | undefined): Context => {
+  const cache: Partial<ContextLoaders> = {}
+
+  const dataLoaders: ContextLoaders = {
+    get fragranceImages () {
+      if (cache.fragranceImages == null) {
+        cache.fragranceImages = createFragranceImagesLoader(pool)
+      }
+
+      return cache.fragranceImages
+    },
+    get fragranceReviews () {
+      if (cache.fragranceReviews == null) {
+        cache.fragranceReviews = createFragranceReviewsLoader(pool)
+      }
+
+      return cache.fragranceReviews
+    },
+    get userReviews () {
+      if (cache.userReviews == null) {
+        cache.userReviews = createUserReviewsLoader(pool)
+      }
+
+      return cache.userReviews
+    },
+    get reviewFragrance () {
+      if (cache.reviewFragrance == null) {
+        cache.reviewFragrance = createReviewFragranceLoader(pool)
+      }
+
+      return cache.reviewFragrance
+    },
+    get reviewUser () {
+      if (cache.reviewUser == null) {
+        cache.reviewUser = createReviewUserLoader(pool)
+      }
+
+      return cache.reviewUser
+    },
+    get collectionUser () {
+      if (cache.collectionUser == null) {
+        cache.collectionUser = createCollectionUserLoader(pool)
+      }
+
+      return cache.collectionUser
+    }
+  }
+
+  return {
+    pool,
+    token,
+    dataLoaders
+  }
+}
+
 export const getContext = async ({ event }: { event: APIGatewayProxyEventV2, context: LambdaContext }): Promise<Context> => {
   const { headers } = event
   const { authorization } = headers
   const token = authorization?.replace('Bearer ', '') ?? undefined
 
-  const ctx: Context = {
-    pool: aromidb,
-    token,
-    dataLoaders: {
-      fragranceImages: createFragranceImagesLoader(aromidb),
-      fragranceReviews: createFragranceReviewLoader(aromidb),
-      userReviews: createUserReviewsLoader(aromidb),
-      reviewFragrance: createReviewFragranceLoader(aromidb),
-      reviewUser: createReviewUserLoader(aromidb)
-    }
-  }
+  const context = createContext(aromidb, token)
 
   const decoded = await decodeToken(token)
   const cognitoId = decoded?.sub ?? undefined
 
   if (cognitoId !== undefined) {
-    ctx.user = await getCurrentUser(cognitoId, aromidb) ?? undefined
+    context.user = await getCurrentUser(cognitoId, aromidb) ?? undefined
   }
 
-  return ctx
+  return context
 }

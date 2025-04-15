@@ -118,6 +118,8 @@ type FragranceCollectionItem {
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: QueryInput): FragranceConnection!
+
+  collection(id: Int!): FragranceCollection
 }
 
 extend type Mutation {

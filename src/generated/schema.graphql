@@ -280,6 +280,7 @@ type Query {
   accordById(id: Int!): Accord
   accordByLikeName(name: String!): [Accord!]
   accordRequest(id: Int!): AccordRequest
+  collection(id: Int!): FragranceCollection
   fragrance(id: Int!): Fragrance
   fragrances(input: QueryInput): FragranceConnection!
   me: User
