@@ -26,10 +26,12 @@ const BASE_QUERY = /* sql */`
 export const userLikes: UserResolvers['likes'] = async (parent, args, context, info) => {
   const { id } = parent
   const { input } = args
+  const { sources } = context
+  const { db } = sources
+
   const { first, after, sort } = getPaginationInput(input?.pagination)
   const { by, direction } = sort
   const { gqlColumn, dbColumn } = getSortColumns(by)
-  const { pool } = context
 
   const values: Array<string | number> = [id]
   const queryParts = [BASE_QUERY]
@@ -46,7 +48,7 @@ export const userLikes: UserResolvers['likes'] = async (parent, args, context, i
   values.push(first + 1)
 
   const query = queryParts.join('\n')
-  const { rows } = await pool.query<Fragrance>(query, values)
+  const { rows } = await db.query<Fragrance>(query, values)
 
   const edges = rows.map<FragranceEdge>(row => ({
     node: row,

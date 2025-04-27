@@ -24,13 +24,14 @@ const VOTE_ON_TRAIT_QUERY = /* sql */`
 `
 
 export const voteOnTrait: MutationResolvers['voteOnTrait'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { fragranceId, trait, myVote } = args
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
-  const { fragranceId, trait, myVote } = args
   const values = [fragranceId, trait, myVote, user.id]
-  const { rows } = await pool.query<FragranceTrait>(VOTE_ON_TRAIT_QUERY, values)
+  const { rows } = await db.query<FragranceTrait>(VOTE_ON_TRAIT_QUERY, values)
 
   return rows.at(0) ?? null
 }

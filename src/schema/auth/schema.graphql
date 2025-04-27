@@ -1,0 +1,12 @@
+type AuthPayload {
+  idToken: String!
+  accessToken: String!
+  expiresAt: Int!
+}
+
+extend type Mutation {
+  logIn(email: String!, password: String!): AuthPayload!
+  logOut: Boolean!
+
+  refreshTokens: AuthPayload!
+}

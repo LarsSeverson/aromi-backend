@@ -12,5 +12,9 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["dist/**", "node_modules/**", ".serverless/**"]
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    ".serverless/**"
+  ]
 }

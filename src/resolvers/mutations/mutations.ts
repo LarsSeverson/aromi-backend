@@ -2,7 +2,6 @@ import { voteOnFragrance } from './fragrance/vote-on-fragrance'
 import { voteOnAccord } from './fragrance/vote-on-accord'
 import { voteOnNote } from './fragrance/vote-on-note'
 import { voteOnTrait } from './fragrance/vote-on-trait'
-import { upsertUser } from './user/upsert-user'
 import { reviewFragrance } from './fragrance/review-fragrance'
 import { voteOnReview } from './fragrance/vote-on-review'
 import { type MutationResolvers } from '@src/generated/gql-types'
@@ -18,6 +17,5 @@ export const Mutation: MutationResolvers = {
   reviewFragrance,
   addFragranceToCollection,
 
-  upsertUser,
   createCollection
 }

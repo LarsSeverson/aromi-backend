@@ -26,11 +26,13 @@ const emptyTrait = (trait: FragranceTraitType): FragranceTrait => ({
 
 export const traits: FragranceTraitsResolvers['allure'] = async (parent, args, context, info) => {
   const { fragranceId } = parent
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
+
   const trait = info.fieldName as FragranceTraitType
 
   const values = [fragranceId, user?.id, trait]
-  const { rows } = await pool.query<FragranceTrait>(TRAITS_QUERY, values)
+  const { rows } = await db.query<FragranceTrait>(TRAITS_QUERY, values)
 
   return rows.at(0) ?? emptyTrait(trait)
 }

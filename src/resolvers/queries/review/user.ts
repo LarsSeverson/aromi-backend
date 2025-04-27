@@ -5,7 +5,7 @@ export const reviewUser: FragranceReviewResolvers['user'] = async (parent, args,
   const { id: reviewId, user: parentUser } = parent
   if (parentUser != null) return parentUser
 
-  const { dataLoaders } = context
+  const { loaders: dataLoaders } = context
 
   const key: ReviewUserKey = {
     reviewId

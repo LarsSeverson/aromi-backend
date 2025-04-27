@@ -13,11 +13,12 @@ const USER_QUERY = /* sql */`
 `
 
 export const user: QueryResolvers['user'] = async (parent, args, context, info) => {
-  const { pool } = context
   const { id } = args
+  const { sources } = context
+  const { db } = sources
 
   const values = [id]
-  const { rows } = await pool.query<User>(USER_QUERY, values)
+  const { rows } = await db.query<User>(USER_QUERY, values)
 
   return rows.at(0) ?? null
 }

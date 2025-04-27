@@ -2,7 +2,6 @@ type User {
   id: Int!
   username: String!
   email: String!
-  cognitoId: String!
 
   followers: Int!
   following: Int!
@@ -18,7 +17,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  upsertUser(email: String!, cognitoId: String!): User
   createCollection(input: CreateCollectionInput!): FragranceCollection
 }
 

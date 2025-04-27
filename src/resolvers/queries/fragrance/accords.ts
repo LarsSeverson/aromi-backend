@@ -68,10 +68,12 @@ const FILL_BASE_QUERY = /* sql */`
 export const accords: FragranceResolvers['accords'] = async (parent, args, context, info) => {
   const { id } = parent
   const { input } = args
+  const { me: user, sources } = context
+  const { db } = sources
+
   const { first, after, sort } = getPaginationInput(input?.pagination, 30)
   const { by, direction } = sort
   const { gqlColumn } = getSortColumns(by)
-  const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
   const fill = input?.fill ?? false
 
@@ -96,7 +98,7 @@ export const accords: FragranceResolvers['accords'] = async (parent, args, conte
   values.push(first + 1)
 
   const query = queryParts.join('\n')
-  const { rows } = await pool.query<FragranceAccord>(query, values)
+  const { rows } = await db.query<FragranceAccord>(query, values)
 
   const edges = rows.map<FragranceAccordEdge>(row => ({
     node: row,

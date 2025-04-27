@@ -1,6 +1,6 @@
+import { type ApiDataSources } from '@src/datasources'
 import { type User } from '@src/generated/gql-types'
 import DataLoader from 'dataloader'
-import { type Pool } from 'pg'
 
 const BASE_QUERY = /* sql */`
   SELECT
@@ -20,12 +20,14 @@ export interface ReviewUserKey {
   reviewId: number
 }
 
-export const createReviewUserLoader = (pool: Pool): DataLoader<ReviewUserKey, User> =>
+export const createReviewUserLoader = (sources: ApiDataSources): DataLoader<ReviewUserKey, User> =>
   new DataLoader<ReviewUserKey, User>(async (keys) => {
+    const { db } = sources
+
     const reviewIds = keys.map(key => key.reviewId)
     const values = [reviewIds]
 
-    const { rows } = await pool.query<User & { reviewId: number }>(BASE_QUERY, values)
+    const { rows } = await db.query<User & { reviewId: number }>(BASE_QUERY, values)
 
     const users = reviewIds.map(id => {
       const user = rows.find(row => row.reviewId === id)

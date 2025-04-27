@@ -1,24 +1,75 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { s3 } from '@src/datasources'
+import { ResultAsync } from 'neverthrow'
+import { ApiError } from './error'
+import { type ApiDataSources } from '@src/datasources'
 
-export const generateSignedUrl = async (key: string): Promise<string> => {
-  const bucket = process.env.S3_BUCKET
-  if (bucket === undefined || bucket === '') return ''
+const generateSignedUrl = (
+  s3: ApiDataSources['s3'],
+  s3Key: string
+): ResultAsync<string, ApiError> => {
+  const { client, bucket } = s3
 
-  const command = new GetObjectCommand({ Bucket: bucket, Key: key })
-  const url = await getSignedUrl(s3, command, { expiresIn: 3600 })
-
-  return url ?? ''
+  return ResultAsync.fromPromise(
+    getSignedUrl(
+      client,
+      new GetObjectCommand({ Bucket: bucket, Key: s3Key }),
+      { expiresIn: 3600 }
+    ),
+    e => new ApiError('SIGNED_URL_ERROR', 'Failed to generate signed URL', 500, e)
+  )
+    .map(url => url ?? '')
 }
 
-export const getSignedImages = async <T extends Record<K, string>, K extends string>(images: T[], key: K): Promise<T[]> => {
-  return await Promise.all(images.map(async image => {
-    try {
-      const url = await generateSignedUrl(image[key])
-      return { ...image, [key]: url }
-    } catch (error) {
-      return { ...image, [key]: '' }
-    }
-  }))
+export interface SignParams {
+  s3: ApiDataSources['s3']
+  src: string
+}
+
+export const sign = async (params: SignParams): Promise<string> => {
+  const { s3, src } = params
+
+  return await generateSignedUrl(s3, src)
+    .match(
+      url => url,
+      () => ''
+    )
+}
+
+export interface SignAllParams {
+  s3: ApiDataSources['s3']
+  srcs: string[]
+}
+
+export const signAll = async (params: SignAllParams): Promise<string[]> => {
+  const { s3, srcs } = params
+
+  return await Promise.all(
+    srcs.map(async src => await sign({ s3, src }))
+  )
+}
+
+export type MergeSignedSrcOn = Record<string, unknown> & { src: string }
+export interface MergeSignedSrcParams {
+  s3: ApiDataSources['s3']
+  on: MergeSignedSrcOn
+}
+
+export const mergeSignedSrc = async (params: MergeSignedSrcParams): Promise<MergeSignedSrcOn> => {
+  const { s3, on } = params
+  on.src = await sign({ s3, src: on.src })
+  return on
+}
+
+export interface MergeAllSignedSrcsParams {
+  s3: ApiDataSources['s3']
+  on: MergeSignedSrcOn[]
+}
+
+export const mergeAllSignedSrcs = async (params: MergeAllSignedSrcsParams): Promise<MergeSignedSrcOn[]> => {
+  const { s3, on: ons } = params
+
+  return await Promise.all(
+    ons.map(async on => await mergeSignedSrc({ s3, on }))
+  )
 }

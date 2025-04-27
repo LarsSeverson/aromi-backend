@@ -50,13 +50,14 @@ const VOTE_ON_REVIEW_QUERY = /* sql */`
 `
 
 export const voteOnReview: MutationResolvers['voteOnReview'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { reviewId, myVote } = args
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
-  const { reviewId, myVote } = args
   const values = [reviewId, myVote, user.id]
-  const { rows } = await pool.query<FragranceReview>(VOTE_ON_REVIEW_QUERY, values)
+  const { rows } = await db.query<FragranceReview>(VOTE_ON_REVIEW_QUERY, values)
 
   return rows.at(0) ?? null
 }

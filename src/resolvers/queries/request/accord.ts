@@ -18,10 +18,12 @@ const ACCORD_REQUEST_BY_QUERY = /* sql */`
 // I need to learn how to fix that. The core table without Querying User works
 // ANDY: Look at how I do it for the User.reviews. Each review has a user field and fragrance
 export const accordRequest: QueryResolvers['accordRequest'] = async (parent, args, context, info) => {
-  const { pool } = context
   const { id } = args
+  const { sources } = context
+  const { db } = sources
 
   const values = [id]
-  const { rows } = await pool.query<AccordRequest>(ACCORD_REQUEST_BY_QUERY, values)
+  const { rows } = await db.query<AccordRequest>(ACCORD_REQUEST_BY_QUERY, values)
+
   return rows.at(0) ?? null
 }

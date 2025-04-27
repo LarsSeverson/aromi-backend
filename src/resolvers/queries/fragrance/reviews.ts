@@ -10,7 +10,7 @@ export const reviews: FragranceResolvers['reviews'] = async (parent, args, conte
   const { first, after, sort } = getPaginationInput(input?.pagination)
   const { by } = sort
   const { gqlColumn } = getSortColumns(by)
-  const { user, dataLoaders } = context
+  const { me: user, loaders: dataLoaders } = context
 
   const key: FragranceReviewKey = { fragranceId, myUserId: user?.id, sort, first, after }
   const reviews = await dataLoaders.fragranceReviews.load(key)

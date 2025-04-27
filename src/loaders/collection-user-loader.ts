@@ -1,12 +1,12 @@
 import { ApolloError } from '@apollo/client'
+import { type ApiDataSources } from '@src/datasources'
 import { type User } from '@src/generated/gql-types'
 import DataLoader from 'dataloader'
-import { type Pool } from 'pg'
 
 const BASE_QUERY = /* sql */`
   SELECT
     fc.id AS "collectionId",
-    u.id
+    u.id,
     u.username,
     u.email,
     u.cognito_id AS "cognitoId",
@@ -21,12 +21,14 @@ export interface CollectionUserKey {
   collectionId: number
 }
 
-export const createCollectionUserLoader = (pool: Pool): DataLoader<CollectionUserKey, User> =>
+export const createCollectionUserLoader = (sources: ApiDataSources): DataLoader<CollectionUserKey, User> =>
   new DataLoader<CollectionUserKey, User>(async (keys) => {
+    const { db } = sources
+
     const collectionIds = keys.map(key => key.collectionId)
     const values = [collectionIds]
 
-    const { rows } = await pool.query<User & { collectionId: number }>(BASE_QUERY, values)
+    const { rows } = await db.query<User & { collectionId: number }>(BASE_QUERY, values)
 
     const users = collectionIds.map(id => {
       const user = rows.find(row => row.collectionId === id)

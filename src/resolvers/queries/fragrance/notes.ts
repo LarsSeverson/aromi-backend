@@ -3,7 +3,6 @@ import { getPage, getPagePart, getPaginationInput, getSortPart } from '@src/comm
 import { INVALID_ID } from '@src/common/types'
 import { getSortColumns } from '@src/common/sort-map'
 import { decodeCursor, encodeCursor } from '@src/common/cursor'
-import { getSignedImages } from '@src/common/images'
 
 const NO_FILL_BASE_QUERY = /* sql */`
   SELECT
@@ -75,10 +74,12 @@ const FILL_BASE_QUERY = /* sql */`
 export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (parent, args, context, info) => {
   const { fragranceId } = parent
   const { input } = args
+  const { me: user, sources } = context
+  const { db } = sources
+
   const { first, after, sort } = getPaginationInput(input?.pagination, 30)
   const { by, direction } = sort
   const { gqlColumn } = getSortColumns(by)
-  const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
   const fill = input?.fill ?? false
   const layer = info.fieldName as NoteLayer
@@ -104,10 +105,9 @@ export const notes: FragranceNotesResolvers['base' | 'middle' | 'top'] = async (
   values.push(first + 1)
 
   const query = queryParts.join('\n')
-  const { rows } = await pool.query<FragranceNote>(query, values)
+  const { rows } = await db.query<FragranceNote>(query, values)
 
-  const signedIcons = await getSignedImages(rows, 'icon')
-  const edges = signedIcons.map<FragranceNoteEdge>(row => ({
+  const edges = rows.map<FragranceNoteEdge>(row => ({
     node: row,
     cursor: encodeCursor(row[gqlColumn], row.id)
   }))

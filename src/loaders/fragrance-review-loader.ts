@@ -1,10 +1,10 @@
-import { type Pool } from 'pg'
 import DataLoader from 'dataloader'
 import { type FragranceReview, type PaginationInput, type SortByInput } from '@src/generated/gql-types'
 import { type NonNullableType } from '@src/common/types'
 import { getSortColumns } from '@src/common/sort-map'
 import { getPagePart, getSortPart } from '@src/common/pagination'
 import { decodeCursor } from '@src/common/cursor'
+import { type ApiDataSources } from '@src/datasources'
 
 const BASE_QUERY = /* sql */`
   SELECT
@@ -34,8 +34,10 @@ export interface FragranceReviewKey {
   after: PaginationInput['after']
 }
 
-export const createFragranceReviewsLoader = (pool: Pool): DataLoader<FragranceReviewKey, FragranceReview[]> =>
+export const createFragranceReviewsLoader = (sources: ApiDataSources): DataLoader<FragranceReviewKey, FragranceReview[]> =>
   new DataLoader<FragranceReviewKey, FragranceReview[]>(async (keys) => {
+    const { db } = sources
+
     const fragranceIds = keys.map(key => key.fragranceId)
     const key = keys[0]
     const { sort, first, after, myUserId } = key
@@ -57,7 +59,7 @@ export const createFragranceReviewsLoader = (pool: Pool): DataLoader<FragranceRe
     values.push(first + 1)
 
     const query = queryParts.join('\n')
-    const { rows } = await pool.query<FragranceReview & { fragranceId: number }>(query, values)
+    const { rows } = await db.query<FragranceReview & { fragranceId: number }>(query, values)
 
     return fragranceIds.map(id => rows.filter(row => row.fragranceId === id))
   })

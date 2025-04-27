@@ -13,9 +13,6 @@
     "noImplicitAny": false,
     "moduleResolution": "node",
     "baseUrl": "./",
-    "rootDirs": [
-      "src"
-    ],
     "paths": {
       "@src/*": [
         "src/*"
@@ -31,9 +28,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".serverless"
   ],
   "include": [
-    "**/*.ts"
+    "src/**/*.ts"
   ]
 }

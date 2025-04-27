@@ -11,15 +11,16 @@ const CREATE_COLLECTION_QUERY = /* sql */`
 `
 
 export const createCollection: MutationResolvers['createCollection'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { input } = args
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user == null) return null
 
-  const { input } = args
   const { name } = input
 
   const values = [user.id, name]
-  const { rows } = await pool.query<FragranceCollection>(CREATE_COLLECTION_QUERY, values)
+  const { rows } = await db.query<FragranceCollection>(CREATE_COLLECTION_QUERY, values)
 
   if (rows.length === 0) return null
 

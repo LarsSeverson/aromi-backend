@@ -21,6 +21,7 @@ import { type QueryResolvers, type FragranceResolvers, type FragranceTraits, typ
 import { reviewFragrance } from './review/fragrance'
 import { reviewUser } from './review/user'
 import { collection } from './collection/collection'
+import { collectionUser } from './collection/user'
 
 export const Query: QueryResolvers = {
   fragrance,
@@ -79,5 +80,5 @@ export const FragranceReviewQuery: FragranceReviewResolvers = {
 
 export const FragranceCollectionQuery: FragranceCollectionResolvers = {
   items: collectionItems,
-  user: (parent) => parent.user
+  user: collectionUser
 }

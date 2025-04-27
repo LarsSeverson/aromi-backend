@@ -9,12 +9,13 @@ const REVIEW_DIST_QUERY = /* sql */`
 
 export const reviewDistribution: FragranceResolvers['reviewDistribution'] = async (parent, args, context, info) => {
   const { id } = parent
-  const { pool } = context
+  const { sources } = context
+  const { db } = sources
 
   const distribution: FragranceReviewDistribution = { one: 0, two: 0, three: 0, four: 0, five: 0 }
 
   const values = [id]
-  const { rows } = await pool.query<FragranceReview & { count: number }>(REVIEW_DIST_QUERY, values)
+  const { rows } = await db.query<FragranceReview & { count: number }>(REVIEW_DIST_QUERY, values)
 
   rows.forEach(row => {
     const { rating, count } = row

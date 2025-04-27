@@ -23,6 +23,12 @@ input AccordsInput {
   pagination: PaginationInput
 }
 
+type AuthPayload {
+  accessToken: String!
+  expiresAt: Int!
+  idToken: String!
+}
+
 input CreateCollectionInput {
   name: String!
 }
@@ -114,8 +120,9 @@ type FragranceEdge {
 }
 
 type FragranceImage {
+  alt: String!
   id: Int!
-  url: String!
+  src: String!
 }
 
 type FragranceImageConnection {
@@ -129,7 +136,6 @@ type FragranceImageEdge {
 }
 
 type FragranceNote {
-  icon: String!
   id: Int!
   layer: NoteLayer!
   myVote: Boolean
@@ -222,6 +228,9 @@ type FragranceVotes {
 type Mutation {
   addFragranceToCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   createCollection(input: CreateCollectionInput!): FragranceCollection
+  logIn(email: String!, password: String!): AuthPayload!
+  logOut: Boolean!
+  refreshTokens: AuthPayload!
   removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
   upsertUser(cognitoId: String!, email: String!): User
@@ -320,7 +329,6 @@ enum State {
 }
 
 type User {
-  cognitoId: String!
   collections(input: QueryInput): FragranceCollectionConnection!
   email: String!
   followers: Int!

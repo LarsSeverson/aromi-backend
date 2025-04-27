@@ -41,14 +41,15 @@ const VOTE_ON_ACCORDS_QUERY = /* sql */`
 `
 
 export const voteOnAccord: MutationResolvers['voteOnAccord'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
   const { fragranceId, accordId, myVote } = args
 
   const values = [fragranceId, accordId, myVote, user.id]
-  const { rows } = await pool.query<FragranceAccord>(VOTE_ON_ACCORDS_QUERY, values)
+  const { rows } = await db.query<FragranceAccord>(VOTE_ON_ACCORDS_QUERY, values)
 
   return rows.at(0) ?? null
 }

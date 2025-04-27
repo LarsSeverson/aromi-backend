@@ -32,14 +32,15 @@ const ADD_FRAGRANCE_TO_COLLECTION_QUERY = /* sql */`
 `
 
 export const addFragranceToCollection: MutationResolvers['addFragranceToCollection'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user == null) return null
 
   const { collectionId, fragranceId } = args
 
   const values = [collectionId, fragranceId, user.id]
-  const { rows } = await pool.query<FragranceCollection>(ADD_FRAGRANCE_TO_COLLECTION_QUERY, values)
+  const { rows } = await db.query<FragranceCollection>(ADD_FRAGRANCE_TO_COLLECTION_QUERY, values)
 
   return rows.at(0) ?? null
 }

@@ -41,11 +41,11 @@ const FRAGRANCE_QUERY = /* sql */`
 
 export const fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
   const { id } = args
-  const { user, pool } = context
+  const { me: user, sources } = context
   const userId = user?.id
 
   const values = [id, userId]
-  const { rows } = await pool.query<Fragrance>(FRAGRANCE_QUERY, values)
+  const { rows } = await sources.db.query<Fragrance>(FRAGRANCE_QUERY, values)
 
   return rows.at(0) ?? null
 }

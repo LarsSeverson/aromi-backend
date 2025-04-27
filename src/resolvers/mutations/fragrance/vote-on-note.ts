@@ -41,13 +41,14 @@ const VOTE_ON_NOTE_QUERY = /* sql */`
 `
 
 export const voteOnNote: MutationResolvers['voteOnNote'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { fragranceId, noteId, layer, myVote } = args
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
-  const { fragranceId, noteId, layer, myVote } = args
   const values = [fragranceId, noteId, layer, myVote, user.id]
-  const { rows } = await pool.query<FragranceNote>(VOTE_ON_NOTE_QUERY, values)
+  const { rows } = await db.query<FragranceNote>(VOTE_ON_NOTE_QUERY, values)
 
   return rows.at(0) ?? null
 }

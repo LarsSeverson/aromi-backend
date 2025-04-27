@@ -1,6 +1,6 @@
+import { type ApiDataSources } from '@src/datasources'
 import { type Fragrance } from '@src/generated/gql-types'
 import DataLoader from 'dataloader'
-import { type Pool } from 'pg'
 
 const BASE_QUERY = /* sql */`
   SELECT
@@ -27,13 +27,15 @@ export interface ReviewFragranceKey {
   myUserId: number | undefined
 }
 
-export const createReviewFragranceLoader = (pool: Pool): DataLoader<ReviewFragranceKey, Fragrance> =>
+export const createReviewFragranceLoader = (sources: ApiDataSources): DataLoader<ReviewFragranceKey, Fragrance> =>
   new DataLoader<ReviewFragranceKey, Fragrance>(async (keys) => {
+    const { db } = sources
+
     const reviewIds = keys.map(key => key.reviewId)
     const { myUserId } = keys[0]
     const values = [reviewIds, myUserId]
 
-    const { rows } = await pool.query<Fragrance & { reviewId: number }>(BASE_QUERY, values)
+    const { rows } = await db.query<Fragrance & { reviewId: number }>(BASE_QUERY, values)
 
     const fragrances = reviewIds.map(id => {
       const fragrance = rows.find(row => row.reviewId === id)

@@ -42,7 +42,8 @@ const REVIEW_FRAGRANCE_QUERY = /* sql */`
 `
 
 export const reviewFragrance: MutationResolvers['reviewFragrance'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) {
     return null
@@ -50,7 +51,7 @@ export const reviewFragrance: MutationResolvers['reviewFragrance'] = async (pare
 
   const { fragranceId, myRating, myReview } = args
   const values = [fragranceId, myRating, myReview, user.id]
-  const { rows } = await pool.query<FragranceReview>(REVIEW_FRAGRANCE_QUERY, values)
+  const { rows } = await db.query<FragranceReview>(REVIEW_FRAGRANCE_QUERY, values)
 
   return rows.at(0) ?? null
 }

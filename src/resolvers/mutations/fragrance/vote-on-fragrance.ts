@@ -1,4 +1,4 @@
-import { type FragranceVote, type MutationResolvers } from '@src/generated/gql-types'
+import { type FragranceVotes, type MutationResolvers } from '@src/generated/gql-types'
 
 const VOTE_ON_FRAGRANCE_QUERY = /* sql */`
   WITH old AS (
@@ -59,13 +59,14 @@ const VOTE_ON_FRAGRANCE_QUERY = /* sql */`
 `
 
 export const voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
   const { fragranceId, myVote = null } = args
   const values = [fragranceId, myVote, user.id]
-  const { rows } = await pool.query<FragranceVote>(VOTE_ON_FRAGRANCE_QUERY, values)
+  const { rows } = await db.query<FragranceVotes>(VOTE_ON_FRAGRANCE_QUERY, values)
 
   return rows.at(0) ?? null
 }

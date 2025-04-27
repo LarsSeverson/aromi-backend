@@ -5,7 +5,7 @@ export const collectionUser: FragranceCollectionResolvers['user'] = async (paren
   const { id: collectionId, user: parentUser } = parent
   if (parentUser != null) return parentUser
 
-  const { dataLoaders } = context
+  const { loaders: dataLoaders } = context
 
   const key: CollectionUserKey = { collectionId }
   const user = await dataLoaders.collectionUser.load(key)

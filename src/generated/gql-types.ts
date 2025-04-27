@@ -45,6 +45,13 @@ export type AccordsInput = {
   pagination?: InputMaybe<PaginationInput>;
 };
 
+export type AuthPayload = {
+  __typename?: 'AuthPayload';
+  accessToken: Scalars['String']['output'];
+  expiresAt: Scalars['Int']['output'];
+  idToken: Scalars['String']['output'];
+};
+
 export type CreateCollectionInput = {
   name: Scalars['String']['input'];
 };
@@ -167,8 +174,9 @@ export type FragranceEdge = {
 
 export type FragranceImage = {
   __typename?: 'FragranceImage';
+  alt: Scalars['String']['output'];
   id: Scalars['Int']['output'];
-  url: Scalars['String']['output'];
+  src: Scalars['String']['output'];
 };
 
 export type FragranceImageConnection = {
@@ -185,7 +193,6 @@ export type FragranceImageEdge = {
 
 export type FragranceNote = {
   __typename?: 'FragranceNote';
-  icon: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   layer: NoteLayer;
   myVote?: Maybe<Scalars['Boolean']['output']>;
@@ -304,6 +311,9 @@ export type Mutation = {
   __typename?: 'Mutation';
   addFragranceToCollection?: Maybe<FragranceCollection>;
   createCollection?: Maybe<FragranceCollection>;
+  logIn: AuthPayload;
+  logOut: Scalars['Boolean']['output'];
+  refreshTokens: AuthPayload;
   removeFragranceFromCollection?: Maybe<FragranceCollection>;
   reviewFragrance?: Maybe<FragranceReview>;
   upsertUser?: Maybe<User>;
@@ -323,6 +333,12 @@ export type MutationAddFragranceToCollectionArgs = {
 
 export type MutationCreateCollectionArgs = {
   input: CreateCollectionInput;
+};
+
+
+export type MutationLogInArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
@@ -521,7 +537,6 @@ export enum State {
 
 export type User = {
   __typename?: 'User';
-  cognitoId: Scalars['String']['output'];
   collections: FragranceCollectionConnection;
   email: Scalars['String']['output'];
   followers: Scalars['Int']['output'];
@@ -622,6 +637,7 @@ export type ResolversTypes = ResolversObject<{
   Accord: ResolverTypeWrapper<Accord>;
   AccordRequest: ResolverTypeWrapper<AccordRequest>;
   AccordsInput: AccordsInput;
+  AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreateCollectionInput: CreateCollectionInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
@@ -676,6 +692,7 @@ export type ResolversParentTypes = ResolversObject<{
   Accord: Accord;
   AccordRequest: AccordRequest;
   AccordsInput: AccordsInput;
+  AuthPayload: AuthPayload;
   Boolean: Scalars['Boolean']['output'];
   CreateCollectionInput: CreateCollectionInput;
   Date: Scalars['Date']['output'];
@@ -739,6 +756,13 @@ export type AccordRequestResolvers<ContextType = Context, ParentType extends Res
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<ResolversTypes['State'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AuthPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AuthPayload'] = ResolversParentTypes['AuthPayload']> = ResolversObject<{
+  accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  idToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -843,8 +867,9 @@ export type FragranceEdgeResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type FragranceImageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
+  alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -861,7 +886,6 @@ export type FragranceImageEdgeResolvers<ContextType = Context, ParentType extend
 }>;
 
 export type FragranceNoteResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceNote'] = ResolversParentTypes['FragranceNote']> = ResolversObject<{
-  icon?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   layer?: Resolver<ResolversTypes['NoteLayer'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -956,6 +980,9 @@ export type FragranceVotesResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addFragranceToCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationAddFragranceToCollectionArgs, 'collectionId' | 'fragranceId'>>;
   createCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
+  logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
+  logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  refreshTokens?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType>;
   removeFragranceFromCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionArgs, 'collectionId' | 'fragranceId'>>;
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
   upsertUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpsertUserArgs, 'cognitoId' | 'email'>>;
@@ -1011,7 +1038,6 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
-  cognitoId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   followers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1026,6 +1052,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Accord?: AccordResolvers<ContextType>;
   AccordRequest?: AccordRequestResolvers<ContextType>;
+  AuthPayload?: AuthPayloadResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;

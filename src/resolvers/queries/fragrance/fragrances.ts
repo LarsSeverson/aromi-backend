@@ -36,9 +36,11 @@ const BASE_QUERY = /* sql */`
 
 export const fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
   const { input } = args
+  const { me: user, sources } = context
+  const { db } = sources
+
   const { first, after, sort } = getPaginationInput(input?.pagination)
   const { by, direction } = sort
-  const { user, pool } = context
   const userId = user?.id ?? INVALID_ID
 
   const { gqlColumn, dbColumn } = getSortColumns(by)
@@ -58,7 +60,7 @@ export const fragrances: QueryResolvers['fragrances'] = async (parent, args, con
   values.push(first + 1)
 
   const query = queryParts.join('\n')
-  const { rows } = await pool.query<Fragrance>(query, values)
+  const { rows } = await db.query<Fragrance>(query, values)
 
   const edges = rows.map<FragranceEdge>(row => ({
     node: row,

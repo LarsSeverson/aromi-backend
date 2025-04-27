@@ -57,7 +57,6 @@ type FragranceNote {
   noteId: Int!
   name: String!
   layer: NoteLayer!
-  icon: String!
   votes: Int!
   myVote: Boolean
 }
@@ -73,7 +72,8 @@ type FragranceAccord {
 
 type FragranceImage {
   id: Int!
-  url: String!
+  src: String!
+  alt: String
 }
 
 type FragranceReview {

@@ -3,7 +3,7 @@ import { type ReviewFragranceKey } from '@src/loaders/review-fragrance-loader'
 
 export const reviewFragrance: FragranceReviewResolvers['fragrance'] = async (parent, args, context, info) => {
   const { id: reviewId } = parent
-  const { user, dataLoaders } = context
+  const { me: user, loaders: dataLoaders } = context
 
   const key: ReviewFragranceKey = {
     reviewId,

@@ -12,11 +12,12 @@ const BASE_QUERY = /* sql */`
 
 export const collection: QueryResolvers['collection'] = async (parent, args, context, info) => {
   const { id } = args
-  const { pool } = context
+  const { sources } = context
+  const { db } = sources
 
   const query = BASE_QUERY
   const values = [id]
-  const { rows } = await pool.query<FragranceCollection>(query, values)
+  const { rows } = await db.query<FragranceCollection>(query, values)
 
   return rows.at(0) ?? null
 }

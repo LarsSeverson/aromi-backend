@@ -24,20 +24,23 @@ const NOTE_LIKE_NAME_QUERY = /* sql */`
   WHERE SIMILARITY(name, $1) > 0.2
 `
 export const noteById: QueryResolvers['noteById'] = async (parent, args, context, info) => {
-  const { pool } = context
   const { id } = args
+  const { sources } = context
+  const { db } = sources
 
   const values = [id]
-  const { rows } = await pool.query<Note>(NOTE_BY_ID_QUERY, values)
+  const { rows } = await db.query<Note>(NOTE_BY_ID_QUERY, values)
+
   return rows.at(0) ?? null
 }
 
 export const noteByLikeName: QueryResolvers['noteByLikeName'] = async (parent, args, context, info) => {
-  const { pool } = context
   const { name } = args
+  const { sources } = context
+  const { db } = sources
 
   const values = [name]
-  const { rows } = await pool.query<Note>(NOTE_LIKE_NAME_QUERY, values)
+  const { rows } = await db.query<Note>(NOTE_LIKE_NAME_QUERY, values)
 
   return rows ?? null
 }

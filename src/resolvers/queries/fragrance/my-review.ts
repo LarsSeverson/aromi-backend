@@ -18,7 +18,8 @@ const MY_REVIEW_QUERY = /* sql */`
 `
 
 export const myReview: FragranceResolvers['myReview'] = async (parent, args, context, info) => {
-  const { user, pool } = context
+  const { me: user, sources } = context
+  const { db } = sources
 
   if (user === undefined) return null
 
@@ -26,7 +27,7 @@ export const myReview: FragranceResolvers['myReview'] = async (parent, args, con
   const { id: userId } = user
 
   const values = [fragranceId, userId]
-  const { rows } = await pool.query<FragranceReview>(MY_REVIEW_QUERY, values)
+  const { rows } = await db.query<FragranceReview>(MY_REVIEW_QUERY, values)
 
   return rows.at(0) ?? null
 }

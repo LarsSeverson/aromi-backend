@@ -9,10 +9,10 @@ export const images: FragranceResolvers['images'] = async (parent, args, context
   const { input } = args
   const { first, after, sort } = getPaginationInput(input?.pagination)
   const { gqlColumn } = getSortColumns(sort.by)
-  const { dataLoaders } = context
+  const { loaders } = context
 
   const key: FragranceImageKey = { fragranceId, sort, first, after }
-  const images = await dataLoaders.fragranceImages.load(key)
+  const images = await loaders.fragranceImages.load(key)
 
   const edges = images.map(image => ({
     node: image,
