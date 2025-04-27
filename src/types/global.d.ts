@@ -17,6 +17,8 @@ export interface Env {
 
   S3_BUCKET: string
 
+  COGNITO_CLIENT_ID: string
+
   JWKS_URI: string
 }
 

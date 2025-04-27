@@ -7,8 +7,13 @@ import { voteOnReview } from './fragrance/vote-on-review'
 import { type MutationResolvers } from '@src/generated/gql-types'
 import { createCollection } from './user/create-collection'
 import { addFragranceToCollection } from './fragrance/add-fragrance-to-collection'
+import { logIn } from './auth/log-in'
+import { refresh } from './auth/refresh'
 
 export const Mutation: MutationResolvers = {
+  logIn,
+  refresh,
+
   voteOnFragrance,
   voteOnTrait,
   voteOnAccord,

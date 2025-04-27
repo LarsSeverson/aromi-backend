@@ -1,11 +1,17 @@
+import { ApiError } from '@src/common/error'
 import { type MutationResolvers } from '@src/generated/gql-types'
 
-export const logIn: MutationResolvers['logIn'] = async (parent, args, context, info) => {
-  const { email, password } = args
-  const { res, services } = context
+export const refresh: MutationResolvers['refresh'] = async (parent, args, context, info) => {
+  const { req, res, services } = context
   const { auth } = services
 
-  const result = await auth.logIn({ email, password })
+  const old = req.cookies.refreshToken as (string | undefined)
+
+  if (old == null) {
+    throw new ApiError('NOT_AUTHORIZED', 'No refresh token provided', 401)
+  }
+
+  const result = await auth.refresh({ old })
 
   return result.match(
     (tokens) => {

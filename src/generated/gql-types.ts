@@ -174,7 +174,7 @@ export type FragranceEdge = {
 
 export type FragranceImage = {
   __typename?: 'FragranceImage';
-  alt: Scalars['String']['output'];
+  alt?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   src: Scalars['String']['output'];
 };
@@ -313,10 +313,9 @@ export type Mutation = {
   createCollection?: Maybe<FragranceCollection>;
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
-  refreshTokens: AuthPayload;
+  refresh: AuthPayload;
   removeFragranceFromCollection?: Maybe<FragranceCollection>;
   reviewFragrance?: Maybe<FragranceReview>;
-  upsertUser?: Maybe<User>;
   voteOnAccord?: Maybe<FragranceAccord>;
   voteOnFragrance?: Maybe<FragranceVotes>;
   voteOnNote?: Maybe<FragranceNote>;
@@ -352,12 +351,6 @@ export type MutationReviewFragranceArgs = {
   fragranceId: Scalars['Int']['input'];
   myRating: Scalars['Int']['input'];
   myReview: Scalars['String']['input'];
-};
-
-
-export type MutationUpsertUserArgs = {
-  cognitoId: Scalars['String']['input'];
-  email: Scalars['String']['input'];
 };
 
 
@@ -867,7 +860,7 @@ export type FragranceEdgeResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type FragranceImageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
-  alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  alt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -982,10 +975,9 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  refreshTokens?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType>;
+  refresh?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType>;
   removeFragranceFromCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionArgs, 'collectionId' | 'fragranceId'>>;
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
-  upsertUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpsertUserArgs, 'cognitoId' | 'email'>>;
   voteOnAccord?: Resolver<Maybe<ResolversTypes['FragranceAccord']>, ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'accordId' | 'fragranceId' | 'myVote'>>;
   voteOnFragrance?: Resolver<Maybe<ResolversTypes['FragranceVotes']>, ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'fragranceId'>>;
   voteOnNote?: Resolver<Maybe<ResolversTypes['FragranceNote']>, ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'fragranceId' | 'layer' | 'myVote' | 'noteId'>>;

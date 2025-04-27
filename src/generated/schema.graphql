@@ -120,7 +120,7 @@ type FragranceEdge {
 }
 
 type FragranceImage {
-  alt: String!
+  alt: String
   id: Int!
   src: String!
 }
@@ -230,10 +230,9 @@ type Mutation {
   createCollection(input: CreateCollectionInput!): FragranceCollection
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
-  refreshTokens: AuthPayload!
+  refresh: AuthPayload!
   removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
-  upsertUser(cognitoId: String!, email: String!): User
   voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
   voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVotes
   voteOnNote(fragranceId: Int!, layer: NoteLayer!, myVote: Boolean!, noteId: Int!): FragranceNote

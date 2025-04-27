@@ -4,13 +4,22 @@ import { err, ok, type Result } from 'neverthrow'
 import { Pool } from 'pg'
 import { ApiError } from './common/error'
 import { requiredEnv } from './common/env-util'
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
+
+export interface S3DataSource {
+  client: S3Client
+  bucket: string
+}
+
+export interface CogDataSource {
+  client: CognitoIdentityProviderClient
+  clientId: string
+}
 
 export interface ApiDataSources {
   db: Pool
-  s3: {
-    client: S3Client
-    bucket: string
-  }
+  s3: S3DataSource
+  cog: CogDataSource
   jwksClient: JwksClient
 }
 
@@ -62,6 +71,16 @@ const getS3 = (): Result<ApiDataSources['s3'], ApiError> => {
   return ok({ client, bucket })
 }
 
+const getCog = (): Result<ApiDataSources['cog'], ApiError> => {
+  const clientIdRes = requiredEnv('COGNITO_CLIENT_ID')
+  if (clientIdRes.isErr()) return err(new ApiError('MISSING_ENV', 'COGNITO_CLIENT_ID is missing', 500))
+
+  const client = new CognitoIdentityProviderClient()
+  const clientId = clientIdRes.value
+
+  return ok({ client, clientId })
+}
+
 const getJwksClient = (): Result<JwksClient, ApiError> => {
   const jwksUri = requiredEnv('JWKS_URI')
 
@@ -84,16 +103,21 @@ export const getDataSources = (): Result<ApiDataSources, ApiError> => {
   const s3Res = getS3()
   if (s3Res.isErr()) return err(s3Res.error)
 
+  const cogRes = getCog()
+  if (cogRes.isErr()) return err(cogRes.error)
+
   const jwksRes = getJwksClient()
   if (jwksRes.isErr()) return err(jwksRes.error)
 
   const db = poolRes.value
   const s3 = s3Res.value
+  const cog = cogRes.value
   const jwksClient = jwksRes.value
 
   return ok({
     db,
     s3,
+    cog,
     jwksClient
   })
 }
