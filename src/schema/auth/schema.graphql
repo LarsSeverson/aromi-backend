@@ -7,5 +7,5 @@ type AuthPayload {
 extend type Mutation {
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
-  refresh: AuthPayload!
+  refresh: AuthPayload
 }

@@ -230,7 +230,7 @@ type Mutation {
   createCollection(input: CreateCollectionInput!): FragranceCollection
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
-  refresh: AuthPayload!
+  refresh: AuthPayload
   removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
   voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord

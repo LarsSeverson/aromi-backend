@@ -9,9 +9,11 @@ import { createCollection } from './user/create-collection'
 import { addFragranceToCollection } from './fragrance/add-fragrance-to-collection'
 import { logIn } from './auth/log-in'
 import { refresh } from './auth/refresh'
+import { logOut } from './auth/log-out'
 
 export const Mutation: MutationResolvers = {
   logIn,
+  logOut,
   refresh,
 
   voteOnFragrance,

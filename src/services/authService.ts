@@ -6,7 +6,7 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 export interface AuthTokens {
   idToken: string
   accessToken: string
-  refreshToken: string
+  refreshToken?: string
   expiresIn: number
 }
 
@@ -80,7 +80,6 @@ export class AuthService {
         if (
           auth?.IdToken == null ||
           auth.AccessToken == null ||
-          auth.RefreshToken == null ||
           auth.ExpiresIn == null
         ) return errAsync(new ApiError('AUTH_ERROR', 'Authentication failed', 401, result))
 
