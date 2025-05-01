@@ -310,7 +310,9 @@ export type FragranceVotes = {
 export type Mutation = {
   __typename?: 'Mutation';
   addFragranceToCollection?: Maybe<FragranceCollection>;
+  confirmForgotPassword: Scalars['Boolean']['output'];
   createCollection?: Maybe<FragranceCollection>;
+  forgotPassword: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
   refresh?: Maybe<AuthPayload>;
@@ -330,8 +332,20 @@ export type MutationAddFragranceToCollectionArgs = {
 };
 
 
+export type MutationConfirmForgotPasswordArgs = {
+  confirmationCode: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+};
+
+
 export type MutationCreateCollectionArgs = {
   input: CreateCollectionInput;
+};
+
+
+export type MutationForgotPasswordArgs = {
+  email: Scalars['String']['input'];
 };
 
 
@@ -972,7 +986,9 @@ export type FragranceVotesResolvers<ContextType = Context, ParentType extends Re
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addFragranceToCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationAddFragranceToCollectionArgs, 'collectionId' | 'fragranceId'>>;
+  confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
   createCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
+  forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;

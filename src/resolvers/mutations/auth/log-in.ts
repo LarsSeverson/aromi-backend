@@ -24,21 +24,22 @@ export const logIn: MutationResolvers['logIn'] = async (parent, args, context, i
 
   const result = await auth.logIn({ email, password })
 
-  return result.match(
-    (tokens) => {
-      const { idToken, accessToken, refreshToken, expiresIn } = tokens
-      const now = Math.floor(Date.now() / 1000)
+  return result
+    .match(
+      (tokens) => {
+        const { idToken, accessToken, refreshToken, expiresIn } = tokens
+        const now = Math.floor(Date.now() / 1000)
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        sameSite: 'lax',
-        maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
-      })
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+          sameSite: 'lax',
+          maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
+        })
 
-      return { idToken, accessToken, expiresAt: now + expiresIn }
-    },
-    error => { throw error }
-  )
+        return { idToken, accessToken, expiresAt: now + expiresIn }
+      },
+      error => { throw error }
+    )
 }

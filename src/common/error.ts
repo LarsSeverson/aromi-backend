@@ -33,14 +33,20 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
     return new ApiError('GRAPHQL_VALIDATION_FAILED', 'Invalid query', 400).serialize()
   }
 
-  return new ApiError('INTERNAL_ERROR', 'Internal server error', 500).serialize()
+  return new ApiError('INTERNAL_ERROR', 'Something went wrong on our end. Please try again later', 500).serialize()
 }
 
 export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   NotAuthorizedException: new ApiError('NOT_AUTHORIZED', 'Incorrect username or password', 401),
-  UserNotFoundException: new ApiError('USER_NOT_FOUND', 'No account found with these credentials', 404),
+  UserNotFoundException: new ApiError('USER_NOT_FOUND', "We couldn't find an account with this email address", 404),
   UserNotConfirmedException: new ApiError('USER_NOT_CONFIRMED', 'This account is not yet confirmed', 403),
-  PasswordResetRequiredException: new ApiError('PASSWORD_RESET_REQUIRED', 'A password reset is required', 403)
+  PasswordResetRequiredException: new ApiError('PASSWORD_RESET_REQUIRED', 'A password reset is required', 403),
+  CodeMismatchException: new ApiError('CODE_MISMATCH', 'Invalid verification code provided', 400),
+  ExpiredCodeException: new ApiError('EXPIRED_CODE', 'This code has expired. Please request a new one to reset your password', 400),
+  LimitExceededException: new ApiError('LIMIT_EXCEEDED', 'Attempt limit exceeded, please try again later', 429),
+  InvalidPasswordException: new ApiError('INVALID_PASSWORD', 'Password does not conform to policy', 400),
+  CodeDeliveryFailureException: new ApiError('CODE_DELIVERY_FAILURE', 'Failed to deliver verification code', 500),
+  TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429)
 } as const
 
 export const mapCognitoError = (error: Error): ApiError => {

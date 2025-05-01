@@ -8,4 +8,7 @@ extend type Mutation {
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
   refresh: AuthPayload
+
+  forgotPassword(email: String!): Boolean!
+  confirmForgotPassword(email: String!, confirmationCode: String!, newPassword: String!): Boolean!
 }

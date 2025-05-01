@@ -10,11 +10,16 @@ import { addFragranceToCollection } from './fragrance/add-fragrance-to-collectio
 import { logIn } from './auth/log-in'
 import { refresh } from './auth/refresh'
 import { logOut } from './auth/log-out'
+import { forgotPassword } from './auth/forgot-password'
+import { confirmForgotPassword } from './auth/confirm-forgot-password'
 
 export const Mutation: MutationResolvers = {
+  refresh,
   logIn,
   logOut,
-  refresh,
+
+  forgotPassword,
+  confirmForgotPassword,
 
   voteOnFragrance,
   voteOnTrait,

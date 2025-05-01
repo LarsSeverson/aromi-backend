@@ -1,4 +1,4 @@
-import { InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider'
+import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError, mapCognitoError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
@@ -19,6 +19,16 @@ export interface RefreshParams {
   old: string
 }
 
+export interface ForgotPasswordParams {
+  email: string
+}
+
+export interface ConfirmForgotPasswordParams {
+  email: string
+  confirmationCode: string
+  newPassword: string
+}
+
 export class AuthService {
   cog: ApiDataSources['cog']
 
@@ -30,16 +40,17 @@ export class AuthService {
     const { email, password } = params
     const { client, clientId } = this.cog
 
-    return ResultAsync.fromPromise(
-      client.send(
-        new InitiateAuthCommand({
-          AuthFlow: 'USER_PASSWORD_AUTH',
-          ClientId: clientId,
-          AuthParameters: { USERNAME: email, PASSWORD: password }
-        })
-      ),
-      error => mapCognitoError(error as Error)
-    )
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new InitiateAuthCommand({
+            AuthFlow: 'USER_PASSWORD_AUTH',
+            ClientId: clientId,
+            AuthParameters: { USERNAME: email, PASSWORD: password }
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
       .andThen(result => {
         const auth = result.AuthenticationResult
         if (
@@ -65,16 +76,17 @@ export class AuthService {
     const { cog } = this
     const { client, clientId } = cog
 
-    return ResultAsync.fromPromise(
-      client.send(
-        new InitiateAuthCommand({
-          AuthFlow: 'REFRESH_TOKEN_AUTH',
-          ClientId: clientId,
-          AuthParameters: { REFRESH_TOKEN: old }
-        })
-      ),
-      error => mapCognitoError(error as Error)
-    )
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new InitiateAuthCommand({
+            AuthFlow: 'REFRESH_TOKEN_AUTH',
+            ClientId: clientId,
+            AuthParameters: { REFRESH_TOKEN: old }
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
       .andThen(result => {
         const auth = result.AuthenticationResult
         if (
@@ -92,5 +104,41 @@ export class AuthService {
 
         return okAsync(authTokens)
       })
+  }
+
+  forgotPassword (params: ForgotPasswordParams): ResultAsync<void, ApiError> {
+    const { email: username } = params
+    const { client, clientId } = this.cog
+
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new ForgotPasswordCommand({
+            ClientId: clientId,
+            Username: username
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
+      .map(() => undefined)
+  }
+
+  confirmForgotPassword (params: ConfirmForgotPasswordParams): ResultAsync<void, ApiError> {
+    const { email: username, confirmationCode, newPassword } = params
+    const { client, clientId } = this.cog
+
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new ConfirmForgotPasswordCommand({
+            ClientId: clientId,
+            Username: username,
+            ConfirmationCode: confirmationCode,
+            Password: newPassword
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
+      .map(() => undefined)
   }
 }
