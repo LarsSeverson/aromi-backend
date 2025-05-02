@@ -1,13 +1,22 @@
 import { type MutationResolvers } from '@src/generated/gql-types'
 
-export const logOut: MutationResolvers['logOut'] = (parent, args, context, info) => {
-  const { res } = context
+export const logOut: MutationResolvers['logOut'] = async (parent, args, context, info) => {
+  const { res, services } = context
+  const { auth } = services
 
-  res.clearCookie('refreshToken', {
-    path: '/',
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
-  })
+  const result = await auth.logOut()
 
-  return true
+  return result
+    .match(
+      () => {
+        res.clearCookie('refreshToken', {
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production'
+        })
+
+        return true
+      },
+      error => { throw error }
+    )
 }

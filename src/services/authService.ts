@@ -1,4 +1,4 @@
-import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider'
+import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, InitiateAuthCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError, mapCognitoError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
@@ -10,13 +10,18 @@ export interface AuthTokens {
   expiresIn: number
 }
 
+export interface RefreshParams {
+  old: string
+}
+
 export interface LogInParams {
   email: string
   password: string
 }
 
-export interface RefreshParams {
-  old: string
+export interface SignUpParams {
+  email: string
+  password: string
 }
 
 export interface ForgotPasswordParams {
@@ -34,6 +39,41 @@ export class AuthService {
 
   constructor (cog: ApiDataSources['cog']) {
     this.cog = cog
+  }
+
+  refresh (params: RefreshParams): ResultAsync<AuthTokens, ApiError> {
+    const { old } = params
+    const { cog } = this
+    const { client, clientId } = cog
+
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new InitiateAuthCommand({
+            AuthFlow: 'REFRESH_TOKEN_AUTH',
+            ClientId: clientId,
+            AuthParameters: { REFRESH_TOKEN: old }
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
+      .andThen(result => {
+        const auth = result.AuthenticationResult
+        if (
+          auth?.IdToken == null ||
+          auth.AccessToken == null ||
+          auth.ExpiresIn == null
+        ) return errAsync(new ApiError('AUTH_ERROR', 'Authentication failed', 401, result))
+
+        const authTokens: AuthTokens = {
+          idToken: auth.IdToken,
+          accessToken: auth.AccessToken,
+          refreshToken: auth.RefreshToken,
+          expiresIn: auth.ExpiresIn
+        }
+
+        return okAsync(authTokens)
+      })
   }
 
   logIn (params: LogInParams): ResultAsync<AuthTokens, ApiError> {
@@ -71,39 +111,37 @@ export class AuthService {
       })
   }
 
-  refresh (params: RefreshParams): ResultAsync<AuthTokens, ApiError> {
-    const { old } = params
-    const { cog } = this
-    const { client, clientId } = cog
+  logOut (): ResultAsync<void, ApiError> {
+    // Placeholder
+    return ResultAsync
+      .fromPromise(
+        Promise.resolve(),
+        error => new ApiError('AUTH_ERROR', 'Authentication failed', 401, error)
+      )
+      .map(() => undefined)
+  }
+
+  signUp (params: SignUpParams): ResultAsync<SignUpCommandOutput, ApiError> {
+    const { email, password } = params
+    const { client, clientId } = this.cog
 
     return ResultAsync
       .fromPromise(
         client.send(
-          new InitiateAuthCommand({
-            AuthFlow: 'REFRESH_TOKEN_AUTH',
+          new SignUpCommand({
             ClientId: clientId,
-            AuthParameters: { REFRESH_TOKEN: old }
+            Username: email,
+            Password: password,
+            UserAttributes: [
+              {
+                Name: 'email',
+                Value: email
+              }
+            ]
           })
         ),
         error => mapCognitoError(error as Error)
       )
-      .andThen(result => {
-        const auth = result.AuthenticationResult
-        if (
-          auth?.IdToken == null ||
-          auth.AccessToken == null ||
-          auth.ExpiresIn == null
-        ) return errAsync(new ApiError('AUTH_ERROR', 'Authentication failed', 401, result))
-
-        const authTokens: AuthTokens = {
-          idToken: auth.IdToken,
-          accessToken: auth.AccessToken,
-          refreshToken: auth.RefreshToken,
-          expiresIn: auth.ExpiresIn
-        }
-
-        return okAsync(authTokens)
-      })
   }
 
   forgotPassword (params: ForgotPasswordParams): ResultAsync<void, ApiError> {

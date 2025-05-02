@@ -52,6 +52,13 @@ export type AuthPayload = {
   idToken: Scalars['String']['output'];
 };
 
+export type CodeDeliveryDetails = {
+  __typename?: 'CodeDeliveryDetails';
+  attribute?: Maybe<Scalars['String']['output']>;
+  destination?: Maybe<Scalars['String']['output']>;
+  method?: Maybe<Scalars['String']['output']>;
+};
+
 export type CreateCollectionInput = {
   name: Scalars['String']['input'];
 };
@@ -318,6 +325,7 @@ export type Mutation = {
   refresh?: Maybe<AuthPayload>;
   removeFragranceFromCollection?: Maybe<FragranceCollection>;
   reviewFragrance?: Maybe<FragranceReview>;
+  signUp: SignUpResult;
   voteOnAccord?: Maybe<FragranceAccord>;
   voteOnFragrance?: Maybe<FragranceVotes>;
   voteOnNote?: Maybe<FragranceNote>;
@@ -365,6 +373,12 @@ export type MutationReviewFragranceArgs = {
   fragranceId: Scalars['Int']['input'];
   myRating: Scalars['Int']['input'];
   myReview: Scalars['String']['input'];
+};
+
+
+export type MutationSignUpArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
@@ -517,6 +531,12 @@ export type QueryInput = {
   pagination?: InputMaybe<PaginationInput>;
 };
 
+export type SignUpResult = {
+  __typename?: 'SignUpResult';
+  complete: Scalars['Boolean']['output'];
+  delivery?: Maybe<CodeDeliveryDetails>;
+};
+
 export enum SortBy {
   Added = 'added',
   Created = 'created',
@@ -646,6 +666,7 @@ export type ResolversTypes = ResolversObject<{
   AccordsInput: AccordsInput;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CodeDeliveryDetails: ResolverTypeWrapper<CodeDeliveryDetails>;
   CreateCollectionInput: CreateCollectionInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
@@ -686,6 +707,7 @@ export type ResolversTypes = ResolversObject<{
   PaginationInput: PaginationInput;
   Query: ResolverTypeWrapper<{}>;
   QueryInput: QueryInput;
+  SignUpResult: ResolverTypeWrapper<SignUpResult>;
   SortBy: SortBy;
   SortByInput: SortByInput;
   SortDirection: SortDirection;
@@ -701,6 +723,7 @@ export type ResolversParentTypes = ResolversObject<{
   AccordsInput: AccordsInput;
   AuthPayload: AuthPayload;
   Boolean: Scalars['Boolean']['output'];
+  CodeDeliveryDetails: CodeDeliveryDetails;
   CreateCollectionInput: CreateCollectionInput;
   Date: Scalars['Date']['output'];
   Float: Scalars['Float']['output'];
@@ -739,6 +762,7 @@ export type ResolversParentTypes = ResolversObject<{
   PaginationInput: PaginationInput;
   Query: {};
   QueryInput: QueryInput;
+  SignUpResult: SignUpResult;
   SortByInput: SortByInput;
   String: Scalars['String']['output'];
   User: User;
@@ -770,6 +794,13 @@ export type AuthPayloadResolvers<ContextType = Context, ParentType extends Resol
   accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   expiresAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   idToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CodeDeliveryDetailsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['CodeDeliveryDetails'] = ResolversParentTypes['CodeDeliveryDetails']> = ResolversObject<{
+  attribute?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  destination?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  method?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -994,6 +1025,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   removeFragranceFromCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionArgs, 'collectionId' | 'fragranceId'>>;
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
+  signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
   voteOnAccord?: Resolver<Maybe<ResolversTypes['FragranceAccord']>, ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'accordId' | 'fragranceId' | 'myVote'>>;
   voteOnFragrance?: Resolver<Maybe<ResolversTypes['FragranceVotes']>, ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'fragranceId'>>;
   voteOnNote?: Resolver<Maybe<ResolversTypes['FragranceNote']>, ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'fragranceId' | 'layer' | 'myVote' | 'noteId'>>;
@@ -1045,6 +1077,12 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 
+export type SignUpResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignUpResult'] = ResolversParentTypes['SignUpResult']> = ResolversObject<{
+  complete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  delivery?: Resolver<Maybe<ResolversTypes['CodeDeliveryDetails']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1061,6 +1099,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Accord?: AccordResolvers<ContextType>;
   AccordRequest?: AccordRequestResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  CodeDeliveryDetails?: CodeDeliveryDetailsResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
@@ -1093,6 +1132,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   NoteRequest?: NoteRequestResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SignUpResult?: SignUpResultResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;
 

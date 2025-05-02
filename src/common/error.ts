@@ -38,6 +38,7 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
 
 export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   NotAuthorizedException: new ApiError('NOT_AUTHORIZED', 'Incorrect username or password', 401),
+  UsernameExistsException: new ApiError('USERNAME_EXISTS', 'An account with this email already exists', 400),
   UserNotFoundException: new ApiError('USER_NOT_FOUND', "We couldn't find an account with this email address", 404),
   UserNotConfirmedException: new ApiError('USER_NOT_CONFIRMED', 'This account is not yet confirmed', 403),
   PasswordResetRequiredException: new ApiError('PASSWORD_RESET_REQUIRED', 'A password reset is required', 403),
@@ -46,7 +47,8 @@ export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   LimitExceededException: new ApiError('LIMIT_EXCEEDED', 'Attempt limit exceeded, please try again later', 429),
   InvalidPasswordException: new ApiError('INVALID_PASSWORD', 'Password does not conform to policy', 400),
   CodeDeliveryFailureException: new ApiError('CODE_DELIVERY_FAILURE', 'Failed to deliver verification code', 500),
-  TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429)
+  TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429),
+  InvalidParameterException: new ApiError('INVALID_PARAMETER', 'Invalid input provided', 400)
 } as const
 
 export const mapCognitoError = (error: Error): ApiError => {
@@ -54,5 +56,5 @@ export const mapCognitoError = (error: Error): ApiError => {
 
   if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
 
-  return new ApiError('AUTH_SERVICE_ERROR', 'Authentication service error', 500, error)
+  return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong with authentication. Please try again later', 500, error)
 }

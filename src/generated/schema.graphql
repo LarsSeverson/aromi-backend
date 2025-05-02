@@ -29,6 +29,12 @@ type AuthPayload {
   idToken: String!
 }
 
+type CodeDeliveryDetails {
+  attribute: String
+  destination: String
+  method: String
+}
+
 input CreateCollectionInput {
   name: String!
 }
@@ -235,6 +241,7 @@ type Mutation {
   refresh: AuthPayload
   removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
+  signUp(email: String!, password: String!): SignUpResult!
   voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
   voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVotes
   voteOnNote(fragranceId: Int!, layer: NoteLayer!, myVote: Boolean!, noteId: Int!): FragranceNote
@@ -302,6 +309,11 @@ type Query {
 
 input QueryInput {
   pagination: PaginationInput
+}
+
+type SignUpResult {
+  complete: Boolean!
+  delivery: CodeDeliveryDetails
 }
 
 enum SortBy {

@@ -4,10 +4,24 @@ type AuthPayload {
   expiresAt: Int!
 }
 
+type SignUpResult {
+  complete: Boolean!
+  delivery: CodeDeliveryDetails
+}
+
+type CodeDeliveryDetails {
+  attribute: String
+  destination: String
+  method: String
+}
+
 extend type Mutation {
+  refresh: AuthPayload
+
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
-  refresh: AuthPayload
+
+  signUp(email: String!, password: String!): SignUpResult!
 
   forgotPassword(email: String!): Boolean!
   confirmForgotPassword(email: String!, confirmationCode: String!, newPassword: String!): Boolean!
