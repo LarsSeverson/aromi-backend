@@ -37,7 +37,7 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
 }
 
 export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
-  NotAuthorizedException: new ApiError('NOT_AUTHORIZED', 'Incorrect username or password', 401),
+  NotAuthorizedException: new ApiError('NOT_AUTHORIZED', 'Incorrect email or password', 401),
   UsernameExistsException: new ApiError('USERNAME_EXISTS', 'An account with this email already exists', 400),
   UserNotFoundException: new ApiError('USER_NOT_FOUND', "We couldn't find an account with this email address", 404),
   UserNotConfirmedException: new ApiError('USER_NOT_CONFIRMED', 'This account is not yet confirmed', 403),

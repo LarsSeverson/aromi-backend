@@ -14,6 +14,7 @@ import { forgotPassword } from './auth/forgot-password'
 import { confirmForgotPassword } from './auth/confirm-forgot-password'
 import { signUp } from './auth/sign-up'
 import { confirmSignUp } from './auth/confirm-sign-up'
+import { resendSignUpConfirmationCode } from './auth/resend-sign-up-confirmation-code'
 
 export const Mutation: MutationResolvers = {
   refresh,
@@ -23,6 +24,7 @@ export const Mutation: MutationResolvers = {
   confirmSignUp,
   forgotPassword,
   confirmForgotPassword,
+  resendSignUpConfirmationCode,
 
   voteOnFragrance,
   voteOnTrait,

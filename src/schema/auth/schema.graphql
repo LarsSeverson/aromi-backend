@@ -26,4 +26,5 @@ extend type Mutation {
 
   forgotPassword(email: String!): Boolean!
   confirmForgotPassword(email: String!, confirmationCode: String!, newPassword: String!): Boolean!
+  resendSignUpConfirmationCode(email: String!): Boolean!
 }

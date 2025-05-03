@@ -325,6 +325,7 @@ export type Mutation = {
   logOut: Scalars['Boolean']['output'];
   refresh?: Maybe<AuthPayload>;
   removeFragranceFromCollection?: Maybe<FragranceCollection>;
+  resendSignUpConfirmationCode: Scalars['Boolean']['output'];
   reviewFragrance?: Maybe<FragranceReview>;
   signUp: SignUpResult;
   voteOnAccord?: Maybe<FragranceAccord>;
@@ -373,6 +374,11 @@ export type MutationLogInArgs = {
 export type MutationRemoveFragranceFromCollectionArgs = {
   collectionId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
+};
+
+
+export type MutationResendSignUpConfirmationCodeArgs = {
+  email: Scalars['String']['input'];
 };
 
 
@@ -1032,6 +1038,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   removeFragranceFromCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionArgs, 'collectionId' | 'fragranceId'>>;
+  resendSignUpConfirmationCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   reviewFragrance?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType, RequireFields<MutationReviewFragranceArgs, 'fragranceId' | 'myRating' | 'myReview'>>;
   signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
   voteOnAccord?: Resolver<Maybe<ResolversTypes['FragranceAccord']>, ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'accordId' | 'fragranceId' | 'myVote'>>;
