@@ -13,12 +13,14 @@ import { logOut } from './auth/log-out'
 import { forgotPassword } from './auth/forgot-password'
 import { confirmForgotPassword } from './auth/confirm-forgot-password'
 import { signUp } from './auth/sign-up'
+import { confirmSignUp } from './auth/confirm-sign-up'
 
 export const Mutation: MutationResolvers = {
   refresh,
   logIn,
   logOut,
   signUp,
+  confirmSignUp,
   forgotPassword,
   confirmForgotPassword,
 

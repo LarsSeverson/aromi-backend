@@ -1,4 +1,4 @@
-import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, InitiateAuthCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
+import { ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError, mapCognitoError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
@@ -22,6 +22,11 @@ export interface LogInParams {
 export interface SignUpParams {
   email: string
   password: string
+}
+
+export interface ConfirmSignUpParams {
+  email: string
+  confirmationCode: string
 }
 
 export interface ForgotPasswordParams {
@@ -142,6 +147,24 @@ export class AuthService {
         ),
         error => mapCognitoError(error as Error)
       )
+  }
+
+  confirmSignUp (params: ConfirmSignUpParams): ResultAsync<void, ApiError> {
+    const { email, confirmationCode } = params
+    const { client, clientId } = this.cog
+
+    return ResultAsync
+      .fromPromise(
+        client.send(
+          new ConfirmSignUpCommand({
+            ClientId: clientId,
+            Username: email,
+            ConfirmationCode: confirmationCode
+          })
+        ),
+        error => mapCognitoError(error as Error)
+      )
+      .map(() => undefined)
   }
 
   forgotPassword (params: ForgotPasswordParams): ResultAsync<void, ApiError> {

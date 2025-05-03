@@ -318,6 +318,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   addFragranceToCollection?: Maybe<FragranceCollection>;
   confirmForgotPassword: Scalars['Boolean']['output'];
+  confirmSignUp: Scalars['Boolean']['output'];
   createCollection?: Maybe<FragranceCollection>;
   forgotPassword: Scalars['Boolean']['output'];
   logIn: AuthPayload;
@@ -344,6 +345,12 @@ export type MutationConfirmForgotPasswordArgs = {
   confirmationCode: Scalars['String']['input'];
   email: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
+};
+
+
+export type MutationConfirmSignUpArgs = {
+  confirmationCode: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -1018,6 +1025,7 @@ export type FragranceVotesResolvers<ContextType = Context, ParentType extends Re
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addFragranceToCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationAddFragranceToCollectionArgs, 'collectionId' | 'fragranceId'>>;
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
+  confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'confirmationCode' | 'email'>>;
   createCollection?: Resolver<Maybe<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;

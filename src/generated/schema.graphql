@@ -234,6 +234,7 @@ type FragranceVotes {
 type Mutation {
   addFragranceToCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
+  confirmSignUp(confirmationCode: String!, email: String!): Boolean!
   createCollection(input: CreateCollectionInput!): FragranceCollection
   forgotPassword(email: String!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
