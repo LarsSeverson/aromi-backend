@@ -1,64 +1,30 @@
-import { type ApiDataSources } from '@src/datasources'
-import { createCollectionUserLoader } from './collection-user-loader'
-import { createFragranceImagesLoader } from './fragrance-images-loader'
-import { createFragranceReviewsLoader } from './fragrance-review-loader'
-import { createReviewFragranceLoader } from './review-fragrance-loader'
-import { createReviewUserLoader } from './review-user-loader'
-import { createUserReviewsLoader } from './user-reviews-loader'
+import { UserLoaders } from './userLoaders'
+import { FragranceLoaders } from './fragranceLoaders'
+import { type ApiServices } from '@src/services/services'
 
-export interface ApiLoaders {
-  fragranceImages: ReturnType<typeof createFragranceImagesLoader>
-  fragranceReviews: ReturnType<typeof createFragranceReviewsLoader>
-  userReviews: ReturnType<typeof createUserReviewsLoader>
-  reviewFragrance: ReturnType<typeof createReviewFragranceLoader>
-  reviewUser: ReturnType<typeof createReviewUserLoader>
-  collectionUser: ReturnType<typeof createCollectionUserLoader>
+export interface ApiLoadersCache {
+  user: UserLoaders
+  fragrance: FragranceLoaders
 }
-export const createLoaders = (cache: Partial<ApiLoaders>, sources: ApiDataSources): ApiLoaders => {
-  const loaders: ApiLoaders = {
-    get fragranceImages () {
-      if (cache.fragranceImages == null) {
-        cache.fragranceImages = createFragranceImagesLoader(sources)
-      }
 
-      return cache.fragranceImages
-    },
-    get fragranceReviews () {
-      if (cache.fragranceReviews == null) {
-        cache.fragranceReviews = createFragranceReviewsLoader(sources)
-      }
+export class ApiLoaders implements ApiLoadersCache {
+  private readonly cache: Partial<ApiLoadersCache> = {}
 
-      return cache.fragranceReviews
-    },
-    get userReviews () {
-      if (cache.userReviews == null) {
-        cache.userReviews = createUserReviewsLoader(sources)
-      }
+  constructor (private readonly services: ApiServices) {}
 
-      return cache.userReviews
-    },
-    get reviewFragrance () {
-      if (cache.reviewFragrance == null) {
-        cache.reviewFragrance = createReviewFragranceLoader(sources)
-      }
-
-      return cache.reviewFragrance
-    },
-    get reviewUser () {
-      if (cache.reviewUser == null) {
-        cache.reviewUser = createReviewUserLoader(sources)
-      }
-
-      return cache.reviewUser
-    },
-    get collectionUser () {
-      if (cache.collectionUser == null) {
-        cache.collectionUser = createCollectionUserLoader(sources)
-      }
-
-      return cache.collectionUser
+  get user (): ApiLoadersCache['user'] {
+    if (this.cache.user == null) {
+      this.cache.user = new UserLoaders(this.services.user)
     }
+
+    return this.cache.user
   }
 
-  return loaders
+  get fragrance (): ApiLoadersCache['fragrance'] {
+    if (this.cache.fragrance == null) {
+      this.cache.fragrance = new FragranceLoaders(this.services.fragrance)
+    }
+
+    return this.cache.fragrance
+  }
 }

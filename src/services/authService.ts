@@ -1,5 +1,5 @@
 import { ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
-import { ApiError, mapCognitoError } from '@src/common/error'
+import { ApiError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
@@ -42,8 +42,8 @@ export interface ConfirmForgotPasswordParams {
 export class AuthService {
   cog: ApiDataSources['cog']
 
-  constructor (cog: ApiDataSources['cog']) {
-    this.cog = cog
+  constructor (sources: ApiDataSources) {
+    this.cog = sources.cog
   }
 
   refresh (params: RefreshParams): ResultAsync<AuthTokens, ApiError> {
@@ -60,7 +60,7 @@ export class AuthService {
             AuthParameters: { REFRESH_TOKEN: old }
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .andThen(result => {
         const auth = result.AuthenticationResult
@@ -94,7 +94,7 @@ export class AuthService {
             AuthParameters: { USERNAME: email, PASSWORD: password }
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .andThen(result => {
         const auth = result.AuthenticationResult
@@ -145,7 +145,7 @@ export class AuthService {
             ]
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
   }
 
@@ -162,7 +162,7 @@ export class AuthService {
             ConfirmationCode: confirmationCode
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .map(() => undefined)
   }
@@ -179,7 +179,7 @@ export class AuthService {
             Username: username
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .map(() => undefined)
   }
@@ -198,7 +198,7 @@ export class AuthService {
             Password: newPassword
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .map(() => undefined)
   }
@@ -215,7 +215,7 @@ export class AuthService {
             Username: email
           })
         ),
-        error => mapCognitoError(error as Error)
+        error => ApiError.fromCognito(error as Error)
       )
       .map(() => undefined)
   }

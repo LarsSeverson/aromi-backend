@@ -1,21 +1,13 @@
-import { type Resolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
-import { Mutation } from './mutations/mutations'
-import { FragranceCollectionQuery, FragranceNotesQuery, FragranceQuery, FragranceReviewQuery, FragranceTraitsQuery, Query, UserQuery } from './queries/queries'
+import { FragranceResolvers } from './fragranceResolvers'
 
-export const resolvers: Resolvers = {
-  Mutation,
-  Query,
+export class ApiResolvers implements Resolvers {
+  private readonly fragranceResolvers = new FragranceResolvers()
 
-  Fragrance: FragranceQuery,
-  FragranceTraits: FragranceTraitsQuery,
-  FragranceNotes: FragranceNotesQuery,
-  FragranceCollection: FragranceCollectionQuery,
-  FragranceReview: FragranceReviewQuery,
+  Date = GraphQLDateTime
 
-  User: UserQuery,
-
-  Date: GraphQLDateTime
+  Query: QueryResolvers = {
+    fragrance: this.fragranceResolvers.fragrance
+  }
 }
-
-export default resolvers

@@ -1,26 +1,12 @@
-type Accord {
-  color: String!
-  dCreated: Date!
-  dDeleted: Date
-  dModified: Date!
-  id: Int!
-  name: String!
-}
-
-type AccordRequest {
-  color: String!
-  dCreated: Date!
-  dDeleted: Date
-  dModified: Date!
-  id: Int!
-  name: String!
-  state: State!
-  user: User!
-}
-
 input AccordsInput {
   fill: Boolean
   pagination: PaginationInput
+}
+
+type Audit {
+  createdAt: Date!
+  deletedAt: Date
+  updatedAt: Date!
 }
 
 type AuthPayload {
@@ -43,20 +29,19 @@ scalar Date
 
 type Fragrance {
   accords(input: AccordsInput): FragranceAccordConnection!
+  audit: Audit!
   brand: String!
-  dCreated: Date!
-  dModified: Date!
+  counts: FragranceCounts!
   id: Int!
-  images(input: QueryInput): FragranceImageConnection!
+  images(input: PaginationInput): FragranceImageConnection!
   myReview: FragranceReview
   name: String!
   notes: FragranceNotes!
   rating: Float!
   reviewDistribution: FragranceReviewDistribution!
-  reviews(input: QueryInput): FragranceReviewConnection!
-  reviewsCount: Int!
-  traits: FragranceTraits!
-  votes: FragranceVotes!
+  reviews(input: PaginationInput): FragranceReviewConnection!
+  traits: [Trait!]!
+  votes: VoteSummary!
 }
 
 type FragranceAccord {
@@ -78,46 +63,15 @@ type FragranceAccordEdge {
   node: FragranceAccord!
 }
 
-type FragranceCollection {
-  dCreated: Date!
-  dModified: Date!
-  id: Int!
-  items(input: QueryInput): FragranceCollectionItemConnection!
-  name: String!
-  user: User!
-}
-
-type FragranceCollectionConnection {
-  edges: [FragranceCollectionEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceCollectionEdge {
-  cursor: String!
-  node: FragranceCollection!
-}
-
-type FragranceCollectionItem {
-  collection: FragranceCollection!
-  dCreated: Date!
-  dModified: Date!
-  fragrance: Fragrance!
-  id: Int!
-}
-
-type FragranceCollectionItemConnection {
-  edges: [FragranceCollectionItemEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceCollectionItemEdge {
-  cursor: String!
-  node: FragranceCollectionItem!
-}
-
 type FragranceConnection {
   edges: [FragranceEdge!]!
   pageInfo: PageInfo!
+}
+
+type FragranceCounts {
+  dislikes: Int!
+  likes: Int!
+  reviews: Int!
 }
 
 type FragranceEdge {
@@ -162,16 +116,11 @@ type FragranceNoteEdge {
 
 type FragranceNotes {
   base(input: NotesInput): FragranceNoteConnection!
-  fragranceId: Int!
   middle(input: NotesInput): FragranceNoteConnection!
   top(input: NotesInput): FragranceNoteConnection!
 }
 
 type FragranceReview {
-  dCreated: Date!
-  dDeleted: Date
-  dModified: Date!
-  fragrance: Fragrance!
   id: Int!
   myVote: Boolean
   rating: Int!
@@ -198,87 +147,36 @@ type FragranceReviewEdge {
   node: FragranceReview!
 }
 
-type FragranceTrait {
-  id: Int!
-  myVote: Float
-  trait: FragranceTraitType!
-  value: Float!
-}
-
 enum FragranceTraitType {
-  allure
-  balance
-  complexity
-  gender
-  longevity
-  sillage
-}
-
-type FragranceTraits {
-  allure: FragranceTrait!
-  balance: FragranceTrait!
-  complexity: FragranceTrait!
-  fragranceId: Int!
-  gender: FragranceTrait!
-  longevity: FragranceTrait!
-  sillage: FragranceTrait!
-}
-
-type FragranceVotes {
-  dislikes: Int!
-  id: Int!
-  likes: Int!
-  myVote: Boolean
+  ALLURE
+  BALANCE
+  COMPLEXITY
+  GENDER
+  LONGEVITY
+  SILLAGE
 }
 
 type Mutation {
-  addFragranceToCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
   confirmSignUp(confirmationCode: String!, email: String!): Boolean!
-  createCollection(input: CreateCollectionInput!): FragranceCollection
+  createCollection(input: CreateCollectionInput!): UserCollection
   forgotPassword(email: String!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
   refresh: AuthPayload
-  removeFragranceFromCollection(collectionId: Int!, fragranceId: Int!): FragranceCollection
   resendSignUpConfirmationCode(email: String!): Boolean!
-  reviewFragrance(fragranceId: Int!, myRating: Int!, myReview: String!): FragranceReview
   signUp(email: String!, password: String!): SignUpResult!
-  voteOnAccord(accordId: Int!, fragranceId: Int!, myVote: Boolean!): FragranceAccord
-  voteOnFragrance(fragranceId: Int!, myVote: Boolean): FragranceVotes
-  voteOnNote(fragranceId: Int!, layer: NoteLayer!, myVote: Boolean!, noteId: Int!): FragranceNote
-  voteOnReview(myVote: Boolean, reviewId: Int!): FragranceReview
-  voteOnTrait(fragranceId: Int!, myVote: Float!, trait: FragranceTraitType!): FragranceTrait
-}
-
-type Note {
-  dCreated: Date!
-  dDeleted: Date
-  dModified: Date!
-  id: Int!
-  name: String!
-  url: String!
 }
 
 enum NoteLayer {
-  base
-  middle
-  top
-}
-
-type NoteRequest {
-  dCreated: Date!
-  dDeleted: Date
-  dModified: Date!
-  id: Int!
-  name: String!
-  state: State!
-  url: String!
-  user: User!
+  BASE
+  MIDDLE
+  TOP
 }
 
 input NotesInput {
   fill: Boolean
+  layers: [NoteLayer!]
   pagination: PaginationInput
 }
 
@@ -296,21 +194,10 @@ input PaginationInput {
 }
 
 type Query {
-  accordById(id: Int!): Accord
-  accordByLikeName(name: String!): [Accord!]
-  accordRequest(id: Int!): AccordRequest
-  collection(id: Int!): FragranceCollection
   fragrance(id: Int!): Fragrance
-  fragrances(input: QueryInput): FragranceConnection!
+  fragrances(input: PaginationInput): FragranceConnection!
   me: User
-  noteById(id: Int!): Note
-  noteByLikeName(name: String!): [Note!]
-  noteRequest(id: Int!): NoteRequest
   user(id: Int!): User
-}
-
-input QueryInput {
-  pagination: PaginationInput
 }
 
 type SignUpResult {
@@ -319,37 +206,72 @@ type SignUpResult {
 }
 
 enum SortBy {
-  added
-  created
+  createdAt
   id
-  modified
-  votes
+  updatedAt
 }
 
 input SortByInput {
-  by: SortBy!
-  direction: SortDirection! = desc
+  by: SortBy! = updatedAt
+  direction: SortDirection! = DESCENDING
 }
 
 enum SortDirection {
-  asc
-  desc
+  ASCENDING
+  DESCENDING
 }
 
-enum State {
-  approved
-  declined
-  inactive
-  pending
+type Trait {
+  myVote: Boolean
+  type: FragranceTraitType!
+  value: Float!
 }
 
 type User {
-  collections(input: QueryInput): FragranceCollectionConnection!
+  collections(input: PaginationInput): UserCollectionConnection!
   email: String!
   followers: Int!
   following: Int!
   id: Int!
-  likes(input: QueryInput): FragranceConnection!
-  reviews(input: QueryInput): FragranceReviewConnection!
+  likes(input: PaginationInput): FragranceConnection!
+  reviews(input: PaginationInput): FragranceReviewConnection!
   username: String!
+}
+
+type UserCollection {
+  id: Int!
+  items(input: PaginationInput): UserCollectionItemConnection!
+  name: String!
+  user: User!
+}
+
+type UserCollectionConnection {
+  edges: [UserCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserCollectionEdge {
+  cursor: String!
+  node: UserCollection!
+}
+
+type UserCollectionItem {
+  collection: UserCollection!
+  fragrance: Fragrance!
+  id: Int!
+}
+
+type UserCollectionItemConnection {
+  edges: [UserCollectionItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserCollectionItemEdge {
+  cursor: String!
+  node: UserCollectionItem!
+}
+
+type VoteSummary {
+  myVote: Boolean
+  votes: Int!
 }

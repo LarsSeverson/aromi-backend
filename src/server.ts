@@ -3,9 +3,9 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import { expressMiddleware } from '@apollo/server/express4'
 import { readFileSync } from 'fs'
-import resolvers from './resolvers/resolvers'
+import { ApiResolvers } from './resolvers/resolvers'
 import depthLimit from 'graphql-depth-limit'
-import { type Context, getContext } from './context'
+import { type ApiContext, getContext } from './context'
 import { requiredEnv } from './common/env-util'
 import { ResultAsync } from 'neverthrow'
 import { ApiError, formatApiError } from './common/error'
@@ -14,7 +14,7 @@ import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { createServices } from './services/services'
+import { ApiServices } from './services/services'
 
 const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 
@@ -31,8 +31,10 @@ const startSever = async (): Promise<string> => {
   const host = hostRes.value
   const port = Number(portRes.value)
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
+
   const sources = sourcesRes.value
-  const services = createServices(sources)
+  const services = new ApiServices(sources)
+  const resolvers = new ApiResolvers()
 
   const app = express()
   const httpServer = http.createServer((req, res) => { void app(req, res) })
@@ -45,9 +47,9 @@ const startSever = async (): Promise<string> => {
     }))
   }
 
-  const server = new ApolloServer<Context>({
+  const server = new ApolloServer<ApiContext>({
     typeDefs,
-    resolvers,
+    resolvers: { ...resolvers },
     introspection: true,
     validationRules: [depthLimit(15)],
     plugins,

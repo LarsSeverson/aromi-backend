@@ -1,0 +1,172 @@
+type Fragrance {
+  id: Int!
+  brand: String!
+  name: String!
+  rating: Float!
+
+  counts: FragranceCounts!
+  votes: VoteSummary!
+
+  traits: [Trait!]!
+
+  notes: FragranceNotes!
+  accords(input: AccordsInput): FragranceAccordConnection!
+  images(input: PaginationInput): FragranceImageConnection!
+  reviews(input: PaginationInput): FragranceReviewConnection!
+  reviewDistribution: FragranceReviewDistribution!
+
+  myReview: FragranceReview
+  audit: Audit!
+}
+
+type FragranceCounts {
+  reviews: Int!
+  likes: Int!
+  dislikes: Int!
+}
+
+type VoteSummary {
+  votes: Int! 
+  myVote: Boolean
+}
+
+type Trait {
+  type: FragranceTraitType!
+  value: Float!
+  myVote: Boolean
+}
+
+type FragranceImage {
+  id: Int!
+  src: String!
+  alt: String
+}
+
+type FragranceNotes {
+  top(input: NotesInput): FragranceNoteConnection!
+  middle(input: NotesInput): FragranceNoteConnection!
+  base(input: NotesInput): FragranceNoteConnection!
+}
+
+type FragranceNote {
+  id: Int!
+  noteId: Int!
+  name: String!
+  layer: NoteLayer!
+  votes: Int!
+  myVote: Boolean
+}
+
+type FragranceAccord {
+  id: Int!
+  accordId: Int!
+  name: String!
+  color: String!
+  votes: Int!
+  myVote: Boolean
+}
+
+type FragranceReview {
+  id: Int!
+  rating: Int!
+  review: String!
+  votes: Int!
+  myVote: Boolean
+  user: User!
+}
+
+type FragranceReviewDistribution {
+  one: Int!
+  two: Int!
+  three: Int!
+  four: Int!
+  five: Int!
+}
+
+extend type Query {
+  fragrance(id: Int!): Fragrance
+  fragrances(input: PaginationInput): FragranceConnection!
+}
+
+enum FragranceTraitType {
+  GENDER
+  LONGEVITY
+  SILLAGE
+  COMPLEXITY
+  BALANCE
+  ALLURE
+}
+
+enum NoteLayer {
+  TOP
+  MIDDLE
+  BASE
+}
+
+# Inputs
+input AccordsInput {
+  pagination: PaginationInput
+  fill: Boolean
+}
+
+input NotesInput {
+  pagination: PaginationInput
+  layers: [NoteLayer!]
+  fill: Boolean
+}
+
+# Pagination
+# Fragrance
+type FragranceEdge {
+  cursor: String!
+  node: Fragrance!
+}
+
+type FragranceConnection {
+  edges: [FragranceEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Images
+type FragranceImageEdge {
+  cursor: String!
+  node: FragranceImage!
+}
+
+type FragranceImageConnection {
+  edges: [FragranceImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Accords
+type FragranceAccordEdge {
+  cursor: String!
+  node: FragranceAccord!
+}
+
+type FragranceAccordConnection {
+  edges: [FragranceAccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Notes
+type FragranceNoteEdge {
+  cursor: String!
+  node: FragranceNote!
+}
+
+type FragranceNoteConnection {
+  edges: [FragranceNoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Review
+type FragranceReviewEdge {
+  cursor: String!
+  node: FragranceReview!
+}
+
+type FragranceReviewConnection {
+  edges: [FragranceReviewEdge!]!
+  pageInfo: PageInfo!
+}

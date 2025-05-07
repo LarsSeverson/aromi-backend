@@ -15,6 +15,18 @@ export class ApiError extends GraphQLError {
     this.details = details
   }
 
+  static fromCognito (error: Error): ApiError {
+    const mapping = COGNITO_ERROR_TO_API_ERROR[error.name]
+
+    if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
+
+    return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong with authentication. Please try again later', 500, error)
+  }
+
+  static fromDatabase (error: Error): ApiError {
+    return new ApiError('DB_QUERY_FAILED', error.message, 500, error)
+  }
+
   serialize (): GraphQLFormattedError {
     const { message, extensions } = this
 
@@ -50,11 +62,3 @@ export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429),
   InvalidParameterException: new ApiError('INVALID_PARAMETER', 'Invalid input provided', 400)
 } as const
-
-export const mapCognitoError = (error: Error): ApiError => {
-  const mapping = COGNITO_ERROR_TO_API_ERROR[error.name]
-
-  if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
-
-  return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong with authentication. Please try again later', 500, error)
-}

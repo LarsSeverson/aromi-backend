@@ -6,7 +6,8 @@ const config: CodegenConfig = {
     'src/generated/gql-types.ts': {
       config: {
         useIndexSignature: true,
-        contextType: '@src/context#Context'
+        contextType: '@src/context#ApiContext',
+        defaultMapper: 'Partial<{T}>'
       },
       plugins: ['typescript', 'typescript-resolvers']
     },

@@ -1,0 +1,61 @@
+type User {
+  id: Int!
+  username: String!
+  email: String!
+
+  followers: Int!
+  following: Int!
+
+  collections(input: PaginationInput): UserCollectionConnection!
+  reviews(input: PaginationInput): FragranceReviewConnection!
+  likes(input: PaginationInput): FragranceConnection!
+}
+
+type UserCollection {
+  id: Int!
+  name: String!
+  user: User!
+  items(input: PaginationInput): UserCollectionItemConnection!
+}
+
+type UserCollectionItem {
+  id: Int!
+  fragrance: Fragrance!
+  collection: UserCollection!
+}
+
+extend type Query {
+  me: User
+  user(id: Int!): User
+}
+
+extend type Mutation {
+  createCollection(input: CreateCollectionInput!): UserCollection
+}
+
+# Inputs
+input CreateCollectionInput {
+  name: String!
+}
+
+# Pagination
+# Collection
+type UserCollectionConnection {
+  edges: [UserCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserCollectionEdge {
+  cursor: String!
+  node: UserCollection!
+}
+
+type UserCollectionItemConnection {
+  edges: [UserCollectionItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserCollectionItemEdge {
+  cursor: String!
+  node: UserCollectionItem!
+}

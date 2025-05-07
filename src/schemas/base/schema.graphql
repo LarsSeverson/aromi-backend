@@ -10,35 +10,30 @@ type PageInfo {
   endCursor: String
 }
 
+type Audit {
+  createdAt: Date!
+  updatedAt: Date!
+  deletedAt: Date
+}
+
 enum SortDirection {
-  asc
-  desc
+  ASCENDING 
+  DESCENDING 
 }
 
 enum SortBy {
-  # Universal
   id
-  created 
-  modified
-
-  # Vote Specific (e.g. accords, notes, and reviews)
-  votes
-
-  # Collection Specific
-  added
+  createdAt
+  updatedAt
 }
 
 input SortByInput {
-  by: SortBy!
-  direction: SortDirection! = desc
+  by: SortBy! = updatedAt
+  direction: SortDirection! = DESCENDING 
 }
 
 input PaginationInput {
   first: Int
   after: String
   sort: SortByInput
-}
-
-input QueryInput {
-  pagination: PaginationInput
 }
