@@ -1,63 +1,41 @@
 import { SortBy, SortDirection, type PaginationInput, type InputMaybe, type SortByInput, type PageInfo } from '@src/generated/gql-types'
 import { type NonNullableType } from './types'
 
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 40
+
+export const PAGINATION_OPERATORS = {
+  [SortDirection.Ascending]: { valueOp: '>=', idOp: '>' },
+  [SortDirection.Descending]: { valueOp: '<=', idOp: '<' }
+} as const
+
+export const PAGINATION_DIRECTIONS = {
+  [SortDirection.Ascending]: 'asc',
+  [SortDirection.Descending]: 'desc'
+} as const
+
 export interface NonNullablePaginationInput {
   first: NonNullable<PaginationInput['first']>
   after: PaginationInput['after']
   sort: NonNullableType<SortByInput>
 }
 
-export const getSortInput = (input?: InputMaybe<SortByInput>): NonNullableType<SortByInput> => {
-  input = input ?? { by: SortBy.Modified, direction: undefined }
-  return {
-    by: input.by,
-    direction: input?.direction ?? SortDirection.Desc
+export const extractPaginationParams = (input?: InputMaybe<PaginationInput>): NonNullablePaginationInput => {
+  const sort: NonNullablePaginationInput['sort'] = {
+    by: input?.sort?.by ?? SortBy.CreatedAt,
+    direction: input?.sort?.direction ?? SortDirection.Descending
   }
-}
 
-export function getPaginationInput (input?: InputMaybe<PaginationInput>, maxLimit: number = 30): NonNullablePaginationInput {
-  input = input ?? {}
-
-  const sort = getSortInput(input.sort)
   return {
-    first: Math.min((input.first ?? 20), maxLimit),
-    after: input.after,
+    first: Math.min((input?.first ?? DEFAULT_LIMIT), MAX_LIMIT),
+    after: input?.after,
     sort
   }
 }
 
-export const getSortDirectionChar = (direction: SortDirection): string => {
-  return direction === SortDirection.Asc ? '>' : '<'
-}
-
-export const getSortPart = (direction: SortDirection, column: string, valuesLen: number, preColumn: string = '', where: boolean = false): string => {
-  preColumn = preColumn.length > 0 ? `${preColumn}.` : preColumn
-  const char = getSortDirectionChar(direction)
-  const sortPart = /* sql */`
-    ${where ? 'WHERE' : 'AND'} (
-      ${preColumn}"${column}" ${char} $${valuesLen + 1}
-      OR (
-        ${preColumn}"${column}" = $${valuesLen + 1}
-          AND ${preColumn}id ${char} $${valuesLen + 2}
-      )
-    )
-  `
-  return sortPart
-}
-
-export const getPagePart = (direction: SortDirection, column: string, valuesLen: number, preColumn: string = ''): string => {
-  preColumn = preColumn.length > 0 ? `${preColumn}.` : preColumn
-
-  return /* sql */`
-    ORDER BY
-      ${preColumn}"${column}" ${direction}, ${preColumn}id ${direction}
-    LIMIT $${valuesLen + 1}
-  `
-}
-
 export interface Page<T> { edges: T[], pageInfo: PageInfo }
 
-export const getPage = <T extends { cursor: string }>(edges: T[], first: number, after: InputMaybe<string> | undefined): Page<T> => {
+export const newPage = <T extends { cursor: string }>(edges: T[], first: number, after: InputMaybe<string> | undefined): Page<T> => {
   const hasExtraRow = edges.length > first
   const trimmed = hasExtraRow ? edges.slice(0, first) : edges
 

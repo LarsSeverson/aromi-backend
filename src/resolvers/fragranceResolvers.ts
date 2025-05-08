@@ -1,4 +1,6 @@
-import { type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
+import { encodeCursor } from '@src/common/cursor'
+import { newPage } from '@src/common/pagination'
+import { type FragranceEdge, type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
 import { type FragranceRow } from '@src/services/fragranceService'
 
 export class FragranceResolvers {
@@ -11,12 +13,29 @@ export class FragranceResolvers {
       .withMe(me)
       .getById(id)
       .match(
-        row => this.mapFragranceRow(row),
+        row => this.rowToSummary(row),
         error => { throw error }
       )
   }
 
-  private mapFragranceRow (row: FragranceRow): FragranceMapper {
+  fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
+    const { input } = args
+    const { services, me } = context
+
+    return await services
+      .fragrance
+      .withMe(me)
+      .list(input)
+      .match(
+        rows => rows
+          .map(row => {
+            const summary = this.rowToSummary(row)
+          }),
+        error => { throw error }
+      )
+  }
+
+  private rowToSummary (row: FragranceRow): FragranceSummary {
     const {
       id,
       brand, name, rating,
@@ -53,7 +72,7 @@ export class FragranceResolvers {
   }
 }
 
-type FragranceMapper = Omit<Fragrance,
+type FragranceSummary = Omit<Fragrance,
 'traits' |
 'notes' |
 'accords' |
@@ -61,3 +80,5 @@ type FragranceMapper = Omit<Fragrance,
 'reviews' |
 'reviewDistribution' |
 'myReview'>
+
+type FragranceSummaryEdge = Omit<FragranceEdge, 'node'> & { node: FragranceSummary }

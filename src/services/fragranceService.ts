@@ -1,7 +1,10 @@
+import { decodeCursor, parseRawCursorValue } from '@src/common/cursor'
 import { ApiError } from '@src/common/error'
+import { extractPaginationParams, PAGINATION_DIRECTIONS, PAGINATION_OPERATORS } from '@src/common/pagination'
 import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources'
 import { type Fragrance } from '@src/db/schema'
+import { type InputMaybe, type PaginationInput } from '@src/generated/gql-types'
 import { type Selectable } from 'kysely'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
@@ -89,9 +92,38 @@ export class FragranceService {
       )
   }
 
-  // list (input?: PaginationInput): ResultAsync<FragranceRow, ApiError> {
-  //   const { db } = this.sources
+  list (input?: InputMaybe<PaginationInput>): ResultAsync<FragranceRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
 
-  //   const { first, after, sort } = getPaginationInput(input)
-  // }
+    const { first, after, sort } = extractPaginationParams(input)
+    const { rawValue, lastId } = decodeCursor(after ?? '')
+    const cursorValue = parseRawCursorValue(rawValue, sort.by)
+    const { valueOp, idOp } = PAGINATION_OPERATORS[sort.direction]
+    const orderDirection = PAGINATION_DIRECTIONS[sort.direction]
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragrances as f')
+          .leftJoin('fragranceVotes as fv', (join) =>
+            join
+              .onRef('fv.fragranceId', '=', 'f.id')
+              .on('fv.userId', '=', userId)
+              .on('fv.deletedAt', 'is', null)
+          )
+          .selectAll('f')
+          .select('fv.vote as myVote')
+          .$if(after != null, qb =>
+            qb
+              .where(`f.${sort.by}`, valueOp, cursorValue)
+              .where('f.id', idOp, lastId)
+          )
+          .orderBy(`f.${sort.by}`, orderDirection)
+          .orderBy('f.id', orderDirection)
+          .limit(first + 1)
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
 }
