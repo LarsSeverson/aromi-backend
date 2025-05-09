@@ -31,7 +31,6 @@ type Fragrance {
   accords(input: AccordsInput): FragranceAccordConnection!
   audit: Audit!
   brand: String!
-  counts: FragranceCounts!
   id: Int!
   images(input: PaginationInput): FragranceImageConnection!
   myReview: FragranceReview
@@ -40,7 +39,8 @@ type Fragrance {
   rating: Float!
   reviewDistribution: FragranceReviewDistribution!
   reviews(input: PaginationInput): FragranceReviewConnection!
-  traits: [Trait!]!
+  reviewsCount: Int!
+  traits: [FragranceTrait!]!
   votes: VoteSummary!
 }
 
@@ -68,12 +68,6 @@ type FragranceConnection {
   pageInfo: PageInfo!
 }
 
-type FragranceCounts {
-  dislikes: Int!
-  likes: Int!
-  reviews: Int!
-}
-
 type FragranceEdge {
   cursor: String!
   node: Fragrance!
@@ -81,6 +75,7 @@ type FragranceEdge {
 
 type FragranceImage {
   alt: String
+  audit: Audit!
   id: Int!
   src: String!
 }
@@ -121,12 +116,12 @@ type FragranceNotes {
 }
 
 type FragranceReview {
+  audit: Audit!
   id: Int!
-  myVote: Boolean
   rating: Int!
   review: String!
   user: User!
-  votes: Int!
+  votes: VoteSummary!
 }
 
 type FragranceReviewConnection {
@@ -145,6 +140,12 @@ type FragranceReviewDistribution {
 type FragranceReviewEdge {
   cursor: String!
   node: FragranceReview!
+}
+
+type FragranceTrait {
+  myVote: Boolean
+  type: FragranceTraitType!
+  value: Float!
 }
 
 enum FragranceTraitType {
@@ -221,12 +222,6 @@ enum SortDirection {
   DESCENDING
 }
 
-type Trait {
-  myVote: Boolean
-  type: FragranceTraitType!
-  value: Float!
-}
-
 type User {
   collections(input: PaginationInput): UserCollectionConnection!
   email: String!
@@ -272,6 +267,8 @@ type UserCollectionItemEdge {
 }
 
 type VoteSummary {
+  dislikesCount: Int!
+  likesCount: Int!
   myVote: Boolean
-  votes: Int!
+  score: Int!
 }

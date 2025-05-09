@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { FragranceSummary, FragranceSummaryEdge } from '../schemas/fragrance/mappers';
+import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge } from '../schemas/fragrance/mappers';
 import { UserSummary } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
@@ -56,7 +56,6 @@ export type Fragrance = {
   accords: FragranceAccordConnection;
   audit: Audit;
   brand: Scalars['String']['output'];
-  counts: FragranceCounts;
   id: Scalars['Int']['output'];
   images: FragranceImageConnection;
   myReview?: Maybe<FragranceReview>;
@@ -65,7 +64,8 @@ export type Fragrance = {
   rating: Scalars['Float']['output'];
   reviewDistribution: FragranceReviewDistribution;
   reviews: FragranceReviewConnection;
-  traits: Array<Trait>;
+  reviewsCount: Scalars['Int']['output'];
+  traits: Array<FragranceTrait>;
   votes: VoteSummary;
 };
 
@@ -112,13 +112,6 @@ export type FragranceConnection = {
   pageInfo: PageInfo;
 };
 
-export type FragranceCounts = {
-  __typename?: 'FragranceCounts';
-  dislikes: Scalars['Int']['output'];
-  likes: Scalars['Int']['output'];
-  reviews: Scalars['Int']['output'];
-};
-
 export type FragranceEdge = {
   __typename?: 'FragranceEdge';
   cursor: Scalars['String']['output'];
@@ -128,6 +121,7 @@ export type FragranceEdge = {
 export type FragranceImage = {
   __typename?: 'FragranceImage';
   alt?: Maybe<Scalars['String']['output']>;
+  audit: Audit;
   id: Scalars['Int']['output'];
   src: Scalars['String']['output'];
 };
@@ -190,12 +184,12 @@ export type FragranceNotesTopArgs = {
 
 export type FragranceReview = {
   __typename?: 'FragranceReview';
+  audit: Audit;
   id: Scalars['Int']['output'];
-  myVote?: Maybe<Scalars['Boolean']['output']>;
   rating: Scalars['Int']['output'];
   review: Scalars['String']['output'];
   user: User;
-  votes: Scalars['Int']['output'];
+  votes: VoteSummary;
 };
 
 export type FragranceReviewConnection = {
@@ -217,6 +211,13 @@ export type FragranceReviewEdge = {
   __typename?: 'FragranceReviewEdge';
   cursor: Scalars['String']['output'];
   node: FragranceReview;
+};
+
+export type FragranceTrait = {
+  __typename?: 'FragranceTrait';
+  myVote?: Maybe<Scalars['Boolean']['output']>;
+  type: FragranceTraitType;
+  value: Scalars['Float']['output'];
 };
 
 export enum FragranceTraitType {
@@ -352,13 +353,6 @@ export enum SortDirection {
   Descending = 'DESCENDING'
 }
 
-export type Trait = {
-  __typename?: 'Trait';
-  myVote?: Maybe<Scalars['Boolean']['output']>;
-  type: FragranceTraitType;
-  value: Scalars['Float']['output'];
-};
-
 export type User = {
   __typename?: 'User';
   collections: UserCollectionConnection;
@@ -432,8 +426,10 @@ export type UserCollectionItemEdge = {
 
 export type VoteSummary = {
   __typename?: 'VoteSummary';
+  dislikesCount: Scalars['Int']['output'];
+  likesCount: Scalars['Int']['output'];
   myVote?: Maybe<Scalars['Boolean']['output']>;
-  votes: Scalars['Int']['output'];
+  score: Scalars['Int']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -521,7 +517,6 @@ export type ResolversTypes = ResolversObject<{
   FragranceAccordConnection: ResolverTypeWrapper<Partial<FragranceAccordConnection>>;
   FragranceAccordEdge: ResolverTypeWrapper<Partial<FragranceAccordEdge>>;
   FragranceConnection: ResolverTypeWrapper<Partial<Omit<FragranceConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceEdge']> }>>;
-  FragranceCounts: ResolverTypeWrapper<Partial<FragranceCounts>>;
   FragranceEdge: ResolverTypeWrapper<FragranceSummaryEdge>;
   FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
   FragranceImageConnection: ResolverTypeWrapper<Partial<FragranceImageConnection>>;
@@ -530,10 +525,11 @@ export type ResolversTypes = ResolversObject<{
   FragranceNoteConnection: ResolverTypeWrapper<Partial<FragranceNoteConnection>>;
   FragranceNoteEdge: ResolverTypeWrapper<Partial<FragranceNoteEdge>>;
   FragranceNotes: ResolverTypeWrapper<Partial<FragranceNotes>>;
-  FragranceReview: ResolverTypeWrapper<Partial<Omit<FragranceReview, 'user'> & { user: ResolversTypes['User'] }>>;
+  FragranceReview: ResolverTypeWrapper<FragranceReviewSummary>;
   FragranceReviewConnection: ResolverTypeWrapper<Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceReviewEdge']> }>>;
   FragranceReviewDistribution: ResolverTypeWrapper<Partial<FragranceReviewDistribution>>;
-  FragranceReviewEdge: ResolverTypeWrapper<Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversTypes['FragranceReview'] }>>;
+  FragranceReviewEdge: ResolverTypeWrapper<FragranceReviewSummaryEdge>;
+  FragranceTrait: ResolverTypeWrapper<Partial<FragranceTrait>>;
   FragranceTraitType: ResolverTypeWrapper<Partial<FragranceTraitType>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -547,7 +543,6 @@ export type ResolversTypes = ResolversObject<{
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
-  Trait: ResolverTypeWrapper<Partial<Trait>>;
   User: ResolverTypeWrapper<UserSummary>;
   UserCollection: ResolverTypeWrapper<Partial<Omit<UserCollection, 'items' | 'user'> & { items: ResolversTypes['UserCollectionItemConnection'], user: ResolversTypes['User'] }>>;
   UserCollectionConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionEdge']> }>>;
@@ -573,7 +568,6 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceAccordConnection: Partial<FragranceAccordConnection>;
   FragranceAccordEdge: Partial<FragranceAccordEdge>;
   FragranceConnection: Partial<Omit<FragranceConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceEdge']> }>;
-  FragranceCounts: Partial<FragranceCounts>;
   FragranceEdge: FragranceSummaryEdge;
   FragranceImage: Partial<FragranceImage>;
   FragranceImageConnection: Partial<FragranceImageConnection>;
@@ -582,10 +576,11 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceNoteConnection: Partial<FragranceNoteConnection>;
   FragranceNoteEdge: Partial<FragranceNoteEdge>;
   FragranceNotes: Partial<FragranceNotes>;
-  FragranceReview: Partial<Omit<FragranceReview, 'user'> & { user: ResolversParentTypes['User'] }>;
+  FragranceReview: FragranceReviewSummary;
   FragranceReviewConnection: Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceReviewEdge']> }>;
   FragranceReviewDistribution: Partial<FragranceReviewDistribution>;
-  FragranceReviewEdge: Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversParentTypes['FragranceReview'] }>;
+  FragranceReviewEdge: FragranceReviewSummaryEdge;
+  FragranceTrait: Partial<FragranceTrait>;
   Int: Partial<Scalars['Int']['output']>;
   Mutation: {};
   NotesInput: Partial<NotesInput>;
@@ -595,7 +590,6 @@ export type ResolversParentTypes = ResolversObject<{
   SignUpResult: Partial<SignUpResult>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
-  Trait: Partial<Trait>;
   User: UserSummary;
   UserCollection: Partial<Omit<UserCollection, 'items' | 'user'> & { items: ResolversParentTypes['UserCollectionItemConnection'], user: ResolversParentTypes['User'] }>;
   UserCollectionConnection: Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionEdge']> }>;
@@ -635,7 +629,6 @@ export type FragranceResolvers<ContextType = ApiContext, ParentType extends Reso
   accords?: Resolver<ResolversTypes['FragranceAccordConnection'], ParentType, ContextType, Partial<FragranceAccordsArgs>>;
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   brand?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  counts?: Resolver<ResolversTypes['FragranceCounts'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   images?: Resolver<ResolversTypes['FragranceImageConnection'], ParentType, ContextType, Partial<FragranceImagesArgs>>;
   myReview?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType>;
@@ -644,7 +637,8 @@ export type FragranceResolvers<ContextType = ApiContext, ParentType extends Reso
   rating?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   reviewDistribution?: Resolver<ResolversTypes['FragranceReviewDistribution'], ParentType, ContextType>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<FragranceReviewsArgs>>;
-  traits?: Resolver<Array<ResolversTypes['Trait']>, ParentType, ContextType>;
+  reviewsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  traits?: Resolver<Array<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -677,13 +671,6 @@ export type FragranceConnectionResolvers<ContextType = ApiContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceCountsResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCounts'] = ResolversParentTypes['FragranceCounts']> = ResolversObject<{
-  dislikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  reviews?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type FragranceEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceEdge'] = ResolversParentTypes['FragranceEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
@@ -692,6 +679,7 @@ export type FragranceEdgeResolvers<ContextType = ApiContext, ParentType extends 
 
 export type FragranceImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
   alt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -739,12 +727,12 @@ export type FragranceNotesResolvers<ContextType = ApiContext, ParentType extends
 }>;
 
 export type FragranceReviewResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   review?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -766,6 +754,13 @@ export type FragranceReviewDistributionResolvers<ContextType = ApiContext, Paren
 export type FragranceReviewEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceReviewEdge'] = ResolversParentTypes['FragranceReviewEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
+  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -799,13 +794,6 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
 export type SignUpResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['SignUpResult'] = ResolversParentTypes['SignUpResult']> = ResolversObject<{
   complete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   delivery?: Resolver<Maybe<ResolversTypes['CodeDeliveryDetails']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Trait'] = ResolversParentTypes['Trait']> = ResolversObject<{
-  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
-  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -861,8 +849,10 @@ export type UserCollectionItemEdgeResolvers<ContextType = ApiContext, ParentType
 }>;
 
 export type VoteSummaryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VoteSummary'] = ResolversParentTypes['VoteSummary']> = ResolversObject<{
+  dislikesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -876,7 +866,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceAccordConnection?: FragranceAccordConnectionResolvers<ContextType>;
   FragranceAccordEdge?: FragranceAccordEdgeResolvers<ContextType>;
   FragranceConnection?: FragranceConnectionResolvers<ContextType>;
-  FragranceCounts?: FragranceCountsResolvers<ContextType>;
   FragranceEdge?: FragranceEdgeResolvers<ContextType>;
   FragranceImage?: FragranceImageResolvers<ContextType>;
   FragranceImageConnection?: FragranceImageConnectionResolvers<ContextType>;
@@ -889,11 +878,11 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceReviewConnection?: FragranceReviewConnectionResolvers<ContextType>;
   FragranceReviewDistribution?: FragranceReviewDistributionResolvers<ContextType>;
   FragranceReviewEdge?: FragranceReviewEdgeResolvers<ContextType>;
+  FragranceTrait?: FragranceTraitResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SignUpResult?: SignUpResultResolvers<ContextType>;
-  Trait?: TraitResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserCollection?: UserCollectionResolvers<ContextType>;
   UserCollectionConnection?: UserCollectionConnectionResolvers<ContextType>;

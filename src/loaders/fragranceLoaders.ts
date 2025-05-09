@@ -1,39 +1,24 @@
-import { type PaginationParams } from '@src/common/pagination'
-import { type FragranceImageRow, type FragranceRow, type FragranceService } from '@src/services/fragranceService'
+import { extractPaginationParams, type PaginationParams } from '@src/common/pagination'
+import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceService, type FragranceReviewRow } from '@src/services/fragranceService'
 import DataLoader from 'dataloader'
 
-export interface FragranceIdKey { id: number }
-export interface FragranceCollectionIdKey { collectionId: number }
-export interface FragranceImageKey {
-  fragranceId: number
-  paginationParams: PaginationParams
-}
+export interface FragranceKey { fragranceId: number }
 
 export interface FragranceLoadersCache {
-  byId: DataLoader<FragranceIdKey, FragranceRow | null>
-  byCollectionId: DataLoader<FragranceCollectionIdKey, FragranceRow | null>
-  images: DataLoader<FragranceImageKey, FragranceImageRow[]>
+  images: DataLoader<FragranceKey, FragranceImageRow[]>
+  reviews: DataLoader<FragranceKey, FragranceReviewRow[]>
+  reviewDistributions: DataLoader<FragranceKey, FragranceReviewDistRow[]>
 }
 
 export class FragranceLoaders implements FragranceLoadersCache {
   private readonly cache: Partial<FragranceLoadersCache> = {}
+  private paginationParams: PaginationParams = extractPaginationParams()
 
   constructor (private readonly fragranceService: FragranceService) {}
 
-  get byId (): FragranceLoadersCache['byId'] {
-    if (this.cache.byId == null) {
-      this.cache.byId = this.createByIdLoader()
-    }
-
-    return this.cache.byId
-  }
-
-  get byCollectionId (): FragranceLoadersCache['byCollectionId'] {
-    if (this.cache.byCollectionId == null) {
-      this.cache.byCollectionId = this.createByCollectionIdLoader()
-    }
-
-    return this.cache.byCollectionId
+  withPagination (paginationParams: PaginationParams): this {
+    this.paginationParams = paginationParams
+    return this
   }
 
   get images (): FragranceLoadersCache['images'] {
@@ -44,56 +29,75 @@ export class FragranceLoaders implements FragranceLoadersCache {
     return this.cache.images
   }
 
-  private createByIdLoader (): FragranceLoadersCache['byId'] {
-    return new DataLoader<FragranceIdKey, FragranceRow | null>(async (keys) => {
-      const fragranceIds = keys.map(({ id }) => id)
+  get reviews (): FragranceLoadersCache['reviews'] {
+    if (this.cache.reviews == null) {
+      this.cache.reviews = this.createReviewsLoaders()
+    }
 
-      return await this
-        .fragranceService
-        .getByIds(fragranceIds)
-        .match(
-          fragrances => {
-            const fragranceMap = new Map(fragrances.map(f => [f.id, f]))
-            return fragranceIds.map(id => fragranceMap.get(id) ?? null)
-          },
-          error => { throw error }
-        )
-    })
+    return this.cache.reviews
   }
 
-  private createByCollectionIdLoader (): FragranceLoadersCache['byCollectionId'] {
-    return new DataLoader<FragranceCollectionIdKey, FragranceRow | null>(async (keys) => {
-      const collectionIds = keys.map(({ collectionId }) => collectionId)
+  get reviewDistributions (): FragranceLoadersCache['reviewDistributions'] {
+    if (this.cache.reviewDistributions == null) {
+      this.cache.reviewDistributions = this.createReviewDistributionsLoader()
+    }
 
-      return await this
-        .fragranceService
-        .getByCollectionIds(collectionIds)
-        .match(
-          rows => {
-            const fragranceMap = new Map(rows.map(r => [r.collectionId, r]))
-            return collectionIds.map(id => fragranceMap.get(id) ?? null)
-          },
-          error => { throw error }
-        )
-    })
+    return this.cache.reviewDistributions
   }
 
   private createImagesLoader (): FragranceLoadersCache['images'] {
-    return new DataLoader<FragranceImageKey, FragranceImageRow[]>(async (keys) => {
+    const paginationParams = this.paginationParams
+
+    return new DataLoader<FragranceKey, FragranceImageRow[]>(async (keys) => {
       const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
-      const paginationParams = keys[0].paginationParams
 
       return await this
         .fragranceService
-        .getImagesByFragranceIds(fragranceIds, paginationParams)
+        .getImages({ fragranceIds, paginationParams })
         .match(
           rows => {
-            const imagesMap = new Map(
+            const imagesMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => imagesMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
+  private createReviewsLoaders (): FragranceLoadersCache['reviews'] {
+    const paginationParams = this.paginationParams
+
+    return new DataLoader<FragranceKey, FragranceReviewRow[]>(async (keys) => {
+      const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
+
+      return await this
+        .fragranceService
+        .getReviews({ fragranceIds, paginationParams })
+        .match(
+          rows => {
+            const reviewsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => reviewsMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
+  private createReviewDistributionsLoader (): FragranceLoadersCache['reviewDistributions'] {
+    return new DataLoader<FragranceKey, FragranceReviewDistRow[]>(async (keys) => {
+      const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
+
+      return await this
+        .fragranceService
+        .getReviewDistributions({ fragranceIds })
+        .match(
+          rows => {
+            const distMap = new Map(
               fragranceIds
                 .map(id => [id, rows.filter(row => row.fragranceId === id)])
             )
 
-            return fragranceIds.map(id => imagesMap.get(id) ?? [])
+            return fragranceIds.map(id => distMap.get(id) ?? [])
           },
           error => { throw error }
         )

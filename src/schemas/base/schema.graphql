@@ -16,6 +16,13 @@ type Audit {
   deletedAt: Date
 }
 
+type VoteSummary {
+  score: Int!
+  likesCount: Int!
+  dislikesCount: Int!
+  myVote: Boolean
+}
+
 enum SortDirection {
   ASCENDING 
   DESCENDING 

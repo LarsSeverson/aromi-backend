@@ -14,6 +14,8 @@ const config: CodegenConfig = {
         mappers: {
           Fragrance: '../schemas/fragrance/mappers#FragranceSummary',
           FragranceEdge: '../schemas/fragrance/mappers#FragranceSummaryEdge',
+          FragranceReview: '../schemas/fragrance/mappers#FragranceReviewSummary',
+          FragranceReviewEdge: '../schemas/fragrance/mappers#FragranceReviewSummaryEdge',
 
           User: '../schemas/user/mappers#UserSummary'
         }

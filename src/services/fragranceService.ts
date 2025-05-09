@@ -2,19 +2,35 @@ import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type FragranceImage, type Fragrance } from '@src/db/schema'
+import { type FragranceImage, type Fragrance, type FragranceReview } from '@src/db/schema'
 import { type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 
 export type FragranceRow = Selectable<Fragrance> & { myVote: number | null }
 export type FragranceImageRow = Selectable<FragranceImage>
+export type FragranceReviewRow = Selectable<FragranceReview> & { myVote: number | null }
+export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
+
+export interface GetFragranceImagesParams {
+  fragranceIds: number[]
+  paginationParams: PaginationParams
+}
+
+export interface GetReviewDistributionsParams {
+  fragranceIds: number[]
+}
+
+export interface GetFragranceReviewsParams {
+  fragranceIds: number[]
+  paginationParams: PaginationParams
+}
 
 export class FragranceService {
   me?: ApiContext['me']
 
   constructor (private readonly sources: ApiDataSources) {}
 
-  // TODO: Explore builder pattern
+  // TODO: Explore builder pattern maybe
   withMe (me: ApiContext['me']): this {
     this.me = me
     return this
@@ -64,30 +80,6 @@ export class FragranceService {
       )
   }
 
-  getByCollectionIds (ids: number[]): ResultAsync<Array<FragranceRow & { collectionId: number }>, ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
-
-    return ResultAsync
-      .fromPromise(
-        db
-          .selectFrom('collectionFragrances as cf')
-          .innerJoin('fragrances as f', 'f.id', 'cf.fragranceId')
-          .leftJoin('fragranceVotes as fv', (join) =>
-            join
-              .onRef('fv.fragranceId', '=', 'f.id')
-              .on('fv.userId', '=', userId)
-              .on('fv.deletedAt', 'is', null)
-          )
-          .selectAll('f')
-          .select('fv.vote as myVote')
-          .select('cf.id as collectionId')
-          .where('cf.id', 'in', ids)
-          .execute(),
-        error => ApiError.fromDatabase(error as Error)
-      )
-  }
-
   list (params: PaginationParams): ResultAsync<FragranceRow[], ApiError> {
     const { db } = this.sources
     const userId = this.me?.id ?? null
@@ -121,10 +113,11 @@ export class FragranceService {
       )
   }
 
-  getImagesByFragranceIds (fragranceIds: number[], params: PaginationParams): ResultAsync<FragranceImageRow[], ApiError> {
+  getImages (params: GetFragranceImagesParams): ResultAsync<FragranceImageRow[], ApiError> {
     const { db } = this.sources
+    const { fragranceIds, paginationParams } = params
 
-    const { first, cursor, sortParams } = params
+    const { first, cursor, sortParams } = paginationParams
     const { column, operators, direction } = sortParams
     const { valueOp, idOp } = operators
 
@@ -143,7 +136,65 @@ export class FragranceService {
           .orderBy('id', direction)
           .limit(first + 1)
           .execute(),
-        error => { throw error }
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getReviews (params: GetFragranceReviewsParams): ResultAsync<FragranceReviewRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
+    const { fragranceIds, paginationParams } = params
+
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operators, direction } = sortParams
+    const { valueOp, idOp } = operators
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragranceReviews as fr')
+          .leftJoin('fragranceReviewVotes as rv', (join) =>
+            join
+              .onRef('rv.fragranceReviewId', '=', 'fr.id')
+              .on('rv.userId', '=', userId)
+              .on('rv.deletedAt', 'is', null)
+          )
+          .selectAll('fr')
+          .select('rv.vote as myVote')
+          .where('fr.fragranceId', 'in', fragranceIds)
+          .$if(cursor.isValid, qb =>
+            qb
+              .where(`fr.${column}`, valueOp, cursor.value)
+              .where('fr.id', idOp, cursor.lastId)
+          )
+          .orderBy(`fr.${column}`, direction)
+          .orderBy('fr.id', direction)
+          .limit(first + 1)
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getReviewDistributions (params: GetReviewDistributionsParams): ResultAsync<FragranceReviewDistRow[], ApiError> {
+    const { db } = this.sources
+    const { fragranceIds } = params
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragranceReviews')
+          .select([
+            'rating',
+            'fragranceId',
+            db
+              .fn
+              .count<number>('rating')
+              .as('count')
+          ])
+          .where('fragranceId', 'in', fragranceIds)
+          .groupBy(['fragranceId', 'rating'])
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
       )
   }
 }

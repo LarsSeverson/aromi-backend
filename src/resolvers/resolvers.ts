@@ -1,4 +1,4 @@
-import { type QueryResolvers, type Resolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers, type FragranceResolvers as FragranceFieldResolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
 import { FragranceResolvers } from './fragranceResolvers'
 
@@ -10,5 +10,12 @@ export class ApiResolvers implements Resolvers {
   Query: QueryResolvers = {
     fragrance: fragranceResolvers.fragrance,
     fragrances: fragranceResolvers.fragrances
+  }
+
+  // Field resolvers
+  Fragrance: FragranceFieldResolvers = {
+    images: fragranceResolvers.fragranceImages,
+    reviews: fragranceResolvers.fragranceReviews,
+    reviewDistribution: fragranceResolvers.fragranceReviewDistribution
   }
 }

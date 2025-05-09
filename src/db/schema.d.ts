@@ -66,13 +66,13 @@ export interface FragranceCollection {
 }
 
 export interface FragranceImage {
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   format: ImageFormat;
   fragranceId: number;
   id: Generated<number>;
   s3Key: string;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
 }
 
 export interface FragranceNote {
@@ -96,15 +96,17 @@ export interface FragranceNoteVote {
 }
 
 export interface FragranceReview {
-  createdAt: Generated<Timestamp | null>;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  fragranceId: number | null;
+  dislikesCount: Generated<number>;
+  fragranceId: number;
   id: Generated<number>;
+  likesCount: Generated<number>;
   rating: number;
-  reviewText: string | null;
-  updatedAt: Generated<Timestamp | null>;
+  reviewText: string;
+  updatedAt: Generated<Timestamp>;
   userId: number;
-  votes: Generated<number>;
+  voteScore: Generated<number>;
 }
 
 export interface FragranceReviewVote {
@@ -128,6 +130,7 @@ export interface Fragrance {
   rating: number | null;
   reviewsCount: number;
   updatedAt: Timestamp;
+  voteScore: Generated<number>;
 }
 
 export interface FragranceTrait {

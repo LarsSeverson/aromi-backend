@@ -3,11 +3,11 @@ type Fragrance {
   brand: String!
   name: String!
   rating: Float!
+  reviewsCount: Int!
 
-  counts: FragranceCounts!
   votes: VoteSummary!
 
-  traits: [Trait!]!
+  traits: [FragranceTrait!]!
 
   notes: FragranceNotes!
   accords(input: AccordsInput): FragranceAccordConnection!
@@ -19,18 +19,7 @@ type Fragrance {
   audit: Audit!
 }
 
-type FragranceCounts {
-  reviews: Int!
-  likes: Int!
-  dislikes: Int!
-}
-
-type VoteSummary {
-  votes: Int! 
-  myVote: Boolean
-}
-
-type Trait {
+type FragranceTrait {
   type: FragranceTraitType!
   value: Float!
   myVote: Boolean
@@ -40,6 +29,7 @@ type FragranceImage {
   id: Int!
   src: String!
   alt: String
+  audit: Audit!
 }
 
 type FragranceNotes {
@@ -70,9 +60,9 @@ type FragranceReview {
   id: Int!
   rating: Int!
   review: String!
-  votes: Int!
-  myVote: Boolean
+  votes: VoteSummary!
   user: User!
+  audit: Audit!
 }
 
 type FragranceReviewDistribution {
