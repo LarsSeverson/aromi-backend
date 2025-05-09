@@ -119,7 +119,7 @@ export interface FragranceReviewVote {
 
 export interface Fragrance {
   brand: string;
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   dislikesCount: number;
   id: Generated<number>;
@@ -127,7 +127,7 @@ export interface Fragrance {
   name: string;
   rating: number | null;
   reviewsCount: number;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
 }
 
 export interface FragranceTrait {
@@ -174,9 +174,11 @@ export interface User {
   createdAt: Timestamp | null;
   deletedAt: Timestamp | null;
   email: Generated<string>;
+  followerCount: Generated<number>;
+  followingCount: Generated<number>;
   id: Generated<number>;
   updatedAt: Timestamp | null;
-  username: string | null;
+  username: string;
 }
 
 export interface DB {

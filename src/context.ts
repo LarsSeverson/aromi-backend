@@ -1,15 +1,15 @@
-import { type User } from './generated/gql-types'
 import { ApiLoaders } from './loaders/loaders'
 import { authenticateMe } from './middleware/auth.middleware'
-import { type ApiDataSources } from './datasources'
+import { type ApiDataSources } from './datasources/datasources'
 import { type ExpressContextFunctionArgument } from '@apollo/server/dist/esm/express4'
 import { type ApiServices } from './services/services'
+import { type UserSummary } from './schemas/user/mappers'
 
 export interface ApiContext extends ExpressContextFunctionArgument {
   sources: ApiDataSources
   loaders: ApiLoaders
   services: ApiServices
-  me?: User
+  me?: UserSummary
 }
 
 export interface GetContextParams {
@@ -23,7 +23,18 @@ export const getContext = async (params: GetContextParams): Promise<ApiContext> 
   const { req, res } = serverArgs
 
   const loaders = new ApiLoaders(services)
-  const me = await authenticateMe(req, sources)
+  const context: ApiContext = {
+    req,
+    res,
+    sources,
+    services,
+    loaders,
+    me: undefined
+  }
+
+  const me = await authenticateMe(context)
+
+  context.me = me
 
   return {
     req,

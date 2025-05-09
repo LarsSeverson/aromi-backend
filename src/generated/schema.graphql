@@ -230,8 +230,8 @@ type Trait {
 type User {
   collections(input: PaginationInput): UserCollectionConnection!
   email: String!
-  followers: Int!
-  following: Int!
+  followerCount: Int!
+  followingCount: Int!
   id: Int!
   likes(input: PaginationInput): FragranceConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!

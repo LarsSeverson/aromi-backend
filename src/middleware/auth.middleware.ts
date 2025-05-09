@@ -1,11 +1,9 @@
 import { ApiError } from '@src/common/error'
-import { type ApiDataSources } from '@src/datasources'
-import { type User } from '@src/generated/gql-types'
-import { type IncomingMessage } from 'http'
+import { type ApiContext } from '@src/context'
+import { type UserSummary } from '@src/schemas/user/mappers'
 import { type JwtHeader, type JwtPayload, verify } from 'jsonwebtoken'
 import { type JwksClient } from 'jwks-rsa'
 import { ResultAsync } from 'neverthrow'
-import { type Pool } from 'pg'
 
 const getKey = (header: JwtHeader, client: JwksClient): ResultAsync<string, ApiError> => {
   const getKeyPromise = async (): Promise<string> =>
@@ -65,31 +63,11 @@ const decodeToken = (token: string, client: JwksClient): ResultAsync<JwtPayload,
   )
 }
 
-const ME_SQL = /* sql */`
-  SELECT
-  id,
-  email,
-  username,
-  cognito_id
-  FROM USERS
-  WHERE cognito_id = $1
-`
+export const authenticateMe = async (context: ApiContext): Promise<UserSummary | undefined> => {
+  const { req, sources, services } = context
+  const { user } = services
 
-const getMe = (cognitoId: string, db: Pool): ResultAsync<User | undefined, ApiError> => {
-  const getMePromise = async (): Promise<User | undefined> => {
-    const { rows } = await db.query<User>(ME_SQL, [cognitoId])
-    return rows.at(0)
-  }
-
-  return ResultAsync.fromPromise(
-    getMePromise(),
-    (e) => new ApiError('DB_ERROR', 'Failed to fetch user', 500, e)
-  )
-}
-
-export const authenticateMe = async (req: IncomingMessage, sources: ApiDataSources): Promise<User | undefined> => {
-  const { headers } = req
-  const { authorization } = headers
+  const { authorization } = req.headers
   const token = authorization?.replace('Bearer ', '')
   if (token == null || token.length === 0) return undefined
 
@@ -99,8 +77,7 @@ export const authenticateMe = async (req: IncomingMessage, sources: ApiDataSourc
   const cognitoId = result.value.sub
   if (cognitoId == null) return undefined
 
-  const meResult = await getMe(cognitoId, sources.db)
-  if (meResult.isErr()) return undefined
-
-  return meResult.value
+  return await user
+    .getByCognitoId(cognitoId)
+    .unwrapOr(undefined)
 }

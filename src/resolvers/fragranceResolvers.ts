@@ -1,6 +1,7 @@
 import { encodeCursor } from '@src/common/cursor'
-import { newPage } from '@src/common/pagination'
-import { type FragranceEdge, type Fragrance, type QueryResolvers } from '@src/generated/gql-types'
+import { extractPaginationParams, newPage, type Page, type PaginationParams } from '@src/common/pagination'
+import { type QueryResolvers, SortBy } from '@src/generated/gql-types'
+import { type FragranceSummary, type FragranceSummaryEdge } from '@src/schemas/fragrance/mappers'
 import { type FragranceRow } from '@src/services/fragranceService'
 
 export class FragranceResolvers {
@@ -22,16 +23,20 @@ export class FragranceResolvers {
     const { input } = args
     const { services, me } = context
 
+    const paginationParams = extractPaginationParams(input)
+
     return await services
       .fragrance
       .withMe(me)
-      .list(input)
-      .match(
-        rows => rows
-          .map(row => {
-            const summary = this.rowToSummary(row)
-          }),
-        error => { throw error }
+      .list(paginationParams)
+      .match(rows =>
+        this
+          .toPage(rows
+            .map(row => this
+              .summaryToEdge(this
+                .rowToSummary(row), paginationParams))
+          , paginationParams),
+      error => { throw error }
       )
   }
 
@@ -70,15 +75,21 @@ export class FragranceResolvers {
       }
     }
   }
+
+  private summaryToEdge (summary: FragranceSummary, paginationParams: PaginationParams): FragranceSummaryEdge {
+    const { sortParams } = paginationParams
+    const { column } = sortParams
+
+    const sortValue = column === SortBy.Id ? summary.id : summary.audit[column]
+    const cursor = encodeCursor(sortValue, summary.id)
+
+    return { node: summary, cursor }
+  }
+
+  private toPage (edges: FragranceSummaryEdge[], paginationParams: PaginationParams): Page<FragranceSummary> {
+    const { first, cursor } = paginationParams
+    const page = newPage({ first, cursor, edges })
+
+    return page
+  }
 }
-
-type FragranceSummary = Omit<Fragrance,
-'traits' |
-'notes' |
-'accords' |
-'images' |
-'reviews' |
-'reviewDistribution' |
-'myReview'>
-
-type FragranceSummaryEdge = Omit<FragranceEdge, 'node'> & { node: FragranceSummary }

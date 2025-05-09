@@ -7,7 +7,16 @@ const config: CodegenConfig = {
       config: {
         useIndexSignature: true,
         contextType: '@src/context#ApiContext',
-        defaultMapper: 'Partial<{T}>'
+        defaultMapper: 'Partial<{T}>',
+        scalars: {
+          Date: 'Date'
+        },
+        mappers: {
+          Fragrance: '../schemas/fragrance/mappers#FragranceSummary',
+          FragranceEdge: '../schemas/fragrance/mappers#FragranceSummaryEdge',
+
+          User: '../schemas/user/mappers#UserSummary'
+        }
       },
       plugins: ['typescript', 'typescript-resolvers']
     },

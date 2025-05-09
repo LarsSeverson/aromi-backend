@@ -1,20 +1,20 @@
-import { decodeCursor, parseRawCursorValue } from '@src/common/cursor'
 import { ApiError } from '@src/common/error'
-import { extractPaginationParams, PAGINATION_DIRECTIONS, PAGINATION_OPERATORS } from '@src/common/pagination'
+import { type PaginationParams } from '@src/common/pagination'
 import { type ApiContext } from '@src/context'
-import { type ApiDataSources } from '@src/datasources'
-import { type Fragrance } from '@src/db/schema'
-import { type InputMaybe, type PaginationInput } from '@src/generated/gql-types'
+import { type ApiDataSources } from '@src/datasources/datasources'
+import { type FragranceImage, type Fragrance } from '@src/db/schema'
 import { type Selectable } from 'kysely'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 
 export type FragranceRow = Selectable<Fragrance> & { myVote: number | null }
+export type FragranceImageRow = Selectable<FragranceImage>
 
 export class FragranceService {
   me?: ApiContext['me']
 
   constructor (private readonly sources: ApiDataSources) {}
 
+  // TODO: Explore builder pattern
   withMe (me: ApiContext['me']): this {
     this.me = me
     return this
@@ -37,13 +37,9 @@ export class FragranceService {
           .selectAll('f')
           .select('fv.vote as myVote')
           .where('f.id', '=', id)
-          .executeTakeFirst(),
+          .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
       )
-      .andThen(row => {
-        if (row == null) return errAsync(new ApiError('NOT_FOUND', 'Fragrance not found', 404))
-        return okAsync(row)
-      })
   }
 
   getByIds (ids: number[]): ResultAsync<FragranceRow[], ApiError> {
@@ -92,15 +88,13 @@ export class FragranceService {
       )
   }
 
-  list (input?: InputMaybe<PaginationInput>): ResultAsync<FragranceRow[], ApiError> {
+  list (params: PaginationParams): ResultAsync<FragranceRow[], ApiError> {
     const { db } = this.sources
     const userId = this.me?.id ?? null
 
-    const { first, after, sort } = extractPaginationParams(input)
-    const { rawValue, lastId } = decodeCursor(after ?? '')
-    const cursorValue = parseRawCursorValue(rawValue, sort.by)
-    const { valueOp, idOp } = PAGINATION_OPERATORS[sort.direction]
-    const orderDirection = PAGINATION_DIRECTIONS[sort.direction]
+    const { first, cursor, sortParams } = params
+    const { column, operators, direction } = sortParams
+    const { valueOp, idOp } = operators
 
     return ResultAsync
       .fromPromise(
@@ -114,16 +108,42 @@ export class FragranceService {
           )
           .selectAll('f')
           .select('fv.vote as myVote')
-          .$if(after != null, qb =>
+          .$if(cursor.isValid, qb =>
             qb
-              .where(`f.${sort.by}`, valueOp, cursorValue)
-              .where('f.id', idOp, lastId)
+              .where(`f.${column}`, valueOp, cursor.value)
+              .where('f.id', idOp, cursor.lastId)
           )
-          .orderBy(`f.${sort.by}`, orderDirection)
-          .orderBy('f.id', orderDirection)
+          .orderBy(`f.${column}`, direction)
+          .orderBy('f.id', direction)
           .limit(first + 1)
           .execute(),
         error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getImagesByFragranceIds (fragranceIds: number[], params: PaginationParams): ResultAsync<FragranceImageRow[], ApiError> {
+    const { db } = this.sources
+
+    const { first, cursor, sortParams } = params
+    const { column, operators, direction } = sortParams
+    const { valueOp, idOp } = operators
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragranceImages')
+          .selectAll()
+          .where('fragranceId', 'in', fragranceIds)
+          .$if(cursor.isValid, qb =>
+            qb
+              .where(column, valueOp, cursor.value)
+              .where('id', idOp, cursor.lastId)
+          )
+          .orderBy(column, direction)
+          .orderBy('id', direction)
+          .limit(first + 1)
+          .execute(),
+        error => { throw error }
       )
   }
 }

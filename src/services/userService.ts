@@ -1,5 +1,5 @@
 import { ApiError } from '@src/common/error'
-import { type ApiDataSources } from '@src/datasources'
+import { type ApiDataSources } from '@src/datasources/datasources'
 import { type User } from '@src/db/schema'
 import { type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
@@ -10,6 +10,34 @@ export class UserService {
   constructor (private readonly sources: ApiDataSources) {}
 
   // Reads
+  getById (id: number): ResultAsync<UserRow, ApiError> {
+    const { db } = this.sources
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('users')
+          .selectAll()
+          .where('id', '=', id)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getByCognitoId (cognitoId: string): ResultAsync<UserRow, ApiError> {
+    const { db } = this.sources
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('users')
+          .selectAll()
+          .where('cognitoId', '=', cognitoId)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
   getByIds (ids: number[]): ResultAsync<UserRow[], ApiError> {
     const { db } = this.sources
 

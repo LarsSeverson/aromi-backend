@@ -1,4 +1,4 @@
-import { type ApiDataSources } from '@src/datasources'
+import { type ApiDataSources } from '@src/datasources/datasources'
 import { AuthService } from './authService'
 import { UserService } from './userService'
 import { FragranceService } from './fragranceService'

@@ -2,7 +2,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from './error'
-import { type ApiDataSources } from '@src/datasources'
+import { type ApiDataSources } from '@src/datasources/datasources'
 
 const generateSignedUrl = (
   s3: ApiDataSources['s3'],

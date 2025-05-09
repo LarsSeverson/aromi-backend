@@ -1,6 +1,6 @@
 import { ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError } from '@src/common/error'
-import { type ApiDataSources } from '@src/datasources'
+import { type ApiDataSources } from '@src/datasources/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
 export interface AuthTokens {

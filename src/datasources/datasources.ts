@@ -1,13 +1,13 @@
 import { S3Client } from '@aws-sdk/client-s3'
 import { JwksClient } from 'jwks-rsa'
 import { err, ok, type Result } from 'neverthrow'
-import { ApiError } from './common/error'
-import { requiredEnv } from './common/env-util'
+import { ApiError } from '../common/error'
+import { requiredEnv } from '../common/env-util'
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
 import { type Kysely } from 'kysely'
-import { type DB } from './db/schema'
-import { createPool } from './db/pool'
-import { createDB } from './db'
+import { type DB } from '../db/schema'
+import { createPool } from '../db/pool'
+import { createDB } from '../db'
 
 export interface S3DataSource {
   client: S3Client

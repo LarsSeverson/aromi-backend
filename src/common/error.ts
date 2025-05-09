@@ -24,7 +24,7 @@ export class ApiError extends GraphQLError {
   }
 
   static fromDatabase (error: Error): ApiError {
-    return new ApiError('DB_QUERY_FAILED', error.message, 500, error)
+    return new ApiError('DB_QUERY_FAILED', 'Something went wrong getting this resource. Please try again later', 500, error)
   }
 
   serialize (): GraphQLFormattedError {
@@ -42,10 +42,12 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
 
   if (extensions?.code != null && extensions?.status != null) return formattedError
   if (extensions?.code === ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED) {
-    return new ApiError('GRAPHQL_VALIDATION_FAILED', 'Invalid query', 400).serialize()
+    return new ApiError('GRAPHQL_VALIDATION_FAILED', 'Invalid query', 400, error)
+      .serialize()
   }
 
-  return new ApiError('INTERNAL_ERROR', 'Something went wrong on our end. Please try again later', 500).serialize()
+  return new ApiError('INTERNAL_ERROR', 'Something went wrong on our end. Please try again later', 500, error)
+    .serialize()
 }
 
 export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {

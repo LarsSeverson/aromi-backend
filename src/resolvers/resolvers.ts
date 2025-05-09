@@ -2,12 +2,13 @@ import { type QueryResolvers, type Resolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
 import { FragranceResolvers } from './fragranceResolvers'
 
-export class ApiResolvers implements Resolvers {
-  private readonly fragranceResolvers = new FragranceResolvers()
+const fragranceResolvers = new FragranceResolvers()
 
+export class ApiResolvers implements Resolvers {
   Date = GraphQLDateTime
 
   Query: QueryResolvers = {
-    fragrance: this.fragranceResolvers.fragrance
+    fragrance: fragranceResolvers.fragrance,
+    fragrances: fragranceResolvers.fragrances
   }
 }

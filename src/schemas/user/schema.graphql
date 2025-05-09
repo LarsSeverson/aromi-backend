@@ -3,8 +3,8 @@ type User {
   username: String!
   email: String!
 
-  followers: Int!
-  following: Int!
+  followerCount: Int!
+  followingCount: Int!
 
   collections(input: PaginationInput): UserCollectionConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
