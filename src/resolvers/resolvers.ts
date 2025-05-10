@@ -14,7 +14,9 @@ export class ApiResolvers implements Resolvers {
 
   // Field resolvers
   Fragrance: FragranceFieldResolvers = {
+    traits: fragranceResolvers.fragranceTraits,
     images: fragranceResolvers.fragranceImages,
+    accords: fragranceResolvers.fragranceAccords,
     reviews: fragranceResolvers.fragranceReviews,
     reviewDistribution: fragranceResolvers.fragranceReviewDistribution
   }

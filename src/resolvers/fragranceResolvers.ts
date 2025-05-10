@@ -2,9 +2,10 @@ import { encodeCursor } from '@src/common/cursor'
 import { ApiError } from '@src/common/error'
 import { mergeAllSignedSrcs } from '@src/common/images'
 import { extractPaginationParams, newPage, type Page, type PaginationParams } from '@src/common/pagination'
-import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, SortBy, type FragranceImage, type FragranceImageEdge, type FragranceReviewDistribution } from '@src/generated/gql-types'
+import { type FragranceTraitEnum } from '@src/db/schema'
+import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, SortBy, type FragranceImage, type FragranceImageEdge, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type FragranceAccordEdge } from '@src/generated/gql-types'
 import { type FragranceReviewSummaryEdge, type FragranceReviewSummary, type FragranceSummary, type FragranceSummaryEdge } from '@src/schemas/fragrance/mappers'
-import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceReviewRow } from '@src/services/fragranceService'
+import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceReviewRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
 
 export class FragranceResolvers {
@@ -38,6 +39,25 @@ export class FragranceResolvers {
       )
   }
 
+  fragranceTraits: FragranceFieldResolvers['traits'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { loaders, me } = context
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .withMe(me)
+          .traits
+          .load({ fragranceId: id }),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .match(
+        rows => this.mapFragranceTraitRowsToFragranceTraits(rows),
+        error => { throw error }
+      )
+  }
+
   fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
@@ -65,10 +85,34 @@ export class FragranceResolvers {
       )
   }
 
+  fragranceAccords: FragranceFieldResolvers['accords'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { input } = args
+    const { me, loaders } = context
+    const { pagination: paginationInput } = input ?? {}
+
+    const paginationParams = extractPaginationParams(paginationInput)
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .withMe(me)
+          .withPagination(paginationParams)
+          .accords
+          .load({ fragranceId: id }),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .match(
+        rows => this.mapFragranceAccordRowsToPage(rows, paginationParams),
+        error => { throw error }
+      )
+  }
+
   fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
-    const { loaders } = context
+    const { loaders, me } = context
 
     const paginationParams = extractPaginationParams(input)
 
@@ -76,6 +120,7 @@ export class FragranceResolvers {
       .fromPromise(
         loaders
           .fragrance
+          .withMe(me)
           .withPagination(paginationParams)
           .reviews
           .load({ fragranceId: id }),
@@ -123,6 +168,15 @@ export class FragranceResolvers {
     return page
   }
 
+  private mapFragranceAccordRowsToPage (rows: FragranceAccordRow[], paginationParams: PaginationParams): Page<FragranceAccord> {
+    const { first, cursor } = paginationParams
+
+    const edges = rows.map(row => this.mapFragranceAccordToEdge(this.mapFragranceAccordRowToFragranceAccord(row), paginationParams))
+    const page = newPage({ first, cursor, edges })
+
+    return page
+  }
+
   private mapFragranceReviewRowsToPage (rows: FragranceReviewRow[], paginationParams: PaginationParams): Page<FragranceReviewSummary> {
     const { first, cursor } = paginationParams
 
@@ -130,6 +184,46 @@ export class FragranceResolvers {
     const page = newPage({ first, cursor, edges })
 
     return page
+  }
+
+  private mapFragranceSummaryToEdge (summary: FragranceSummary, paginationParams: PaginationParams): FragranceSummaryEdge {
+    const { sortParams } = paginationParams
+    const { column } = sortParams
+
+    const sortValue = column === SortBy.Id ? summary.id : summary.audit[column]
+    const cursor = encodeCursor(sortValue, summary.id)
+
+    return { node: summary, cursor }
+  }
+
+  private mapFragranceImageToEdge (image: FragranceImage, paginationParams: PaginationParams): FragranceImageEdge {
+    const { sortParams } = paginationParams
+    const { column } = sortParams
+
+    const sortValue = column === SortBy.Id ? image.id : image.audit[column]
+    const cursor = encodeCursor(sortValue, image.id)
+
+    return { node: image, cursor }
+  }
+
+  private mapFragranceAccordToEdge (accord: FragranceAccord, paginationParams: PaginationParams): FragranceAccordEdge {
+    const { sortParams } = paginationParams
+    const { column } = sortParams
+
+    const sortValue = column === SortBy.Id ? accord.id : accord.audit[column]
+    const cursor = encodeCursor(sortValue, accord.id)
+
+    return { node: accord, cursor }
+  }
+
+  private mapFragranceReviewSummaryToEdge (review: FragranceReviewSummary, paginationParams: PaginationParams): FragranceReviewSummaryEdge {
+    const { sortParams } = paginationParams
+    const { column } = sortParams
+
+    const sortValue = column === SortBy.Id ? review.id : review.audit[column]
+    const cursor = encodeCursor(sortValue, review.id)
+
+    return { node: review, cursor }
   }
 
   private mapFragranceRowToFragranceSummary (row: FragranceRow): FragranceSummary {
@@ -155,6 +249,34 @@ export class FragranceResolvers {
         dislikesCount,
         myVote: myVote === 1 ? true : myVote === -1 ? false : null
       },
+
+      audit: {
+        createdAt,
+        updatedAt,
+        deletedAt
+      }
+    }
+  }
+
+  private mapFragranceTraitRowsToFragranceTraits (rows: FragranceTraitRow[]): FragranceTrait[] {
+    return rows.map(({ trait, value, myVote }) => ({ type: FRAGRANCE_TRAIT_TO_TYPE[trait], value, myVote }))
+  }
+
+  private mapFragranceAccordRowToFragranceAccord (row: FragranceAccordRow): FragranceAccord {
+    const {
+      id, accordId,
+      name, color,
+      votes, myVote,
+      createdAt, updatedAt, deletedAt
+    } = row
+
+    return {
+      id,
+      accordId,
+      name,
+      color,
+      votes,
+      myVote: myVote != null,
 
       audit: {
         createdAt,
@@ -225,34 +347,13 @@ export class FragranceResolvers {
         return acc
       }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
   }
-
-  private mapFragranceSummaryToEdge (summary: FragranceSummary, paginationParams: PaginationParams): FragranceSummaryEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? summary.id : summary.audit[column]
-    const cursor = encodeCursor(sortValue, summary.id)
-
-    return { node: summary, cursor }
-  }
-
-  private mapFragranceImageToEdge (image: FragranceImage, paginationParams: PaginationParams): FragranceImageEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? image.id : image.audit[column]
-    const cursor = encodeCursor(sortValue, image.id)
-
-    return { node: image, cursor }
-  }
-
-  private mapFragranceReviewSummaryToEdge (review: FragranceReviewSummary, paginationParams: PaginationParams): FragranceReviewSummaryEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? review.id : review.audit[column]
-    const cursor = encodeCursor(sortValue, review.id)
-
-    return { node: review, cursor }
-  }
 }
+
+export const FRAGRANCE_TRAIT_TO_TYPE: Record<FragranceTraitEnum, FragranceTraitType> = {
+  allure: FragranceTraitType.Allure,
+  sillage: FragranceTraitType.Sillage,
+  balance: FragranceTraitType.Balance,
+  longevity: FragranceTraitType.Longevity,
+  gender: FragranceTraitType.Gender,
+  complexity: FragranceTraitType.Complexity
+} as const

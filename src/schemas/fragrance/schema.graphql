@@ -22,7 +22,7 @@ type Fragrance {
 type FragranceTrait {
   type: FragranceTraitType!
   value: Float!
-  myVote: Boolean
+  myVote: Float
 }
 
 type FragranceImage {
@@ -54,6 +54,7 @@ type FragranceAccord {
   color: String!
   votes: Int!
   myVote: Boolean
+  audit: Audit!
 }
 
 type FragranceReview {

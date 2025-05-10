@@ -2,7 +2,7 @@ import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type FragranceImage, type Fragrance, type FragranceReview } from '@src/db/schema'
+import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord } from '@src/db/schema'
 import { type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 
@@ -10,6 +10,14 @@ export type FragranceRow = Selectable<Fragrance> & { myVote: number | null }
 export type FragranceImageRow = Selectable<FragranceImage>
 export type FragranceReviewRow = Selectable<FragranceReview> & { myVote: number | null }
 export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
+export type FragranceTraitRow = Selectable<FragranceTrait> & { myVote: number | null }
+
+export interface FragranceAccordRow extends Selectable<FragranceAccord> {
+  accordId: number
+  myVote: number | null
+  name: string
+  color: string
+}
 
 export interface GetFragranceImagesParams {
   fragranceIds: number[]
@@ -23,6 +31,16 @@ export interface GetReviewDistributionsParams {
 export interface GetFragranceReviewsParams {
   fragranceIds: number[]
   paginationParams: PaginationParams
+}
+
+export interface GetFragranceTraitsParams {
+  fragranceIds: number[]
+}
+
+export interface GetFragranceAccordsParams {
+  fragranceIds: number[]
+  paginationParams: PaginationParams
+  fill?: boolean
 }
 
 export class FragranceService {
@@ -140,6 +158,52 @@ export class FragranceService {
       )
   }
 
+  getAccords (params: GetFragranceAccordsParams): ResultAsync<FragranceAccordRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
+    const { fragranceIds, paginationParams } = params
+
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operators, direction } = sortParams
+    const { valueOp, idOp } = operators
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragrances as f')
+          .crossJoinLateral(
+            (eb) => eb
+              .selectFrom('fragranceAccords as fa')
+              .whereRef('fa.fragranceId', '=', 'f.id')
+              .leftJoin('fragranceAccordVotes as av', (join) =>
+                join
+                  .onRef('av.fragranceAccordId', '=', 'fa.id')
+                  .on('av.userId', '=', userId)
+              )
+              .innerJoin('accords as a', (join) =>
+                join
+                  .onRef('a.id', '=', 'fa.accordId')
+              )
+              .selectAll('fa')
+              .select('av.id as myVote')
+              .select(['a.id as accordId', 'a.name', 'a.color'])
+              .$if(cursor.isValid, qb =>
+                qb
+                  .where(`fa.${column}`, valueOp, cursor.value)
+                  .where('fa.id', idOp, cursor.lastId)
+              )
+              .orderBy(`fa.${column}`, direction)
+              .orderBy('fa.id', direction)
+              .limit(first + 1)
+              .as('fa_page')
+          )
+          .selectAll('fa_page')
+          .where('f.id', 'in', fragranceIds)
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
   getReviews (params: GetFragranceReviewsParams): ResultAsync<FragranceReviewRow[], ApiError> {
     const { db } = this.sources
     const userId = this.me?.id ?? null
@@ -193,6 +257,29 @@ export class FragranceService {
           ])
           .where('fragranceId', 'in', fragranceIds)
           .groupBy(['fragranceId', 'rating'])
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getTraits (params: GetFragranceTraitsParams): ResultAsync<FragranceTraitRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
+    const { fragranceIds } = params
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragranceTraits as ft')
+          .leftJoin('fragranceTraitVotes as tv', (join) =>
+            join
+              .onRef('tv.fragranceTraitId', '=', 'ft.id')
+              .on('tv.userId', '=', userId)
+              .on('tv.deletedAt', 'is', null)
+          )
+          .selectAll('ft')
+          .select('tv.value as myVote')
+          .where('ft.fragranceId', 'in', fragranceIds)
           .execute(),
         error => ApiError.fromDatabase(error as Error)
       )

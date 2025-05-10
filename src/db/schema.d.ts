@@ -5,7 +5,7 @@
 
 import type { ColumnType } from "kysely";
 
-export type FragranceTrait = "allure" | "balance" | "complexity" | "gender" | "longevity" | "sillage";
+export type FragranceTraitEnum = "allure" | "balance" | "complexity" | "gender" | "longevity" | "sillage";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
@@ -14,8 +14,6 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 export type ImageFormat = "jpg" | "png";
 
 export type NoteLayer = "base" | "fill" | "middle" | "top";
-
-export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
@@ -39,11 +37,11 @@ export interface CollectionFragrance {
 
 export interface FragranceAccord {
   accordId: number;
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
   votes: Generated<number>;
 }
 
@@ -134,13 +132,13 @@ export interface Fragrance {
 }
 
 export interface FragranceTrait {
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
-  trait: FragranceTrait;
-  updatedAt: Timestamp | null;
-  value: Generated<Numeric | null>;
+  trait: FragranceTraitEnum;
+  updatedAt: Timestamp;
+  value: Generated<number>;
 }
 
 export interface FragranceTraitVote {
@@ -150,7 +148,7 @@ export interface FragranceTraitVote {
   id: Generated<number>;
   updatedAt: Generated<Timestamp>;
   userId: number;
-  value: Numeric;
+  value: number;
 }
 
 export interface FragranceVote {

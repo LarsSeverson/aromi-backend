@@ -1,24 +1,41 @@
 import { extractPaginationParams, type PaginationParams } from '@src/common/pagination'
-import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceService, type FragranceReviewRow } from '@src/services/fragranceService'
+import { type ApiContext } from '@src/context'
+import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceService, type FragranceReviewRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import DataLoader from 'dataloader'
 
-export interface FragranceKey { fragranceId: number }
+export interface FragranceLoaderKey { fragranceId: number }
 
 export interface FragranceLoadersCache {
-  images: DataLoader<FragranceKey, FragranceImageRow[]>
-  reviews: DataLoader<FragranceKey, FragranceReviewRow[]>
-  reviewDistributions: DataLoader<FragranceKey, FragranceReviewDistRow[]>
+  traits: DataLoader<FragranceLoaderKey, FragranceTraitRow[]>
+  images: DataLoader<FragranceLoaderKey, FragranceImageRow[]>
+  accords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
+  reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
+  reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
 }
 
 export class FragranceLoaders implements FragranceLoadersCache {
   private readonly cache: Partial<FragranceLoadersCache> = {}
   private paginationParams: PaginationParams = extractPaginationParams()
+  private me?: ApiContext['me']
 
   constructor (private readonly fragranceService: FragranceService) {}
+
+  withMe (me: ApiContext['me']): this {
+    this.me = me
+    return this
+  }
 
   withPagination (paginationParams: PaginationParams): this {
     this.paginationParams = paginationParams
     return this
+  }
+
+  get traits (): FragranceLoadersCache['traits'] {
+    if (this.cache.traits == null) {
+      this.cache.traits = this.createTraitsLoader()
+    }
+
+    return this.cache.traits
   }
 
   get images (): FragranceLoadersCache['images'] {
@@ -29,9 +46,17 @@ export class FragranceLoaders implements FragranceLoadersCache {
     return this.cache.images
   }
 
+  get accords (): FragranceLoadersCache['accords'] {
+    if (this.cache.accords == null) {
+      this.cache.accords = this.createAccordsLoader()
+    }
+
+    return this.cache.accords
+  }
+
   get reviews (): FragranceLoadersCache['reviews'] {
     if (this.cache.reviews == null) {
-      this.cache.reviews = this.createReviewsLoaders()
+      this.cache.reviews = this.createReviewsLoader()
     }
 
     return this.cache.reviews
@@ -45,10 +70,30 @@ export class FragranceLoaders implements FragranceLoadersCache {
     return this.cache.reviewDistributions
   }
 
+  private createTraitsLoader (): FragranceLoadersCache['traits'] {
+    const me = this.me
+
+    return new DataLoader<FragranceLoaderKey, FragranceTraitRow[]>(async (keys) => {
+      const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
+
+      return await this
+        .fragranceService
+        .withMe(me)
+        .getTraits({ fragranceIds })
+        .match(
+          rows => {
+            const traitsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => traitsMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
   private createImagesLoader (): FragranceLoadersCache['images'] {
     const paginationParams = this.paginationParams
 
-    return new DataLoader<FragranceKey, FragranceImageRow[]>(async (keys) => {
+    return new DataLoader<FragranceLoaderKey, FragranceImageRow[]>(async (keys) => {
       const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
 
       return await this
@@ -64,14 +109,35 @@ export class FragranceLoaders implements FragranceLoadersCache {
     })
   }
 
-  private createReviewsLoaders (): FragranceLoadersCache['reviews'] {
-    const paginationParams = this.paginationParams
+  private createAccordsLoader (): FragranceLoadersCache['accords'] {
+    const { me, paginationParams } = this
 
-    return new DataLoader<FragranceKey, FragranceReviewRow[]>(async (keys) => {
+    return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
       const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
 
       return await this
         .fragranceService
+        .withMe(me)
+        .getAccords({ fragranceIds, paginationParams })
+        .match(
+          rows => {
+            const accordsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => accordsMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
+  private createReviewsLoader (): FragranceLoadersCache['reviews'] {
+    const { me, paginationParams } = this
+
+    return new DataLoader<FragranceLoaderKey, FragranceReviewRow[]>(async (keys) => {
+      const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
+
+      return await this
+        .fragranceService
+        .withMe(me)
         .getReviews({ fragranceIds, paginationParams })
         .match(
           rows => {
@@ -84,7 +150,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
   }
 
   private createReviewDistributionsLoader (): FragranceLoadersCache['reviewDistributions'] {
-    return new DataLoader<FragranceKey, FragranceReviewDistRow[]>(async (keys) => {
+    return new DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>(async (keys) => {
       const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
 
       return await this

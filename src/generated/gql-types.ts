@@ -87,6 +87,7 @@ export type FragranceReviewsArgs = {
 export type FragranceAccord = {
   __typename?: 'FragranceAccord';
   accordId: Scalars['Int']['output'];
+  audit: Audit;
   color: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   myVote?: Maybe<Scalars['Boolean']['output']>;
@@ -215,7 +216,7 @@ export type FragranceReviewEdge = {
 
 export type FragranceTrait = {
   __typename?: 'FragranceTrait';
-  myVote?: Maybe<Scalars['Boolean']['output']>;
+  myVote?: Maybe<Scalars['Float']['output']>;
   type: FragranceTraitType;
   value: Scalars['Float']['output'];
 };
@@ -645,6 +646,7 @@ export type FragranceResolvers<ContextType = ApiContext, ParentType extends Reso
 
 export type FragranceAccordResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceAccord'] = ResolversParentTypes['FragranceAccord']> = ResolversObject<{
   accordId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -758,7 +760,7 @@ export type FragranceReviewEdgeResolvers<ContextType = ApiContext, ParentType ex
 }>;
 
 export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
-  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  myVote?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
