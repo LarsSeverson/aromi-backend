@@ -49,6 +49,7 @@ type FragranceAccord {
   audit: Audit!
   color: String!
   id: Int!
+  isFill: Boolean!
   myVote: Boolean
   name: String!
   votes: Int!

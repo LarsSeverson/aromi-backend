@@ -90,6 +90,7 @@ export type FragranceAccord = {
   audit: Audit;
   color: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  isFill: Scalars['Boolean']['output'];
   myVote?: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
   votes: Scalars['Int']['output'];
@@ -649,6 +650,7 @@ export type FragranceAccordResolvers<ContextType = ApiContext, ParentType extend
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isFill?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

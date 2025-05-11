@@ -55,6 +55,7 @@ type FragranceAccord {
   votes: Int!
   myVote: Boolean
   audit: Audit!
+  isFill: Boolean!
 }
 
 type FragranceReview {

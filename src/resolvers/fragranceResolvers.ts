@@ -89,7 +89,7 @@ export class FragranceResolvers {
     const { id } = parent
     const { input } = args
     const { me, loaders } = context
-    const { pagination: paginationInput } = input ?? {}
+    const { pagination: paginationInput, fill } = input ?? {}
 
     const paginationParams = extractPaginationParams(paginationInput)
 
@@ -99,6 +99,7 @@ export class FragranceResolvers {
           .fragrance
           .withMe(me)
           .withPagination(paginationParams)
+          .withFill(fill?.valueOf())
           .accords
           .load({ fragranceId: id }),
         error => ApiError.fromDatabase(error as Error)
@@ -267,7 +268,8 @@ export class FragranceResolvers {
       id, accordId,
       name, color,
       votes, myVote,
-      createdAt, updatedAt, deletedAt
+      createdAt, updatedAt, deletedAt,
+      isFill
     } = row
 
     return {
@@ -282,7 +284,9 @@ export class FragranceResolvers {
         createdAt,
         updatedAt,
         deletedAt
-      }
+      },
+
+      isFill: isFill ?? false
     }
   }
 

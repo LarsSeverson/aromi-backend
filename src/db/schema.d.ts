@@ -19,11 +19,11 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export interface Accord {
   color: Generated<string>;
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   id: Generated<number>;
   name: string;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
 }
 
 export interface CollectionFragrance {

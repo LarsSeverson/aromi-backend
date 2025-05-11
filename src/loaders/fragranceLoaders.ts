@@ -17,6 +17,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
   private readonly cache: Partial<FragranceLoadersCache> = {}
   private paginationParams: PaginationParams = extractPaginationParams()
   private me?: ApiContext['me']
+  private fill?: boolean
 
   constructor (private readonly fragranceService: FragranceService) {}
 
@@ -27,6 +28,11 @@ export class FragranceLoaders implements FragranceLoadersCache {
 
   withPagination (paginationParams: PaginationParams): this {
     this.paginationParams = paginationParams
+    return this
+  }
+
+  withFill (fill?: boolean): this {
+    this.fill = fill
     return this
   }
 
@@ -79,7 +85,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
       return await this
         .fragranceService
         .withMe(me)
-        .getTraits({ fragranceIds })
+        .getTraitsOnMultiple({ fragranceIds })
         .match(
           rows => {
             const traitsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
@@ -98,7 +104,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
 
       return await this
         .fragranceService
-        .getImages({ fragranceIds, paginationParams })
+        .getImagesOnMultiple({ fragranceIds, paginationParams })
         .match(
           rows => {
             const imagesMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
@@ -110,7 +116,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
   }
 
   private createAccordsLoader (): FragranceLoadersCache['accords'] {
-    const { me, paginationParams } = this
+    const { me, paginationParams, fill } = this
 
     return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
       const fragranceIds = keys.map(({ fragranceId }) => fragranceId)
@@ -118,7 +124,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
       return await this
         .fragranceService
         .withMe(me)
-        .getAccords({ fragranceIds, paginationParams })
+        .getAccords({ fragranceIds, paginationParams, fill })
         .match(
           rows => {
             const accordsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
@@ -138,7 +144,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
       return await this
         .fragranceService
         .withMe(me)
-        .getReviews({ fragranceIds, paginationParams })
+        .getReviewsOnMultiple({ fragranceIds, paginationParams })
         .match(
           rows => {
             const reviewsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
@@ -155,7 +161,7 @@ export class FragranceLoaders implements FragranceLoadersCache {
 
       return await this
         .fragranceService
-        .getReviewDistributions({ fragranceIds })
+        .getReviewDistributionsOnMultiple({ fragranceIds })
         .match(
           rows => {
             const distMap = new Map(

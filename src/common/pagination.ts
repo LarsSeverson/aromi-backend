@@ -8,11 +8,11 @@ const DEFAULT_DIRECTION = SortDirection.Descending
 const DEFAULT_SORT_BY = SortBy.UpdatedAt
 
 export const PAGINATION_OPERATORS = {
-  [SortDirection.Ascending]: { valueOp: '>=', idOp: '>' },
-  [SortDirection.Descending]: { valueOp: '<=', idOp: '<' }
+  [SortDirection.Ascending]: '>',
+  [SortDirection.Descending]: '<'
 } as const
 
-export type PaginationOperators = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
+export type PaginationOperator = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
 
 export const PAGINATION_DIRECTIONS = {
   [SortDirection.Ascending]: 'asc',
@@ -23,7 +23,7 @@ export type PaginationDirection = typeof PAGINATION_DIRECTIONS[keyof typeof PAGI
 
 export interface SortParams {
   column: SortBy
-  operators: PaginationOperators
+  operator: PaginationOperator
   direction: PaginationDirection
 }
 
@@ -45,7 +45,7 @@ export const extractPaginationParams = (input?: InputMaybe<PaginationInput>): Pa
     cursor,
     sortParams: {
       column,
-      operators,
+      operator: operators,
       direction
     }
   }
