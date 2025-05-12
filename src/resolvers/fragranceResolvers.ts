@@ -10,11 +10,10 @@ import { ResultAsync } from 'neverthrow'
 export class FragranceResolvers {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
     const { id } = args
-    const { services, me } = context
+    const { services } = context
 
     return await services
       .fragrance
-      .withMe(me)
       .getById(id)
       .match(
         row => this.mapFragranceRowToFragranceSummary(row),
@@ -24,13 +23,12 @@ export class FragranceResolvers {
 
   fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
     const { input } = args
-    const { services, me } = context
+    const { services } = context
 
     const paginationParams = extractPaginationParams(input)
 
     return await services
       .fragrance
-      .withMe(me)
       .list(paginationParams)
       .match(
         rows => this.mapFragranceRowsToPage(rows, paginationParams),
@@ -40,14 +38,13 @@ export class FragranceResolvers {
 
   fragranceTraits: FragranceFieldResolvers['traits'] = async (parent, args, context, info) => {
     const { id } = parent
-    const { loaders, me } = context
+    const { loaders } = context
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .withMe(me)
-          .traits
+          .getTraitsLoader()
           .load({ fragranceId: id }),
         error => error
       )
@@ -68,8 +65,7 @@ export class FragranceResolvers {
       .fromPromise(
         loaders
           .fragrance
-          .withPagination(paginationParams)
-          .images
+          .getImagesLoader({ paginationParams })
           .load({ fragranceId: id }),
         error => error
       )
@@ -87,7 +83,7 @@ export class FragranceResolvers {
   fragranceAccords: FragranceFieldResolvers['accords'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
-    const { me, loaders } = context
+    const { loaders } = context
 
     const { pagination: paginationInput, fill } = input ?? {}
     const paginationParams = extractPaginationParams(paginationInput)
@@ -96,10 +92,7 @@ export class FragranceResolvers {
       .fromPromise(
         loaders
           .fragrance
-          .withMe(me)
-          .withPagination(paginationParams)
-          .withFill(fill?.valueOf())
-          .accords
+          .getAccordsLoader({ paginationParams, fill: fill?.valueOf() })
           .load({ fragranceId: id }),
         error => error
       )
@@ -114,7 +107,7 @@ export class FragranceResolvers {
   fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
-    const { loaders, me } = context
+    const { loaders } = context
 
     const paginationParams = extractPaginationParams(input)
 
@@ -122,9 +115,7 @@ export class FragranceResolvers {
       .fromPromise(
         loaders
           .fragrance
-          .withMe(me)
-          .withPagination(paginationParams)
-          .reviews
+          .getReviewsLoader({ paginationParams })
           .load({ fragranceId: id }),
         error => error
       )
@@ -142,7 +133,7 @@ export class FragranceResolvers {
       .fromPromise(
         loaders
           .fragrance
-          .reviewDistributions
+          .getReviewDistributionsLoader()
           .load({ fragranceId: id }),
         error => error
       )
@@ -321,7 +312,7 @@ export class FragranceResolvers {
     return {
       id,
       rating,
-      review: reviewText,
+      text: reviewText,
       votes: {
         score: voteScore,
         likesCount,

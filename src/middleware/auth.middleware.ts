@@ -78,6 +78,6 @@ export const authenticateMe = async (context: ApiContext): Promise<UserSummary |
   if (cognitoId == null) return undefined
 
   return await user
-    .getByCognitoId(cognitoId)
+    .find({ cognitoId })
     .unwrapOr(undefined)
 }

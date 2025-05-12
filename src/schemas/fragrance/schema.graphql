@@ -63,7 +63,7 @@ type FragranceAccord {
 type FragranceReview {
   id: Int!
   rating: Int!
-  review: String!
+  text: String!
   votes: VoteSummary!
   user: User!
   audit: Audit!

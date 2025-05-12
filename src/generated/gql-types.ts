@@ -191,7 +191,7 @@ export type FragranceReview = {
   audit: Audit;
   id: Scalars['Int']['output'];
   rating: Scalars['Int']['output'];
-  review: Scalars['String']['output'];
+  text: Scalars['String']['output'];
   user: User;
   votes: VoteSummary;
 };
@@ -737,7 +737,7 @@ export type FragranceReviewResolvers<ContextType = ApiContext, ParentType extend
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  review?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

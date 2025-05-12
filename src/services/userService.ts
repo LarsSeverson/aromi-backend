@@ -1,90 +1,89 @@
 import { ApiError } from '@src/common/error'
-import { type ApiDataSources } from '@src/datasources/datasources'
-import { type User } from '@src/db/schema'
+import { type UserCollection, type User } from '@src/db/schema'
 import { type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
+import { ApiService, type ServiceFindCriteria } from './apiService'
+import { type PaginationParams } from '@src/common/pagination'
 
 export type UserRow = Selectable<User>
+export type UserCollectionRow = Selectable<UserCollection>
 
-export class UserService {
-  constructor (private readonly sources: ApiDataSources) {}
+export interface GetUserCollectionsParams {
+  userId: number
+  paginationParams: PaginationParams
+}
 
-  // Reads
-  getById (id: number): ResultAsync<UserRow, ApiError> {
-    const { db } = this.sources
+export interface GetMyCollectionsParams extends Omit<GetUserCollectionsParams, 'userId'> {}
 
-    return ResultAsync
-      .fromPromise(
+export class UserService extends ApiService<'users'> {
+  find (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow, ApiError> {
+    const { db } = this
+
+    const query = this
+      .entries(criteria)
+      .reduce(
+        (qb, [column, value]) =>
+          qb.where(column, '=', value),
         db
           .selectFrom('users')
           .selectAll()
-          .where('id', '=', id)
-          .executeTakeFirstOrThrow(),
+      )
+
+    return ResultAsync
+      .fromPromise(
+        query.executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
       )
   }
 
-  getByCognitoId (cognitoId: string): ResultAsync<UserRow, ApiError> {
-    const { db } = this.sources
+  findAll (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow[], ApiError> {
+    const { db } = this
 
-    return ResultAsync
-      .fromPromise(
+    const query = this
+      .entries(criteria)
+      .reduce(
+        (qb, [column, value]) =>
+          qb.where(column, '=', value),
         db
           .selectFrom('users')
           .selectAll()
-          .where('cognitoId', '=', cognitoId)
-          .executeTakeFirstOrThrow(),
+      )
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
         error => ApiError.fromDatabase(error as Error)
       )
   }
 
-  getByIds (ids: number[]): ResultAsync<UserRow[], ApiError> {
-    const { db } = this.sources
+  list (params: PaginationParams): ResultAsync<UserRow[], ApiError> {
+    const { db } = this
+
+    const { first, cursor, sortParams } = params
+    const { column, operator, direction } = sortParams
 
     return ResultAsync
       .fromPromise(
         db
-          .selectFrom('users')
-          .selectAll()
-          .where('id', 'in', ids)
-          .execute(),
-        error => ApiError.fromDatabase(error as Error)
-      )
-  }
-
-  getByReviewIds (ids: number[]): ResultAsync<Array<UserRow & { reviewId: number }>, ApiError> {
-    const { db } = this.sources
-
-    return ResultAsync
-      .fromPromise(
-        db
-          .selectFrom('fragranceReviews as fr')
-          .innerJoin('users as u', 'u.id', 'fr.userId')
+          .selectFrom('users as u')
           .selectAll('u')
-          .select('fr.id as reviewId')
-          .where('fr.id', 'in', ids)
+          .$if(cursor.isValid, qb =>
+            qb
+              .where(({ eb, or, and }) =>
+                or([
+                  eb(`u.${column}`, operator, cursor.value),
+                  and([
+                    eb(`u.${column}`, '=', cursor.value),
+                    eb('u.id', operator, cursor.lastId)
+                  ])
+                ])
+              )
+          )
+          .orderBy(`u.${column}`, direction)
+          .orderBy('u.id', direction)
+          .limit(first + 1)
           .execute(),
         error => ApiError.fromDatabase(error as Error)
       )
   }
-
-  getByCollectionIds (ids: number[]): ResultAsync<Array<UserRow & { collectionId: number }>, ApiError> {
-    const { db } = this.sources
-
-    return ResultAsync
-      .fromPromise(
-        db
-          .selectFrom('fragranceCollections as fc')
-          .innerJoin('users as u', 'u.id', 'fc.userId')
-          .selectAll('u')
-          .select('fc.id as collectionId')
-          .where('fc.id', 'in', ids)
-          .execute(),
-        error => ApiError.fromDatabase(error as Error)
-      )
-  }
-
-  // Writes
-
-  // Private
 }

@@ -1,20 +1,14 @@
-import { FragranceLoaders } from './fragranceLoaders'
+import { FragranceLoaderFactory } from './fragranceLoaderFactory'
 import { type ApiServices } from '@src/services/services'
 
 export interface ApiLoadersCache {
-  fragrance: FragranceLoaders
+  fragrance: FragranceLoaderFactory
 }
 
 export class ApiLoaders implements ApiLoadersCache {
-  fragrance: FragranceLoaders
+  fragrance: FragranceLoaderFactory
 
   constructor (services: ApiServices) {
-    this.fragrance = new FragranceLoaders(services.fragrance)
-  }
-}
-
-export class ApiLoader {
-  generateKey (...params: unknown[]): string {
-    return params.map(p => JSON.stringify(p)).sort().join(':')
+    this.fragrance = new FragranceLoaderFactory(services.fragrance)
   }
 }

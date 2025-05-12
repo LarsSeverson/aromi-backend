@@ -54,15 +54,6 @@ export interface FragranceAccordVote {
   userId: number;
 }
 
-export interface FragranceCollection {
-  createdAt: Generated<Timestamp | null>;
-  deletedAt: Timestamp | null;
-  id: Generated<number>;
-  name: string;
-  updatedAt: Generated<Timestamp | null>;
-  userId: number | null;
-}
-
 export interface FragranceImage {
   createdAt: Timestamp;
   deletedAt: Timestamp | null;
@@ -170,6 +161,15 @@ export interface Note {
   updatedAt: Timestamp;
 }
 
+export interface UserCollection {
+  createdAt: Generated<Timestamp | null>;
+  deletedAt: Timestamp | null;
+  id: Generated<number>;
+  name: string;
+  updatedAt: Generated<Timestamp | null>;
+  userId: number | null;
+}
+
 export interface User {
   cognitoId: string | null;
   createdAt: Timestamp | null;
@@ -187,7 +187,6 @@ export interface DB {
   collectionFragrances: CollectionFragrance;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
-  fragranceCollections: FragranceCollection;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
@@ -198,5 +197,6 @@ export interface DB {
   fragranceTraitVotes: FragranceTraitVote;
   fragranceVotes: FragranceVote;
   notes: Note;
+  userCollections: UserCollection;
   users: User;
 }

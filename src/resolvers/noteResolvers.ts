@@ -9,7 +9,7 @@ export class NoteResolvers {
   notes: FragranceNotesResolvers['top' | 'middle' | 'base'] = async (parent, args, context, info) => {
     const { id } = parent.parent
     const { input } = args
-    const { me, loaders } = context
+    const { loaders } = context
 
     const { pagination: paginationInput, fill } = input ?? {}
     const paginationParams = extractPaginationParams(paginationInput)
@@ -19,11 +19,8 @@ export class NoteResolvers {
       .fromPromise(
         loaders
           .fragrance
-          .withMe(me)
-          .withPagination(paginationParams)
-          .withFill(fill?.valueOf())
-          .notes
-          .load({ fragranceId: id, layer }),
+          .getNotesLoader({ layer, paginationParams, fill: fill?.valueOf() })
+          .load({ fragranceId: id }),
         error => error
       )
       .match(

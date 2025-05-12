@@ -1,10 +1,9 @@
 import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
-import { type ApiContext } from '@src/context'
-import { type ApiDataSources } from '@src/datasources/datasources'
 import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
+import { ApiService } from './apiService'
 
 interface MyVote { myVote: number | null }
 
@@ -63,20 +62,10 @@ export interface GetFragranceTraitsMultipleParams {
   fragranceIds: number[]
 }
 
-export class FragranceService {
-  me?: ApiContext['me']
-
-  constructor (private readonly sources: ApiDataSources) {}
-
-  // TODO: Explore builder pattern maybe
-  withMe (me: ApiContext['me']): this {
-    this.me = me
-    return this
-  }
-
+export class FragranceService extends ApiService<'fragrances'> {
   getById (id: number): ResultAsync<FragranceRow, ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
 
     return ResultAsync
       .fromPromise(
@@ -97,8 +86,8 @@ export class FragranceService {
   }
 
   getByIds (ids: number[]): ResultAsync<FragranceRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
 
     return ResultAsync
       .fromPromise(
@@ -119,8 +108,8 @@ export class FragranceService {
   }
 
   list (params: PaginationParams): ResultAsync<FragranceRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
 
     const { first, cursor, sortParams } = params
     const { column, operator, direction } = sortParams
@@ -182,8 +171,8 @@ export class FragranceService {
   }
 
   getAccordsOnSingle (params: GetFragranceAccordsOnSingleParams): ResultAsync<FragranceAccordRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const { fragranceId, paginationParams, fill = false } = params
 
     const { first, cursor, sortParams } = paginationParams
@@ -259,8 +248,8 @@ export class FragranceService {
   }
 
   getNotesOnSingle (params: GetFragranceNotesOnSingleParams): ResultAsync<FragranceNoteRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const {
       fragranceId,
       paginationParams,
@@ -350,7 +339,7 @@ export class FragranceService {
   }
 
   getImagesOnMultiple (params: GetFragranceImagesOnMultipleParams): ResultAsync<FragranceImageRow[], ApiError> {
-    const { db } = this.sources
+    const { db } = this
     const { fragranceIds, paginationParams } = params
 
     const { first, cursor, sortParams } = paginationParams
@@ -394,8 +383,8 @@ export class FragranceService {
     Getting accords on multiple fragrances does not allow fill. Use fill for a specific (a single) fragrance
   */
   getAccordsOnMultiple (params: GetFragranceAccordsParams): ResultAsync<FragranceAccordRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const { fragranceIds, paginationParams } = params
 
     const { first, cursor, sortParams } = paginationParams
@@ -449,8 +438,8 @@ export class FragranceService {
     Getting notes on multiple fragrances does not allow fill. Use fill for a specific (getNotesOnSingle) fragrance
   */
   getNotesOnMultiple (params: GetFragranceNotesOnMultpleParams): ResultAsync<FragranceNoteRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const {
       fragranceIds,
       paginationParams,
@@ -506,8 +495,8 @@ export class FragranceService {
   }
 
   getReviewsOnMultiple (params: GetFragranceReviewsMultipleParams): ResultAsync<FragranceReviewRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const { fragranceIds, paginationParams } = params
 
     const { first, cursor, sortParams } = paginationParams
@@ -555,7 +544,7 @@ export class FragranceService {
   }
 
   getReviewDistributionsOnMultiple (params: GetReviewDistributionsMultipleParams): ResultAsync<FragranceReviewDistRow[], ApiError> {
-    const { db } = this.sources
+    const { db } = this
     const { fragranceIds } = params
 
     return ResultAsync
@@ -578,8 +567,8 @@ export class FragranceService {
   }
 
   getTraitsOnMultiple (params: GetFragranceTraitsMultipleParams): ResultAsync<FragranceTraitRow[], ApiError> {
-    const { db } = this.sources
-    const userId = this.me?.id ?? null
+    const { db } = this
+    const userId = this.context.me?.id ?? null
     const { fragranceIds } = params
 
     return ResultAsync

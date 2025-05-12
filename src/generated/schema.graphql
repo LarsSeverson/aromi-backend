@@ -123,7 +123,7 @@ type FragranceReview {
   audit: Audit!
   id: Int!
   rating: Int!
-  review: String!
+  text: String!
   user: User!
   votes: VoteSummary!
 }
