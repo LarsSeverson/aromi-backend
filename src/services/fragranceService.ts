@@ -3,7 +3,7 @@ import { type PaginationParams } from '@src/common/pagination'
 import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { ApiService } from './apiService'
+import { ApiService, type ServiceFindCriteria } from './apiService'
 
 interface MyVote { myVote: number | null }
 
@@ -63,6 +63,66 @@ export interface GetFragranceTraitsMultipleParams {
 }
 
 export class FragranceService extends ApiService<'fragrances'> {
+  find (criteria: ServiceFindCriteria<'fragrances'>): ResultAsync<FragranceRow, ApiError> {
+    const { db } = this
+    const userId = this.context.me?.id ?? null
+
+    const query = this
+      .entries(criteria)
+      .reduce(
+        (qb, [column, value]) => {
+          const op = this.operand(value)
+          return qb.where(column, op, value)
+        },
+        db
+          .selectFrom('fragrances')
+          .leftJoin('fragranceVotes as fv', (join) =>
+            join
+              .onRef('fv.fragranceId', '=', 'id')
+              .on('fv.userId', '=', userId)
+              .on('fv.deletedAt', 'is', null)
+          )
+          .selectAll('fragrances')
+          .select('fv.vote as myVote')
+      )
+
+    return ResultAsync
+      .fromPromise(
+        query.executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  findAll (criteria: ServiceFindCriteria<'fragrances'>): ResultAsync<FragranceRow[], ApiError> {
+    const { db } = this
+    const userId = this.context.me?.id ?? null
+
+    const query = this
+      .entries(criteria)
+      .reduce(
+        (qb, [column, value]) => {
+          const op = this.operand(value)
+          return qb.where(column, op, value)
+        },
+        db
+          .selectFrom('fragrances')
+          .leftJoin('fragranceVotes as fv', (join) =>
+            join
+              .onRef('fv.fragranceId', '=', 'id')
+              .on('fv.userId', '=', userId)
+              .on('fv.deletedAt', 'is', null)
+          )
+          .selectAll('fragrances')
+          .select('fv.vote as myVote')
+      )
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
   getById (id: number): ResultAsync<FragranceRow, ApiError> {
     const { db } = this
     const userId = this.context.me?.id ?? null

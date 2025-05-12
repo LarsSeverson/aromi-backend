@@ -1,7 +1,7 @@
 import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type OperandValueExpressionOrList } from 'kysely'
+import { type ComparisonOperatorExpression, type OperandValueExpressionOrList } from 'kysely'
 import { type ResultAsync } from 'neverthrow'
 import { type ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
@@ -34,5 +34,9 @@ export abstract class ApiService<T extends Table> {
 
   protected entries (criteria: ServiceFindCriteria<T>): Array<[Column<T>, Value<T>]> {
     return Object.entries(criteria) as Array<[Column<T>, Value<T>]>
+  }
+
+  protected operand (value: Value<T>): ComparisonOperatorExpression {
+    return Array.isArray(value) ? 'in' : '='
   }
 }

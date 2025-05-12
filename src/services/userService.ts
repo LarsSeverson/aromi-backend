@@ -22,8 +22,10 @@ export class UserService extends ApiService<'users'> {
     const query = this
       .entries(criteria)
       .reduce(
-        (qb, [column, value]) =>
-          qb.where(column, '=', value),
+        (qb, [column, value]) => {
+          const op = this.operand(value)
+          return qb.where(column, op, value)
+        },
         db
           .selectFrom('users')
           .selectAll()
@@ -42,8 +44,10 @@ export class UserService extends ApiService<'users'> {
     const query = this
       .entries(criteria)
       .reduce(
-        (qb, [column, value]) =>
-          qb.where(column, '=', value),
+        (qb, [column, value]) => {
+          const op = this.operand(value)
+          return qb.where(column, op, value)
+        },
         db
           .selectFrom('users')
           .selectAll()
