@@ -45,6 +45,8 @@ type FragranceNote {
   layer: NoteLayer!
   votes: Int!
   myVote: Boolean
+  audit: Audit!
+  isFill: Boolean!
 }
 
 type FragranceAccord {
@@ -103,7 +105,6 @@ input AccordsInput {
 
 input NotesInput {
   pagination: PaginationInput
-  layers: [NoteLayer!]
   fill: Boolean
 }
 

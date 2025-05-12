@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge } from '../schemas/fragrance/mappers';
+import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary } from '../schemas/fragrance/mappers';
 import { UserSummary } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
@@ -142,7 +142,9 @@ export type FragranceImageEdge = {
 
 export type FragranceNote = {
   __typename?: 'FragranceNote';
+  audit: Audit;
   id: Scalars['Int']['output'];
+  isFill: Scalars['Boolean']['output'];
   layer: NoteLayer;
   myVote?: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
@@ -292,7 +294,6 @@ export enum NoteLayer {
 
 export type NotesInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
-  layers?: InputMaybe<Array<NoteLayer>>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -526,7 +527,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceNote: ResolverTypeWrapper<Partial<FragranceNote>>;
   FragranceNoteConnection: ResolverTypeWrapper<Partial<FragranceNoteConnection>>;
   FragranceNoteEdge: ResolverTypeWrapper<Partial<FragranceNoteEdge>>;
-  FragranceNotes: ResolverTypeWrapper<Partial<FragranceNotes>>;
+  FragranceNotes: ResolverTypeWrapper<FragranceNotesSummary>;
   FragranceReview: ResolverTypeWrapper<FragranceReviewSummary>;
   FragranceReviewConnection: ResolverTypeWrapper<Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceReviewEdge']> }>>;
   FragranceReviewDistribution: ResolverTypeWrapper<Partial<FragranceReviewDistribution>>;
@@ -577,7 +578,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceNote: Partial<FragranceNote>;
   FragranceNoteConnection: Partial<FragranceNoteConnection>;
   FragranceNoteEdge: Partial<FragranceNoteEdge>;
-  FragranceNotes: Partial<FragranceNotes>;
+  FragranceNotes: FragranceNotesSummary;
   FragranceReview: FragranceReviewSummary;
   FragranceReviewConnection: Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceReviewEdge']> }>;
   FragranceReviewDistribution: Partial<FragranceReviewDistribution>;
@@ -702,7 +703,9 @@ export type FragranceImageEdgeResolvers<ContextType = ApiContext, ParentType ext
 }>;
 
 export type FragranceNoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceNote'] = ResolversParentTypes['FragranceNote']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isFill?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   layer?: Resolver<ResolversTypes['NoteLayer'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

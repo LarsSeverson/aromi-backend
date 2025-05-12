@@ -13,7 +13,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type ImageFormat = "jpg" | "png";
 
-export type NoteLayer = "base" | "fill" | "middle" | "top";
+export type NoteLayerEnum = "base" | "middle" | "top";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
@@ -74,13 +74,13 @@ export interface FragranceImage {
 }
 
 export interface FragranceNote {
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
-  layer: Generated<NoteLayer>;
+  layer: NoteLayerEnum;
   noteId: number;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
   votes: Generated<number>;
 }
 
@@ -162,12 +162,12 @@ export interface FragranceVote {
 }
 
 export interface Note {
-  createdAt: Timestamp | null;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   id: Generated<number>;
   name: string;
-  s3Key: Generated<string | null>;
-  updatedAt: Timestamp | null;
+  s3Key: Generated<string>;
+  updatedAt: Timestamp;
 }
 
 export interface User {

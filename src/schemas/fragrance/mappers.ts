@@ -13,3 +13,5 @@ export type FragranceSummaryEdge = Omit<FragranceEdge, 'node'> & { node: Fragran
 
 export type FragranceReviewSummary = Omit<FragranceReview, 'user'>
 export type FragranceReviewSummaryEdge = Omit<FragranceReviewEdge, 'node'> & { node: FragranceReviewSummary }
+
+export interface FragranceNotesSummary { parent: FragranceSummary }

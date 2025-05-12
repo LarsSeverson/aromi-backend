@@ -1,5 +1,4 @@
 import { encodeCursor } from '@src/common/cursor'
-import { ApiError } from '@src/common/error'
 import { mergeAllSignedSrcs } from '@src/common/images'
 import { extractPaginationParams, newPage, type Page, type PaginationParams } from '@src/common/pagination'
 import { type FragranceTraitEnum } from '@src/db/schema'
@@ -50,7 +49,7 @@ export class FragranceResolvers {
           .withMe(me)
           .traits
           .load({ fragranceId: id }),
-        error => ApiError.fromDatabase(error as Error)
+        error => error
       )
       .match(
         rows => this.mapFragranceTraitRowsToFragranceTraits(rows),
@@ -72,7 +71,7 @@ export class FragranceResolvers {
           .withPagination(paginationParams)
           .images
           .load({ fragranceId: id }),
-        error => ApiError.fromDatabase(error as Error)
+        error => error
       )
       .match(
         async rows => {
@@ -89,8 +88,8 @@ export class FragranceResolvers {
     const { id } = parent
     const { input } = args
     const { me, loaders } = context
-    const { pagination: paginationInput, fill } = input ?? {}
 
+    const { pagination: paginationInput, fill } = input ?? {}
     const paginationParams = extractPaginationParams(paginationInput)
 
     return await ResultAsync
@@ -102,13 +101,15 @@ export class FragranceResolvers {
           .withFill(fill?.valueOf())
           .accords
           .load({ fragranceId: id }),
-        error => ApiError.fromDatabase(error as Error)
+        error => error
       )
       .match(
         rows => this.mapFragranceAccordRowsToPage(rows, paginationParams),
         error => { throw error }
       )
   }
+
+  fragranceNotes: FragranceFieldResolvers['notes'] = (parent, args, context, info) => ({ parent })
 
   fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
     const { id } = parent
@@ -125,7 +126,7 @@ export class FragranceResolvers {
           .withPagination(paginationParams)
           .reviews
           .load({ fragranceId: id }),
-        error => ApiError.fromDatabase(error as Error)
+        error => error
       )
       .match(
         rows => this.mapFragranceReviewRowsToPage(rows, paginationParams),
@@ -143,7 +144,7 @@ export class FragranceResolvers {
           .fragrance
           .reviewDistributions
           .load({ fragranceId: id }),
-        error => ApiError.fromDatabase(error as Error)
+        error => error
       )
       .match(
         rows => this.mapDistRowsToDist(rows),

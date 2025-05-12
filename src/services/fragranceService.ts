@@ -2,33 +2,52 @@ import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord } from '@src/db/schema'
+import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 
-export type FragranceRow = Selectable<Fragrance> & { myVote: number | null }
-export type FragranceImageRow = Selectable<FragranceImage>
-export type FragranceReviewRow = Selectable<FragranceReview> & { myVote: number | null }
-export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
-export type FragranceTraitRow = Selectable<FragranceTrait> & { myVote: number | null }
+interface MyVote { myVote: number | null }
 
-export interface FragranceAccordRow extends Selectable<FragranceAccord> {
+export type FragranceRow = Selectable<Fragrance> & MyVote
+export type FragranceImageRow = Selectable<FragranceImage>
+export type FragranceReviewRow = Selectable<FragranceReview> & MyVote
+export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
+export type FragranceTraitRow = Selectable<FragranceTrait> & MyVote
+export interface FragranceAccordRow extends Selectable<FragranceAccord>, MyVote {
   accordId: number
-  myVote: number | null
   name: string
   color: string
   isFill?: boolean | null
 }
-
-export interface GetFragranceImagesMultipleParams {
-  fragranceIds: number[]
-  paginationParams: PaginationParams
+export interface FragranceNoteRow extends Selectable<FragranceNote>, MyVote {
+  noteId: number
+  name: string
+  s3Key: string
+  isFill?: boolean | null
 }
 
 export interface GetFragranceAccordsParams {
   fragranceIds: number[]
   paginationParams: PaginationParams
   fill?: boolean
+}
+
+export interface GetFragranceNotesParams {
+  fragranceIds: number[]
+  paginationParams: PaginationParams
+  layer: NoteLayerEnum
+  fill?: boolean
+}
+
+export type GetFragranceAccordsOnSingleParams = Omit<GetFragranceAccordsParams, 'fragranceIds'> & { fragranceId: number }
+export type GetFragranceNotesOnSingleParams = Omit<GetFragranceNotesParams, 'fragranceIds'> & { fragranceId: number }
+
+export type GetFragragranceAccordsOnMultipleParams = GetFragranceAccordsParams
+export type GetFragranceNotesOnMultpleParams = GetFragranceNotesParams
+
+export interface GetFragranceImagesOnMultipleParams {
+  fragranceIds: number[]
+  paginationParams: PaginationParams
 }
 
 export interface GetReviewDistributionsMultipleParams {
@@ -142,17 +161,30 @@ export class FragranceService {
     const isSingle = params.fragranceIds.length === 1
 
     if (isSingle) {
-      return this.getAccordsOnSingle(params)
+      const fragranceId = params.fragranceIds[0]
+      return this.getAccordsOnSingle({ ...params, fragranceId })
     }
 
     return this.getAccordsOnMultiple(params)
   }
 
-  getAccordsOnSingle (params: GetFragranceAccordsParams): ResultAsync<FragranceAccordRow[], ApiError> {
+  getNotes (params: GetFragranceNotesParams): ResultAsync<FragranceNoteRow[], ApiError> {
+    const { fragranceIds } = params
+
+    const isSingle = fragranceIds.length === 1
+
+    if (isSingle) {
+      const fragranceId = params.fragranceIds[0]
+      return this.getNotesOnSingle({ ...params, fragranceId })
+    }
+
+    return this.getNotesOnMultiple(params)
+  }
+
+  getAccordsOnSingle (params: GetFragranceAccordsOnSingleParams): ResultAsync<FragranceAccordRow[], ApiError> {
     const { db } = this.sources
     const userId = this.me?.id ?? null
-    const { fragranceIds, paginationParams, fill = false } = params
-    const fragranceId = fragranceIds[0]
+    const { fragranceId, paginationParams, fill = false } = params
 
     const { first, cursor, sortParams } = paginationParams
     const { column, operator, direction } = sortParams
@@ -226,7 +258,98 @@ export class FragranceService {
       )
   }
 
-  getImagesOnMultiple (params: GetFragranceImagesMultipleParams): ResultAsync<FragranceImageRow[], ApiError> {
+  getNotesOnSingle (params: GetFragranceNotesOnSingleParams): ResultAsync<FragranceNoteRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
+    const {
+      fragranceId,
+      paginationParams,
+      layer,
+      fill = false
+    } = params
+
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operator, direction } = sortParams
+
+    const query = db
+      .selectFrom('fragranceNotes as fn')
+      .where('fn.fragranceId', '=', fragranceId)
+      .leftJoin('fragranceNoteVotes as nv', (join) =>
+        join
+          .onRef('nv.fragranceNoteId', '=', 'fn.id')
+          .on('nv.userId', '=', userId)
+      )
+      .innerJoin('notes as n', (join) =>
+        join
+          .onRef('n.id', '=', 'fn.noteId')
+      )
+      .select([
+        'fn.fragranceId',
+        'fn.id',
+        'n.id as noteId',
+        'n.name',
+        'n.s3Key',
+        'fn.layer',
+        'fn.votes',
+        'nv.id as myVote',
+        'fn.createdAt',
+        'fn.updatedAt',
+        'fn.deletedAt',
+        sql<boolean>`FALSE`.as('isFill')
+      ])
+      .$if(fill, qb =>
+        qb
+          .unionAll(
+            db
+              .selectFrom('notes as n2')
+              .leftJoin('fragranceNotes as fn2', join =>
+                join
+                  .onRef('fn2.fragranceId', '=', sql<number>`${fragranceId}`)
+                  .onRef('fn2.noteId', '=', 'n2.id')
+              )
+              .where('fn2.id', 'is', null)
+              .select([
+                sql<number>`${fragranceId}`.as('fragranceId'),
+                'n2.id as id',
+                'n2.id as noteId',
+                'n2.name as name',
+                'n2.s3Key',
+                sql<NoteLayerEnum>`${layer}`.as('layer'),
+                sql<number>`0`.as('votes'),
+                sql<number | null>`null`.as('myVote'),
+                'n2.createdAt',
+                'n2.updatedAt',
+                'n2.deletedAt',
+                sql<boolean>`TRUE`.as('isFill')
+              ])
+          )
+      )
+      .$if(cursor.isValid, qb =>
+        qb
+          .where(({ eb, or, and }) =>
+            or([
+              eb(column, operator, cursor.value),
+              and([
+                eb(column, '=', cursor.value),
+                eb('id', operator, cursor.lastId)
+              ])
+            ])
+          )
+      )
+      .where('layer', '=', layer)
+      .orderBy('isFill')
+      .orderBy(column, direction)
+      .orderBy('id', direction)
+      .limit(first + 1)
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  getImagesOnMultiple (params: GetFragranceImagesOnMultipleParams): ResultAsync<FragranceImageRow[], ApiError> {
     const { db } = this.sources
     const { fragranceIds, paginationParams } = params
 
@@ -316,6 +439,66 @@ export class FragranceService {
               .as('faPage')
           )
           .selectAll('faPage')
+          .where('f.id', 'in', fragranceIds)
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  /*
+    Getting notes on multiple fragrances does not allow fill. Use fill for a specific (getNotesOnSingle) fragrance
+  */
+  getNotesOnMultiple (params: GetFragranceNotesOnMultpleParams): ResultAsync<FragranceNoteRow[], ApiError> {
+    const { db } = this.sources
+    const userId = this.me?.id ?? null
+    const {
+      fragranceIds,
+      paginationParams,
+      layer
+    } = params
+
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operator, direction } = sortParams
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('fragrances as f')
+          .crossJoinLateral(
+            (eb) => eb
+              .selectFrom('fragranceNotes as fn')
+              .whereRef('fn.fragranceId', '=', 'f.id')
+              .leftJoin('fragranceNoteVotes as nv', (join) =>
+                join
+                  .onRef('nv.fragranceNoteId', '=', 'fn.id')
+                  .on('nv.userId', '=', userId)
+              )
+              .innerJoin('notes as n', (join) =>
+                join
+                  .onRef('n.id', '=', 'fn.noteId')
+              )
+              .selectAll('fn')
+              .select('nv.id as myVote')
+              .select(['n.id as noteId', 'n.name', 'n.s3Key'])
+              .$if(cursor.isValid, qb =>
+                qb
+                  .where(({ eb, or, and }) =>
+                    or([
+                      eb(`fn.${column}`, operator, cursor.value),
+                      and([
+                        eb(`fn.${column}`, '=', cursor.value),
+                        eb('fn.id', operator, cursor.lastId)
+                      ])
+                    ])
+                  )
+              )
+              .where('fn.layer', '=', layer)
+              .orderBy(`fn.${column}`, direction)
+              .orderBy('fn.id', direction)
+              .limit(first + 1)
+              .as('fnPage')
+          )
+          .selectAll('fnPage')
           .where('f.id', 'in', fragranceIds)
           .execute(),
         error => ApiError.fromDatabase(error as Error)

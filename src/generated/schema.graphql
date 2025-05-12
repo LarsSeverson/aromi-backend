@@ -93,7 +93,9 @@ type FragranceImageEdge {
 }
 
 type FragranceNote {
+  audit: Audit!
   id: Int!
+  isFill: Boolean!
   layer: NoteLayer!
   myVote: Boolean
   name: String!
@@ -179,7 +181,6 @@ enum NoteLayer {
 
 input NotesInput {
   fill: Boolean
-  layers: [NoteLayer!]
   pagination: PaginationInput
 }
 
