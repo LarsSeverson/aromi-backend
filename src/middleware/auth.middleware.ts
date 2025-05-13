@@ -1,5 +1,6 @@
 import { ApiError } from '@src/common/error'
 import { type ApiContext } from '@src/context'
+import { mapUserRowToUserSummary } from '@src/resolvers/userResolver'
 import { type UserSummary } from '@src/schemas/user/mappers'
 import { type JwtHeader, type JwtPayload, verify } from 'jsonwebtoken'
 import { type JwksClient } from 'jwks-rsa'
@@ -79,5 +80,8 @@ export const authenticateMe = async (context: ApiContext): Promise<UserSummary |
 
   return await user
     .find({ cognitoId })
-    .unwrapOr(undefined)
+    .match(
+      row => mapUserRowToUserSummary(row),
+      _ => undefined
+    )
 }

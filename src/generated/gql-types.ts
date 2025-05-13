@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary } from '../schemas/fragrance/mappers';
-import { UserSummary } from '../schemas/user/mappers';
+import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -358,6 +358,7 @@ export enum SortDirection {
 
 export type User = {
   __typename?: 'User';
+  audit: Audit;
   collections: UserCollectionConnection;
   email: Scalars['String']['output'];
   followerCount: Scalars['Int']['output'];
@@ -385,6 +386,7 @@ export type UserReviewsArgs = {
 
 export type UserCollection = {
   __typename?: 'UserCollection';
+  audit: Audit;
   id: Scalars['Int']['output'];
   items: UserCollectionItemConnection;
   name: Scalars['String']['output'];
@@ -547,9 +549,9 @@ export type ResolversTypes = ResolversObject<{
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
   User: ResolverTypeWrapper<UserSummary>;
-  UserCollection: ResolverTypeWrapper<Partial<Omit<UserCollection, 'items' | 'user'> & { items: ResolversTypes['UserCollectionItemConnection'], user: ResolversTypes['User'] }>>;
+  UserCollection: ResolverTypeWrapper<UserCollectionSummary>;
   UserCollectionConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionEdge']> }>>;
-  UserCollectionEdge: ResolverTypeWrapper<Partial<Omit<UserCollectionEdge, 'node'> & { node: ResolversTypes['UserCollection'] }>>;
+  UserCollectionEdge: ResolverTypeWrapper<UserCollectionSummaryEdge>;
   UserCollectionItem: ResolverTypeWrapper<Partial<Omit<UserCollectionItem, 'collection' | 'fragrance'> & { collection: ResolversTypes['UserCollection'], fragrance: ResolversTypes['Fragrance'] }>>;
   UserCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionItemEdge']> }>>;
   UserCollectionItemEdge: ResolverTypeWrapper<Partial<Omit<UserCollectionItemEdge, 'node'> & { node: ResolversTypes['UserCollectionItem'] }>>;
@@ -594,9 +596,9 @@ export type ResolversParentTypes = ResolversObject<{
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
   User: UserSummary;
-  UserCollection: Partial<Omit<UserCollection, 'items' | 'user'> & { items: ResolversParentTypes['UserCollectionItemConnection'], user: ResolversParentTypes['User'] }>;
+  UserCollection: UserCollectionSummary;
   UserCollectionConnection: Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionEdge']> }>;
-  UserCollectionEdge: Partial<Omit<UserCollectionEdge, 'node'> & { node: ResolversParentTypes['UserCollection'] }>;
+  UserCollectionEdge: UserCollectionSummaryEdge;
   UserCollectionItem: Partial<Omit<UserCollectionItem, 'collection' | 'fragrance'> & { collection: ResolversParentTypes['UserCollection'], fragrance: ResolversParentTypes['Fragrance'] }>;
   UserCollectionItemConnection: Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionItemEdge']> }>;
   UserCollectionItemEdge: Partial<Omit<UserCollectionItemEdge, 'node'> & { node: ResolversParentTypes['UserCollectionItem'] }>;
@@ -805,6 +807,7 @@ export type SignUpResultResolvers<ContextType = ApiContext, ParentType extends R
 }>;
 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   collections?: Resolver<ResolversTypes['UserCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -817,6 +820,7 @@ export type UserResolvers<ContextType = ApiContext, ParentType extends Resolvers
 }>;
 
 export type UserCollectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollection'] = ResolversParentTypes['UserCollection']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   items?: Resolver<ResolversTypes['UserCollectionItemConnection'], ParentType, ContextType, Partial<UserCollectionItemsArgs>>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

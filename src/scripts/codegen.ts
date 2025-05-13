@@ -18,7 +18,9 @@ const config: CodegenConfig = {
           FragranceReviewEdge: '../schemas/fragrance/mappers#FragranceReviewSummaryEdge',
           FragranceNotes: '../schemas/fragrance/mappers#FragranceNotesSummary',
 
-          User: '../schemas/user/mappers#UserSummary'
+          User: '../schemas/user/mappers#UserSummary',
+          UserCollection: '../schemas/user/mappers#UserCollectionSummary',
+          UserCollectionEdge: '../schemas/user/mappers#UserCollectionSummaryEdge'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

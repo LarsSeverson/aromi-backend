@@ -1,4 +1,5 @@
-import { type FragranceReview, type Fragrance, type FragranceEdge, type FragranceReviewEdge } from '@src/generated/gql-types'
+import { type FragranceReview, type Fragrance } from '@src/generated/gql-types'
+import { type ResolverEdge } from '@src/resolvers/apiResolver'
 
 export type FragranceSummary = Omit<Fragrance,
 'traits' |
@@ -9,9 +10,9 @@ export type FragranceSummary = Omit<Fragrance,
 'reviewDistribution' |
 'myReview'>
 
-export type FragranceSummaryEdge = Omit<FragranceEdge, 'node'> & { node: FragranceSummary }
+export type FragranceSummaryEdge = ResolverEdge<FragranceSummary>
 
 export type FragranceReviewSummary = Omit<FragranceReview, 'user'>
-export type FragranceReviewSummaryEdge = Omit<FragranceReviewEdge, 'node'> & { node: FragranceReviewSummary }
+export type FragranceReviewSummaryEdge = ResolverEdge<FragranceReviewSummary>
 
 export interface FragranceNotesSummary { parent: FragranceSummary }

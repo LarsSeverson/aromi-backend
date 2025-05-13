@@ -1,33 +1,43 @@
-import { type QueryResolvers, type Resolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
-import { FragranceResolvers } from './fragranceResolvers'
-import { NoteResolvers } from './noteResolvers'
+import { FragranceResolver } from './fragranceResolver'
+import { NoteResolver } from './noteResolver'
+import { UserResolver } from './userResolver'
 
-const fragranceResolvers = new FragranceResolvers()
-const noteResolvers = new NoteResolvers()
+const userResolver = new UserResolver()
+const fragranceResolver = new FragranceResolver()
+const noteResolver = new NoteResolver()
 
 export class ApiResolvers implements Resolvers {
   Date = GraphQLDateTime
 
   Query: QueryResolvers = {
-    fragrance: fragranceResolvers.fragrance,
-    fragrances: fragranceResolvers.fragrances
+    me: userResolver.me,
+    user: userResolver.user,
+
+    fragrance: fragranceResolver.fragrance,
+    fragrances: fragranceResolver.fragrances
+  }
+
+  // User Field resolvers
+  User: UserFieldResolvers = {
+    collections: userResolver.userCollections
   }
 
   // Fragrance Field resolvers
   Fragrance: FragranceFieldResolvers = {
-    traits: fragranceResolvers.fragranceTraits,
-    images: fragranceResolvers.fragranceImages,
-    accords: fragranceResolvers.fragranceAccords,
-    notes: fragranceResolvers.fragranceNotes,
-    reviews: fragranceResolvers.fragranceReviews,
-    reviewDistribution: fragranceResolvers.fragranceReviewDistribution
+    traits: fragranceResolver.fragranceTraits,
+    images: fragranceResolver.fragranceImages,
+    accords: fragranceResolver.fragranceAccords,
+    notes: fragranceResolver.fragranceNotes,
+    reviews: fragranceResolver.fragranceReviews,
+    reviewDistribution: fragranceResolver.fragranceReviewDistribution
   }
 
   // Fragrance Field Note resolvers
   FragranceNotes: FragranceNotesResolvers = {
-    top: noteResolvers.notes,
-    middle: noteResolvers.notes,
-    base: noteResolvers.notes
+    top: noteResolver.notes,
+    middle: noteResolver.notes,
+    base: noteResolver.notes
   }
 }

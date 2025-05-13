@@ -9,6 +9,8 @@ type User {
   collections(input: PaginationInput): UserCollectionConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
   likes(input: PaginationInput): FragranceConnection!
+
+  audit: Audit!
 }
 
 type UserCollection {
@@ -16,6 +18,7 @@ type UserCollection {
   name: String!
   user: User!
   items(input: PaginationInput): UserCollectionItemConnection!
+  audit: Audit!
 }
 
 type UserCollectionItem {

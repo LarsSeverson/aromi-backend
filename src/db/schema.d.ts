@@ -162,23 +162,23 @@ export interface Note {
 }
 
 export interface UserCollection {
-  createdAt: Generated<Timestamp | null>;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   id: Generated<number>;
   name: string;
-  updatedAt: Generated<Timestamp | null>;
+  updatedAt: Generated<Timestamp>;
   userId: number | null;
 }
 
 export interface User {
-  cognitoId: string | null;
-  createdAt: Timestamp | null;
+  cognitoId: string;
+  createdAt: Timestamp;
   deletedAt: Timestamp | null;
   email: Generated<string>;
   followerCount: Generated<number>;
   followingCount: Generated<number>;
   id: Generated<number>;
-  updatedAt: Timestamp | null;
+  updatedAt: Timestamp;
   username: string;
 }
 

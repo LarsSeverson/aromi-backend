@@ -1,20 +1,20 @@
-import { encodeCursor } from '@src/common/cursor'
 import { mergeAllSignedSrcs } from '@src/common/images'
-import { extractPaginationParams, newPage, type Page, type PaginationParams } from '@src/common/pagination'
+import { extractPaginationParams } from '@src/common/pagination'
 import { type FragranceTraitEnum } from '@src/db/schema'
-import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, SortBy, type FragranceImage, type FragranceImageEdge, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type FragranceAccordEdge } from '@src/generated/gql-types'
-import { type FragranceReviewSummaryEdge, type FragranceReviewSummary, type FragranceSummary, type FragranceSummaryEdge } from '@src/schemas/fragrance/mappers'
+import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord } from '@src/generated/gql-types'
+import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceReviewRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
+import { ApiResolver } from './apiResolver'
 
-export class FragranceResolvers {
+export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
     const { id } = args
     const { services } = context
 
     return await services
       .fragrance
-      .getById(id)
+      .find({ id })
       .match(
         row => this.mapFragranceRowToFragranceSummary(row),
         error => { throw error }
@@ -31,7 +31,12 @@ export class FragranceResolvers {
       .fragrance
       .list(paginationParams)
       .match(
-        rows => this.mapFragranceRowsToPage(rows, paginationParams),
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: (row) => this.mapFragranceRowToFragranceSummary(row)
+          }),
         error => { throw error }
       )
   }
@@ -71,7 +76,13 @@ export class FragranceResolvers {
       )
       .match(
         async rows => {
-          const page = this.mapFragranceImageRowsToPage(rows, paginationParams)
+          const page = this
+            .mapToPage({
+              rows,
+              paginationParams,
+              mapFn: (row) => this.mapFragranceImageRowToFragranceImage(row)
+            })
+
           await mergeAllSignedSrcs({ s3: sources.s3, on: page.edges.map(e => e.node) })
 
           return page
@@ -97,7 +108,12 @@ export class FragranceResolvers {
         error => error
       )
       .match(
-        rows => this.mapFragranceAccordRowsToPage(rows, paginationParams),
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: (row) => this.mapFragranceAccordRowToFragranceAccord(row)
+          }),
         error => { throw error }
       )
   }
@@ -120,7 +136,12 @@ export class FragranceResolvers {
         error => error
       )
       .match(
-        rows => this.mapFragranceReviewRowsToPage(rows, paginationParams),
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: (row) => this.mapFragranceReviewRowToFragranceReviewSummary(row)
+          }),
         error => { throw error }
       )
   }
@@ -141,82 +162,6 @@ export class FragranceResolvers {
         rows => this.mapDistRowsToDist(rows),
         error => { throw error }
       )
-  }
-
-  private mapFragranceRowsToPage (rows: FragranceRow[], paginationParams: PaginationParams): Page<FragranceSummary> {
-    const { first, cursor } = paginationParams
-
-    const edges = rows.map(row => this.mapFragranceSummaryToEdge(this.mapFragranceRowToFragranceSummary(row), paginationParams))
-    const page = newPage({ first, cursor, edges })
-
-    return page
-  }
-
-  private mapFragranceImageRowsToPage (rows: FragranceImageRow[], paginationParams: PaginationParams): Page<FragranceImage> {
-    const { first, cursor } = paginationParams
-
-    const edges = rows.map(row => this.mapFragranceImageToEdge(this.mapFragranceImageRowToFragranceImage(row), paginationParams))
-    const page = newPage({ first, cursor, edges })
-
-    return page
-  }
-
-  private mapFragranceAccordRowsToPage (rows: FragranceAccordRow[], paginationParams: PaginationParams): Page<FragranceAccord> {
-    const { first, cursor } = paginationParams
-
-    const edges = rows.map(row => this.mapFragranceAccordToEdge(this.mapFragranceAccordRowToFragranceAccord(row), paginationParams))
-    const page = newPage({ first, cursor, edges })
-
-    return page
-  }
-
-  private mapFragranceReviewRowsToPage (rows: FragranceReviewRow[], paginationParams: PaginationParams): Page<FragranceReviewSummary> {
-    const { first, cursor } = paginationParams
-
-    const edges = rows.map(row => this.mapFragranceReviewSummaryToEdge(this.mapFragranceReviewRowToFragranceReviewSummary(row), paginationParams))
-    const page = newPage({ first, cursor, edges })
-
-    return page
-  }
-
-  private mapFragranceSummaryToEdge (summary: FragranceSummary, paginationParams: PaginationParams): FragranceSummaryEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? summary.id : summary.audit[column]
-    const cursor = encodeCursor(sortValue, summary.id)
-
-    return { node: summary, cursor }
-  }
-
-  private mapFragranceImageToEdge (image: FragranceImage, paginationParams: PaginationParams): FragranceImageEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? image.id : image.audit[column]
-    const cursor = encodeCursor(sortValue, image.id)
-
-    return { node: image, cursor }
-  }
-
-  private mapFragranceAccordToEdge (accord: FragranceAccord, paginationParams: PaginationParams): FragranceAccordEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? accord.id : accord.audit[column]
-    const cursor = encodeCursor(sortValue, accord.id)
-
-    return { node: accord, cursor }
-  }
-
-  private mapFragranceReviewSummaryToEdge (review: FragranceReviewSummary, paginationParams: PaginationParams): FragranceReviewSummaryEdge {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const sortValue = column === SortBy.Id ? review.id : review.audit[column]
-    const cursor = encodeCursor(sortValue, review.id)
-
-    return { node: review, cursor }
   }
 
   private mapFragranceRowToFragranceSummary (row: FragranceRow): FragranceSummary {

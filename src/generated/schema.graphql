@@ -226,6 +226,7 @@ enum SortDirection {
 }
 
 type User {
+  audit: Audit!
   collections(input: PaginationInput): UserCollectionConnection!
   email: String!
   followerCount: Int!
@@ -237,6 +238,7 @@ type User {
 }
 
 type UserCollection {
+  audit: Audit!
   id: Int!
   items(input: PaginationInput): UserCollectionItemConnection!
   name: String!

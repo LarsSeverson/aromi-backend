@@ -5,6 +5,14 @@ import { sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { ApiService, type ServiceFindCriteria } from './apiService'
 
+/*
+  TODO:
+    - This class was made before the abstract ApiService class was made.
+    convert this class to a more ApiService style.
+
+    - Split up the services so this class isn't responsible for everything
+*/
+
 interface MyVote { myVote: number | null }
 
 export type FragranceRow = Selectable<Fragrance> & MyVote
