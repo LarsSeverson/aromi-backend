@@ -26,13 +26,13 @@ export interface Accord {
   updatedAt: Timestamp;
 }
 
-export interface CollectionFragrance {
+export interface CollectionItem {
   collectionId: number;
-  createdAt: Generated<Timestamp | null>;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
-  updatedAt: Generated<Timestamp | null>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface FragranceAccord {
@@ -184,7 +184,7 @@ export interface User {
 
 export interface DB {
   accords: Accord;
-  collectionFragrances: CollectionFragrance;
+  collectionItems: CollectionItem;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceImages: FragranceImage;

@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary } from '../schemas/fragrance/mappers';
-import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge } from '../schemas/user/mappers';
+import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge, UserCollectionItemSummary, UserCollectionItemSummaryEdge } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -412,7 +412,7 @@ export type UserCollectionEdge = {
 
 export type UserCollectionItem = {
   __typename?: 'UserCollectionItem';
-  collection: UserCollection;
+  audit: Audit;
   fragrance: Fragrance;
   id: Scalars['Int']['output'];
 };
@@ -552,9 +552,9 @@ export type ResolversTypes = ResolversObject<{
   UserCollection: ResolverTypeWrapper<UserCollectionSummary>;
   UserCollectionConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionEdge']> }>>;
   UserCollectionEdge: ResolverTypeWrapper<UserCollectionSummaryEdge>;
-  UserCollectionItem: ResolverTypeWrapper<Partial<Omit<UserCollectionItem, 'collection' | 'fragrance'> & { collection: ResolversTypes['UserCollection'], fragrance: ResolversTypes['Fragrance'] }>>;
+  UserCollectionItem: ResolverTypeWrapper<UserCollectionItemSummary>;
   UserCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionItemEdge']> }>>;
-  UserCollectionItemEdge: ResolverTypeWrapper<Partial<Omit<UserCollectionItemEdge, 'node'> & { node: ResolversTypes['UserCollectionItem'] }>>;
+  UserCollectionItemEdge: ResolverTypeWrapper<UserCollectionItemSummaryEdge>;
   VoteSummary: ResolverTypeWrapper<Partial<VoteSummary>>;
 }>;
 
@@ -599,9 +599,9 @@ export type ResolversParentTypes = ResolversObject<{
   UserCollection: UserCollectionSummary;
   UserCollectionConnection: Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionEdge']> }>;
   UserCollectionEdge: UserCollectionSummaryEdge;
-  UserCollectionItem: Partial<Omit<UserCollectionItem, 'collection' | 'fragrance'> & { collection: ResolversParentTypes['UserCollection'], fragrance: ResolversParentTypes['Fragrance'] }>;
+  UserCollectionItem: UserCollectionItemSummary;
   UserCollectionItemConnection: Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionItemEdge']> }>;
-  UserCollectionItemEdge: Partial<Omit<UserCollectionItemEdge, 'node'> & { node: ResolversParentTypes['UserCollectionItem'] }>;
+  UserCollectionItemEdge: UserCollectionItemSummaryEdge;
   VoteSummary: Partial<VoteSummary>;
 }>;
 
@@ -841,7 +841,7 @@ export type UserCollectionEdgeResolvers<ContextType = ApiContext, ParentType ext
 }>;
 
 export type UserCollectionItemResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionItem'] = ResolversParentTypes['UserCollectionItem']> = ResolversObject<{
-  collection?: Resolver<ResolversTypes['UserCollection'], ParentType, ContextType>;
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

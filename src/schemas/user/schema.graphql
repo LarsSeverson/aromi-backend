@@ -24,7 +24,7 @@ type UserCollection {
 type UserCollectionItem {
   id: Int!
   fragrance: Fragrance!
-  collection: UserCollection!
+  audit: Audit!
 }
 
 extend type Query {

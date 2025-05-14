@@ -20,12 +20,14 @@ export type FragranceImageRow = Selectable<FragranceImage>
 export type FragranceReviewRow = Selectable<FragranceReview> & MyVote
 export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
 export type FragranceTraitRow = Selectable<FragranceTrait> & MyVote
+
 export interface FragranceAccordRow extends Selectable<FragranceAccord>, MyVote {
   accordId: number
   name: string
   color: string
   isFill?: boolean | null
 }
+
 export interface FragranceNoteRow extends Selectable<FragranceNote>, MyVote {
   noteId: number
   name: string

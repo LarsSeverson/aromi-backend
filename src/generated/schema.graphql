@@ -256,7 +256,7 @@ type UserCollectionEdge {
 }
 
 type UserCollectionItem {
-  collection: UserCollection!
+  audit: Audit!
   fragrance: Fragrance!
   id: Int!
 }

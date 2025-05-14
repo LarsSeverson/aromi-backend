@@ -20,7 +20,9 @@ const config: CodegenConfig = {
 
           User: '../schemas/user/mappers#UserSummary',
           UserCollection: '../schemas/user/mappers#UserCollectionSummary',
-          UserCollectionEdge: '../schemas/user/mappers#UserCollectionSummaryEdge'
+          UserCollectionEdge: '../schemas/user/mappers#UserCollectionSummaryEdge',
+          UserCollectionItem: '../schemas/user/mappers#UserCollectionItemSummary',
+          UserCollectionItemEdge: '../schemas/user/mappers#UserCollectionItemSummaryEdge'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']
