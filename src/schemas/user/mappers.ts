@@ -4,7 +4,7 @@ import { type FragranceSummary } from '../fragrance/mappers'
 
 export type UserSummary = Omit<User, 'collections' | 'likes' | 'reviews'>
 
-export type UserCollectionSummary = Omit<UserCollection, 'user' | 'items'>
+export type UserCollectionSummary = Omit<UserCollection, 'user' | 'items'> & { user: UserSummary }
 export type UserCollectionSummaryEdge = ResolverEdge<UserCollectionSummary>
 
 export type UserCollectionItemSummary = Omit<UserCollectionItem, 'fragrance' | 'collection'> & { fragrance: FragranceSummary }

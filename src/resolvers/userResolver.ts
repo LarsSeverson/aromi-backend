@@ -38,13 +38,14 @@ export class UserResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapUserCollectionRowToUserCollectionSummary(row)
+            mapFn: (row) => this.mapUserCollectionRowToUserCollectionSummary(row, parent)
           }),
         error => { throw error }
       )
   }
 
-  private mapUserCollectionRowToUserCollectionSummary (row: UserCollectionRow): UserCollectionSummary {
+  // TODO: May have to remove user and make it have its own resolver if base query collection(s) is ever implemented
+  private mapUserCollectionRowToUserCollectionSummary (row: UserCollectionRow, user: UserSummary): UserCollectionSummary {
     const {
       id,
       name,
@@ -58,7 +59,8 @@ export class UserResolver extends ApiResolver {
         createdAt,
         updatedAt,
         deletedAt
-      }
+      },
+      user
     }
   }
 }
