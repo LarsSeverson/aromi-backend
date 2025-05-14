@@ -82,13 +82,13 @@ export class FragranceService extends ApiService<'fragrances'> {
       .reduce(
         (qb, [column, value]) => {
           const op = this.operand(value)
-          return qb.where(column, op, value)
+          return qb.where(`fragrances.${column}`, op, value)
         },
         db
           .selectFrom('fragrances')
           .leftJoin('fragranceVotes as fv', (join) =>
             join
-              .onRef('fv.fragranceId', '=', 'id')
+              .onRef('fv.fragranceId', '=', 'fragrances.id')
               .on('fv.userId', '=', userId)
               .on('fv.deletedAt', 'is', null)
           )
@@ -112,13 +112,13 @@ export class FragranceService extends ApiService<'fragrances'> {
       .reduce(
         (qb, [column, value]) => {
           const op = this.operand(value)
-          return qb.where(column, op, value)
+          return qb.where(`fragrances.${column}`, op, value)
         },
         db
           .selectFrom('fragrances')
           .leftJoin('fragranceVotes as fv', (join) =>
             join
-              .onRef('fv.fragranceId', '=', 'id')
+              .onRef('fv.fragranceId', '=', 'fragrances.id')
               .on('fv.userId', '=', userId)
               .on('fv.deletedAt', 'is', null)
           )
