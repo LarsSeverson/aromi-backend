@@ -8,13 +8,6 @@ import { type PaginationParams } from '@src/common/pagination'
 export type UserRow = Selectable<User>
 export type UserCollectionRow = Selectable<UserCollection>
 
-export interface GetUserCollectionsParams {
-  userId: number
-  paginationParams: PaginationParams
-}
-
-export interface GetMyCollectionsParams extends Omit<GetUserCollectionsParams, 'userId'> {}
-
 export class UserService extends ApiService<'users'> {
   find (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow, ApiError> {
     const { db } = this

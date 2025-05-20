@@ -22,7 +22,9 @@ const config: CodegenConfig = {
           UserCollection: '../schemas/user/mappers#UserCollectionSummary',
           UserCollectionEdge: '../schemas/user/mappers#UserCollectionSummaryEdge',
           UserCollectionItem: '../schemas/user/mappers#UserCollectionItemSummary',
-          UserCollectionItemEdge: '../schemas/user/mappers#UserCollectionItemSummaryEdge'
+          UserCollectionItemEdge: '../schemas/user/mappers#UserCollectionItemSummaryEdge',
+          UserReview: '../schemas/user/mappers#UserReviewSummary',
+          UserReviewEdge: '../schemas/user/mappers#UserReviewSummaryEdge'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

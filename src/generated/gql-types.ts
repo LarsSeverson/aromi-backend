@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary } from '../schemas/fragrance/mappers';
-import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge, UserCollectionItemSummary, UserCollectionItemSummaryEdge } from '../schemas/user/mappers';
+import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge, UserCollectionItemSummary, UserCollectionItemSummaryEdge, UserReviewSummary, UserReviewSummaryEdge } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;

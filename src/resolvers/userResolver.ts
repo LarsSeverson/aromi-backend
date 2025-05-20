@@ -1,8 +1,9 @@
 import { extractPaginationParams } from '@src/common/pagination'
 import { type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
-import { type UserCollectionSummary, type UserSummary } from '@src/schemas/user/mappers'
+import { type UserReviewSummary, type UserCollectionSummary, type UserSummary } from '@src/schemas/user/mappers'
 import { type UserCollectionRow, type UserRow } from '@src/services/userService'
 import { ApiResolver } from './apiResolver'
+import { type FragranceReviewRow } from '@src/services/reviewService'
 
 export class UserResolver extends ApiResolver {
   me: QueryResolvers['me'] = (parent, args, context, info) => {
@@ -44,7 +45,27 @@ export class UserResolver extends ApiResolver {
       )
   }
 
-  // TODO: May have to remove user and make it have its own resolver if base query collection(s) is ever implemented
+  userReviews: UserFieldResolvers['reviews'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const paginationParams = extractPaginationParams(input)
+
+    return await services
+      .review
+      .findAllPaginated({ criteria: { userId: id }, paginationParams })
+      .match(
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: (row) => this.mapFragranceReviewRowToFragranceReview(row, parent)
+          }),
+        error => { throw error }
+      )
+  }
+
   private mapUserCollectionRowToUserCollectionSummary (row: UserCollectionRow, user: UserSummary): UserCollectionSummary {
     const {
       id,
@@ -55,6 +76,33 @@ export class UserResolver extends ApiResolver {
     return {
       id,
       name,
+      audit: {
+        createdAt,
+        updatedAt,
+        deletedAt
+      },
+      user
+    }
+  }
+
+  private mapFragranceReviewRowToFragranceReview (row: FragranceReviewRow, user: UserSummary): UserReviewSummary {
+    const {
+      id,
+      rating, reviewText,
+      voteScore, likesCount, dislikesCount, myVote,
+      createdAt, updatedAt, deletedAt
+    } = row
+
+    return {
+      id,
+      rating,
+      text: reviewText,
+      votes: {
+        score: voteScore,
+        likesCount,
+        dislikesCount,
+        myVote: myVote === 1 ? true : myVote === -1 ? false : null
+      },
       audit: {
         createdAt,
         updatedAt,

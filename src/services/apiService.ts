@@ -45,3 +45,6 @@ export abstract class ApiService<Table extends Tables> {
     return Array.isArray(value) ? 'in' : '='
   }
 }
+
+// Util types
+export interface MyVote { myVote: number | null }

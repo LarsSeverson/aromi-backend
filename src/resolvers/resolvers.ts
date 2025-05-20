@@ -23,7 +23,8 @@ export class ApiResolvers implements Resolvers {
 
   // User Field resolvers
   User: UserFieldResolvers = {
-    collections: userResolver.userCollections
+    collections: userResolver.userCollections,
+    reviews: userResolver.userReviews
   }
 
   // Collection Field resolvers

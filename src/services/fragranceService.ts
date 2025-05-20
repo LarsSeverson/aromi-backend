@@ -1,9 +1,10 @@
 import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
-import { type FragranceImage, type Fragrance, type FragranceReview, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
+import { type FragranceImage, type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { ApiService, type ServiceFindCriteria } from './apiService'
+import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
+import { type FragranceReviewRow } from './reviewService'
 
 /*
   TODO:
@@ -13,11 +14,8 @@ import { ApiService, type ServiceFindCriteria } from './apiService'
     - Split up the services so this class isn't responsible for everything
 */
 
-interface MyVote { myVote: number | null }
-
 export type FragranceRow = Selectable<Fragrance> & MyVote
 export type FragranceImageRow = Selectable<FragranceImage>
-export type FragranceReviewRow = Selectable<FragranceReview> & MyVote
 export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
 export type FragranceTraitRow = Selectable<FragranceTrait> & MyVote
 
@@ -241,9 +239,9 @@ export class FragranceService extends ApiService<'fragrances'> {
   }
 
   getAccordsOnSingle (params: GetFragranceAccordsOnSingleParams): ResultAsync<FragranceAccordRow[], ApiError> {
-    const { db } = this
-    const userId = this.context.me?.id ?? null
+    const { db, context } = this
     const { fragranceId, paginationParams, fill = false } = params
+    const userId = context.me?.id ?? null
 
     const { first, cursor, sortParams } = paginationParams
     const { column, operator, direction } = sortParams

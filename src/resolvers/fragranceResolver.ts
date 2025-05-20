@@ -3,9 +3,10 @@ import { extractPaginationParams } from '@src/common/pagination'
 import { type FragranceTraitEnum } from '@src/db/schema'
 import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord } from '@src/generated/gql-types'
 import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceReviewRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
+import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
 import { ApiResolver } from './apiResolver'
+import { type FragranceReviewRow } from '@src/services/reviewService'
 
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {

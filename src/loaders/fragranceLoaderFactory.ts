@@ -1,8 +1,9 @@
 import DataLoader from 'dataloader'
-import { type FragranceService, type FragranceImageRow, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
+import { type FragranceService, type FragranceImageRow, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
 import { type PaginationParams } from '@src/common/pagination'
 import { LoaderFactory } from './loaderFactory'
 import { type NoteLayerEnum } from '@src/db/schema'
+import { type FragranceReviewRow } from '@src/services/reviewService'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
