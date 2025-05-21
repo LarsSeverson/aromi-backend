@@ -17,7 +17,7 @@ export class FragranceResolver extends ApiResolver {
       .fragrance
       .find({ id })
       .match(
-        row => this.mapFragranceRowToFragranceSummary(row),
+        mapFragranceRowToFragranceSummary,
         error => { throw error }
       )
   }
@@ -36,7 +36,7 @@ export class FragranceResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapFragranceRowToFragranceSummary(row)
+            mapFn: mapFragranceRowToFragranceSummary
           }),
         error => { throw error }
       )
@@ -165,38 +165,6 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  private mapFragranceRowToFragranceSummary (row: FragranceRow): FragranceSummary {
-    const {
-      id,
-      brand, name, rating, reviewsCount,
-      voteScore, likesCount, dislikesCount, myVote,
-      createdAt,
-      updatedAt,
-      deletedAt
-    } = row
-
-    return {
-      id,
-      brand,
-      name,
-      rating: rating ?? 0.0,
-      reviewsCount,
-
-      votes: {
-        score: voteScore,
-        likesCount,
-        dislikesCount,
-        myVote: myVote === 1 ? true : myVote === -1 ? false : null
-      },
-
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      }
-    }
-  }
-
   private mapFragranceTraitRowsToFragranceTraits (rows: FragranceTraitRow[]): FragranceTrait[] {
     return rows.map(({ trait, value, myVote }) => ({ type: FRAGRANCE_TRAIT_TO_TYPE[trait], value, myVote }))
   }
@@ -299,3 +267,35 @@ export const FRAGRANCE_TRAIT_TO_TYPE: Record<FragranceTraitEnum, FragranceTraitT
   gender: FragranceTraitType.Gender,
   complexity: FragranceTraitType.Complexity
 } as const
+
+export const mapFragranceRowToFragranceSummary = (row: FragranceRow): FragranceSummary => {
+  const {
+    id,
+    brand, name, rating, reviewsCount,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt,
+    updatedAt,
+    deletedAt
+  } = row
+
+  return {
+    id,
+    brand,
+    name,
+    rating: rating ?? 0.0,
+    reviewsCount,
+
+    votes: {
+      score: voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    }
+  }
+}

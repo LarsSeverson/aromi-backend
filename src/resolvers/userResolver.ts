@@ -4,6 +4,7 @@ import { type UserReviewSummary, type UserCollectionSummary, type UserSummary } 
 import { type UserCollectionRow, type UserRow } from '@src/services/userService'
 import { ApiResolver } from './apiResolver'
 import { type FragranceReviewRow } from '@src/services/reviewService'
+import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
 
 export class UserResolver extends ApiResolver {
   me: QueryResolvers['me'] = (parent, args, context, info) => {
@@ -39,7 +40,7 @@ export class UserResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapUserCollectionRowToUserCollectionSummary(row, parent)
+            mapFn: (row) => mapUserCollectionRowToUserCollectionSummary(row, parent)
           }),
         error => { throw error }
       )
@@ -60,56 +61,31 @@ export class UserResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapFragranceReviewRowToFragranceReview(row, parent)
+            mapFn: (row) => mapFragranceReviewRowToFragranceReview(row, parent)
           }),
         error => { throw error }
       )
   }
 
-  private mapUserCollectionRowToUserCollectionSummary (row: UserCollectionRow, user: UserSummary): UserCollectionSummary {
-    const {
-      id,
-      name,
-      createdAt, updatedAt, deletedAt
-    } = row
+  userLikes: UserFieldResolvers['likes'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
 
-    return {
-      id,
-      name,
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      },
-      user
-    }
-  }
+    const paginationParams = extractPaginationParams(input)
 
-  private mapFragranceReviewRowToFragranceReview (row: FragranceReviewRow, user: UserSummary): UserReviewSummary {
-    const {
-      id,
-      rating, reviewText,
-      voteScore, likesCount, dislikesCount, myVote,
-      createdAt, updatedAt, deletedAt
-    } = row
-
-    return {
-      id,
-      rating,
-      text: reviewText,
-      votes: {
-        score: voteScore,
-        likesCount,
-        dislikesCount,
-        myVote: myVote === 1 ? true : myVote === -1 ? false : null
-      },
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      },
-      user
-    }
+    return await services
+      .fragrance
+      .getLiked({ userId: id, paginationParams })
+      .match(
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: mapFragranceRowToFragranceSummary
+          }),
+        error => { throw error }
+      )
   }
 }
 
@@ -134,5 +110,51 @@ export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
       updatedAt,
       deletedAt
     }
+  }
+}
+
+export const mapUserCollectionRowToUserCollectionSummary = (row: UserCollectionRow, user: UserSummary): UserCollectionSummary => {
+  const {
+    id,
+    name,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    name,
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    },
+    user
+  }
+}
+
+export const mapFragranceReviewRowToFragranceReview = (row: FragranceReviewRow, user: UserSummary): UserReviewSummary => {
+  const {
+    id,
+    rating, reviewText,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    rating,
+    text: reviewText,
+    votes: {
+      score: voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    },
+    user
   }
 }

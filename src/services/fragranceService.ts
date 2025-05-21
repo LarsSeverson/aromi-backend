@@ -1,7 +1,7 @@
 import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
-import { type FragranceImage, type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum } from '@src/db/schema'
-import { sql, type Selectable } from 'kysely'
+import { type FragranceImage, type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum, type DB } from '@src/db/schema'
+import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
 import { type FragranceReviewRow } from './reviewService'
@@ -68,6 +68,11 @@ export interface GetFragranceReviewsMultipleParams {
 
 export interface GetFragranceTraitsMultipleParams {
   fragranceIds: number[]
+}
+
+export interface GetLikedParams {
+  userId: number
+  paginationParams: PaginationParams
 }
 
 export class FragranceService extends ApiService<'fragrances'> {
@@ -655,5 +660,101 @@ export class FragranceService extends ApiService<'fragrances'> {
           .execute(),
         error => ApiError.fromDatabase(error as Error)
       )
+  }
+
+  getLiked (params: GetLikedParams): ResultAsync<FragranceRow[], ApiError> {
+    const { db, context } = this
+    const { userId: ownerId, paginationParams } = params
+    const viewerId = context.me?.id ?? null
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operator, direction } = sortParams
+
+    const query = db
+      .selectFrom('fragrances')
+      .innerJoin('fragranceVotes as fvOwner', join =>
+        join
+          .onRef('fvOwner.fragranceId', '=', 'fragrances.id')
+          .on('fvOwner.userId', '=', ownerId)
+          .on('fvOwner.deletedAt', 'is', null)
+          .on('fvOwner.vote', '=', 1)
+      )
+      .leftJoin('fragranceVotes as fvViewer', join =>
+        join
+          .onRef('fvViewer.fragranceId', '=', 'fragrances.id')
+          .on('fvViewer.userId', '=', viewerId)
+          .on('fvViewer.deletedAt', 'is', null)
+      )
+      .selectAll('fragrances')
+      .select('fvViewer.vote as myVote')
+      .$if(cursor.isValid, qb =>
+        qb.where(({ eb, or, and }) =>
+          or([
+            eb(column, operator, cursor.value),
+            and([
+              eb(column, '=', cursor.value),
+              eb('id', operator, cursor.lastId)
+            ])
+          ])
+        )
+      )
+      .orderBy(column, direction)
+      .orderBy('id', direction)
+      .limit(first + 1)
+
+    return ResultAsync.fromPromise(
+      query.execute(),
+      error => ApiError.fromDatabase(error as Error)
+    )
+  }
+
+  private baseQuery (criteria?: ServiceFindCriteria<'fragrances'>): SelectQueryBuilder<DB, 'fragrances', FragranceRow> {
+    const { db, context } = this
+    const userId = context.me?.id ?? null
+
+    const base = db
+      .selectFrom('fragrances')
+      .leftJoin('fragranceVotes as fv', (join) =>
+        join
+          .onRef('fv.fragranceId', '=', 'fragrances.id')
+          .on('fv.userId', '=', userId)
+          .on('fv.deletedAt', 'is', null)
+      )
+      .selectAll('fragrances')
+      .select('fv.vote as myVote')
+
+    if (criteria == null) return base
+
+    return this
+      .entries(criteria)
+      .reduce(
+        (qb, [column, value]) => qb.where(`fragrances.${column}`, this.operand(value), value),
+        base
+      )
+  }
+
+  private paginatedQuery (
+    paginationParams: PaginationParams,
+    criteria?: ServiceFindCriteria<'fragrances'>
+  ): SelectQueryBuilder<DB, 'fragrances', FragranceRow> {
+    const { first, cursor, sortParams } = paginationParams
+    const { column, operator, direction } = sortParams
+
+    return this
+      .baseQuery(criteria)
+      .$if(cursor.isValid, qb =>
+        qb
+          .where(({ eb, or, and }) =>
+            or([
+              eb(column, operator, cursor.value),
+              and([
+                eb(column, '=', cursor.value),
+                eb('id', operator, cursor.lastId)
+              ])
+            ])
+          )
+      )
+      .orderBy(column, direction)
+      .orderBy('id', direction)
+      .limit(first + 1)
   }
 }

@@ -70,7 +70,8 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
     return this
       .entries(criteria)
       .reduce(
-        (qb, [column, value]) => qb.where(column, this.operand(value), value),
+        (qb, [column, value]) => qb
+          .where(`fragranceReviews.${column}`, this.operand(value), value),
         base
       )
   }
@@ -96,8 +97,8 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
             ])
           )
       )
-      .orderBy(column, direction)
-      .orderBy('id', direction)
+      .orderBy(`fragranceReviews.${column}`, direction)
+      .orderBy('fragranceReviews.id', direction)
       .limit(first + 1)
   }
 }
