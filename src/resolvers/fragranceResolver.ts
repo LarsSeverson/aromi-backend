@@ -1,7 +1,7 @@
 import { mergeAllSignedSrcs } from '@src/common/images'
 import { extractPaginationParams } from '@src/common/pagination'
 import { type FragranceTraitEnum } from '@src/db/schema'
-import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord } from '@src/generated/gql-types'
+import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers } from '@src/generated/gql-types'
 import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
@@ -161,6 +161,21 @@ export class FragranceResolver extends ApiResolver {
       )
       .match(
         rows => this.mapDistRowsToDist(rows),
+        error => { throw error }
+      )
+  }
+
+  voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { fragranceId, vote } = input
+
+    return await services
+      .fragrance
+      .vote({ fragranceId, vote: vote?.valueOf() ?? null })
+      .match(
+        mapFragranceRowToFragranceSummary,
         error => { throw error }
       )
   }

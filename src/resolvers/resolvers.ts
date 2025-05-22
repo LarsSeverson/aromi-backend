@@ -1,11 +1,13 @@
-import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type UserCollectionResolvers as UserCollectionFieldResolvers, type FragranceReviewResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type UserCollectionResolvers as UserCollectionFieldResolvers, type FragranceReviewResolvers, type MutationResolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
 import { FragranceResolver } from './fragranceResolver'
 import { NoteResolver } from './noteResolver'
 import { UserResolver } from './userResolver'
 import { CollectionResolver } from './collectionResolver'
 import { ReviewResolver } from './reviewResolvers'
+import { AuthResolver } from './authResolver'
 
+const authResolver = new AuthResolver()
 const userResolver = new UserResolver()
 const fragranceResolver = new FragranceResolver()
 const noteResolver = new NoteResolver()
@@ -55,5 +57,20 @@ export class ApiResolvers implements Resolvers {
   // Fragrance Field Review resolvers
   FragranceReview: FragranceReviewResolvers = {
     user: reviewResolver.reviewUser
+  }
+
+  Mutation?: MutationResolvers = {
+    // Auth
+    refresh: authResolver.refresh,
+    logIn: authResolver.logIn,
+    logOut: authResolver.logOut,
+    signUp: authResolver.signUp,
+    confirmSignUp: authResolver.confirmSignUp,
+    forgotPassword: authResolver.forgotPassword,
+    confirmForgotPassword: authResolver.confirmForgotPassword,
+    resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
+
+    // Fragrance
+    voteOnFragrance: fragranceResolver.voteOnFragrance
   }
 }

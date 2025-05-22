@@ -171,6 +171,7 @@ type Mutation {
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): Boolean!
   signUp(email: String!, password: String!): SignUpResult!
+  voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
 }
 
 enum NoteLayer {
@@ -269,6 +270,11 @@ type UserCollectionItemConnection {
 type UserCollectionItemEdge {
   cursor: String!
   node: UserCollectionItem!
+}
+
+input VoteOnFragranceInput {
+  fragranceId: Int!
+  vote: Boolean
 }
 
 type VoteSummary {

@@ -82,6 +82,10 @@ extend type Query {
   fragrances(input: PaginationInput): FragranceConnection!
 }
 
+extend type Mutation {
+  voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
+}
+
 enum FragranceTraitType {
   GENDER
   LONGEVITY
@@ -106,6 +110,11 @@ input AccordsInput {
 input NotesInput {
   pagination: PaginationInput
   fill: Boolean
+}
+
+input VoteOnFragranceInput {
+  fragranceId: Int!
+  vote: Boolean
 }
 
 # Pagination

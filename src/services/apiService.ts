@@ -2,9 +2,9 @@ import { type ApiContext } from '@src/context'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
 import { type ResultAsync } from 'neverthrow'
-import { type ApiError } from '@src/common/error'
+import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
-import { type ComparisonOperatorExpression, type OperandValueExpressionOrList } from 'kysely'
+import { type Selectable, type ComparisonOperatorExpression, type OperandValueExpressionOrList } from 'kysely'
 
 export interface ApiServiceContext {
   me?: ApiContext['me']
@@ -28,10 +28,70 @@ export abstract class ApiService<Table extends Tables> {
     this.db = sources.db
   }
 
-  abstract find (criteria: ServiceFindCriteria<Table>): ResultAsync<unknown, ApiError>
-  abstract findAll (criteria: ServiceFindCriteria<Table>): ResultAsync<unknown[], ApiError>
-  abstract list (params: PaginationParams): ResultAsync<unknown[], ApiError>
+  // Reads
+  find (criteria: ServiceFindCriteria<Table>): ResultAsync<Selectable<DB[Table]>, ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'find() not implemented for service'
+    )
+  }
 
+  findAll (criteria: ServiceFindCriteria<Table>): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'findAll() not implemented for service'
+    )
+  }
+
+  list (params: PaginationParams): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'list() not implemented for service'
+    )
+  }
+
+  // Write
+  create (data: Partial<DB[Table]>): ResultAsync<DB[Table], ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'create() not implemented for service'
+    )
+  }
+
+  // Update
+  update (
+    criteria: ServiceFindCriteria<Table>,
+    changes: Partial<DB[Table]>
+  ): ResultAsync<DB[Table], ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'update() not implemented for service'
+    )
+  }
+
+  // Delete
+  delete (
+    criteria: ServiceFindCriteria<Table>
+  ): ResultAsync<number, ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'delete() not implemented for service'
+    )
+  }
+
+  // Utils
   setContext (context: ApiServiceContext): this {
     this.context = context
     return this

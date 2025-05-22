@@ -2,7 +2,7 @@ import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type FragranceImage, type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum, type DB } from '@src/db/schema'
 import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
-import { ResultAsync } from 'neverthrow'
+import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
 import { type FragranceReviewRow } from './reviewService'
 
@@ -705,6 +705,50 @@ export class FragranceService extends ApiService<'fragrances'> {
       query.execute(),
       error => ApiError.fromDatabase(error as Error)
     )
+  }
+
+  vote (params: {
+    fragranceId: number
+    vote: boolean | null
+  }): ResultAsync<FragranceRow, ApiError> {
+    const { db, context } = this
+    const { fragranceId, vote } = params
+    const userId = context.me?.id
+
+    if (userId == null) {
+      return errAsync(new ApiError(
+        'NOT_AUTHORIZED',
+        'You are not authorized to perform this action',
+        403,
+        'Vote on fragrance called without valid user'
+      ))
+    }
+
+    const voteValue = vote == null ? 0 : vote ? 1 : -1
+    const deletedAt = vote == null ? new Date() : null
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .insertInto('fragranceVotes')
+          .values({ fragranceId, userId, vote: voteValue, deletedAt })
+          .onConflict(c =>
+            c
+              .columns(['fragranceId', 'userId'])
+              .doUpdateSet({ vote: voteValue, deletedAt })
+          )
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .andThen(() =>
+        ResultAsync
+          .fromPromise(
+            this
+              .baseQuery({ id: fragranceId })
+              .executeTakeFirstOrThrow(),
+            error => ApiError.fromDatabase(error as Error)
+          )
+      )
   }
 
   private baseQuery (criteria?: ServiceFindCriteria<'fragrances'>): SelectQueryBuilder<DB, 'fragrances', FragranceRow> {

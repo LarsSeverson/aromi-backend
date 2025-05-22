@@ -244,6 +244,7 @@ export type Mutation = {
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: Scalars['Boolean']['output'];
   signUp: SignUpResult;
+  voteOnFragrance: Fragrance;
 };
 
 
@@ -284,6 +285,11 @@ export type MutationResendSignUpConfirmationCodeArgs = {
 export type MutationSignUpArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationVoteOnFragranceArgs = {
+  input: VoteOnFragranceInput;
 };
 
 export enum NoteLayer {
@@ -429,6 +435,11 @@ export type UserCollectionItemEdge = {
   node: UserCollectionItem;
 };
 
+export type VoteOnFragranceInput = {
+  fragranceId: Scalars['Int']['input'];
+  vote?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type VoteSummary = {
   __typename?: 'VoteSummary';
   dislikesCount: Scalars['Int']['output'];
@@ -555,6 +566,7 @@ export type ResolversTypes = ResolversObject<{
   UserCollectionItem: ResolverTypeWrapper<UserCollectionItemSummary>;
   UserCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionItemEdge']> }>>;
   UserCollectionItemEdge: ResolverTypeWrapper<UserCollectionItemSummaryEdge>;
+  VoteOnFragranceInput: ResolverTypeWrapper<Partial<VoteOnFragranceInput>>;
   VoteSummary: ResolverTypeWrapper<Partial<VoteSummary>>;
 }>;
 
@@ -602,6 +614,7 @@ export type ResolversParentTypes = ResolversObject<{
   UserCollectionItem: UserCollectionItemSummary;
   UserCollectionItemConnection: Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionItemEdge']> }>;
   UserCollectionItemEdge: UserCollectionItemSummaryEdge;
+  VoteOnFragranceInput: Partial<VoteOnFragranceInput>;
   VoteSummary: Partial<VoteSummary>;
 }>;
 
@@ -783,6 +796,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  voteOnFragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
 }>;
 
 export type PageInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
