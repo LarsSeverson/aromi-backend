@@ -28,49 +28,54 @@ export class NoteResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapFragranceNoteRowToFragranceNote(row)
+            mapFn: mapFragranceNoteRowToFragranceNote
           }),
         error => { throw error }
       )
   }
-
-  private mapFragranceNoteRowToFragranceNote (row: FragranceNoteRow): FragranceNote {
-    const {
-      id, noteId,
-      name, layer,
-      votes, myVote,
-      createdAt, updatedAt, deletedAt,
-      isFill
-    } = row
-
-    // TODO: s3Key to some property if planning to store note icon in s3
-    return {
-      id,
-      noteId,
-      name,
-      layer: DB_NOTE_LAYER_TO_GQL_NOTE_LAYER[layer],
-      votes,
-      myVote: myVote != null,
-
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      },
-
-      isFill: isFill ?? false
-    }
-  }
 }
 
-const DB_NOTE_LAYER_TO_GQL_NOTE_LAYER: Record<NoteLayerEnum, NoteLayer> = {
+export const DB_NOTE_LAYER_TO_GQL_NOTE_LAYER: Record<NoteLayerEnum, NoteLayer> = {
   top: NoteLayer.Top,
   middle: NoteLayer.Middle,
   base: NoteLayer.Base
 } as const
 
-// const GQL_NOTE_LAYER_TO_DB_NOTE_LAYER: Record<NoteLayer, NoteLayerEnum> = {
-//   TOP: 'top',
-//   MIDDLE: 'middle',
-//   BASE: 'base'
-// } as const
+export const GQL_NOTE_LAYER_TO_DB_NOTE_LAYER: Record<NoteLayer, NoteLayerEnum> = {
+  TOP: 'top',
+  MIDDLE: 'middle',
+  BASE: 'base'
+} as const
+
+export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): FragranceNote => {
+  const {
+    id, noteId,
+    name, layer,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt,
+    isFill
+  } = row
+
+  // TODO: s3Key to some property if planning to store note icon in s3
+  return {
+    id,
+    noteId,
+    name,
+    layer: DB_NOTE_LAYER_TO_GQL_NOTE_LAYER[layer],
+
+    votes: {
+      score: voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    },
+
+    isFill: isFill ?? false
+  }
+}

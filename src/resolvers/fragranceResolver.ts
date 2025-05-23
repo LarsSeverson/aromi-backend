@@ -7,6 +7,7 @@ import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow,
 import { ResultAsync } from 'neverthrow'
 import { ApiResolver } from './apiResolver'
 import { type FragranceReviewRow } from '@src/services/reviewService'
+import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } from './noteResolver'
 
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
@@ -55,7 +56,7 @@ export class FragranceResolver extends ApiResolver {
         error => error
       )
       .match(
-        rows => this.mapFragranceTraitRowsToFragranceTraits(rows),
+        mapFragranceTraitRowsToFragranceTraits,
         error => { throw error }
       )
   }
@@ -81,7 +82,7 @@ export class FragranceResolver extends ApiResolver {
             .mapToPage({
               rows,
               paginationParams,
-              mapFn: (row) => this.mapFragranceImageRowToFragranceImage(row)
+              mapFn: mapFragranceImageRowToFragranceImage
             })
 
           await mergeAllSignedSrcs({ s3: sources.s3, on: page.edges.map(e => e.node) })
@@ -113,7 +114,7 @@ export class FragranceResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapFragranceAccordRowToFragranceAccord(row)
+            mapFn: mapFragranceAccordRowToFragranceAccord
           }),
         error => { throw error }
       )
@@ -141,7 +142,7 @@ export class FragranceResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapFragranceReviewRowToFragranceReviewSummary(row)
+            mapFn: mapFragranceReviewRowToFragranceReviewSummary
           }),
         error => { throw error }
       )
@@ -160,7 +161,7 @@ export class FragranceResolver extends ApiResolver {
         error => error
       )
       .match(
-        rows => this.mapDistRowsToDist(rows),
+        mapDistRowsToDist,
         error => { throw error }
       )
   }
@@ -173,104 +174,61 @@ export class FragranceResolver extends ApiResolver {
 
     return await services
       .fragrance
-      .vote({ fragranceId, vote: vote?.valueOf() ?? null })
+      .vote({ fragranceId, vote: vote ?? null })
       .match(
         mapFragranceRowToFragranceSummary,
         error => { throw error }
       )
   }
 
-  private mapFragranceTraitRowsToFragranceTraits (rows: FragranceTraitRow[]): FragranceTrait[] {
-    return rows.map(({ trait, value, myVote }) => ({ type: FRAGRANCE_TRAIT_TO_TYPE[trait], value, myVote }))
+  voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { fragranceTraitId, vote } = input
+
+    return await services
+      .fragrance
+      .voteOnTrait({ fragranceTraitId, vote })
+      .match(
+        mapFragranceTraitRowToFragranceTrait,
+        error => { throw error }
+      )
   }
 
-  private mapFragranceAccordRowToFragranceAccord (row: FragranceAccordRow): FragranceAccord {
-    const {
-      id, accordId,
-      name, color,
-      votes, myVote,
-      createdAt, updatedAt, deletedAt,
-      isFill
-    } = row
+  voteOnAccord: MutationResolvers['voteOnAccord'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
 
-    return {
-      id,
-      accordId,
-      name,
-      color,
-      votes,
-      myVote: myVote != null,
+    const { fragranceId, accordId, vote } = input
 
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      },
-
-      isFill: isFill ?? false
-    }
+    return await services
+      .fragrance
+      .voteOnAccord({ fragranceId, accordId, vote: vote ?? null })
+      .match(
+        mapFragranceAccordRowToFragranceAccord,
+        error => { throw error }
+      )
   }
 
-  private mapFragranceImageRowToFragranceImage (row: FragranceImageRow): FragranceImage {
-    const {
-      id, s3Key,
-      createdAt, updatedAt, deletedAt
-    } = row
+  voteOnNote: MutationResolvers['voteOnNote'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
 
-    return {
-      id,
-      src: s3Key,
-      alt: '', // TODO:
+    const { fragranceId, noteId, layer, vote } = input
 
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      }
-    }
-  }
-
-  private mapFragranceReviewRowToFragranceReviewSummary (row: FragranceReviewRow): FragranceReviewSummary {
-    const {
-      id,
-      rating, reviewText,
-      voteScore, likesCount, dislikesCount, myVote,
-      createdAt, updatedAt, deletedAt
-    } = row
-
-    return {
-      id,
-      rating,
-      text: reviewText,
-      votes: {
-        score: voteScore,
-        likesCount,
-        dislikesCount,
-        myVote: myVote === 1 ? true : myVote === -1 ? false : null
-      },
-      audit: {
-        createdAt,
-        updatedAt,
-        deletedAt
-      }
-    }
-  }
-
-  private mapDistRowsToDist (rows: FragranceReviewDistRow[]): FragranceReviewDistribution {
-    const ratingKeys: Record<number, keyof FragranceReviewDistribution> = {
-      1: 'one',
-      2: 'two',
-      3: 'three',
-      4: 'four',
-      5: 'five'
-    }
-
-    return rows
-      .reduce((acc, { rating, count }) => {
-        const key = ratingKeys[rating]
-        if (key != null) acc[key] = count
-        return acc
-      }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
+    return await services
+      .fragrance
+      .voteOnNote({
+        fragranceId,
+        noteId,
+        layer: GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[layer],
+        vote: vote ?? null
+      })
+      .match(
+        mapFragranceNoteRowToFragranceNote,
+        error => { throw error }
+      )
   }
 }
 
@@ -313,4 +271,111 @@ export const mapFragranceRowToFragranceSummary = (row: FragranceRow): FragranceS
       deletedAt
     }
   }
+}
+
+export const mapFragranceTraitRowToFragranceTrait = (row: FragranceTraitRow): FragranceTrait => {
+  const { trait, voteScore, myVote } = row
+  return {
+    type: FRAGRANCE_TRAIT_TO_TYPE[trait],
+    score: voteScore,
+    myVote
+  }
+}
+
+export const mapFragranceTraitRowsToFragranceTraits = (rows: FragranceTraitRow[]): FragranceTrait[] => {
+  return rows.map(mapFragranceTraitRowToFragranceTrait)
+}
+
+export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow): FragranceAccord => {
+  const {
+    id, accordId,
+    name, color,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt,
+    isFill
+  } = row
+
+  return {
+    id,
+    accordId,
+    name,
+    color,
+
+    votes: {
+      score: voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    },
+
+    isFill: isFill ?? false
+  }
+}
+
+export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): FragranceImage => {
+  const {
+    id, s3Key,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    src: s3Key,
+    alt: '', // TODO:
+
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    }
+  }
+}
+
+export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
+  const {
+    id,
+    rating, reviewText,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    rating,
+    text: reviewText,
+    votes: {
+      score: voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+    audit: {
+      createdAt,
+      updatedAt,
+      deletedAt
+    }
+  }
+}
+
+export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceReviewDistribution => {
+  const ratingKeys: Record<number, keyof FragranceReviewDistribution> = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five'
+  }
+
+  return rows
+    .reduce((acc, { rating, count }) => {
+      const key = ratingKeys[rating]
+      if (key != null) acc[key] = count
+      return acc
+    }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
 }

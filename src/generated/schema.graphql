@@ -50,9 +50,8 @@ type FragranceAccord {
   color: String!
   id: Int!
   isFill: Boolean!
-  myVote: Boolean
   name: String!
-  votes: Int!
+  votes: VoteSummary!
 }
 
 type FragranceAccordConnection {
@@ -97,10 +96,9 @@ type FragranceNote {
   id: Int!
   isFill: Boolean!
   layer: NoteLayer!
-  myVote: Boolean
   name: String!
   noteId: Int!
-  votes: Int!
+  votes: VoteSummary!
 }
 
 type FragranceNoteConnection {
@@ -148,8 +146,8 @@ type FragranceReviewEdge {
 
 type FragranceTrait {
   myVote: Float
+  score: Float!
   type: FragranceTraitType!
-  value: Float!
 }
 
 enum FragranceTraitType {
@@ -171,7 +169,10 @@ type Mutation {
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): Boolean!
   signUp(email: String!, password: String!): SignUpResult!
+  voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
+  voteOnNote(input: VoteOnNoteInput!): FragranceNote!
+  voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
 }
 
 enum NoteLayer {
@@ -272,9 +273,27 @@ type UserCollectionItemEdge {
   node: UserCollectionItem!
 }
 
+input VoteOnAccordInput {
+  accordId: Int!
+  fragranceId: Int!
+  vote: Boolean
+}
+
 input VoteOnFragranceInput {
   fragranceId: Int!
   vote: Boolean
+}
+
+input VoteOnNoteInput {
+  fragranceId: Int!
+  layer: NoteLayer!
+  noteId: Int!
+  vote: Boolean
+}
+
+input VoteOnTraitInput {
+  fragranceTraitId: Int!
+  vote: Float!
 }
 
 type VoteSummary {

@@ -263,11 +263,19 @@ export class FragranceService extends ApiService<'fragrances'> {
         join
           .onRef('a.id', '=', 'fa.accordId')
       )
-      .selectAll('fa')
       .select([
-        'av.id as myVote',
+        'fa.fragranceId',
+        'fa.id',
+        'a.id as accordId',
         'a.name',
         'a.color',
+        'fa.voteScore',
+        'fa.likesCount',
+        'fa.dislikesCount',
+        'av.vote as myVote',
+        'fa.createdAt',
+        'fa.updatedAt',
+        'fa.deletedAt',
         sql<boolean>`FALSE`.as('isFill')
       ])
       .$if(fill, qb =>
@@ -283,15 +291,17 @@ export class FragranceService extends ApiService<'fragrances'> {
               .where('fa2.id', 'is', null)
               .select([
                 sql<number>`${fragranceId}`.as('fragranceId'),
-                'a2.id as accordId',
-                sql<number>`0`.as('votes'),
                 'a2.id as id',
+                'a2.id as accordId',
+                'a2.name',
+                'a2.color',
+                sql<number>`0`.as('voteScore'),
+                sql<number>`0`.as('likesCount'),
+                sql<number>`0`.as('dislikesCount'),
+                sql<number>`0`.as('myVote'),
                 'a2.createdAt',
                 'a2.updatedAt',
                 'a2.deletedAt',
-                sql<number | null>`null`.as('myVote'),
-                'a2.name as name',
-                'a2.color as color',
                 sql<boolean>`TRUE`.as('isFill')
               ])
           )
@@ -352,8 +362,10 @@ export class FragranceService extends ApiService<'fragrances'> {
         'n.name',
         'n.s3Key',
         'fn.layer',
-        'fn.votes',
-        'nv.id as myVote',
+        'fn.voteScore',
+        'fn.likesCount',
+        'fn.dislikesCount',
+        'nv.vote as myVote',
         'fn.createdAt',
         'fn.updatedAt',
         'fn.deletedAt',
@@ -374,11 +386,13 @@ export class FragranceService extends ApiService<'fragrances'> {
                 sql<number>`${fragranceId}`.as('fragranceId'),
                 'n2.id as id',
                 'n2.id as noteId',
-                'n2.name as name',
+                'n2.name',
                 'n2.s3Key',
                 sql<NoteLayerEnum>`${layer}`.as('layer'),
-                sql<number>`0`.as('votes'),
-                sql<number | null>`null`.as('myVote'),
+                sql<number>`0`.as('voteScore'),
+                sql<number>`0`.as('likesCount'),
+                sql<number>`0`.as('dislikesCount'),
+                sql<number>`0`.as('myVote'),
                 'n2.createdAt',
                 'n2.updatedAt',
                 'n2.deletedAt',
@@ -655,7 +669,7 @@ export class FragranceService extends ApiService<'fragrances'> {
               .on('tv.deletedAt', 'is', null)
           )
           .selectAll('ft')
-          .select('tv.value as myVote')
+          .select('tv.vote as myVote')
           .where('ft.fragranceId', 'in', fragranceIds)
           .execute(),
         error => ApiError.fromDatabase(error as Error)
@@ -716,12 +730,13 @@ export class FragranceService extends ApiService<'fragrances'> {
     const userId = context.me?.id
 
     if (userId == null) {
-      return errAsync(new ApiError(
-        'NOT_AUTHORIZED',
-        'You are not authorized to perform this action',
-        403,
-        'Vote on fragrance called without valid user'
-      ))
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'Vote on fragrance called without valid user context'
+        ))
     }
 
     const voteValue = vote == null ? 0 : vote ? 1 : -1
@@ -745,6 +760,247 @@ export class FragranceService extends ApiService<'fragrances'> {
           .fromPromise(
             this
               .baseQuery({ id: fragranceId })
+              .executeTakeFirstOrThrow(),
+            error => ApiError.fromDatabase(error as Error)
+          )
+      )
+  }
+
+  voteOnTrait (params: {
+    fragranceTraitId: number
+    vote: number
+  }): ResultAsync<FragranceTraitRow, ApiError> {
+    const { db, context } = this
+    const { fragranceTraitId, vote } = params
+    const userId = context.me?.id ?? null
+
+    if (userId == null) {
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'Vote on trait called without valid user context'
+        )
+      )
+    }
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .insertInto('fragranceTraitVotes')
+          .values({ fragranceTraitId, userId, vote })
+          .onConflict(c =>
+            c
+              .columns(['fragranceTraitId', 'userId'])
+              .doUpdateSet({ vote })
+          )
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .andThen(() =>
+        ResultAsync
+          .fromPromise(
+            db
+              .selectFrom('fragranceTraits as ft')
+              .leftJoin('fragranceTraitVotes as tv', (join) =>
+                join
+                  .onRef('tv.fragranceTraitId', '=', 'ft.id')
+                  .on('tv.userId', '=', userId)
+                  .on('tv.deletedAt', 'is', null)
+              )
+              .selectAll('ft')
+              .select('tv.vote as myVote')
+              .where('id', '=', fragranceTraitId)
+              .executeTakeFirstOrThrow(),
+            error => ApiError.fromDatabase(error as Error)
+          )
+      )
+  }
+
+  voteOnAccord (params: {
+    fragranceId: number
+    accordId: number
+    vote: boolean | null
+  }): ResultAsync<FragranceAccordRow, ApiError> {
+    const { db, context } = this
+    const { fragranceId, accordId, vote } = params
+    const userId = context.me?.id
+
+    if (userId == null) {
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'Vote on fragrance called without valid user context'
+        ))
+    }
+
+    const voteValue = vote == null ? 0 : vote ? 1 : -1
+    const deletedAt = vote == null ? new Date() : null
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .with('ensure_accord', qb =>
+            qb
+              .insertInto('fragranceAccords')
+              .values({
+                fragranceId,
+                accordId
+              })
+              .onConflict(c =>
+                c
+                  .columns(['fragranceId', 'accordId'])
+                  .doUpdateSet({ updatedAt: new Date() })
+              )
+              .returning('id')
+          )
+          .insertInto('fragranceAccordVotes')
+          .values(eb => ({
+            fragranceAccordId: eb
+              .selectFrom('ensure_accord')
+              .select('id'),
+            userId,
+            vote: voteValue,
+            deletedAt
+          }))
+          .onConflict(c =>
+            c
+              .columns(['fragranceAccordId', 'userId'])
+              .doUpdateSet({ vote: voteValue, deletedAt })
+          )
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .andThen(() =>
+        ResultAsync
+          .fromPromise(
+            db
+              .selectFrom('fragranceAccords as fa')
+              .leftJoin('fragranceAccordVotes as av', (join) =>
+                join
+                  .onRef('av.fragranceAccordId', '=', 'fa.id')
+                  .on('av.userId', '=', userId)
+              )
+              .innerJoin('accords as a', (join) =>
+                join
+                  .onRef('a.id', '=', 'fa.accordId')
+              )
+              .select([
+                'fa.fragranceId',
+                'fa.id',
+                'a.id as accordId',
+                'a.name',
+                'a.color',
+                'fa.voteScore',
+                'fa.likesCount',
+                'fa.dislikesCount',
+                'av.vote as myVote',
+                'fa.createdAt',
+                'fa.updatedAt',
+                'fa.deletedAt',
+                sql<boolean>`FALSE`.as('isFill')
+              ])
+              .where('fa.fragranceId', '=', fragranceId)
+              .where('fa.accordId', '=', accordId)
+              .executeTakeFirstOrThrow(),
+            error => ApiError.fromDatabase(error as Error)
+          )
+      )
+  }
+
+  voteOnNote (params: {
+    fragranceId: number
+    noteId: number
+    layer: NoteLayerEnum
+    vote: boolean | null
+  }): ResultAsync<FragranceNoteRow, ApiError> {
+    const { db, context } = this
+    const { fragranceId, noteId, layer, vote } = params
+    const userId = context.me?.id
+
+    if (userId == null) {
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'Vote on fragrance called without valid user context'
+        ))
+    }
+
+    const voteValue = vote == null ? 0 : vote ? 1 : -1
+    const deletedAt = vote == null ? new Date() : null
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .with('ensure_note', qb =>
+            qb
+              .insertInto('fragranceNotes')
+              .values({
+                fragranceId,
+                noteId,
+                layer
+              })
+              .onConflict(c =>
+                c
+                  .columns(['fragranceId', 'noteId', 'layer'])
+                  .doUpdateSet({ updatedAt: new Date() })
+              )
+          )
+          .insertInto('fragranceNoteVotes')
+          .values(eb => ({
+            fragranceNoteId: eb
+              .selectFrom('ensure_note')
+              .select('id'),
+            userId,
+            vote: voteValue,
+            deletedAt
+          }))
+          .onConflict(c =>
+            c
+              .columns(['fragranceNoteId', 'userId'])
+              .doUpdateSet({ vote: voteValue, deletedAt })
+          )
+          .execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .andThen(() =>
+        ResultAsync
+          .fromPromise(
+            db
+              .selectFrom('fragranceNotes as fn')
+              .leftJoin('fragranceNoteVotes as nv', (join) =>
+                join
+                  .onRef('nv.fragranceNoteId', '=', 'fn.id')
+                  .on('nv.userId', '=', userId)
+              )
+              .innerJoin('notes as n', (join) =>
+                join
+                  .onRef('n.id', '=', 'fn.noteId')
+              )
+              .select([
+                'fn.fragranceId',
+                'fn.id',
+                'n.id as noteId',
+                'n.name',
+                'n.s3Key',
+                'fn.layer',
+                'fn.voteScore',
+                'fn.likesCount',
+                'fn.dislikesCount',
+                'nv.vote as myVote',
+                'fn.createdAt',
+                'fn.updatedAt',
+                'fn.deletedAt',
+                sql<boolean>`FALSE`.as('isFill')
+              ])
+              .where('fn.fragranceId', '=', fragranceId)
+              .where('fn.layer', '=', layer)
+              .where('fn.noteId', '=', noteId)
               .executeTakeFirstOrThrow(),
             error => ApiError.fromDatabase(error as Error)
           )

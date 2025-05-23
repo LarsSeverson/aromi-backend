@@ -37,12 +37,14 @@ export interface CollectionItem {
 
 export interface FragranceAccord {
   accordId: number;
-  createdAt: Timestamp;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
+  dislikesCount: Generated<number>;
   fragranceId: number;
   id: Generated<number>;
-  updatedAt: Timestamp;
-  votes: Generated<number>;
+  likesCount: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  voteScore: Generated<number>;
 }
 
 export interface FragranceAccordVote {
@@ -52,6 +54,7 @@ export interface FragranceAccordVote {
   id: Generated<number>;
   updatedAt: Generated<Timestamp | null>;
   userId: number;
+  vote: number;
 }
 
 export interface FragranceImage {
@@ -65,14 +68,16 @@ export interface FragranceImage {
 }
 
 export interface FragranceNote {
-  createdAt: Timestamp;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
+  dislikesCount: Generated<number>;
   fragranceId: number;
   id: Generated<number>;
   layer: NoteLayerEnum;
+  likesCount: Generated<number>;
   noteId: number;
-  updatedAt: Timestamp;
-  votes: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  voteScore: Generated<number>;
 }
 
 export interface FragranceNoteVote {
@@ -82,6 +87,7 @@ export interface FragranceNoteVote {
   id: Generated<number>;
   updatedAt: Generated<Timestamp | null>;
   userId: number;
+  vote: number;
 }
 
 export interface FragranceReview {
@@ -129,7 +135,7 @@ export interface FragranceTrait {
   id: Generated<number>;
   trait: FragranceTraitEnum;
   updatedAt: Timestamp;
-  value: Generated<number>;
+  voteScore: Generated<number>;
 }
 
 export interface FragranceTraitVote {
@@ -139,7 +145,7 @@ export interface FragranceTraitVote {
   id: Generated<number>;
   updatedAt: Generated<Timestamp>;
   userId: number;
-  value: number;
+  vote: number;
 }
 
 export interface FragranceVote {

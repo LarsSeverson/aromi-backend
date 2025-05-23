@@ -71,6 +71,9 @@ export class ApiResolvers implements Resolvers {
     resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
 
     // Fragrance
-    voteOnFragrance: fragranceResolver.voteOnFragrance
+    voteOnFragrance: fragranceResolver.voteOnFragrance,
+    voteOnTrait: fragranceResolver.voteOnTrait,
+    voteOnAccord: fragranceResolver.voteOnAccord,
+    voteOnNote: fragranceResolver.voteOnNote
   }
 }

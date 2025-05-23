@@ -91,9 +91,8 @@ export type FragranceAccord = {
   color: Scalars['String']['output'];
   id: Scalars['Int']['output'];
   isFill: Scalars['Boolean']['output'];
-  myVote?: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
-  votes: Scalars['Int']['output'];
+  votes: VoteSummary;
 };
 
 export type FragranceAccordConnection = {
@@ -146,10 +145,9 @@ export type FragranceNote = {
   id: Scalars['Int']['output'];
   isFill: Scalars['Boolean']['output'];
   layer: NoteLayer;
-  myVote?: Maybe<Scalars['Boolean']['output']>;
   name: Scalars['String']['output'];
   noteId: Scalars['Int']['output'];
-  votes: Scalars['Int']['output'];
+  votes: VoteSummary;
 };
 
 export type FragranceNoteConnection = {
@@ -220,8 +218,8 @@ export type FragranceReviewEdge = {
 export type FragranceTrait = {
   __typename?: 'FragranceTrait';
   myVote?: Maybe<Scalars['Float']['output']>;
+  score: Scalars['Float']['output'];
   type: FragranceTraitType;
-  value: Scalars['Float']['output'];
 };
 
 export enum FragranceTraitType {
@@ -244,7 +242,10 @@ export type Mutation = {
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: Scalars['Boolean']['output'];
   signUp: SignUpResult;
+  voteOnAccord: FragranceAccord;
   voteOnFragrance: Fragrance;
+  voteOnNote: FragranceNote;
+  voteOnTrait: FragranceTrait;
 };
 
 
@@ -288,8 +289,23 @@ export type MutationSignUpArgs = {
 };
 
 
+export type MutationVoteOnAccordArgs = {
+  input: VoteOnAccordInput;
+};
+
+
 export type MutationVoteOnFragranceArgs = {
   input: VoteOnFragranceInput;
+};
+
+
+export type MutationVoteOnNoteArgs = {
+  input: VoteOnNoteInput;
+};
+
+
+export type MutationVoteOnTraitArgs = {
+  input: VoteOnTraitInput;
 };
 
 export enum NoteLayer {
@@ -435,9 +451,27 @@ export type UserCollectionItemEdge = {
   node: UserCollectionItem;
 };
 
+export type VoteOnAccordInput = {
+  accordId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
+  vote?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type VoteOnFragranceInput = {
   fragranceId: Scalars['Int']['input'];
   vote?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type VoteOnNoteInput = {
+  fragranceId: Scalars['Int']['input'];
+  layer: NoteLayer;
+  noteId: Scalars['Int']['input'];
+  vote?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type VoteOnTraitInput = {
+  fragranceTraitId: Scalars['Int']['input'];
+  vote: Scalars['Float']['input'];
 };
 
 export type VoteSummary = {
@@ -566,7 +600,10 @@ export type ResolversTypes = ResolversObject<{
   UserCollectionItem: ResolverTypeWrapper<UserCollectionItemSummary>;
   UserCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionItemEdge']> }>>;
   UserCollectionItemEdge: ResolverTypeWrapper<UserCollectionItemSummaryEdge>;
+  VoteOnAccordInput: ResolverTypeWrapper<Partial<VoteOnAccordInput>>;
   VoteOnFragranceInput: ResolverTypeWrapper<Partial<VoteOnFragranceInput>>;
+  VoteOnNoteInput: ResolverTypeWrapper<Partial<VoteOnNoteInput>>;
+  VoteOnTraitInput: ResolverTypeWrapper<Partial<VoteOnTraitInput>>;
   VoteSummary: ResolverTypeWrapper<Partial<VoteSummary>>;
 }>;
 
@@ -614,7 +651,10 @@ export type ResolversParentTypes = ResolversObject<{
   UserCollectionItem: UserCollectionItemSummary;
   UserCollectionItemConnection: Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionItemEdge']> }>;
   UserCollectionItemEdge: UserCollectionItemSummaryEdge;
+  VoteOnAccordInput: Partial<VoteOnAccordInput>;
   VoteOnFragranceInput: Partial<VoteOnFragranceInput>;
+  VoteOnNoteInput: Partial<VoteOnNoteInput>;
+  VoteOnTraitInput: Partial<VoteOnTraitInput>;
   VoteSummary: Partial<VoteSummary>;
 }>;
 
@@ -667,9 +707,8 @@ export type FragranceAccordResolvers<ContextType = ApiContext, ParentType extend
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   isFill?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -722,10 +761,9 @@ export type FragranceNoteResolvers<ContextType = ApiContext, ParentType extends 
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   isFill?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   layer?: Resolver<ResolversTypes['NoteLayer'], ParentType, ContextType>;
-  myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   noteId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -781,8 +819,8 @@ export type FragranceReviewEdgeResolvers<ContextType = ApiContext, ParentType ex
 
 export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
   myVote?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
-  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -796,7 +834,10 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
+  voteOnNote?: Resolver<ResolversTypes['FragranceNote'], ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'input'>>;
+  voteOnTrait?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType, RequireFields<MutationVoteOnTraitArgs, 'input'>>;
 }>;
 
 export type PageInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{

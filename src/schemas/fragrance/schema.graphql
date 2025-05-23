@@ -21,7 +21,7 @@ type Fragrance {
 
 type FragranceTrait {
   type: FragranceTraitType!
-  value: Float!
+  score: Float!
   myVote: Float
 }
 
@@ -43,8 +43,7 @@ type FragranceNote {
   noteId: Int!
   name: String!
   layer: NoteLayer!
-  votes: Int!
-  myVote: Boolean
+  votes: VoteSummary!
   audit: Audit!
   isFill: Boolean!
 }
@@ -54,8 +53,7 @@ type FragranceAccord {
   accordId: Int!
   name: String!
   color: String!
-  votes: Int!
-  myVote: Boolean
+  votes: VoteSummary!
   audit: Audit!
   isFill: Boolean!
 }
@@ -84,6 +82,9 @@ extend type Query {
 
 extend type Mutation {
   voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
+  voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
+  voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
+  voteOnNote(input: VoteOnNoteInput!): FragranceNote!
 }
 
 enum FragranceTraitType {
@@ -114,6 +115,24 @@ input NotesInput {
 
 input VoteOnFragranceInput {
   fragranceId: Int!
+  vote: Boolean
+}
+
+input VoteOnTraitInput {
+  fragranceTraitId: Int!
+  vote: Float!
+}
+
+input VoteOnAccordInput {
+  fragranceId: Int!
+  accordId: Int!
+  vote: Boolean
+}
+
+input VoteOnNoteInput {
+  fragranceId: Int!
+  noteId: Int!
+  layer: NoteLayer!
   vote: Boolean
 }
 
