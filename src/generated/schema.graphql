@@ -27,6 +27,8 @@ input CreateFragranceCollectionInput {
 }
 
 input CreateFragranceCollectionItemInput {
+  afterFragranceId: Int
+  beforeFragranceId: Int
   collectionId: Int!
   fragranceId: Int!
 }
@@ -103,6 +105,7 @@ type FragranceCollectionItem {
   audit: Audit!
   fragrance: Fragrance!
   id: Int!
+  rank: Float!
 }
 
 type FragranceCollectionItemConnection {
@@ -210,6 +213,13 @@ enum FragranceTraitType {
   SILLAGE
 }
 
+input MoveFragranceCollectionItemInput {
+  afterFragranceId: Int
+  beforeFragranceId: Int
+  collectionId: Int!
+  fragranceId: Int!
+}
+
 type Mutation {
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
   confirmSignUp(confirmationCode: String!, email: String!): Boolean!
@@ -220,6 +230,7 @@ type Mutation {
   forgotPassword(email: String!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
+  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): Boolean!
   signUp(email: String!, password: String!): SignUpResult!

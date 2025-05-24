@@ -53,6 +53,8 @@ export type CreateFragranceCollectionInput = {
 };
 
 export type CreateFragranceCollectionItemInput = {
+  afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
+  beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
   collectionId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
 };
@@ -155,6 +157,7 @@ export type FragranceCollectionItem = {
   audit: Audit;
   fragrance: Fragrance;
   id: Scalars['Int']['output'];
+  rank: Scalars['Float']['output'];
 };
 
 export type FragranceCollectionItemConnection = {
@@ -293,6 +296,13 @@ export enum FragranceTraitType {
   Sillage = 'SILLAGE'
 }
 
+export type MoveFragranceCollectionItemInput = {
+  afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
+  beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
+  collectionId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   confirmForgotPassword: Scalars['Boolean']['output'];
@@ -304,6 +314,7 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
+  moveFragranceCollectionItem: FragranceCollection;
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: Scalars['Boolean']['output'];
   signUp: SignUpResult;
@@ -356,6 +367,11 @@ export type MutationForgotPasswordArgs = {
 export type MutationLogInArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationMoveFragranceCollectionItemArgs = {
+  input: MoveFragranceCollectionItemInput;
 };
 
 
@@ -637,6 +653,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceTrait: ResolverTypeWrapper<Partial<FragranceTrait>>;
   FragranceTraitType: ResolverTypeWrapper<Partial<FragranceTraitType>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
+  MoveFragranceCollectionItemInput: ResolverTypeWrapper<Partial<MoveFragranceCollectionItemInput>>;
   Mutation: ResolverTypeWrapper<{}>;
   NoteLayer: ResolverTypeWrapper<Partial<NoteLayer>>;
   NotesInput: ResolverTypeWrapper<Partial<NotesInput>>;
@@ -695,6 +712,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceReviewEdge: FragranceReviewSummaryEdge;
   FragranceTrait: Partial<FragranceTrait>;
   Int: Partial<Scalars['Int']['output']>;
+  MoveFragranceCollectionItemInput: Partial<MoveFragranceCollectionItemInput>;
   Mutation: {};
   NotesInput: Partial<NotesInput>;
   PageInfo: Partial<PageInfo>;
@@ -803,6 +821,7 @@ export type FragranceCollectionItemResolvers<ContextType = ApiContext, ParentTyp
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rank?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -928,6 +947,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  moveFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;

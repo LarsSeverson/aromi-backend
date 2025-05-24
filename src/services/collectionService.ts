@@ -154,7 +154,7 @@ export class CollectionService extends ApiService<'fragranceCollections'> {
       .fromPromise(
         db
           .insertInto('fragranceCollectionItems')
-          .values({ fragranceId, collectionId })
+          .values({ fragranceId, collectionId, rank: 10 })
           .returning('id')
           .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
@@ -203,6 +203,7 @@ export class CollectionService extends ApiService<'fragranceCollections'> {
         'fragranceCollectionItems.fragranceId',
         'fragranceCollectionItems.id',
         'fragranceCollectionItems.updatedAt',
+        'fragranceCollectionItems.rank',
         'f.brand',
         'f.dislikesCount',
         'f.id as fragranceId',

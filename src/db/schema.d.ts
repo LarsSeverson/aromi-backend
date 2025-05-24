@@ -13,7 +13,21 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type ImageFormat = "jpg" | "png";
 
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
 export type NoteLayerEnum = "base" | "middle" | "top";
+
+export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
@@ -48,12 +62,21 @@ export interface FragranceAccordVote {
   vote: number;
 }
 
+export interface FragranceCollectionEvent {
+  collectionId: string;
+  createdAt: Generated<Timestamp | null>;
+  operationType: string | null;
+  payload: Json | null;
+  revisionId: Generated<number>;
+}
+
 export interface FragranceCollectionItem {
   collectionId: number;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
+  rank: Numeric;
   updatedAt: Generated<Timestamp>;
 }
 
@@ -192,6 +215,7 @@ export interface DB {
   accords: Accord;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
+  fragranceCollectionEvents: FragranceCollectionEvent;
   fragranceCollectionItems: FragranceCollectionItem;
   fragranceCollections: FragranceCollection;
   fragranceImages: FragranceImage;

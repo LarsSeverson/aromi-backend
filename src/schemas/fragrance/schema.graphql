@@ -85,6 +85,7 @@ type FragranceCollection {
 
 type FragranceCollectionItem {
   id: Int!
+  rank: Float!
   fragrance: Fragrance!
   audit: Audit!
 }
@@ -97,12 +98,11 @@ extend type Query {
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
-
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
-}
+  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
 
-extend type Mutation {
   voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
@@ -150,11 +150,20 @@ input CreateFragranceCollectionInput {
 input CreateFragranceCollectionItemInput {
   collectionId: Int!
   fragranceId: Int!
+  beforeFragranceId: Int
+  afterFragranceId: Int
 }
 
 input DeleteFragranceCollectionItemInput {
   collectionId: Int!
   fragranceId: Int!
+}
+
+input MoveFragranceCollectionItemInput {
+  collectionId: Int!
+  fragranceId: Int!
+  beforeFragranceId: Int
+  afterFragranceId: Int
 }
 
 input VoteOnFragranceInput {

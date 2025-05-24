@@ -97,7 +97,7 @@ export class CollectionResolver extends ApiResolver {
 export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollectionItemRow): FragranceCollectionItemSummary => {
   const {
     id, fragranceId,
-    brand, name, rating, reviewsCount,
+    brand, name, rating, reviewsCount, rank,
     voteScore, likesCount, dislikesCount, myVote,
     createdAt, updatedAt, deletedAt,
     fCreatedAt, fUpdatedAt, fDeletedAt
@@ -105,6 +105,7 @@ export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollec
 
   return {
     id,
+    rank: Number(rank),
     fragrance: {
       id: fragranceId,
       brand,
