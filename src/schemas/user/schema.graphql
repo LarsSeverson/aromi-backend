@@ -6,59 +6,14 @@ type User {
   followerCount: Int!
   followingCount: Int!
 
-  collections(input: PaginationInput): UserCollectionConnection!
+  collections(input: PaginationInput): FragranceCollectionConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
   likes(input: PaginationInput): FragranceConnection!
 
   audit: Audit!
 }
 
-type UserCollection {
-  id: Int!
-  name: String!
-  user: User!
-  items(input: PaginationInput): UserCollectionItemConnection!
-  audit: Audit!
-}
-
-type UserCollectionItem {
-  id: Int!
-  fragrance: Fragrance!
-  audit: Audit!
-}
-
 extend type Query {
   me: User
   user(id: Int!): User
-}
-
-extend type Mutation {
-  createCollection(input: CreateCollectionInput!): UserCollection
-}
-
-# Inputs
-input CreateCollectionInput {
-  name: String!
-}
-
-# Pagination
-# Collection
-type UserCollectionConnection {
-  edges: [UserCollectionEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserCollectionEdge {
-  cursor: String!
-  node: UserCollection!
-}
-
-type UserCollectionItemConnection {
-  edges: [UserCollectionItemEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserCollectionItemEdge {
-  cursor: String!
-  node: UserCollectionItem!
 }

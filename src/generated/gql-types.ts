@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary } from '../schemas/fragrance/mappers';
-import { UserSummary, UserCollectionSummary, UserCollectionSummaryEdge, UserCollectionItemSummary, UserCollectionItemSummaryEdge, UserReviewSummary, UserReviewSummaryEdge } from '../schemas/user/mappers';
+import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary, FragranceCollectionSummary, FragranceCollectionSummaryEdge, FragranceCollectionItemSummary, FragranceCollectionItemSummaryEdge } from '../schemas/fragrance/mappers';
+import { UserSummary, UserReviewSummary, UserReviewSummaryEdge } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -47,8 +47,25 @@ export type CodeDeliveryDetails = {
   method?: Maybe<Scalars['String']['output']>;
 };
 
-export type CreateCollectionInput = {
+export type CreateFragranceCollectionInput = {
+  fragranceId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+};
+
+export type CreateFragranceCollectionItemInput = {
+  collectionId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
+};
+
+export type CreateFragranceReviewInput = {
+  fragranceId: Scalars['Int']['input'];
+  rating: Scalars['Int']['input'];
+  review: Scalars['String']['input'];
+};
+
+export type DeleteFragranceCollectionItemInput = {
+  collectionId: Scalars['Int']['input'];
+  fragranceId: Scalars['Int']['input'];
 };
 
 export type Fragrance = {
@@ -105,6 +122,51 @@ export type FragranceAccordEdge = {
   __typename?: 'FragranceAccordEdge';
   cursor: Scalars['String']['output'];
   node: FragranceAccord;
+};
+
+export type FragranceCollection = {
+  __typename?: 'FragranceCollection';
+  audit: Audit;
+  id: Scalars['Int']['output'];
+  items: FragranceCollectionItemConnection;
+  name: Scalars['String']['output'];
+  user: User;
+};
+
+
+export type FragranceCollectionItemsArgs = {
+  input?: InputMaybe<PaginationInput>;
+};
+
+export type FragranceCollectionConnection = {
+  __typename?: 'FragranceCollectionConnection';
+  edges: Array<FragranceCollectionEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceCollectionEdge = {
+  __typename?: 'FragranceCollectionEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceCollection;
+};
+
+export type FragranceCollectionItem = {
+  __typename?: 'FragranceCollectionItem';
+  audit: Audit;
+  fragrance: Fragrance;
+  id: Scalars['Int']['output'];
+};
+
+export type FragranceCollectionItemConnection = {
+  __typename?: 'FragranceCollectionItemConnection';
+  edges: Array<FragranceCollectionItemEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceCollectionItemEdge = {
+  __typename?: 'FragranceCollectionItemEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceCollectionItem;
 };
 
 export type FragranceConnection = {
@@ -235,7 +297,10 @@ export type Mutation = {
   __typename?: 'Mutation';
   confirmForgotPassword: Scalars['Boolean']['output'];
   confirmSignUp: Scalars['Boolean']['output'];
-  createCollection?: Maybe<UserCollection>;
+  createFragranceCollection: FragranceCollection;
+  createFragranceCollectionItem: FragranceCollectionItem;
+  createFragranceReview: FragranceReview;
+  deleteFragranceCollectionItem: Scalars['Boolean']['output'];
   forgotPassword: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
@@ -245,6 +310,7 @@ export type Mutation = {
   voteOnAccord: FragranceAccord;
   voteOnFragrance: Fragrance;
   voteOnNote: FragranceNote;
+  voteOnReview: FragranceReview;
   voteOnTrait: FragranceTrait;
 };
 
@@ -262,8 +328,23 @@ export type MutationConfirmSignUpArgs = {
 };
 
 
-export type MutationCreateCollectionArgs = {
-  input: CreateCollectionInput;
+export type MutationCreateFragranceCollectionArgs = {
+  input: CreateFragranceCollectionInput;
+};
+
+
+export type MutationCreateFragranceCollectionItemArgs = {
+  input: CreateFragranceCollectionItemInput;
+};
+
+
+export type MutationCreateFragranceReviewArgs = {
+  input: CreateFragranceReviewInput;
+};
+
+
+export type MutationDeleteFragranceCollectionItemArgs = {
+  input: DeleteFragranceCollectionItemInput;
 };
 
 
@@ -301,6 +382,11 @@ export type MutationVoteOnFragranceArgs = {
 
 export type MutationVoteOnNoteArgs = {
   input: VoteOnNoteInput;
+};
+
+
+export type MutationVoteOnReviewArgs = {
+  input: VoteOnReviewInput;
 };
 
 
@@ -381,7 +467,7 @@ export enum SortDirection {
 export type User = {
   __typename?: 'User';
   audit: Audit;
-  collections: UserCollectionConnection;
+  collections: FragranceCollectionConnection;
   email: Scalars['String']['output'];
   followerCount: Scalars['Int']['output'];
   followingCount: Scalars['Int']['output'];
@@ -406,51 +492,6 @@ export type UserReviewsArgs = {
   input?: InputMaybe<PaginationInput>;
 };
 
-export type UserCollection = {
-  __typename?: 'UserCollection';
-  audit: Audit;
-  id: Scalars['Int']['output'];
-  items: UserCollectionItemConnection;
-  name: Scalars['String']['output'];
-  user: User;
-};
-
-
-export type UserCollectionItemsArgs = {
-  input?: InputMaybe<PaginationInput>;
-};
-
-export type UserCollectionConnection = {
-  __typename?: 'UserCollectionConnection';
-  edges: Array<UserCollectionEdge>;
-  pageInfo: PageInfo;
-};
-
-export type UserCollectionEdge = {
-  __typename?: 'UserCollectionEdge';
-  cursor: Scalars['String']['output'];
-  node: UserCollection;
-};
-
-export type UserCollectionItem = {
-  __typename?: 'UserCollectionItem';
-  audit: Audit;
-  fragrance: Fragrance;
-  id: Scalars['Int']['output'];
-};
-
-export type UserCollectionItemConnection = {
-  __typename?: 'UserCollectionItemConnection';
-  edges: Array<UserCollectionItemEdge>;
-  pageInfo: PageInfo;
-};
-
-export type UserCollectionItemEdge = {
-  __typename?: 'UserCollectionItemEdge';
-  cursor: Scalars['String']['output'];
-  node: UserCollectionItem;
-};
-
 export type VoteOnAccordInput = {
   accordId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
@@ -466,6 +507,11 @@ export type VoteOnNoteInput = {
   fragranceId: Scalars['Int']['input'];
   layer: NoteLayer;
   noteId: Scalars['Int']['input'];
+  vote?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type VoteOnReviewInput = {
+  reviewId: Scalars['Int']['input'];
   vote?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -559,13 +605,22 @@ export type ResolversTypes = ResolversObject<{
   AuthPayload: ResolverTypeWrapper<Partial<AuthPayload>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
   CodeDeliveryDetails: ResolverTypeWrapper<Partial<CodeDeliveryDetails>>;
-  CreateCollectionInput: ResolverTypeWrapper<Partial<CreateCollectionInput>>;
+  CreateFragranceCollectionInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionInput>>;
+  CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
+  CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
+  DeleteFragranceCollectionItemInput: ResolverTypeWrapper<Partial<DeleteFragranceCollectionItemInput>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   Fragrance: ResolverTypeWrapper<FragranceSummary>;
   FragranceAccord: ResolverTypeWrapper<Partial<FragranceAccord>>;
   FragranceAccordConnection: ResolverTypeWrapper<Partial<FragranceAccordConnection>>;
   FragranceAccordEdge: ResolverTypeWrapper<Partial<FragranceAccordEdge>>;
+  FragranceCollection: ResolverTypeWrapper<FragranceCollectionSummary>;
+  FragranceCollectionConnection: ResolverTypeWrapper<Partial<Omit<FragranceCollectionConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceCollectionEdge']> }>>;
+  FragranceCollectionEdge: ResolverTypeWrapper<FragranceCollectionSummaryEdge>;
+  FragranceCollectionItem: ResolverTypeWrapper<FragranceCollectionItemSummary>;
+  FragranceCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<FragranceCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceCollectionItemEdge']> }>>;
+  FragranceCollectionItemEdge: ResolverTypeWrapper<FragranceCollectionItemSummaryEdge>;
   FragranceConnection: ResolverTypeWrapper<Partial<Omit<FragranceConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceEdge']> }>>;
   FragranceEdge: ResolverTypeWrapper<FragranceSummaryEdge>;
   FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
@@ -594,15 +649,10 @@ export type ResolversTypes = ResolversObject<{
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
   User: ResolverTypeWrapper<UserSummary>;
-  UserCollection: ResolverTypeWrapper<UserCollectionSummary>;
-  UserCollectionConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionEdge']> }>>;
-  UserCollectionEdge: ResolverTypeWrapper<UserCollectionSummaryEdge>;
-  UserCollectionItem: ResolverTypeWrapper<UserCollectionItemSummary>;
-  UserCollectionItemConnection: ResolverTypeWrapper<Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversTypes['UserCollectionItemEdge']> }>>;
-  UserCollectionItemEdge: ResolverTypeWrapper<UserCollectionItemSummaryEdge>;
   VoteOnAccordInput: ResolverTypeWrapper<Partial<VoteOnAccordInput>>;
   VoteOnFragranceInput: ResolverTypeWrapper<Partial<VoteOnFragranceInput>>;
   VoteOnNoteInput: ResolverTypeWrapper<Partial<VoteOnNoteInput>>;
+  VoteOnReviewInput: ResolverTypeWrapper<Partial<VoteOnReviewInput>>;
   VoteOnTraitInput: ResolverTypeWrapper<Partial<VoteOnTraitInput>>;
   VoteSummary: ResolverTypeWrapper<Partial<VoteSummary>>;
 }>;
@@ -614,13 +664,22 @@ export type ResolversParentTypes = ResolversObject<{
   AuthPayload: Partial<AuthPayload>;
   Boolean: Partial<Scalars['Boolean']['output']>;
   CodeDeliveryDetails: Partial<CodeDeliveryDetails>;
-  CreateCollectionInput: Partial<CreateCollectionInput>;
+  CreateFragranceCollectionInput: Partial<CreateFragranceCollectionInput>;
+  CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
+  CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   Date: Partial<Scalars['Date']['output']>;
+  DeleteFragranceCollectionItemInput: Partial<DeleteFragranceCollectionItemInput>;
   Float: Partial<Scalars['Float']['output']>;
   Fragrance: FragranceSummary;
   FragranceAccord: Partial<FragranceAccord>;
   FragranceAccordConnection: Partial<FragranceAccordConnection>;
   FragranceAccordEdge: Partial<FragranceAccordEdge>;
+  FragranceCollection: FragranceCollectionSummary;
+  FragranceCollectionConnection: Partial<Omit<FragranceCollectionConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceCollectionEdge']> }>;
+  FragranceCollectionEdge: FragranceCollectionSummaryEdge;
+  FragranceCollectionItem: FragranceCollectionItemSummary;
+  FragranceCollectionItemConnection: Partial<Omit<FragranceCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceCollectionItemEdge']> }>;
+  FragranceCollectionItemEdge: FragranceCollectionItemSummaryEdge;
   FragranceConnection: Partial<Omit<FragranceConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceEdge']> }>;
   FragranceEdge: FragranceSummaryEdge;
   FragranceImage: Partial<FragranceImage>;
@@ -645,15 +704,10 @@ export type ResolversParentTypes = ResolversObject<{
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
   User: UserSummary;
-  UserCollection: UserCollectionSummary;
-  UserCollectionConnection: Partial<Omit<UserCollectionConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionEdge']> }>;
-  UserCollectionEdge: UserCollectionSummaryEdge;
-  UserCollectionItem: UserCollectionItemSummary;
-  UserCollectionItemConnection: Partial<Omit<UserCollectionItemConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserCollectionItemEdge']> }>;
-  UserCollectionItemEdge: UserCollectionItemSummaryEdge;
   VoteOnAccordInput: Partial<VoteOnAccordInput>;
   VoteOnFragranceInput: Partial<VoteOnFragranceInput>;
   VoteOnNoteInput: Partial<VoteOnNoteInput>;
+  VoteOnReviewInput: Partial<VoteOnReviewInput>;
   VoteOnTraitInput: Partial<VoteOnTraitInput>;
   VoteSummary: Partial<VoteSummary>;
 }>;
@@ -721,6 +775,46 @@ export type FragranceAccordConnectionResolvers<ContextType = ApiContext, ParentT
 export type FragranceAccordEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceAccordEdge'] = ResolversParentTypes['FragranceAccordEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollection'] = ResolversParentTypes['FragranceCollection']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  items?: Resolver<ResolversTypes['FragranceCollectionItemConnection'], ParentType, ContextType, Partial<FragranceCollectionItemsArgs>>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollectionConnection'] = ResolversParentTypes['FragranceCollectionConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceCollectionEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollectionEdge'] = ResolversParentTypes['FragranceCollectionEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionItemResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollectionItem'] = ResolversParentTypes['FragranceCollectionItem']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionItemConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollectionItemConnection'] = ResolversParentTypes['FragranceCollectionItemConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceCollectionItemEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceCollectionItemEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollectionItemEdge'] = ResolversParentTypes['FragranceCollectionItemEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -827,7 +921,10 @@ export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
   confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'confirmationCode' | 'email'>>;
-  createCollection?: Resolver<Maybe<ResolversTypes['UserCollection']>, ParentType, ContextType, RequireFields<MutationCreateCollectionArgs, 'input'>>;
+  createFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionArgs, 'input'>>;
+  createFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionItemArgs, 'input'>>;
+  createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
+  deleteFragranceCollectionItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -837,6 +934,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
   voteOnNote?: Resolver<ResolversTypes['FragranceNote'], ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'input'>>;
+  voteOnReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationVoteOnReviewArgs, 'input'>>;
   voteOnTrait?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType, RequireFields<MutationVoteOnTraitArgs, 'input'>>;
 }>;
 
@@ -863,7 +961,7 @@ export type SignUpResultResolvers<ContextType = ApiContext, ParentType extends R
 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
-  collections?: Resolver<ResolversTypes['UserCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
+  collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   followingCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -871,46 +969,6 @@ export type UserResolvers<ContextType = ApiContext, ParentType extends Resolvers
   likes?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<UserReviewsArgs>>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollection'] = ResolversParentTypes['UserCollection']> = ResolversObject<{
-  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  items?: Resolver<ResolversTypes['UserCollectionItemConnection'], ParentType, ContextType, Partial<UserCollectionItemsArgs>>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionConnection'] = ResolversParentTypes['UserCollectionConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['UserCollectionEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionEdge'] = ResolversParentTypes['UserCollectionEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['UserCollection'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionItemResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionItem'] = ResolversParentTypes['UserCollectionItem']> = ResolversObject<{
-  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
-  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionItemConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionItemConnection'] = ResolversParentTypes['UserCollectionItemConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['UserCollectionItemEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type UserCollectionItemEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UserCollectionItemEdge'] = ResolversParentTypes['UserCollectionItemEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['UserCollectionItem'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -931,6 +989,12 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
   FragranceAccordConnection?: FragranceAccordConnectionResolvers<ContextType>;
   FragranceAccordEdge?: FragranceAccordEdgeResolvers<ContextType>;
+  FragranceCollection?: FragranceCollectionResolvers<ContextType>;
+  FragranceCollectionConnection?: FragranceCollectionConnectionResolvers<ContextType>;
+  FragranceCollectionEdge?: FragranceCollectionEdgeResolvers<ContextType>;
+  FragranceCollectionItem?: FragranceCollectionItemResolvers<ContextType>;
+  FragranceCollectionItemConnection?: FragranceCollectionItemConnectionResolvers<ContextType>;
+  FragranceCollectionItemEdge?: FragranceCollectionItemEdgeResolvers<ContextType>;
   FragranceConnection?: FragranceConnectionResolvers<ContextType>;
   FragranceEdge?: FragranceEdgeResolvers<ContextType>;
   FragranceImage?: FragranceImageResolvers<ContextType>;
@@ -950,12 +1014,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   SignUpResult?: SignUpResultResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
-  UserCollection?: UserCollectionResolvers<ContextType>;
-  UserCollectionConnection?: UserCollectionConnectionResolvers<ContextType>;
-  UserCollectionEdge?: UserCollectionEdgeResolvers<ContextType>;
-  UserCollectionItem?: UserCollectionItemResolvers<ContextType>;
-  UserCollectionItemConnection?: UserCollectionItemConnectionResolvers<ContextType>;
-  UserCollectionItemEdge?: UserCollectionItemEdgeResolvers<ContextType>;
   VoteSummary?: VoteSummaryResolvers<ContextType>;
 }>;
 

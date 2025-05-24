@@ -26,15 +26,6 @@ export interface Accord {
   updatedAt: Timestamp;
 }
 
-export interface CollectionItem {
-  collectionId: number;
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  fragranceId: number;
-  id: Generated<number>;
-  updatedAt: Generated<Timestamp>;
-}
-
 export interface FragranceAccord {
   accordId: number;
   createdAt: Generated<Timestamp>;
@@ -55,6 +46,24 @@ export interface FragranceAccordVote {
   updatedAt: Generated<Timestamp | null>;
   userId: number;
   vote: number;
+}
+
+export interface FragranceCollectionItem {
+  collectionId: number;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: number;
+  id: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface FragranceCollection {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<number>;
+  name: string;
+  updatedAt: Generated<Timestamp>;
+  userId: number | null;
 }
 
 export interface FragranceImage {
@@ -167,15 +176,6 @@ export interface Note {
   updatedAt: Timestamp;
 }
 
-export interface UserCollection {
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  id: Generated<number>;
-  name: string;
-  updatedAt: Generated<Timestamp>;
-  userId: number | null;
-}
-
 export interface User {
   cognitoId: string;
   createdAt: Timestamp;
@@ -190,9 +190,10 @@ export interface User {
 
 export interface DB {
   accords: Accord;
-  collectionItems: CollectionItem;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
+  fragranceCollectionItems: FragranceCollectionItem;
+  fragranceCollections: FragranceCollection;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
@@ -203,6 +204,5 @@ export interface DB {
   fragranceTraitVotes: FragranceTraitVote;
   fragranceVotes: FragranceVote;
   notes: Note;
-  userCollections: UserCollection;
   users: User;
 }

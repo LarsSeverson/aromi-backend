@@ -57,7 +57,7 @@ export abstract class ApiService<Table extends Tables> {
   }
 
   // Write
-  create (data: Partial<DB[Table]>): ResultAsync<DB[Table], ApiError> {
+  create (data: Partial<Selectable<DB[Table]>>): ResultAsync<Selectable<DB[Table]>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
       'Something went wrong on our end. Please try again later',

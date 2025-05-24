@@ -1,9 +1,11 @@
-import { type UserCollectionResolvers as CollectionFieldResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
-import { type CollectionItemRow } from '@src/services/collectionService'
-import { type UserCollectionItemSummary } from '@src/schemas/user/mappers'
+import { type FragranceCollectionItemRow } from '@src/services/collectionService'
 import { extractPaginationParams } from '@src/common/pagination'
 import { ResultAsync } from 'neverthrow'
+import { type FragranceCollectionItemSummary } from '@src/schemas/fragrance/mappers'
+import { ApiError } from '@src/common/error'
+import { mapFragranceCollectionRowToFragranceCollectionSummary, mapUserRowToUserSummary } from './userResolver'
 
 export class CollectionResolver extends ApiResolver {
   collectionItems: CollectionFieldResolvers['items'] = async (parent, args, context, info) => {
@@ -26,44 +28,105 @@ export class CollectionResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => this.mapCollectionItemRowToCollectionItemSummary(row)
+            mapFn: mapCollectionItemRowToCollectionItemSummary
           }),
         error => { throw error }
       )
   }
 
-  private mapCollectionItemRowToCollectionItemSummary (row: CollectionItemRow): UserCollectionItemSummary {
-    const {
-      id, fragranceId,
-      brand, name, rating, reviewsCount,
-      voteScore, likesCount, dislikesCount, myVote,
-      createdAt, updatedAt, deletedAt,
-      fCreatedAt, fUpdatedAt, fDeletedAt
-    } = row
+  collectionUser: CollectionFieldResolvers['user'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { loaders } = context
 
-    return {
-      id,
-      fragrance: {
-        id: fragranceId,
-        brand,
-        name,
-        rating: rating ?? 0.0,
-        reviewsCount,
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .collection
+          .getUsersLoader()
+          .load({ collectionId: id }),
+        error => error
+      )
+      .match(
+        row => {
+          if (row == null) {
+            throw new ApiError(
+              'NOT_FOUND',
+              'User not found for this collection',
+              404,
+              'Collection loader returned a null user'
+            )
+          }
 
-        votes: {
-          score: voteScore,
-          likesCount,
-          dislikesCount,
-          myVote: myVote === 1 ? true : myVote === -1 ? false : null
+          return mapUserRowToUserSummary(row)
         },
+        error => { throw error }
+      )
+  }
 
-        audit: {
-          createdAt: fCreatedAt, updatedAt: fUpdatedAt, deletedAt: fDeletedAt
-        }
+  createCollection: MutationResolvers['createFragranceCollection'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { name } = input
+
+    return await services
+      .collection
+      .create({ name })
+      .match(
+        mapFragranceCollectionRowToFragranceCollectionSummary,
+        error => { throw error }
+      )
+  }
+
+  createCollectionItem: MutationResolvers['createFragranceCollectionItem'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { fragranceId, collectionId } = input
+
+    return await services
+      .collection
+      .createItem({ fragranceId, collectionId })
+      .match(
+        mapCollectionItemRowToCollectionItemSummary,
+        error => { throw error }
+      )
+  }
+}
+
+export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollectionItemRow): FragranceCollectionItemSummary => {
+  const {
+    id, fragranceId,
+    brand, name, rating, reviewsCount,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt,
+    fCreatedAt, fUpdatedAt, fDeletedAt
+  } = row
+
+  return {
+    id,
+    fragrance: {
+      id: fragranceId,
+      brand,
+      name,
+      rating: rating ?? 0.0,
+      reviewsCount,
+
+      votes: {
+        score: voteScore,
+        likesCount,
+        dislikesCount,
+        myVote: myVote === 1 ? true : myVote === -1 ? false : null
       },
+
       audit: {
-        createdAt, updatedAt, deletedAt
+        createdAt: fCreatedAt,
+        updatedAt: fUpdatedAt,
+        deletedAt: fDeletedAt
       }
+    },
+    audit: {
+      createdAt, updatedAt, deletedAt
     }
   }
 }

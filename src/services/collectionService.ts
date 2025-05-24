@@ -1,20 +1,23 @@
 import { type PaginationParams } from '@src/common/pagination'
-import { type CollectionItem, type DB, type UserCollection } from '@src/db/schema'
 import { type SelectQueryBuilder, type Selectable } from 'kysely'
 import { ApiService, type FindAllPaginatedParams, type ServiceFindCriteria } from './apiService'
-import { ResultAsync } from 'neverthrow'
+import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type FragranceRow } from './fragranceService'
+import { type FragranceCollectionItem, type FragranceCollection, type DB } from '@src/db/schema'
 
-export type UserCollectionRow = Selectable<UserCollection>
-export interface CollectionItemRow extends Selectable<CollectionItem>, Omit<FragranceRow, 'createdAt' | 'updatedAt' | 'deletedAt'> {
+export type FragranceCollectionRow = Selectable<FragranceCollection>
+export interface FragranceCollectionItemRow extends Selectable<FragranceCollectionItem>,
+  Omit<FragranceRow, 'createdAt' | 'updatedAt' | 'deletedAt'> {
   fCreatedAt: Date
   fUpdatedAt: Date
   fDeletedAt: Date | null
 }
 
-export class CollectionService extends ApiService<'userCollections'> {
-  find (criteria: ServiceFindCriteria<'userCollections'>): ResultAsync<UserCollectionRow, ApiError> {
+export class CollectionService extends ApiService<'fragranceCollections'> {
+  find (
+    criteria: ServiceFindCriteria<'fragranceCollections'>
+  ): ResultAsync<FragranceCollectionRow, ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -24,7 +27,9 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  findAll (criteria: ServiceFindCriteria<'userCollections'>): ResultAsync<UserCollectionRow[], ApiError> {
+  findAll (
+    criteria: ServiceFindCriteria<'fragranceCollections'>
+  ): ResultAsync<FragranceCollectionRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -34,7 +39,9 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  findAllPaginated (params: FindAllPaginatedParams<'userCollections'>): ResultAsync<UserCollectionRow[], ApiError> {
+  findAllPaginated (
+    params: FindAllPaginatedParams<'fragranceCollections'>
+  ): ResultAsync<FragranceCollectionRow[], ApiError> {
     const { paginationParams, criteria } = params
 
     return ResultAsync
@@ -46,7 +53,9 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  list (params: PaginationParams): ResultAsync<UserCollectionRow[], ApiError> {
+  list (
+    params: PaginationParams
+  ): ResultAsync<FragranceCollectionRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -56,7 +65,21 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  findAllItems (criteria: ServiceFindCriteria<'collectionItems'>): ResultAsync<CollectionItemRow[], ApiError> {
+  findItem (
+    criteria: ServiceFindCriteria<'fragranceCollectionItems'>
+  ): ResultAsync<FragranceCollectionItemRow, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .baseQueryItems(criteria)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  findAllItems (
+    criteria: ServiceFindCriteria<'fragranceCollectionItems'>
+  ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -66,7 +89,9 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  findAllItemsPaginated (params: FindAllPaginatedParams<'collectionItems'>): ResultAsync<CollectionItemRow[], ApiError> {
+  findAllItemsPaginated (
+    params: FindAllPaginatedParams<'fragranceCollectionItems'>
+  ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
     const { paginationParams, criteria } = params
 
     return ResultAsync
@@ -78,11 +103,72 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  private baseQuery (criteria?: ServiceFindCriteria<'userCollections'>): SelectQueryBuilder<DB, 'userCollections', UserCollectionRow> {
+  create (
+    data: Pick<FragranceCollectionRow, 'name'>
+  ): ResultAsync<FragranceCollectionRow, ApiError> {
+    const { db, context } = this
+    const { name } = data
+    const userId = context.me?.id ?? null
+
+    if (userId == null) {
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'create() collection called without valid user context'
+        )
+      )
+    }
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .insertInto('fragranceCollections')
+          .values({ userId, name })
+          .returningAll()
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  createItem (
+    data: Pick<FragranceCollectionItemRow, 'collectionId' | 'fragranceId'>
+  ): ResultAsync<FragranceCollectionItemRow, ApiError> {
+    const { db, context } = this
+    const { fragranceId, collectionId } = data
+    const userId = context.me?.id ?? null
+
+    if (userId == null) {
+      return errAsync(
+        new ApiError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403,
+          'createItem() collection item called without valid user context'
+        )
+      )
+    }
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .insertInto('fragranceCollectionItems')
+          .values({ fragranceId, collectionId })
+          .returning('id')
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+      .andThen(({ id }) => this.findItem({ id }))
+  }
+
+  private baseQuery (
+    criteria?: ServiceFindCriteria<'fragranceCollections'>
+  ): SelectQueryBuilder<DB, 'fragranceCollections', FragranceCollectionRow> {
     const { db } = this
 
     const base = db
-      .selectFrom('userCollections')
+      .selectFrom('fragranceCollections')
       .selectAll()
 
     if (criteria == null) return base
@@ -95,12 +181,14 @@ export class CollectionService extends ApiService<'userCollections'> {
       )
   }
 
-  private baseQueryItems (critera?: ServiceFindCriteria<'collectionItems'>): SelectQueryBuilder<DB, 'collectionItems', CollectionItemRow> {
+  private baseQueryItems (
+    critera?: ServiceFindCriteria<'fragranceCollectionItems'>
+  ): SelectQueryBuilder<DB, 'fragranceCollectionItems', FragranceCollectionItemRow> {
     const { db, context } = this
     const userId = context.me?.id ?? null
 
     const base = db
-      .selectFrom('collectionItems')
+      .selectFrom('fragranceCollectionItems')
       .innerJoin('fragrances as f', 'f.id', 'fragranceId')
       .leftJoin('fragranceVotes as fv', join =>
         join
@@ -109,12 +197,12 @@ export class CollectionService extends ApiService<'userCollections'> {
           .on('fv.deletedAt', 'is', null)
       )
       .select([
-        'collectionItems.collectionId',
-        'collectionItems.createdAt',
-        'collectionItems.deletedAt',
-        'collectionItems.fragranceId',
-        'collectionItems.id',
-        'collectionItems.updatedAt',
+        'fragranceCollectionItems.collectionId',
+        'fragranceCollectionItems.createdAt',
+        'fragranceCollectionItems.deletedAt',
+        'fragranceCollectionItems.fragranceId',
+        'fragranceCollectionItems.id',
+        'fragranceCollectionItems.updatedAt',
         'f.brand',
         'f.dislikesCount',
         'f.id as fragranceId',
@@ -135,15 +223,15 @@ export class CollectionService extends ApiService<'userCollections'> {
       .entries(critera)
       .reduce(
         (qb, [column, value]) => qb
-          .where(`collectionItems.${column}`, this.operand(value), value),
+          .where(`fragranceCollectionItems.${column}`, this.operand(value), value),
         base
       )
   }
 
   private paginatedQuery (
     paginationParams: PaginationParams,
-    criteria?: ServiceFindCriteria<'userCollections'>
-  ): SelectQueryBuilder<DB, 'userCollections', UserCollectionRow> {
+    criteria?: ServiceFindCriteria<'fragranceCollections'>
+  ): SelectQueryBuilder<DB, 'fragranceCollections', FragranceCollectionRow> {
     const { first, cursor, sortParams } = paginationParams
     const { column, operator, direction } = sortParams
 
@@ -168,8 +256,8 @@ export class CollectionService extends ApiService<'userCollections'> {
 
   private paginatedItemsQuery (
     paginationParams: PaginationParams,
-    critera?: ServiceFindCriteria<'collectionItems'>
-  ): SelectQueryBuilder<DB, 'collectionItems', CollectionItemRow> {
+    critera?: ServiceFindCriteria<'fragranceCollectionItems'>
+  ): SelectQueryBuilder<DB, 'fragranceCollectionItems', FragranceCollectionItemRow> {
     const { first, cursor, sortParams } = paginationParams
     const { column, operator, direction } = sortParams
 
@@ -187,8 +275,8 @@ export class CollectionService extends ApiService<'userCollections'> {
             ])
           )
       )
-      .orderBy(`collectionItems.${column}`, direction)
-      .orderBy('collectionItems.id', direction)
+      .orderBy(`fragranceCollectionItems.${column}`, direction)
+      .orderBy('fragranceCollectionItems.id', direction)
       .limit(first + 1)
   }
 }

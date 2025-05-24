@@ -75,9 +75,31 @@ type FragranceReviewDistribution {
   five: Int!
 }
 
+type FragranceCollection {
+  id: Int!
+  name: String!
+  user: User!
+  items(input: PaginationInput): FragranceCollectionItemConnection!
+  audit: Audit!
+}
+
+type FragranceCollectionItem {
+  id: Int!
+  fragrance: Fragrance!
+  audit: Audit!
+}
+
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
+}
+
+extend type Mutation {
+  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
+
+  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
 }
 
 extend type Mutation {
@@ -85,6 +107,7 @@ extend type Mutation {
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
+  voteOnReview(input: VoteOnReviewInput!): FragranceReview!
 }
 
 enum FragranceTraitType {
@@ -113,6 +136,27 @@ input NotesInput {
   fill: Boolean
 }
 
+input CreateFragranceReviewInput {
+  fragranceId: Int!
+  rating: Int!
+  review: String!
+}
+
+input CreateFragranceCollectionInput {
+  fragranceId: Int!
+  name: String!
+}
+
+input CreateFragranceCollectionItemInput {
+  collectionId: Int!
+  fragranceId: Int!
+}
+
+input DeleteFragranceCollectionItemInput {
+  collectionId: Int!
+  fragranceId: Int!
+}
+
 input VoteOnFragranceInput {
   fragranceId: Int!
   vote: Boolean
@@ -133,6 +177,11 @@ input VoteOnNoteInput {
   fragranceId: Int!
   noteId: Int!
   layer: NoteLayer!
+  vote: Boolean
+}
+
+input VoteOnReviewInput {
+  reviewId: Int!
   vote: Boolean
 }
 
@@ -190,4 +239,25 @@ type FragranceReviewEdge {
 type FragranceReviewConnection {
   edges: [FragranceReviewEdge!]!
   pageInfo: PageInfo!
+}
+
+# Collection
+type FragranceCollectionConnection {
+  edges: [FragranceCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionEdge {
+  cursor: String!
+  node: FragranceCollection!
+}
+
+type FragranceCollectionItemConnection {
+  edges: [FragranceCollectionItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionItemEdge {
+  cursor: String!
+  node: FragranceCollectionItem!
 }

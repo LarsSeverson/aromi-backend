@@ -1,12 +1,11 @@
 import { ApiError } from '@src/common/error'
-import { type UserCollection, type User, type DB } from '@src/db/schema'
+import { type User, type DB } from '@src/db/schema'
 import { type SelectQueryBuilder, type Selectable } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { ApiService, type ServiceFindCriteria } from './apiService'
 import { type PaginationParams } from '@src/common/pagination'
 
 export type UserRow = Selectable<User>
-export type UserCollectionRow = Selectable<UserCollection>
 
 export class UserService extends ApiService<'users'> {
   find (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow, ApiError> {

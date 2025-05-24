@@ -1,10 +1,12 @@
 import { extractPaginationParams } from '@src/common/pagination'
 import { type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
-import { type UserReviewSummary, type UserCollectionSummary, type UserSummary } from '@src/schemas/user/mappers'
-import { type UserCollectionRow, type UserRow } from '@src/services/userService'
+import { type UserSummary } from '@src/schemas/user/mappers'
 import { ApiResolver } from './apiResolver'
 import { type FragranceReviewRow } from '@src/services/reviewService'
 import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
+import { type FragranceCollectionSummary, type FragranceReviewSummary } from '@src/schemas/fragrance/mappers'
+import { type UserRow } from '@src/services/userService'
+import { type FragranceCollectionRow } from '@src/services/collectionService'
 
 export class UserResolver extends ApiResolver {
   me: QueryResolvers['me'] = (parent, args, context, info) => {
@@ -40,7 +42,7 @@ export class UserResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => mapUserCollectionRowToUserCollectionSummary(row, parent)
+            mapFn: mapFragranceCollectionRowToFragranceCollectionSummary
           }),
         error => { throw error }
       )
@@ -61,7 +63,7 @@ export class UserResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => mapFragranceReviewRowToFragranceReview(row, parent)
+            mapFn: mapFragranceReviewRowToFragranceReviewSummary
           }),
         error => { throw error }
       )
@@ -113,7 +115,7 @@ export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
   }
 }
 
-export const mapUserCollectionRowToUserCollectionSummary = (row: UserCollectionRow, user: UserSummary): UserCollectionSummary => {
+export const mapFragranceCollectionRowToFragranceCollectionSummary = (row: FragranceCollectionRow): FragranceCollectionSummary => {
   const {
     id,
     name,
@@ -127,12 +129,11 @@ export const mapUserCollectionRowToUserCollectionSummary = (row: UserCollectionR
       createdAt,
       updatedAt,
       deletedAt
-    },
-    user
+    }
   }
 }
 
-export const mapFragranceReviewRowToFragranceReview = (row: FragranceReviewRow, user: UserSummary): UserReviewSummary => {
+export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
   const {
     id,
     rating, reviewText,
@@ -154,7 +155,6 @@ export const mapFragranceReviewRowToFragranceReview = (row: FragranceReviewRow, 
       createdAt,
       updatedAt,
       deletedAt
-    },
-    user
+    }
   }
 }

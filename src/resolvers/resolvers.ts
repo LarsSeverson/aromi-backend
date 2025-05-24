@@ -1,4 +1,4 @@
-import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type UserCollectionResolvers as UserCollectionFieldResolvers, type FragranceReviewResolvers, type MutationResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceReviewResolvers, type MutationResolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
 import { FragranceResolver } from './fragranceResolver'
 import { NoteResolver } from './noteResolver'
@@ -33,8 +33,9 @@ export class ApiResolvers implements Resolvers {
   }
 
   // Collection Field resolvers
-  UserCollection?: UserCollectionFieldResolvers = {
-    items: collectionResolver.collectionItems
+  FragranceCollection: CollectionFieldResolvers = {
+    items: collectionResolver.collectionItems,
+    user: collectionResolver.collectionUser
   }
 
   // Fragrance Field resolvers
@@ -70,10 +71,16 @@ export class ApiResolvers implements Resolvers {
     confirmForgotPassword: authResolver.confirmForgotPassword,
     resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
 
-    // Fragrance
+    // Creation
+    createFragranceReview: reviewResolver.createReview,
+    createFragranceCollection: collectionResolver.createCollection,
+    createFragranceCollectionItem: collectionResolver.createCollectionItem,
+
+    // Voting
     voteOnFragrance: fragranceResolver.voteOnFragrance,
     voteOnTrait: fragranceResolver.voteOnTrait,
     voteOnAccord: fragranceResolver.voteOnAccord,
-    voteOnNote: fragranceResolver.voteOnNote
+    voteOnNote: fragranceResolver.voteOnNote,
+    voteOnReview: reviewResolver.voteOnReview
   }
 }

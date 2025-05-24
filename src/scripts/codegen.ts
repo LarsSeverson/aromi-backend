@@ -17,12 +17,12 @@ const config: CodegenConfig = {
           FragranceReview: '../schemas/fragrance/mappers#FragranceReviewSummary',
           FragranceReviewEdge: '../schemas/fragrance/mappers#FragranceReviewSummaryEdge',
           FragranceNotes: '../schemas/fragrance/mappers#FragranceNotesSummary',
+          FragranceCollection: '../schemas/fragrance/mappers#FragranceCollectionSummary',
+          FragranceCollectionEdge: '../schemas/fragrance/mappers#FragranceCollectionSummaryEdge',
+          FragranceCollectionItem: '../schemas/fragrance/mappers#FragranceCollectionItemSummary',
+          FragranceCollectionItemEdge: '../schemas/fragrance/mappers#FragranceCollectionItemSummaryEdge',
 
           User: '../schemas/user/mappers#UserSummary',
-          UserCollection: '../schemas/user/mappers#UserCollectionSummary',
-          UserCollectionEdge: '../schemas/user/mappers#UserCollectionSummaryEdge',
-          UserCollectionItem: '../schemas/user/mappers#UserCollectionItemSummary',
-          UserCollectionItemEdge: '../schemas/user/mappers#UserCollectionItemSummaryEdge',
           UserReview: '../schemas/user/mappers#UserReviewSummary',
           UserReviewEdge: '../schemas/user/mappers#UserReviewSummaryEdge'
         }

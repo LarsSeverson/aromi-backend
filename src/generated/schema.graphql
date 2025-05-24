@@ -21,11 +21,28 @@ type CodeDeliveryDetails {
   method: String
 }
 
-input CreateCollectionInput {
+input CreateFragranceCollectionInput {
+  fragranceId: Int!
   name: String!
 }
 
+input CreateFragranceCollectionItemInput {
+  collectionId: Int!
+  fragranceId: Int!
+}
+
+input CreateFragranceReviewInput {
+  fragranceId: Int!
+  rating: Int!
+  review: String!
+}
+
 scalar Date
+
+input DeleteFragranceCollectionItemInput {
+  collectionId: Int!
+  fragranceId: Int!
+}
 
 type Fragrance {
   accords(input: AccordsInput): FragranceAccordConnection!
@@ -62,6 +79,40 @@ type FragranceAccordConnection {
 type FragranceAccordEdge {
   cursor: String!
   node: FragranceAccord!
+}
+
+type FragranceCollection {
+  audit: Audit!
+  id: Int!
+  items(input: PaginationInput): FragranceCollectionItemConnection!
+  name: String!
+  user: User!
+}
+
+type FragranceCollectionConnection {
+  edges: [FragranceCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionEdge {
+  cursor: String!
+  node: FragranceCollection!
+}
+
+type FragranceCollectionItem {
+  audit: Audit!
+  fragrance: Fragrance!
+  id: Int!
+}
+
+type FragranceCollectionItemConnection {
+  edges: [FragranceCollectionItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceCollectionItemEdge {
+  cursor: String!
+  node: FragranceCollectionItem!
 }
 
 type FragranceConnection {
@@ -162,7 +213,10 @@ enum FragranceTraitType {
 type Mutation {
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
   confirmSignUp(confirmationCode: String!, email: String!): Boolean!
-  createCollection(input: CreateCollectionInput!): UserCollection
+  createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
+  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
   forgotPassword(email: String!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
@@ -172,6 +226,7 @@ type Mutation {
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
+  voteOnReview(input: VoteOnReviewInput!): FragranceReview!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
 }
 
@@ -229,7 +284,7 @@ enum SortDirection {
 
 type User {
   audit: Audit!
-  collections(input: PaginationInput): UserCollectionConnection!
+  collections(input: PaginationInput): FragranceCollectionConnection!
   email: String!
   followerCount: Int!
   followingCount: Int!
@@ -237,40 +292,6 @@ type User {
   likes(input: PaginationInput): FragranceConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
   username: String!
-}
-
-type UserCollection {
-  audit: Audit!
-  id: Int!
-  items(input: PaginationInput): UserCollectionItemConnection!
-  name: String!
-  user: User!
-}
-
-type UserCollectionConnection {
-  edges: [UserCollectionEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserCollectionEdge {
-  cursor: String!
-  node: UserCollection!
-}
-
-type UserCollectionItem {
-  audit: Audit!
-  fragrance: Fragrance!
-  id: Int!
-}
-
-type UserCollectionItemConnection {
-  edges: [UserCollectionItemEdge!]!
-  pageInfo: PageInfo!
-}
-
-type UserCollectionItemEdge {
-  cursor: String!
-  node: UserCollectionItem!
 }
 
 input VoteOnAccordInput {
@@ -288,6 +309,11 @@ input VoteOnNoteInput {
   fragranceId: Int!
   layer: NoteLayer!
   noteId: Int!
+  vote: Boolean
+}
+
+input VoteOnReviewInput {
+  reviewId: Int!
   vote: Boolean
 }
 
