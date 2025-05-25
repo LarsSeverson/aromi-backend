@@ -173,6 +173,7 @@ type FragranceNotes {
 
 type FragranceReview {
   audit: Audit!
+  fragrance: Fragrance!
   id: Int!
   rating: Int!
   text: String!
@@ -200,8 +201,8 @@ type FragranceReviewEdge {
 
 type FragranceTrait {
   myVote: Float
-  score: Float!
   type: FragranceTraitType!
+  voteScore: Float!
 }
 
 enum FragranceTraitType {
@@ -356,5 +357,5 @@ type VoteSummary {
   dislikesCount: Int!
   likesCount: Int!
   myVote: Boolean
-  score: Int!
+  voteScore: Int!
 }

@@ -13,7 +13,7 @@ export interface VoteOnReviewParams {
   vote: boolean | null
 }
 
-export class ReviewService extends ApiService<'fragranceReviews', VoteSortBy> {
+export class ReviewService extends ApiService<'fragranceReviews'> {
   find (
     criteria: ServiceFindCriteria<'fragranceReviews'>
   ): ResultAsync<FragranceReviewRow, ApiError> {

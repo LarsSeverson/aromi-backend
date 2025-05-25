@@ -1008,6 +1008,10 @@ export class FragranceService extends ApiService<'fragrances'> {
       )
   }
 
+  build (criteria?: ServiceFindCriteria<'fragrances'>): SelectQueryBuilder<DB, 'fragrances', FragranceRow> {
+    return this.baseQuery(criteria)
+  }
+
   private baseQuery (criteria?: ServiceFindCriteria<'fragrances'>): SelectQueryBuilder<DB, 'fragrances', FragranceRow> {
     const { db, context } = this
     const userId = context.me?.id ?? null

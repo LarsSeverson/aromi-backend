@@ -17,7 +17,7 @@ type Audit {
 }
 
 type VoteSummary {
-  score: Int!
+  voteScore: Int!
   likesCount: Int!
   dislikesCount: Int!
   myVote: Boolean

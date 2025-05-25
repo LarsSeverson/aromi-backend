@@ -12,7 +12,7 @@ export type FragranceSummary = Omit<Fragrance,
 
 export type FragranceSummaryEdge = ResolverEdge<FragranceSummary>
 
-export type FragranceReviewSummary = Omit<FragranceReview, 'user'>
+export type FragranceReviewSummary = Omit<FragranceReview, 'user' | 'fragrance'>
 export type FragranceReviewSummaryEdge = ResolverEdge<FragranceReviewSummary>
 
 export interface FragranceNotesSummary { parent: FragranceSummary }

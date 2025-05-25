@@ -3,7 +3,7 @@ import { type FragranceService, type FragranceImageRow, type FragranceTraitRow, 
 import { type PaginationParams } from '@src/common/pagination'
 import { LoaderFactory } from './loaderFactory'
 import { type NoteLayerEnum } from '@src/db/schema'
-import { type FragranceReviewRow } from '@src/services/reviewService'
+import { type ReviewService, type FragranceReviewRow } from '@src/services/reviewService'
 import { type VoteSortBy } from '@src/generated/gql-types'
 
 export interface FragranceLoaderKey { fragranceId: number }
@@ -15,6 +15,7 @@ interface FragranceLoaders {
   notes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
   reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
   reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
+  myReviews: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
 }
 
 export interface GetImagesLoaderParams {
@@ -38,7 +39,8 @@ export interface GetReviewsLoaderParams {
 
 export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
   constructor (
-    private readonly fragranceService: FragranceService
+    private readonly fragranceService: FragranceService,
+    private readonly reviewService: ReviewService
   ) {
     super()
   }
@@ -94,6 +96,15 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       .getLoader(
         key,
         () => this.createReviewDistributionsLoader()
+      )
+  }
+
+  getMyReviewsLoader (): FragranceLoaders['myReviews'] {
+    const key = this.generateKey('myReview')
+    return this
+      .getLoader(
+        key,
+        () => this.createMyReviewsLoader()
       )
   }
 
@@ -205,6 +216,27 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
             )
 
             return fragranceIds.map(id => distMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
+  private createMyReviewsLoader (): FragranceLoaders['myReviews'] {
+    return new DataLoader<FragranceLoaderKey, FragranceReviewRow | null>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
+
+      return await this
+        .reviewService
+        .findAll({ fragranceId: fragranceIds })
+        .match(
+          rows => {
+            const reviewsMap = new Map<number, FragranceReviewRow>()
+            rows.forEach(row => {
+              reviewsMap.set(row.fragranceId, row)
+            })
+
+            return fragranceIds.map(id => reviewsMap.get(id) ?? null)
           },
           error => { throw error }
         )

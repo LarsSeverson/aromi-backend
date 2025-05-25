@@ -47,7 +47,8 @@ export class ApiResolvers implements Resolvers {
     accords: fragranceResolver.fragranceAccords,
     notes: fragranceResolver.fragranceNotes,
     reviews: fragranceResolver.fragranceReviews,
-    reviewDistribution: fragranceResolver.fragranceReviewDistribution
+    reviewDistribution: fragranceResolver.fragranceReviewDistribution,
+    myReview: fragranceResolver.myReview
   }
 
   // Fragrance Field Note resolvers
@@ -59,7 +60,8 @@ export class ApiResolvers implements Resolvers {
 
   // Fragrance Field Review resolvers
   FragranceReview: FragranceReviewResolvers = {
-    user: reviewResolver.reviewUser
+    user: reviewResolver.reviewUser,
+    fragrance: reviewResolver.reviewFragrance
   }
 
   Mutation?: MutationResolvers = {

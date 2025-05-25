@@ -21,7 +21,7 @@ type Fragrance {
 
 type FragranceTrait {
   type: FragranceTraitType!
-  score: Float!
+  voteScore: Float!
   myVote: Float
 }
 
@@ -64,6 +64,7 @@ type FragranceReview {
   text: String!
   votes: VoteSummary!
   user: User!
+  fragrance: Fragrance!
   audit: Audit!
 }
 

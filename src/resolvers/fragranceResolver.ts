@@ -166,6 +166,29 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
+  myReview: FragranceFieldResolvers['myReview'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { me, loaders } = context
+
+    if (me == null) return null
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getMyReviewsLoader()
+          .load({ fragranceId: id }),
+        error => error
+      )
+      .match(
+        (row) => {
+          if (row == null) return null
+          return mapFragranceReviewRowToFragranceReviewSummary(row)
+        },
+        error => { throw error }
+      )
+  }
+
   voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
     const { input } = args
     const { services } = context
@@ -259,7 +282,7 @@ export const mapFragranceRowToFragranceSummary = (row: FragranceRow): FragranceS
     reviewsCount,
 
     votes: {
-      score: voteScore,
+      voteScore,
       likesCount,
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
@@ -277,7 +300,7 @@ export const mapFragranceTraitRowToFragranceTrait = (row: FragranceTraitRow): Fr
   const { trait, voteScore, myVote } = row
   return {
     type: FRAGRANCE_TRAIT_TO_TYPE[trait],
-    score: voteScore,
+    voteScore,
     myVote
   }
 }
@@ -302,7 +325,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
     color,
 
     votes: {
-      score: voteScore,
+      voteScore,
       likesCount,
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
@@ -350,7 +373,7 @@ export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceRevi
     rating,
     text: reviewText,
     votes: {
-      score: voteScore,
+      voteScore,
       likesCount,
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null

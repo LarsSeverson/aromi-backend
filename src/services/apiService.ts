@@ -6,7 +6,6 @@ import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type Selectable, type ComparisonOperatorExpression, type OperandValueExpressionOrList } from 'kysely'
 import { type SortColumn } from '@src/common/types'
-import { type SortBy } from '@src/generated/gql-types'
 
 export interface ApiServiceContext {
   me?: ApiContext['me']
@@ -18,10 +17,7 @@ export type Row<T extends Tables> = Selectable<DB[T]>
 export type Value<T extends Tables> = OperandValueExpressionOrList<DB, T, keyof DB[T]>
 export type ServiceFindCriteria<T extends keyof DB> = Partial<Record<Column<T>, Value<T>>>
 
-export abstract class ApiService<
-  Table extends Tables,
-  Sort extends SortColumn = SortBy
-> {
+export abstract class ApiService<Table extends Tables> {
   context: ApiServiceContext = {}
   db: ApiDataSources['db']
 
@@ -54,7 +50,7 @@ export abstract class ApiService<
 
   findAllPaginated (
     critera: ServiceFindCriteria<Table>,
-    paginationParams: PaginationParams<Sort>
+    paginationParams: PaginationParams<SortColumn>
   ): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
@@ -65,7 +61,7 @@ export abstract class ApiService<
   }
 
   list (
-    params: PaginationParams<Sort>
+    params: PaginationParams<SortColumn>
   ): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',

@@ -252,6 +252,7 @@ export type FragranceNotesTopArgs = {
 export type FragranceReview = {
   __typename?: 'FragranceReview';
   audit: Audit;
+  fragrance: Fragrance;
   id: Scalars['Int']['output'];
   rating: Scalars['Int']['output'];
   text: Scalars['String']['output'];
@@ -283,8 +284,8 @@ export type FragranceReviewEdge = {
 export type FragranceTrait = {
   __typename?: 'FragranceTrait';
   myVote?: Maybe<Scalars['Float']['output']>;
-  score: Scalars['Float']['output'];
   type: FragranceTraitType;
+  voteScore: Scalars['Float']['output'];
 };
 
 export const FragranceTraitType = {
@@ -570,7 +571,7 @@ export type VoteSummary = {
   dislikesCount: Scalars['Int']['output'];
   likesCount: Scalars['Int']['output'];
   myVote?: Maybe<Scalars['Boolean']['output']>;
-  score: Scalars['Int']['output'];
+  voteScore: Scalars['Int']['output'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -935,6 +936,7 @@ export type FragranceNotesResolvers<ContextType = ApiContext, ParentType extends
 
 export type FragranceReviewResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -966,8 +968,8 @@ export type FragranceReviewEdgeResolvers<ContextType = ApiContext, ParentType ex
 
 export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
   myVote?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  score?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
+  voteScore?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1031,7 +1033,7 @@ export type VoteSummaryResolvers<ContextType = ApiContext, ParentType extends Re
   dislikesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   likesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  voteScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

@@ -127,7 +127,7 @@ export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollec
       reviewsCount,
 
       votes: {
-        score: voteScore,
+        voteScore,
         likesCount,
         dislikesCount,
         myVote: myVote === 1 ? true : myVote === -1 ? false : null

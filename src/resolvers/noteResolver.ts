@@ -64,7 +64,7 @@ export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): Fragr
     layer: DB_NOTE_LAYER_TO_GQL_NOTE_LAYER[layer],
 
     votes: {
-      score: voteScore,
+      voteScore,
       likesCount,
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null

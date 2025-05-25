@@ -146,7 +146,7 @@ export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceRevi
     rating,
     text: reviewText,
     votes: {
-      score: voteScore,
+      voteScore,
       likesCount,
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
