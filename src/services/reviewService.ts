@@ -2,8 +2,9 @@ import { ApiError } from '@src/common/error'
 import { type DB, type FragranceReview } from '@src/db/schema'
 import { sql, type SelectQueryBuilder, type Selectable } from 'kysely'
 import { errAsync, ResultAsync } from 'neverthrow'
-import { ApiService, type MyVote, type FindAllPaginatedParams, type ServiceFindCriteria } from './apiService'
+import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
 import { type PaginationParams } from '@src/common/pagination'
+import { type VoteSortBy } from '@src/generated/gql-types'
 
 export type FragranceReviewRow = Selectable<FragranceReview> & MyVote
 
@@ -12,8 +13,10 @@ export interface VoteOnReviewParams {
   vote: boolean | null
 }
 
-export class ReviewService extends ApiService<'fragranceReviews'> {
-  find (criteria: ServiceFindCriteria<'fragranceReviews'>): ResultAsync<FragranceReviewRow, ApiError> {
+export class ReviewService extends ApiService<'fragranceReviews', VoteSortBy> {
+  find (
+    criteria: ServiceFindCriteria<'fragranceReviews'>
+  ): ResultAsync<FragranceReviewRow, ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -23,7 +26,9 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
       )
   }
 
-  findAll (criteria: ServiceFindCriteria<'fragranceReviews'>): ResultAsync<FragranceReviewRow[], ApiError> {
+  findAll (
+    criteria: ServiceFindCriteria<'fragranceReviews'>
+  ): ResultAsync<FragranceReviewRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -33,9 +38,10 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
       )
   }
 
-  findAllPaginated (params: FindAllPaginatedParams<'fragranceReviews'>): ResultAsync<FragranceReviewRow[], ApiError> {
-    const { paginationParams, criteria } = params
-
+  findAllPaginated (
+    criteria: ServiceFindCriteria<'fragranceReviews'>,
+    paginationParams: PaginationParams<VoteSortBy>
+  ): ResultAsync<FragranceReviewRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -45,7 +51,9 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
       )
   }
 
-  list (params: PaginationParams): ResultAsync<FragranceReviewRow[], ApiError> {
+  list (
+    params: PaginationParams
+  ): ResultAsync<FragranceReviewRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -96,7 +104,9 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
       )
   }
 
-  vote (params: VoteOnReviewParams): ResultAsync<FragranceReviewRow, ApiError> {
+  vote (
+    params: VoteOnReviewParams
+  ): ResultAsync<FragranceReviewRow, ApiError> {
     const { db, context } = this
     const { reviewId, vote } = params
     const userId = context.me?.id ?? null
@@ -131,7 +141,9 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
       .andThen(() => this.find({ id: reviewId }))
   }
 
-  private baseQuery (criteria?: ServiceFindCriteria<'fragranceReviews'>): SelectQueryBuilder<DB, 'fragranceReviews', FragranceReviewRow> {
+  private baseQuery (
+    criteria?: ServiceFindCriteria<'fragranceReviews'>
+  ): SelectQueryBuilder<DB, 'fragranceReviews', FragranceReviewRow> {
     const { db, context } = this
     const userId = context.me?.id ?? null
 
@@ -158,7 +170,7 @@ export class ReviewService extends ApiService<'fragranceReviews'> {
   }
 
   private paginatedQuery (
-    paginationParams: PaginationParams,
+    paginationParams: PaginationParams<VoteSortBy>,
     criteria?: ServiceFindCriteria<'fragranceReviews'>
   ): SelectQueryBuilder<DB, 'fragranceReviews', FragranceReviewRow> {
     const { first, cursor, sortParams } = paginationParams

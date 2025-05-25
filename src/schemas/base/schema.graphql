@@ -23,6 +23,28 @@ type VoteSummary {
   myVote: Boolean
 }
 
+input SortByInput {
+  by: SortBy! = updatedAt
+  direction: SortDirection! = DESCENDING 
+}
+
+input PaginationInput {
+  first: Int
+  after: String
+  sort: SortByInput
+}
+
+input VotePaginationInput {
+  first: Int
+  after: String
+  sort: VoteSortByInput
+}
+
+input VoteSortByInput { 
+  by: VoteSortBy! = updatedAt
+  direction: SortDirection! = DESCENDING
+}
+
 enum SortDirection {
   ASCENDING 
   DESCENDING 
@@ -34,13 +56,9 @@ enum SortBy {
   updatedAt
 }
 
-input SortByInput {
-  by: SortBy! = updatedAt
-  direction: SortDirection! = DESCENDING 
-}
-
-input PaginationInput {
-  first: Int
-  after: String
-  sort: SortByInput
+enum VoteSortBy {
+  id
+  createdAt
+  updatedAt
+  voteScore
 }

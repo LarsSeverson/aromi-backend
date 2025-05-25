@@ -1,6 +1,6 @@
 input AccordsInput {
   fill: Boolean
-  pagination: PaginationInput
+  pagination: VotePaginationInput
 }
 
 type Audit {
@@ -57,7 +57,7 @@ type Fragrance {
   notes: FragranceNotes!
   rating: Float!
   reviewDistribution: FragranceReviewDistribution!
-  reviews(input: PaginationInput): FragranceReviewConnection!
+  reviews(input: VotePaginationInput): FragranceReviewConnection!
   reviewsCount: Int!
   traits: [FragranceTrait!]!
   votes: VoteSummary!
@@ -249,7 +249,7 @@ enum NoteLayer {
 
 input NotesInput {
   fill: Boolean
-  pagination: PaginationInput
+  pagination: VotePaginationInput
 }
 
 type PageInfo {
@@ -266,6 +266,7 @@ input PaginationInput {
 }
 
 type Query {
+  collection(id: Int!): FragranceCollection!
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
   me: User
@@ -331,6 +332,24 @@ input VoteOnReviewInput {
 input VoteOnTraitInput {
   fragranceTraitId: Int!
   vote: Float!
+}
+
+input VotePaginationInput {
+  after: String
+  first: Int
+  sort: VoteSortByInput
+}
+
+enum VoteSortBy {
+  createdAt
+  id
+  updatedAt
+  voteScore
+}
+
+input VoteSortByInput {
+  by: VoteSortBy! = updatedAt
+  direction: SortDirection! = DESCENDING
 }
 
 type VoteSummary {

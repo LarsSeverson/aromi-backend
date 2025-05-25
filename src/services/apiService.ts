@@ -5,22 +5,23 @@ import { type ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
 import { type Selectable, type ComparisonOperatorExpression, type OperandValueExpressionOrList } from 'kysely'
+import { type SortColumn } from '@src/common/types'
+import { type SortBy } from '@src/generated/gql-types'
 
 export interface ApiServiceContext {
   me?: ApiContext['me']
 }
 
-type Tables = keyof DB
-type Column<T extends Tables> = keyof DB[T]
-type Value<T extends Tables> = OperandValueExpressionOrList<DB, T, keyof DB[T]>
+export type Tables = keyof DB
+export type Column<T extends Tables> = keyof DB[T]
+export type Row<T extends Tables> = Selectable<DB[T]>
+export type Value<T extends Tables> = OperandValueExpressionOrList<DB, T, keyof DB[T]>
 export type ServiceFindCriteria<T extends keyof DB> = Partial<Record<Column<T>, Value<T>>>
 
-export interface FindAllPaginatedParams <T extends Tables> {
-  criteria: ServiceFindCriteria<T>
-  paginationParams: PaginationParams
-}
-
-export abstract class ApiService<Table extends Tables> {
+export abstract class ApiService<
+  Table extends Tables,
+  Sort extends SortColumn = SortBy
+> {
   context: ApiServiceContext = {}
   db: ApiDataSources['db']
 
@@ -29,7 +30,9 @@ export abstract class ApiService<Table extends Tables> {
   }
 
   // Reads
-  find (criteria: ServiceFindCriteria<Table>): ResultAsync<Selectable<DB[Table]>, ApiError> {
+  find (
+    criteria: ServiceFindCriteria<Table>
+  ): ResultAsync<Selectable<DB[Table]>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
       'Something went wrong on our end. Please try again later',
@@ -38,7 +41,9 @@ export abstract class ApiService<Table extends Tables> {
     )
   }
 
-  findAll (criteria: ServiceFindCriteria<Table>): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
+  findAll (
+    criteria: ServiceFindCriteria<Table>
+  ): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
       'Something went wrong on our end. Please try again later',
@@ -47,7 +52,21 @@ export abstract class ApiService<Table extends Tables> {
     )
   }
 
-  list (params: PaginationParams): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
+  findAllPaginated (
+    critera: ServiceFindCriteria<Table>,
+    paginationParams: PaginationParams<Sort>
+  ): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
+    throw new ApiError(
+      'NOT_IMPLEMENTED',
+      'Something went wrong on our end. Please try again later',
+      500,
+      'findAllPaginated() not implemented for service'
+    )
+  }
+
+  list (
+    params: PaginationParams<Sort>
+  ): ResultAsync<Array<Selectable<DB[Table]>>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
       'Something went wrong on our end. Please try again later',
@@ -57,7 +76,9 @@ export abstract class ApiService<Table extends Tables> {
   }
 
   // Write
-  create (data: Partial<Selectable<DB[Table]>>): ResultAsync<Selectable<DB[Table]>, ApiError> {
+  create (
+    data: Partial<Selectable<DB[Table]>>
+  ): ResultAsync<Selectable<DB[Table]>, ApiError> {
     throw new ApiError(
       'NOT_IMPLEMENTED',
       'Something went wrong on our end. Please try again later',

@@ -49,7 +49,7 @@ export class CollectionLoaderFactory extends LoaderFactory<CollectionLoaderKey> 
 
       return await this
         .collectionService
-        .findAllItemsPaginated({ criteria: { id: collectionIds }, paginationParams })
+        .findAllItemsPaginated({ id: collectionIds }, paginationParams)
         .match(
           rows => {
             const itemsMap = new Map(collectionIds.map(id => [id, rows.filter(row => row.collectionId === id)]))

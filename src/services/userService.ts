@@ -8,7 +8,9 @@ import { type PaginationParams } from '@src/common/pagination'
 export type UserRow = Selectable<User>
 
 export class UserService extends ApiService<'users'> {
-  find (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow, ApiError> {
+  find (
+    criteria: ServiceFindCriteria<'users'>
+  ): ResultAsync<UserRow, ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -18,7 +20,9 @@ export class UserService extends ApiService<'users'> {
       )
   }
 
-  findAll (criteria: ServiceFindCriteria<'users'>): ResultAsync<UserRow[], ApiError> {
+  findAll (
+    criteria: ServiceFindCriteria<'users'>
+  ): ResultAsync<UserRow[], ApiError> {
     return ResultAsync
       .fromPromise(
         this
@@ -28,7 +32,9 @@ export class UserService extends ApiService<'users'> {
       )
   }
 
-  list (params: PaginationParams): ResultAsync<UserRow[], ApiError> {
+  list (
+    params: PaginationParams
+  ): ResultAsync<UserRow[], ApiError> {
     const { db } = this
 
     const { first, cursor, sortParams } = params

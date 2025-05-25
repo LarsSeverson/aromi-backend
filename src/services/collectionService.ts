@@ -1,6 +1,6 @@
 import { type PaginationParams } from '@src/common/pagination'
 import { type SelectQueryBuilder, type Selectable } from 'kysely'
-import { ApiService, type FindAllPaginatedParams, type ServiceFindCriteria } from './apiService'
+import { ApiService, type ServiceFindCriteria } from './apiService'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type FragranceRow } from './fragranceService'
@@ -40,10 +40,9 @@ export class CollectionService extends ApiService<'fragranceCollections'> {
   }
 
   findAllPaginated (
-    params: FindAllPaginatedParams<'fragranceCollections'>
+    criteria: ServiceFindCriteria<'fragranceCollections'>,
+    paginationParams: PaginationParams
   ): ResultAsync<FragranceCollectionRow[], ApiError> {
-    const { paginationParams, criteria } = params
-
     return ResultAsync
       .fromPromise(
         this
@@ -90,10 +89,9 @@ export class CollectionService extends ApiService<'fragranceCollections'> {
   }
 
   findAllItemsPaginated (
-    params: FindAllPaginatedParams<'fragranceCollectionItems'>
+    criteria: ServiceFindCriteria<'fragranceCollectionItems'>,
+    paginationParams: PaginationParams
   ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
-    const { paginationParams, criteria } = params
-
     return ResultAsync
       .fromPromise(
         this

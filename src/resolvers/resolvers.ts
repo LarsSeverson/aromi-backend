@@ -22,7 +22,9 @@ export class ApiResolvers implements Resolvers {
     user: userResolver.user,
 
     fragrance: fragranceResolver.fragrance,
-    fragrances: fragranceResolver.fragrances
+    fragrances: fragranceResolver.fragrances,
+
+    collection: collectionResolver.collection
   }
 
   // User Field resolvers

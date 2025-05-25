@@ -1,6 +1,6 @@
-import { extractPaginationParams } from '@src/common/pagination'
+import { getPaginationParams } from '@src/common/pagination'
 import { type NoteLayerEnum } from '@src/db/schema'
-import { type FragranceNote, NoteLayer, type FragranceNotesResolvers } from '@src/generated/gql-types'
+import { type FragranceNote, NoteLayer, type FragranceNotesResolvers, type VoteSortBy } from '@src/generated/gql-types'
 import { type FragranceNoteRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
 import { ApiResolver } from './apiResolver'
@@ -12,7 +12,7 @@ export class NoteResolver extends ApiResolver {
     const { loaders } = context
 
     const { pagination: paginationInput, fill } = input ?? {}
-    const paginationParams = extractPaginationParams(paginationInput)
+    const paginationParams = getPaginationParams<VoteSortBy>(paginationInput)
     const layer = info.fieldName as NoteLayerEnum
 
     return await ResultAsync

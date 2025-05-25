@@ -1,7 +1,7 @@
 import { mergeAllSignedSrcs } from '@src/common/images'
-import { extractPaginationParams } from '@src/common/pagination'
+import { getPaginationParams } from '@src/common/pagination'
 import { type FragranceTraitEnum } from '@src/db/schema'
-import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers } from '@src/generated/gql-types'
+import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers, type VoteSortBy } from '@src/generated/gql-types'
 import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
@@ -27,7 +27,7 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await services
       .fragrance
@@ -66,7 +66,7 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { loaders, sources } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await ResultAsync
       .fromPromise(
@@ -98,8 +98,8 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const { pagination: paginationInput, fill } = input ?? {}
-    const paginationParams = extractPaginationParams(paginationInput)
+    const { pagination: paginationInput = null, fill } = input ?? {}
+    const paginationParams = getPaginationParams<VoteSortBy>(paginationInput)
 
     return await ResultAsync
       .fromPromise(
@@ -127,7 +127,7 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await ResultAsync
       .fromPromise(

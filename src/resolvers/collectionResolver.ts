@@ -1,19 +1,32 @@
-import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type QueryResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
 import { type FragranceCollectionItemRow } from '@src/services/collectionService'
-import { extractPaginationParams } from '@src/common/pagination'
+import { getPaginationParams } from '@src/common/pagination'
 import { ResultAsync } from 'neverthrow'
 import { type FragranceCollectionItemSummary } from '@src/schemas/fragrance/mappers'
 import { ApiError } from '@src/common/error'
 import { mapFragranceCollectionRowToFragranceCollectionSummary, mapUserRowToUserSummary } from './userResolver'
 
 export class CollectionResolver extends ApiResolver {
+  collection: QueryResolvers['collection'] = async (parent, args, context, info) => {
+    const { id } = args
+    const { services } = context
+
+    return await services
+      .collection
+      .find({ id })
+      .match(
+        mapFragranceCollectionRowToFragranceCollectionSummary,
+        error => { throw error }
+      )
+  }
+
   collectionItems: CollectionFieldResolvers['items'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
     const { loaders } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await ResultAsync
       .fromPromise(

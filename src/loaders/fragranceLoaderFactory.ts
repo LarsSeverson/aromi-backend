@@ -4,6 +4,7 @@ import { type PaginationParams } from '@src/common/pagination'
 import { LoaderFactory } from './loaderFactory'
 import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceReviewRow } from '@src/services/reviewService'
+import { type VoteSortBy } from '@src/generated/gql-types'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
@@ -21,22 +22,24 @@ export interface GetImagesLoaderParams {
 }
 
 export interface GetAccordsLoaderParams {
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
   fill?: boolean
 }
 
 export interface GetNotesLoaderParams {
   layer: NoteLayerEnum
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
   fill?: boolean
 }
 
 export interface GetReviewsLoaderParams {
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
 }
 
 export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
-  constructor (private readonly fragranceService: FragranceService) {
+  constructor (
+    private readonly fragranceService: FragranceService
+  ) {
     super()
   }
 

@@ -1,5 +1,6 @@
-import { SortBy, SortDirection, type PaginationInput, type InputMaybe, type PageInfo } from '@src/generated/gql-types'
-import { parseCursor, type ApiCursor } from './cursor'
+import { SortBy, SortDirection, type PaginationInput, type VotePaginationInput } from '@src/generated/gql-types'
+import { type CursorTypes, type ApiCursor, parseCursor } from './cursor'
+import { type SortColumn } from './types'
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 40
@@ -12,31 +13,32 @@ export const PAGINATION_OPERATORS = {
   [SortDirection.Descending]: '<'
 } as const
 
-export type PaginationOperator = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
-
 export const PAGINATION_DIRECTIONS = {
   [SortDirection.Ascending]: 'asc',
   [SortDirection.Descending]: 'desc'
 } as const
 
+export type PaginationOperator = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
 export type PaginationDirection = typeof PAGINATION_DIRECTIONS[keyof typeof PAGINATION_DIRECTIONS]
 
-export interface SortParams {
-  column: SortBy
+export interface SortParams<C extends SortColumn = SortBy> {
+  column: C
   operator: PaginationOperator
   direction: PaginationDirection
 }
 
-export interface PaginationParams {
+export interface PaginationParams<C extends SortColumn = SortBy> {
   first: number
-  cursor: ApiCursor
-  sortParams: SortParams
+  cursor: ApiCursor<CursorTypes[C]>
+  sortParams: SortParams<C>
 }
 
-export const extractPaginationParams = (input?: InputMaybe<PaginationInput>): PaginationParams => {
+export const getPaginationParams = <C extends SortColumn = SortBy>(
+  input?: PaginationInput | VotePaginationInput | null
+): PaginationParams<C> => {
   const first = Math.min(MAX_LIMIT, (input?.first ?? DEFAULT_LIMIT))
-  const column = input?.sort?.by ?? DEFAULT_SORT_BY
-  const operators = PAGINATION_OPERATORS[input?.sort?.direction ?? DEFAULT_DIRECTION]
+  const column = (input?.sort?.by ?? DEFAULT_SORT_BY) as C
+  const operator = PAGINATION_OPERATORS[input?.sort?.direction ?? DEFAULT_DIRECTION]
   const direction = PAGINATION_DIRECTIONS[input?.sort?.direction ?? DEFAULT_DIRECTION]
   const cursor = parseCursor(input?.after ?? '', column)
 
@@ -45,37 +47,8 @@ export const extractPaginationParams = (input?: InputMaybe<PaginationInput>): Pa
     cursor,
     sortParams: {
       column,
-      operator: operators,
+      operator,
       direction
-    }
-  }
-}
-
-export interface PageEdge<Node> { cursor: string, node: Node }
-export interface Page<Node> { edges: Array<PageEdge<Node>>, pageInfo: PageInfo }
-
-export interface NewPageParams<Node> {
-  first: number
-  cursor: ApiCursor
-  edges: Array<PageEdge<Node>>
-}
-
-export const newPage = <Node>(params: NewPageParams<Node>): Page<Node> => {
-  const { first, cursor, edges } = params
-
-  const hasExtraRow = edges.length > first
-  const trimmed = hasExtraRow ? edges.slice(0, first) : edges
-
-  const startCursor = trimmed.at(0)?.cursor ?? null
-  const endCursor = trimmed.at(-1)?.cursor ?? null
-
-  return {
-    edges: trimmed,
-    pageInfo: {
-      hasNextPage: hasExtraRow,
-      hasPreviousPage: cursor.isValid,
-      startCursor,
-      endCursor
     }
   }
 }

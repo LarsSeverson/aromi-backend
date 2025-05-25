@@ -12,7 +12,7 @@ type Fragrance {
   notes: FragranceNotes!
   accords(input: AccordsInput): FragranceAccordConnection!
   images(input: PaginationInput): FragranceImageConnection!
-  reviews(input: PaginationInput): FragranceReviewConnection!
+  reviews(input: VotePaginationInput): FragranceReviewConnection!
   reviewDistribution: FragranceReviewDistribution!
 
   myReview: FragranceReview
@@ -93,6 +93,7 @@ type FragranceCollectionItem {
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
+  collection(id: Int!): FragranceCollection!
 }
 
 extend type Mutation {
@@ -123,17 +124,6 @@ enum NoteLayer {
   TOP
   MIDDLE
   BASE
-}
-
-# Inputs
-input AccordsInput {
-  pagination: PaginationInput
-  fill: Boolean
-}
-
-input NotesInput {
-  pagination: PaginationInput
-  fill: Boolean
 }
 
 input CreateFragranceReviewInput {
@@ -195,6 +185,16 @@ input VoteOnReviewInput {
 }
 
 # Pagination
+input AccordsInput {
+  pagination: VotePaginationInput
+  fill: Boolean
+}
+
+input NotesInput {
+  pagination: VotePaginationInput
+  fill: Boolean
+}
+
 # Fragrance
 type FragranceEdge {
   cursor: String!

@@ -1,4 +1,4 @@
-import { extractPaginationParams } from '@src/common/pagination'
+import { getPaginationParams } from '@src/common/pagination'
 import { type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
 import { type UserSummary } from '@src/schemas/user/mappers'
 import { ApiResolver } from './apiResolver'
@@ -32,11 +32,11 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await services
       .collection
-      .findAllPaginated({ criteria: { userId: id }, paginationParams })
+      .findAllPaginated({ userId: id }, paginationParams)
       .match(
         rows => this
           .mapToPage({
@@ -53,11 +53,11 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await services
       .review
-      .findAllPaginated({ criteria: { userId: id }, paginationParams })
+      .findAllPaginated({ userId: id }, paginationParams)
       .match(
         rows => this
           .mapToPage({
@@ -74,7 +74,7 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const paginationParams = extractPaginationParams(input)
+    const paginationParams = getPaginationParams(input)
 
     return await services
       .fragrance

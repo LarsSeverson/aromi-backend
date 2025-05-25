@@ -23,7 +23,7 @@ export type Scalars = {
 
 export type AccordsInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
-  pagination?: InputMaybe<PaginationInput>;
+  pagination?: InputMaybe<VotePaginationInput>;
 };
 
 export type Audit = {
@@ -100,7 +100,7 @@ export type FragranceImagesArgs = {
 
 
 export type FragranceReviewsArgs = {
-  input?: InputMaybe<PaginationInput>;
+  input?: InputMaybe<VotePaginationInput>;
 };
 
 export type FragranceAccord = {
@@ -287,15 +287,16 @@ export type FragranceTrait = {
   type: FragranceTraitType;
 };
 
-export enum FragranceTraitType {
-  Allure = 'ALLURE',
-  Balance = 'BALANCE',
-  Complexity = 'COMPLEXITY',
-  Gender = 'GENDER',
-  Longevity = 'LONGEVITY',
-  Sillage = 'SILLAGE'
-}
+export const FragranceTraitType = {
+  Allure: 'ALLURE',
+  Balance: 'BALANCE',
+  Complexity: 'COMPLEXITY',
+  Gender: 'GENDER',
+  Longevity: 'LONGEVITY',
+  Sillage: 'SILLAGE'
+} as const;
 
+export type FragranceTraitType = typeof FragranceTraitType[keyof typeof FragranceTraitType];
 export type MoveFragranceCollectionItemInput = {
   afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
   beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
@@ -410,15 +411,16 @@ export type MutationVoteOnTraitArgs = {
   input: VoteOnTraitInput;
 };
 
-export enum NoteLayer {
-  Base = 'BASE',
-  Middle = 'MIDDLE',
-  Top = 'TOP'
-}
+export const NoteLayer = {
+  Base: 'BASE',
+  Middle: 'MIDDLE',
+  Top: 'TOP'
+} as const;
 
+export type NoteLayer = typeof NoteLayer[keyof typeof NoteLayer];
 export type NotesInput = {
   fill?: InputMaybe<Scalars['Boolean']['input']>;
-  pagination?: InputMaybe<PaginationInput>;
+  pagination?: InputMaybe<VotePaginationInput>;
 };
 
 export type PageInfo = {
@@ -437,10 +439,16 @@ export type PaginationInput = {
 
 export type Query = {
   __typename?: 'Query';
+  collection: FragranceCollection;
   fragrance?: Maybe<Fragrance>;
   fragrances: FragranceConnection;
   me?: Maybe<User>;
   user?: Maybe<User>;
+};
+
+
+export type QueryCollectionArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -464,22 +472,24 @@ export type SignUpResult = {
   delivery?: Maybe<CodeDeliveryDetails>;
 };
 
-export enum SortBy {
-  CreatedAt = 'createdAt',
-  Id = 'id',
-  UpdatedAt = 'updatedAt'
-}
+export const SortBy = {
+  CreatedAt: 'createdAt',
+  Id: 'id',
+  UpdatedAt: 'updatedAt'
+} as const;
 
+export type SortBy = typeof SortBy[keyof typeof SortBy];
 export type SortByInput = {
   by?: SortBy;
   direction?: SortDirection;
 };
 
-export enum SortDirection {
-  Ascending = 'ASCENDING',
-  Descending = 'DESCENDING'
-}
+export const SortDirection = {
+  Ascending: 'ASCENDING',
+  Descending: 'DESCENDING'
+} as const;
 
+export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
 export type User = {
   __typename?: 'User';
   audit: Audit;
@@ -534,6 +544,25 @@ export type VoteOnReviewInput = {
 export type VoteOnTraitInput = {
   fragranceTraitId: Scalars['Int']['input'];
   vote: Scalars['Float']['input'];
+};
+
+export type VotePaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<VoteSortByInput>;
+};
+
+export const VoteSortBy = {
+  CreatedAt: 'createdAt',
+  Id: 'id',
+  UpdatedAt: 'updatedAt',
+  VoteScore: 'voteScore'
+} as const;
+
+export type VoteSortBy = typeof VoteSortBy[keyof typeof VoteSortBy];
+export type VoteSortByInput = {
+  by?: VoteSortBy;
+  direction?: SortDirection;
 };
 
 export type VoteSummary = {
@@ -671,6 +700,9 @@ export type ResolversTypes = ResolversObject<{
   VoteOnNoteInput: ResolverTypeWrapper<Partial<VoteOnNoteInput>>;
   VoteOnReviewInput: ResolverTypeWrapper<Partial<VoteOnReviewInput>>;
   VoteOnTraitInput: ResolverTypeWrapper<Partial<VoteOnTraitInput>>;
+  VotePaginationInput: ResolverTypeWrapper<Partial<VotePaginationInput>>;
+  VoteSortBy: ResolverTypeWrapper<Partial<VoteSortBy>>;
+  VoteSortByInput: ResolverTypeWrapper<Partial<VoteSortByInput>>;
   VoteSummary: ResolverTypeWrapper<Partial<VoteSummary>>;
 }>;
 
@@ -727,6 +759,8 @@ export type ResolversParentTypes = ResolversObject<{
   VoteOnNoteInput: Partial<VoteOnNoteInput>;
   VoteOnReviewInput: Partial<VoteOnReviewInput>;
   VoteOnTraitInput: Partial<VoteOnTraitInput>;
+  VotePaginationInput: Partial<VotePaginationInput>;
+  VoteSortByInput: Partial<VoteSortByInput>;
   VoteSummary: Partial<VoteSummary>;
 }>;
 
@@ -967,6 +1001,7 @@ export type PageInfoResolvers<ContextType = ApiContext, ParentType extends Resol
 }>;
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  collection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<QueryCollectionArgs, 'id'>>;
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType, RequireFields<QueryFragranceArgs, 'id'>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;

@@ -5,6 +5,7 @@ import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
 import { type FragranceReviewRow } from './reviewService'
+import { type VoteSortBy } from '@src/generated/gql-types'
 
 /*
   TODO:
@@ -35,13 +36,13 @@ export interface FragranceNoteRow extends Selectable<FragranceNote>, MyVote {
 
 export interface GetFragranceAccordsParams {
   fragranceIds: number[]
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
   fill?: boolean
 }
 
 export interface GetFragranceNotesParams {
   fragranceIds: number[]
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
   layer: NoteLayerEnum
   fill?: boolean
 }
@@ -63,7 +64,7 @@ export interface GetReviewDistributionsMultipleParams {
 
 export interface GetFragranceReviewsMultipleParams {
   fragranceIds: number[]
-  paginationParams: PaginationParams
+  paginationParams: PaginationParams<VoteSortBy>
 }
 
 export interface GetFragranceTraitsMultipleParams {

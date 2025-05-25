@@ -1,7 +1,7 @@
 import { type MutationResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
 import { z } from 'zod'
-import { parseInput } from '@src/common/parse'
+import { parseSchema } from '@src/common/schema'
 
 const loginSchema = z
   .object({
@@ -58,7 +58,7 @@ export class AuthResolver extends ApiResolver {
   }
 
   logIn: MutationResolvers['logIn'] = async (parent, args, context, info) => {
-    parseInput(loginSchema, args)
+    parseSchema(loginSchema, args)
 
     const { email, password } = args
     const { res, services } = context
@@ -108,7 +108,7 @@ export class AuthResolver extends ApiResolver {
   }
 
   signUp: MutationResolvers['signUp'] = async (parent, args, context, info) => {
-    parseInput(signUpSchema, args)
+    parseSchema(signUpSchema, args)
 
     const { email, password } = args
     const { services } = context
@@ -139,7 +139,7 @@ export class AuthResolver extends ApiResolver {
   }
 
   confirmSignUp: MutationResolvers['confirmSignUp'] = async (parent, args, context, info) => {
-    parseInput(confirmSignUpSchema, args)
+    parseSchema(confirmSignUpSchema, args)
 
     const { email, confirmationCode } = args
     const { services } = context

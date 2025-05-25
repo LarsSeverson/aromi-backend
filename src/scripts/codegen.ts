@@ -6,6 +6,7 @@ const config: CodegenConfig = {
     'src/generated/gql-types.ts': {
       config: {
         useIndexSignature: true,
+        enumsAsConst: true,
         contextType: '@src/context#ApiContext',
         defaultMapper: 'Partial<{T}>',
         scalars: {
