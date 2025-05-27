@@ -1,4 +1,3 @@
-import { mergeAllSignedSrcs } from '@src/common/images'
 import { getPaginationParams } from '@src/common/pagination'
 import { type UploadStatus, type FragranceTraitEnum } from '@src/db/schema'
 import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers, type VoteSortBy, type AssetStatus } from '@src/generated/gql-types'
@@ -68,7 +67,7 @@ export class FragranceResolver extends ApiResolver {
   fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
-    const { loaders, sources } = context
+    const { loaders, services } = context
 
     const paginationParams = getPaginationParams(input)
 
@@ -81,18 +80,14 @@ export class FragranceResolver extends ApiResolver {
         error => error
       )
       .match(
-        async rows => {
-          const page = this
-            .mapToPage({
-              rows,
-              paginationParams,
-              mapFn: mapFragranceImageRowToFragranceImage
-            })
-
-          await mergeAllSignedSrcs({ s3: sources.s3, on: page.edges.map(e => e.node) })
-
-          return page
-        },
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: (row) => services
+              .asset
+              .signAsset(mapFragranceImageRowToFragranceImage(row))
+          }),
         error => { throw error }
       )
   }
