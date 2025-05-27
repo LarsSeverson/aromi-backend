@@ -1,6 +1,6 @@
 import { type PaginationParams } from '@src/common/pagination'
 import { type SelectQueryBuilder, type Selectable } from 'kysely'
-import { ApiService, type ServiceFindCriteria } from './apiService'
+import { DBService, type ServiceFindCriteria } from './DBService'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type FragranceRow } from './fragranceService'
@@ -14,7 +14,7 @@ export interface FragranceCollectionItemRow extends Selectable<FragranceCollecti
   fDeletedAt: Date | null
 }
 
-export class CollectionService extends ApiService<'fragranceCollections'> {
+export class CollectionService extends DBService<'fragranceCollections'> {
   find (
     criteria: ServiceFindCriteria<'fragranceCollections'>
   ): ResultAsync<FragranceCollectionRow, ApiError> {

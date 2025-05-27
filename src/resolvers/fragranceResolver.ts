@@ -1,13 +1,17 @@
 import { mergeAllSignedSrcs } from '@src/common/images'
 import { getPaginationParams } from '@src/common/pagination'
-import { type FragranceTraitEnum } from '@src/db/schema'
-import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers, type VoteSortBy } from '@src/generated/gql-types'
+import { type UploadStatus, type FragranceTraitEnum } from '@src/db/schema'
+import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers, type VoteSortBy, type AssetStatus } from '@src/generated/gql-types'
 import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { type FragranceReviewDistRow, type FragranceImageRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
+import { type FragranceReviewDistRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
 import { ResultAsync } from 'neverthrow'
 import { ApiResolver } from './apiResolver'
 import { type FragranceReviewRow } from '@src/services/reviewService'
 import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } from './noteResolver'
+import { ApiError } from '@src/common/error'
+import { type FragranceImageRow } from '@src/services/fragrance/fragranceImageRepo'
+
+const ALLOWED_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
@@ -185,6 +189,72 @@ export class FragranceResolver extends ApiResolver {
           if (row == null) return null
           return mapFragranceReviewRowToFragranceReviewSummary(row)
         },
+        error => { throw error }
+      )
+  }
+
+  createFragranceImage: MutationResolvers['createFragranceImage'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { fragranceId, fileSize, fileType } = input
+
+    if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
+      throw new ApiError(
+        'INVALID_INPUT',
+        'This file type is not allowed for fragrance images',
+        400,
+        `Attempt to upload type: ${fileType} for fragrance image`
+      )
+    }
+
+    return await services
+      .fragrance
+      .images
+      .create({ fragranceId })
+      .andThen(({ id, s3Key }) =>
+        services
+          .asset
+          .presignUpload({ key: s3Key, fileSize, fileType })
+          .mapErr(async (error) => {
+            await services
+              .fragrance
+              .images
+              .delete(id)
+            return error
+          })
+          .map(payload => ({ ...payload, s3Key }))
+      )
+      .match(
+        payload => payload,
+        error => { throw error }
+      )
+  }
+
+  confirmFragranceImage: MutationResolvers['confirmFragranceImage'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
+
+    const { s3Key } = input
+
+    return await services
+      .asset
+      .checkExists(s3Key)
+      .andThen(exists =>
+        services
+          .fragrance
+          .images
+          .update(
+            { s3Key },
+            { status: 'uploaded' }
+          )
+      )
+      .match(
+        row => services
+          .asset
+          .signAsset(
+            mapFragranceImageRowToFragranceImage(row)
+          ),
         error => { throw error }
       )
   }
@@ -402,3 +472,9 @@ export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceRevi
       return acc
     }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
 }
+
+export const GQL_ASSET_STATUS_TO_DB_UPLOAD_STATUS: Record<AssetStatus, UploadStatus> = {
+  PENDING: 'pending',
+  UPLOADED: 'uploaded',
+  FAILED: 'failed'
+} as const

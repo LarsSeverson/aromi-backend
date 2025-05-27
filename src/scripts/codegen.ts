@@ -10,7 +10,8 @@ const config: CodegenConfig = {
         contextType: '@src/context#ApiContext',
         defaultMapper: 'Partial<{T}>',
         scalars: {
-          Date: 'Date'
+          Date: 'Date',
+          JSON: 'Record<string, any>'
         },
         mappers: {
           Fragrance: '../schemas/fragrance/mappers#FragranceSummary',

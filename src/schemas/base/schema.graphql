@@ -2,6 +2,7 @@ type Query
 type Mutation
 
 scalar Date
+scalar JSON
 
 type PageInfo {
   hasNextPage: Boolean!

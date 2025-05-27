@@ -9,6 +9,12 @@ import { type DB } from '../db/schema'
 import { createPool } from '../db/pool'
 import { createDB } from '../db'
 
+export interface CloudfrontSource {
+  domain: string
+  keyPairId: string
+  privateKey: string
+}
+
 export interface S3DataSource {
   client: S3Client
   bucket: string
@@ -24,6 +30,23 @@ export interface ApiDataSources {
   s3: S3DataSource
   cog: CogDataSource
   jwksClient: JwksClient
+  cloudfront: CloudfrontSource
+}
+
+const getCloudfront = (): Result<ApiDataSources['cloudfront'], ApiError> => {
+  const domain = requiredEnv('CLOUDFRONT_DOMAIN')
+  const keyPairId = requiredEnv('CLOUDFRONT_KEY_PAIR_ID')
+  const privateKey = requiredEnv('CLOUDFRONT_PRIVATE_KEY')
+
+  if (domain.isErr()) return err(new ApiError('MISSING_ENV', 'CLOUDFRONT_DOMAIN is missing', 500))
+  if (keyPairId.isErr()) return err(new ApiError('MISSING_ENV', 'CLOUDFRONT_KEY_PAIR_ID is missing', 500))
+  if (privateKey.isErr()) return err(new ApiError('MISSING_ENV', 'CLOUDFRONT_PRIVATE_KEY is missing', 500))
+
+  return ok({
+    domain: domain.value,
+    keyPairId: keyPairId.value,
+    privateKey: privateKey.value
+  })
 }
 
 const getS3 = (): Result<ApiDataSources['s3'], ApiError> => {
@@ -91,15 +114,20 @@ export const getDataSources = (): Result<ApiDataSources, ApiError> => {
   const jwksRes = getJwksClient()
   if (jwksRes.isErr()) return err(jwksRes.error)
 
+  const cloudfrontRes = getCloudfront()
+  if (cloudfrontRes.isErr()) return err(cloudfrontRes.error)
+
   const db = dbRes.value
   const s3 = s3Res.value
   const cog = cogRes.value
   const jwksClient = jwksRes.value
+  const cloudfront = cloudfrontRes.value
 
   return ok({
     db,
     s3,
     cog,
-    jwksClient
+    jwksClient,
+    cloudfront
   })
 }

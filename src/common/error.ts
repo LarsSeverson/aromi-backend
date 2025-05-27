@@ -15,16 +15,20 @@ export class ApiError extends GraphQLError {
     this.details = details
   }
 
+  static fromDatabase (error: Error): ApiError {
+    return new ApiError('DB_QUERY_FAILED', 'Something went wrong getting this resource. Please try again later', 500, error)
+  }
+
   static fromCognito (error: Error): ApiError {
     const mapping = COGNITO_ERROR_TO_API_ERROR[error.name]
-
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
-
     return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong with authentication. Please try again later', 500, error)
   }
 
-  static fromDatabase (error: Error): ApiError {
-    return new ApiError('DB_QUERY_FAILED', 'Something went wrong getting this resource. Please try again later', 500, error)
+  static fromS3 (error: Error): ApiError {
+    const mapping = S3_ERROR_TO_API_ERROR[error.name]
+    if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
+    return new ApiError('S3_SERVICE_ERROR', 'Something went wrong with S3. Please try again later', 500, error)
   }
 
   serialize (): GraphQLFormattedError {
@@ -63,4 +67,15 @@ export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   CodeDeliveryFailureException: new ApiError('CODE_DELIVERY_FAILURE', 'Failed to deliver verification code', 500),
   TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429),
   InvalidParameterException: new ApiError('INVALID_PARAMETER', 'Invalid input provided', 400)
+} as const
+
+export const S3_ERROR_TO_API_ERROR: Record<string, ApiError> = {
+  AccessDenied: new ApiError('S3_ACCESS_DENIED', 'You do not have permission to access this resource', 403),
+  NoSuchBucket: new ApiError('S3_NO_SUCH_BUCKET', 'The requested bucket does not exist', 404),
+  NoSuchKey: new ApiError('S3_NO_SUCH_KEY', 'The requested file does not exist', 404),
+  InvalidBucketName: new ApiError('S3_INVALID_BUCKET_NAME', 'Invalid bucket name', 400),
+  InvalidObjectState: new ApiError('S3_INVALID_OBJECT_STATE', 'Invalid object state for the requested operation', 400),
+  EntityTooLarge: new ApiError('S3_FILE_TOO_LARGE', 'The uploaded file is too large', 413),
+  SlowDown: new ApiError('S3_TOO_MANY_REQUESTS', 'Too many requests to S3, please slow down', 429),
+  NotFound: new ApiError('S3_NO_OBJECT', 'The requested asset does not exist', 404)
 } as const

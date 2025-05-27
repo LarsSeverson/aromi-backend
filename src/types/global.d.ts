@@ -20,6 +20,10 @@ export interface Env {
   COGNITO_CLIENT_ID: string
 
   JWKS_URI: string
+
+  CLOUDFRONT_DOMAIN: string
+  CLOUDFRONT_KEY_PAIR_ID: string
+  CLOUDFRONT_PRIVATE_KEY: string
 }
 
 declare global {

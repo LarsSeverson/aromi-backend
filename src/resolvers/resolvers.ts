@@ -75,10 +75,12 @@ export class ApiResolvers implements Resolvers {
     confirmForgotPassword: authResolver.confirmForgotPassword,
     resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
 
-    // Creation
     createFragranceReview: reviewResolver.createReview,
     createFragranceCollection: collectionResolver.createCollection,
     createFragranceCollectionItem: collectionResolver.createCollectionItem,
+
+    createFragranceImage: fragranceResolver.createFragranceImage,
+    confirmFragranceImage: fragranceResolver.confirmFragranceImage,
 
     // Voting
     voteOnFragrance: fragranceResolver.voteOnFragrance,

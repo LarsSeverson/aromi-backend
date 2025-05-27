@@ -284,7 +284,7 @@
     "@smithy/util-utf8" "^4.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-s3@^3.758.0":
+"@aws-sdk/client-s3@3.817.0", "@aws-sdk/client-s3@^3.758.0":
   version "3.817.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.817.0.tgz#841840d2a03581b706ba564820335b96497a1c15"
   integrity sha512-nZyjhlLMEXDs0ofWbpikI8tKoeKuuSgYcIb6eEZJk90Nt5HkkXn6nkWOs/kp2FdhpoGJyTILOVsDgdm7eutnLA==
@@ -388,6 +388,14 @@
     "@smithy/util-middleware" "^4.0.2"
     "@smithy/util-retry" "^4.0.3"
     "@smithy/util-utf8" "^4.0.0"
+    tslib "^2.6.2"
+
+"@aws-sdk/cloudfront-signer@^3.813.0":
+  version "3.813.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/cloudfront-signer/-/cloudfront-signer-3.813.0.tgz#cec0f8849e4da43677629c53932081275da20ac0"
+  integrity sha512-4fT5P14ka8sduNO5L/nuTi763q22BxcmOCXY8FvsD0b1RKU3F8wvPODCDXf5+L7AuRHFMKrjCkcnWql+QuyOpQ==
+  dependencies:
+    "@smithy/url-parser" "^4.0.2"
     tslib "^2.6.2"
 
 "@aws-sdk/core@3.816.0":
@@ -685,6 +693,21 @@
     "@smithy/types" "^4.2.0"
     "@smithy/util-config-provider" "^4.0.0"
     "@smithy/util-middleware" "^4.0.2"
+    tslib "^2.6.2"
+
+"@aws-sdk/s3-presigned-post@^3.817.0":
+  version "3.817.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-presigned-post/-/s3-presigned-post-3.817.0.tgz#bb57d63562c7c91f566351b3f95173db61aa1311"
+  integrity sha512-VovOA3joqJhHIYyV74nEOO0xXXfB9kLVfy15KVjkHX2QlZnKVdpeyrthAd2m2rog430B6PhRp8N3jDv5Z+/fQg==
+  dependencies:
+    "@aws-sdk/client-s3" "3.817.0"
+    "@aws-sdk/types" "3.804.0"
+    "@aws-sdk/util-format-url" "3.804.0"
+    "@smithy/middleware-endpoint" "^4.1.6"
+    "@smithy/signature-v4" "^5.1.0"
+    "@smithy/types" "^4.2.0"
+    "@smithy/util-hex-encoding" "^4.0.0"
+    "@smithy/util-utf8" "^4.0.0"
     tslib "^2.6.2"
 
 "@aws-sdk/s3-request-presigner@^3.758.0":

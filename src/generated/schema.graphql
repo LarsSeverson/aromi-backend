@@ -3,6 +3,25 @@ input AccordsInput {
   pagination: VotePaginationInput
 }
 
+type Asset {
+  alt: String
+  audit: Audit!
+  id: Int!
+  src: String!
+}
+
+enum AssetStatus {
+  FAILED
+  PENDING
+  UPLOADED
+}
+
+type AssetUploadPayload {
+  fields: JSON!
+  s3Key: String!
+  url: String!
+}
+
 type Audit {
   createdAt: Date!
   deletedAt: Date
@@ -21,6 +40,10 @@ type CodeDeliveryDetails {
   method: String
 }
 
+input ConfirmFragranceImageInput {
+  s3Key: String!
+}
+
 input CreateFragranceCollectionInput {
   fragranceId: Int!
   name: String!
@@ -30,6 +53,12 @@ input CreateFragranceCollectionItemInput {
   afterFragranceId: Int
   beforeFragranceId: Int
   collectionId: Int!
+  fragranceId: Int!
+}
+
+input CreateFragranceImageInput {
+  fileSize: Int!
+  fileType: String!
   fragranceId: Int!
 }
 
@@ -214,6 +243,8 @@ enum FragranceTraitType {
   SILLAGE
 }
 
+scalar JSON
+
 input MoveFragranceCollectionItemInput {
   afterFragranceId: Int
   beforeFragranceId: Int
@@ -223,9 +254,11 @@ input MoveFragranceCollectionItemInput {
 
 type Mutation {
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
+  confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
   confirmSignUp(confirmationCode: String!, email: String!): Boolean!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
+  createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
   forgotPassword(email: String!): Boolean!

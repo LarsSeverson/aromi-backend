@@ -20,6 +20,8 @@
     "@apollo/server": "^4.11.3",
     "@aws-sdk/client-cognito-identity-provider": "^3.797.0",
     "@aws-sdk/client-s3": "^3.758.0",
+    "@aws-sdk/cloudfront-signer": "^3.813.0",
+    "@aws-sdk/s3-presigned-post": "^3.817.0",
     "@aws-sdk/s3-request-presigner": "^3.758.0",
     "@types/cors": "^2.8.17",
     "cookie-parser": "^1.4.7",

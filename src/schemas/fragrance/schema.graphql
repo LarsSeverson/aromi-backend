@@ -100,7 +100,10 @@ extend type Query {
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
-  
+
+  createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
+  confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
+
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
   moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
@@ -143,6 +146,16 @@ input CreateFragranceCollectionItemInput {
   fragranceId: Int!
   beforeFragranceId: Int
   afterFragranceId: Int
+}
+
+input CreateFragranceImageInput {
+  fragranceId: Int!
+  fileType: String!
+  fileSize: Int!
+}
+
+input ConfirmFragranceImageInput {
+  s3Key: String!
 }
 
 input DeleteFragranceCollectionItemInput {

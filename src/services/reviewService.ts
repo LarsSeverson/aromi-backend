@@ -2,7 +2,7 @@ import { ApiError } from '@src/common/error'
 import { type DB, type FragranceReview } from '@src/db/schema'
 import { sql, type SelectQueryBuilder, type Selectable } from 'kysely'
 import { errAsync, ResultAsync } from 'neverthrow'
-import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
+import { DBService, type MyVote, type ServiceFindCriteria } from './DBService'
 import { type PaginationParams } from '@src/common/pagination'
 import { type VoteSortBy } from '@src/generated/gql-types'
 
@@ -13,7 +13,7 @@ export interface VoteOnReviewParams {
   vote: boolean | null
 }
 
-export class ReviewService extends ApiService<'fragranceReviews'> {
+export class ReviewService extends DBService<'fragranceReviews'> {
   find (
     criteria: ServiceFindCriteria<'fragranceReviews'>
   ): ResultAsync<FragranceReviewRow, ApiError> {

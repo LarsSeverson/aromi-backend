@@ -1,10 +1,11 @@
 import DataLoader from 'dataloader'
-import { type FragranceService, type FragranceImageRow, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
+import { type FragranceService, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
 import { type PaginationParams } from '@src/common/pagination'
 import { LoaderFactory } from './loaderFactory'
 import { type NoteLayerEnum } from '@src/db/schema'
 import { type ReviewService, type FragranceReviewRow } from '@src/services/reviewService'
 import { type VoteSortBy } from '@src/generated/gql-types'
+import { type FragranceImageRow } from '@src/services/fragrance/fragranceImageRepo'
 
 export interface FragranceLoaderKey { fragranceId: number }
 

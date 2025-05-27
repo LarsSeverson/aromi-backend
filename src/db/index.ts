@@ -7,7 +7,9 @@ import { type DB } from './schema'
 export const createDB = (pool: Pool): Result<Kysely<DB>, ApiError> => {
   const db = new Kysely<DB>({
     dialect: new PostgresDialect({ pool }),
-    plugins: [new CamelCasePlugin()]
+    plugins: [
+      new CamelCasePlugin()
+    ]
   })
 
   return ok(db)

@@ -1,11 +1,13 @@
 import { ApiError } from '@src/common/error'
 import { type PaginationParams } from '@src/common/pagination'
-import { type FragranceImage, type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum, type DB } from '@src/db/schema'
+import { type Fragrance, type FragranceTrait, type FragranceAccord, type FragranceNote, type NoteLayerEnum, type DB } from '@src/db/schema'
 import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
 import { errAsync, ResultAsync } from 'neverthrow'
-import { ApiService, type MyVote, type ServiceFindCriteria } from './apiService'
+import { DBService, type MyVote, type ServiceFindCriteria } from './DBService'
 import { type FragranceReviewRow } from './reviewService'
 import { type VoteSortBy } from '@src/generated/gql-types'
+import { FragranceImageRepo, type FragranceImageRow } from './fragrance/fragranceImageRepo'
+import { type ApiDataSources } from '@src/datasources/datasources'
 
 /*
   TODO:
@@ -16,7 +18,6 @@ import { type VoteSortBy } from '@src/generated/gql-types'
 */
 
 export type FragranceRow = Selectable<Fragrance> & MyVote
-export type FragranceImageRow = Selectable<FragranceImage>
 export type FragranceReviewDistRow = Pick<FragranceReviewRow, 'rating' | 'fragranceId'> & { count: number }
 export type FragranceTraitRow = Selectable<FragranceTrait> & MyVote
 
@@ -76,7 +77,15 @@ export interface GetLikedParams {
   paginationParams: PaginationParams
 }
 
-export class FragranceService extends ApiService<'fragrances'> {
+export class FragranceService extends DBService<'fragrances'> {
+  readonly images: FragranceImageRepo
+
+  constructor (sources: ApiDataSources) {
+    super(sources)
+
+    this.images = new FragranceImageRepo(sources)
+  }
+
   find (criteria: ServiceFindCriteria<'fragrances'>): ResultAsync<FragranceRow, ApiError> {
     const { db } = this
     const userId = this.context.me?.id ?? null
@@ -442,7 +451,7 @@ export class FragranceService extends ApiService<'fragrances'> {
               .selectFrom('fragranceImages as fi')
               .whereRef('fi.fragranceId', '=', 'f.id')
               .selectAll()
-              .where('fragranceId', 'in', fragranceIds)
+              .where('fi.status', '=', 'uploaded')
               .$if(cursor.isValid, qb =>
                 qb
                   .where(({ eb, or, and }) =>

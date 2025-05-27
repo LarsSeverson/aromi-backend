@@ -11,8 +11,6 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export type ImageFormat = "jpg" | "png";
-
 export type Json = JsonValue;
 
 export type JsonArray = JsonValue[];
@@ -30,6 +28,8 @@ export type NoteLayerEnum = "base" | "middle" | "top";
 export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export type UploadStatus = "failed" | "pending" | "uploaded";
 
 export interface Accord {
   color: Generated<string>;
@@ -90,13 +90,13 @@ export interface FragranceCollection {
 }
 
 export interface FragranceImage {
-  createdAt: Timestamp;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  format: ImageFormat;
   fragranceId: number;
   id: Generated<number>;
-  s3Key: string;
-  updatedAt: Timestamp;
+  s3Key: Generated<string>;
+  status: Generated<UploadStatus>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface FragranceNote {

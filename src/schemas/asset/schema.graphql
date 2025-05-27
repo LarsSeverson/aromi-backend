@@ -1,0 +1,18 @@
+type Asset {
+  id: Int!
+  src: String!
+  alt: String
+  audit: Audit!
+}
+
+type AssetUploadPayload {
+  url: String!
+  fields: JSON!
+  s3Key: String!
+}
+
+enum AssetStatus {
+  PENDING
+  UPLOADED
+  FAILED
+}
