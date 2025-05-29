@@ -9,16 +9,16 @@ export type FragranceImageRow = Selectable<FragranceImage>
 
 export class FragranceImageRepo extends DBService<'fragranceImages'> {
   create (
-    data: Pick<FragranceImageRow, 'fragranceId'>
+    data: Pick<FragranceImageRow, 'fragranceId' | 's3Key'>
   ): ResultAsync<FragranceImageRow, ApiError> {
     const { db } = this
-    const { fragranceId } = data
+    const { fragranceId, s3Key } = data
 
     return ResultAsync
       .fromPromise(
         db
           .insertInto('fragranceImages')
-          .values({ fragranceId })
+          .values({ fragranceId, s3Key })
           .returningAll()
           .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)

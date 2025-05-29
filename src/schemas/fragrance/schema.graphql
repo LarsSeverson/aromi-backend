@@ -155,6 +155,7 @@ input CreateFragranceImageInput {
 }
 
 input ConfirmFragranceImageInput {
+  fragranceId: Int!
   s3Key: String!
 }
 

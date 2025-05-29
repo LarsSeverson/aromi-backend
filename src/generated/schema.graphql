@@ -41,6 +41,7 @@ type CodeDeliveryDetails {
 }
 
 input ConfirmFragranceImageInput {
+  fragranceId: Int!
   s3Key: String!
 }
 

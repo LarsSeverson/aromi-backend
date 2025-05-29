@@ -71,6 +71,7 @@ export type CodeDeliveryDetails = {
 };
 
 export type ConfirmFragranceImageInput = {
+  fragranceId: Scalars['Int']['input'];
   s3Key: Scalars['String']['input'];
 };
 

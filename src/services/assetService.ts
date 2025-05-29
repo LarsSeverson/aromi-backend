@@ -4,7 +4,9 @@ import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'
 import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
-import { HeadObjectCommand } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
+import sharp from 'sharp'
+import { nanoid } from 'nanoid'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 const EXPIRES_IN = 3600
@@ -24,6 +26,10 @@ export class AssetService extends ApiService {
   ): A {
     asset.src = this.signUrl(asset.src)
     return asset
+  }
+
+  genKey (pre: string): string {
+    return `${pre}/${nanoid(8)}`
   }
 
   signUrl (
@@ -84,6 +90,70 @@ export class AssetService extends ApiService {
     return ResultAsync
       .fromPromise(
         client.send(new HeadObjectCommand({
+          Bucket: bucket,
+          Key: key
+        })),
+        error => ApiError.fromS3(error as Error)
+      )
+      .map(_ => true)
+  }
+
+  validateImage (
+    key: string
+  ): ResultAsync<boolean, ApiError> {
+    const { s3 } = this
+    const { client, bucket } = s3
+
+    return ResultAsync
+      .fromPromise(
+        client.send(new GetObjectCommand({
+          Bucket: bucket,
+          Key: key
+        })),
+        error => ApiError.fromS3(error as Error)
+      )
+      .andThen(data => {
+        if (data.Body == null) {
+          return errAsync(new ApiError(
+            'ASSET_ERROR',
+            'Something went wrong uploading this image',
+            500,
+            'data.Body was undefined'
+          ))
+        }
+
+        return ResultAsync
+          .fromPromise(
+            data.Body.transformToByteArray(),
+            error => new ApiError(
+              'ASSET_ERROR',
+              'Something went wrong uploading this image',
+              500,
+              error
+            )
+          )
+      })
+      .andThen(buf => ResultAsync
+        .fromPromise(
+          sharp(buf).metadata(),
+          error => new ApiError(
+            'ASSET_ERROR',
+            'Something went wrong uploading this image',
+            500,
+            error
+          )
+        )
+      )
+      .map(_ => true)
+  }
+
+  delete (key: string): ResultAsync<boolean, ApiError> {
+    const { s3 } = this
+    const { client, bucket } = s3
+
+    return ResultAsync
+      .fromPromise(
+        client.send(new DeleteObjectCommand({
           Bucket: bucket,
           Key: key
         })),

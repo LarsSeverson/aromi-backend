@@ -191,6 +191,7 @@ export class FragranceResolver extends ApiResolver {
   createFragranceImage: MutationResolvers['createFragranceImage'] = async (_, args, context, info) => {
     const { input } = args
     const { services } = context
+    const { asset } = services
 
     const { fragranceId, fileSize, fileType } = input
 
@@ -203,23 +204,12 @@ export class FragranceResolver extends ApiResolver {
       )
     }
 
+    const key = asset.genKey(String(fragranceId))
+
     return await services
-      .fragrance
-      .images
-      .create({ fragranceId })
-      .andThen(({ id, s3Key }) =>
-        services
-          .asset
-          .presignUpload({ key: s3Key, fileSize, fileType })
-          .mapErr(async (error) => {
-            await services
-              .fragrance
-              .images
-              .delete(id)
-            return error
-          })
-          .map(payload => ({ ...payload, s3Key }))
-      )
+      .asset
+      .presignUpload({ key, fileSize, fileType })
+      .map(payload => ({ ...payload, s3Key: key }))
       .match(
         payload => payload,
         error => { throw error }
@@ -229,27 +219,25 @@ export class FragranceResolver extends ApiResolver {
   confirmFragranceImage: MutationResolvers['confirmFragranceImage'] = async (_, args, context, info) => {
     const { input } = args
     const { services } = context
+    const { asset, fragrance } = services
 
-    const { s3Key } = input
+    const { fragranceId, s3Key } = input
 
-    return await services
-      .asset
-      .checkExists(s3Key)
-      .andThen(exists =>
-        services
-          .fragrance
-          .images
-          .update(
-            { s3Key },
-            { status: 'uploaded' }
-          )
-      )
+    const validate = await asset.validateImage(s3Key)
+
+    if (validate.isErr()) {
+      if (validate.error.status !== 404) {
+        await asset.delete(s3Key)
+      }
+
+      throw validate.error
+    }
+
+    return await fragrance
+      .images
+      .create({ fragranceId, s3Key })
       .match(
-        row => services
-          .asset
-          .signAsset(
-            mapFragranceImageRowToFragranceImage(row)
-          ),
+        (row) => asset.signAsset(mapFragranceImageRowToFragranceImage(row)),
         error => { throw error }
       )
   }
