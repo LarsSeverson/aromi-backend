@@ -7,9 +7,10 @@ import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
 import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 import sharp from 'sharp'
 import { nanoid } from 'nanoid'
+import { format } from 'url'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
-const EXPIRES_IN = 3600
+const EXP = (): number => Math.floor((new Date()).getTime() / 1000) + (60 * 60 * 1) // 1 hr
 
 export class AssetService extends ApiService {
   s3: ApiDataSources['s3']
@@ -38,13 +39,13 @@ export class AssetService extends ApiService {
     const { cloudfront } = this
     const { domain, keyPairId, privateKey } = cloudfront
 
-    const url = `${domain}/${key}`
+    const url = format(`${domain}/${encodeURI(key)}`)
 
     return getSignedUrl({
       url,
       keyPairId,
       privateKey,
-      dateLessThan: new Date(Date.now() + EXPIRES_IN * 1000)
+      dateLessThan: EXP()
     })
   }
 

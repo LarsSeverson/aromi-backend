@@ -10,7 +10,7 @@ import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } f
 import { ApiError } from '@src/common/error'
 import { type FragranceImageRow } from '@src/services/fragrance/fragranceImageRepo'
 
-const ALLOWED_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
+const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
@@ -195,7 +195,7 @@ export class FragranceResolver extends ApiResolver {
 
     const { fragranceId, fileSize, fileType } = input
 
-    if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
+    if (!ALLOWED_FRAGRANCE_IMAGE_TYPES.includes(fileType)) {
       throw new ApiError(
         'INVALID_INPUT',
         'This file type is not allowed for fragrance images',
@@ -204,7 +204,7 @@ export class FragranceResolver extends ApiResolver {
       )
     }
 
-    const key = asset.genKey(String(fragranceId))
+    const key = asset.genKey(`fragrance_images/${String(fragranceId)}`)
 
     return await services
       .asset

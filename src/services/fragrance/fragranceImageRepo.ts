@@ -18,7 +18,7 @@ export class FragranceImageRepo extends DBService<'fragranceImages'> {
       .fromPromise(
         db
           .insertInto('fragranceImages')
-          .values({ fragranceId, s3Key })
+          .values({ fragranceId, s3Key, status: 'uploaded' })
           .returningAll()
           .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
