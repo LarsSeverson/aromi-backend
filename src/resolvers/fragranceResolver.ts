@@ -397,6 +397,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
 export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): FragranceImage => {
   const {
     id, s3Key,
+    primaryColor,
     createdAt, updatedAt, deletedAt
   } = row
 
@@ -404,6 +405,7 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
     id,
     src: s3Key,
     alt: '', // TODO:
+    bg: primaryColor,
 
     audit: {
       createdAt,

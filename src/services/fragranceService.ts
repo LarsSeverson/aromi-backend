@@ -451,7 +451,6 @@ export class FragranceService extends DBService<'fragrances'> {
               .selectFrom('fragranceImages as fi')
               .whereRef('fi.fragranceId', '=', 'f.id')
               .selectAll()
-              .where('fi.status', '=', 'uploaded')
               .$if(cursor.isValid, qb =>
                 qb
                   .where(({ eb, or, and }) =>

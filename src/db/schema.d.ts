@@ -94,6 +94,7 @@ export interface FragranceImage {
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
+  primaryColor: string | null;
   s3Key: string;
   status: Generated<UploadStatus | null>;
   updatedAt: Generated<Timestamp>;

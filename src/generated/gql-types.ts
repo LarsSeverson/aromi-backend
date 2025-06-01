@@ -222,6 +222,7 @@ export type FragranceImage = {
   __typename?: 'FragranceImage';
   alt?: Maybe<Scalars['String']['output']>;
   audit: Audit;
+  bg?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   src: Scalars['String']['output'];
 };
@@ -959,6 +960,7 @@ export type FragranceEdgeResolvers<ContextType = ApiContext, ParentType extends 
 export type FragranceImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
   alt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  bg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

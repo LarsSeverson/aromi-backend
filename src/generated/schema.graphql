@@ -161,6 +161,7 @@ type FragranceEdge {
 type FragranceImage {
   alt: String
   audit: Audit!
+  bg: String
   id: Int!
   src: String!
 }

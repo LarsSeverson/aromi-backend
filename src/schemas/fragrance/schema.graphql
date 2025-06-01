@@ -29,6 +29,7 @@ type FragranceImage {
   id: Int!
   src: String!
   alt: String
+  bg: String
   audit: Audit!
 }
 

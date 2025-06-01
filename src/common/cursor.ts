@@ -19,7 +19,7 @@ export interface ApiRawCursor {
 }
 
 export const encodeCursor = (sortValue: unknown, id: string): string => {
-  const value = sortValue instanceof Date ? sortValue.toISOString() : String(sortValue)
+  const value = String(sortValue)
   return Buffer
     .from(`${value}|${id}`)
     .toString('base64')
@@ -62,6 +62,6 @@ export const parseCursor = <C extends SortColumn>(
 const TypeParsers: Record<SortColumn, (value: unknown) => unknown> = {
   id: v => Number(v),
   voteScore: v => Number(v),
-  createdAt: v => new Date(v as string),
-  updatedAt: v => new Date(v as string)
+  createdAt: v => v as string,
+  updatedAt: v => v as string
 }
