@@ -333,6 +333,10 @@ export const FragranceTraitType = {
 } as const;
 
 export type FragranceTraitType = typeof FragranceTraitType[keyof typeof FragranceTraitType];
+export type LogFragranceViewInput = {
+  fragranceId: Scalars['Int']['input'];
+};
+
 export type MoveFragranceCollectionItemInput = {
   afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
   beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
@@ -351,6 +355,7 @@ export type Mutation = {
   createFragranceReview: FragranceReview;
   deleteFragranceCollectionItem: Scalars['Boolean']['output'];
   forgotPassword: Scalars['Boolean']['output'];
+  logFragranceView: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
   moveFragranceCollectionItem: FragranceCollection;
@@ -410,6 +415,11 @@ export type MutationDeleteFragranceCollectionItemArgs = {
 
 export type MutationForgotPasswordArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationLogFragranceViewArgs = {
+  input: LogFragranceViewInput;
 };
 
 
@@ -736,6 +746,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceTraitType: ResolverTypeWrapper<Partial<FragranceTraitType>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
   JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
+  LogFragranceViewInput: ResolverTypeWrapper<Partial<LogFragranceViewInput>>;
   MoveFragranceCollectionItemInput: ResolverTypeWrapper<Partial<MoveFragranceCollectionItemInput>>;
   Mutation: ResolverTypeWrapper<{}>;
   NoteLayer: ResolverTypeWrapper<Partial<NoteLayer>>;
@@ -803,6 +814,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceTrait: Partial<FragranceTrait>;
   Int: Partial<Scalars['Int']['output']>;
   JSON: Partial<Scalars['JSON']['output']>;
+  LogFragranceViewInput: Partial<LogFragranceViewInput>;
   MoveFragranceCollectionItemInput: Partial<MoveFragranceCollectionItemInput>;
   Mutation: {};
   NotesInput: Partial<NotesInput>;
@@ -1061,6 +1073,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
+  logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   moveFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;

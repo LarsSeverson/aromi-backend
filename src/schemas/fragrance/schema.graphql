@@ -114,6 +114,8 @@ extend type Mutation {
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
   voteOnReview(input: VoteOnReviewInput!): FragranceReview!
+
+  logFragranceView(input: LogFragranceViewInput!): Boolean!
 }
 
 enum FragranceTraitType {
@@ -198,6 +200,10 @@ input VoteOnNoteInput {
 input VoteOnReviewInput {
   reviewId: Int!
   vote: Boolean
+}
+
+input LogFragranceViewInput {
+  fragranceId: Int!
 }
 
 # Pagination

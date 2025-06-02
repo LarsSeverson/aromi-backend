@@ -84,9 +84,7 @@ export class FragranceResolver extends ApiResolver {
           .mapToPage({
             rows,
             paginationParams,
-            mapFn: (row) => services
-              .asset
-              .signAsset(mapFragranceImageRowToFragranceImage(row))
+            mapFn: (row) => services.asset.publicizeAsset(mapFragranceImageRowToFragranceImage(row))
           }),
         error => { throw error }
       )
@@ -303,6 +301,25 @@ export class FragranceResolver extends ApiResolver {
       })
       .match(
         mapFragranceNoteRowToFragranceNote,
+        error => { throw error }
+      )
+  }
+
+  logFragranceView: MutationResolvers['logFragranceView'] = async (_, args, context, info) => {
+    const { input } = args
+    const { me, services } = context
+
+    if (me == null) return false
+
+    const { fragranceId } = input
+    const userId = me.id
+
+    return await services
+      .fragrance
+      .views
+      .create({ fragranceId, userId })
+      .match(
+        _ => true,
         error => { throw error }
       )
   }

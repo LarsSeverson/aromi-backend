@@ -18,11 +18,10 @@ export abstract class DBService<Table extends Tables> extends ApiService {
   db: ApiDataSources['db']
 
   constructor (sources: ApiDataSources) {
-    super()
+    super(sources)
     this.db = sources.db
   }
 
-  // Reads
   find (
     criteria: ServiceFindCriteria<Table>
   ): ResultAsync<Selectable<DB[Table]>, ApiError> {
@@ -80,7 +79,6 @@ export abstract class DBService<Table extends Tables> extends ApiService {
     )
   }
 
-  // Update
   update (
     criteria: ServiceFindCriteria<Table>,
     changes: UpdateObjectExpression<DB, Table, Table>
@@ -93,7 +91,6 @@ export abstract class DBService<Table extends Tables> extends ApiService {
     )
   }
 
-  // Delete
   delete (
     id: number
   ): ResultAsync<Selectable<DB[Table]>, ApiError> {

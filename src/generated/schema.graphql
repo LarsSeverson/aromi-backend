@@ -247,6 +247,10 @@ enum FragranceTraitType {
 
 scalar JSON
 
+input LogFragranceViewInput {
+  fragranceId: Int!
+}
+
 input MoveFragranceCollectionItemInput {
   afterFragranceId: Int
   beforeFragranceId: Int
@@ -264,6 +268,7 @@ type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
   forgotPassword(email: String!): Boolean!
+  logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
   moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!

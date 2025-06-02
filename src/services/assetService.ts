@@ -22,6 +22,13 @@ export class AssetService extends ApiService {
     this.cloudfront = sources.cloudfront
   }
 
+  publicizeAsset <A extends BaseAsset>(
+    asset: A
+  ): A {
+    asset.src = this.getUrl(asset.src)
+    return asset
+  }
+
   signAsset <A extends BaseAsset>(
     asset: A
   ): A {
@@ -31,6 +38,17 @@ export class AssetService extends ApiService {
 
   genKey (pre: string): string {
     return `${pre}/${nanoid(8)}`
+  }
+
+  getUrl (
+    key: string
+  ): string {
+    const { cloudfront } = this
+    const { domain } = cloudfront
+
+    const url = format(`${domain}/${encodeURI(key)}`)
+
+    return url
   }
 
   signUrl (

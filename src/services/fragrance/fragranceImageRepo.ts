@@ -7,7 +7,7 @@ import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-p
 
 export type FragranceImageRow = Selectable<FragranceImage>
 
-export class FragranceImageRepo extends DBService<'fragranceImages'> {
+export class FragranceImagesRepo extends DBService<'fragranceImages'> {
   create (
     data: Pick<FragranceImageRow, 'fragranceId' | 's3Key'>
   ): ResultAsync<FragranceImageRow, ApiError> {

@@ -6,8 +6,9 @@ import { errAsync, ResultAsync } from 'neverthrow'
 import { DBService, type MyVote, type ServiceFindCriteria } from './DBService'
 import { type FragranceReviewRow } from './reviewService'
 import { type VoteSortBy } from '@src/generated/gql-types'
-import { FragranceImageRepo, type FragranceImageRow } from './fragrance/fragranceImageRepo'
+import { FragranceImagesRepo, type FragranceImageRow } from './fragrance/fragranceImageRepo'
 import { type ApiDataSources } from '@src/datasources/datasources'
+import { FragranceViewsRepo } from './fragrance/fragranceViewsRepo'
 
 /*
   TODO:
@@ -78,12 +79,14 @@ export interface GetLikedParams {
 }
 
 export class FragranceService extends DBService<'fragrances'> {
-  readonly images: FragranceImageRepo
+  readonly images: FragranceImagesRepo
+  readonly views: FragranceViewsRepo
 
   constructor (sources: ApiDataSources) {
     super(sources)
 
-    this.images = new FragranceImageRepo(sources)
+    this.images = new FragranceImagesRepo(sources)
+    this.views = new FragranceViewsRepo(sources)
   }
 
   find (criteria: ServiceFindCriteria<'fragrances'>): ResultAsync<FragranceRow, ApiError> {

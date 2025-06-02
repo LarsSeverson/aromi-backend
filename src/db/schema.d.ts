@@ -93,11 +93,13 @@ export interface FragranceImage {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: number;
+  height: Generated<number>;
   id: Generated<number>;
   primaryColor: string | null;
   s3Key: string;
   status: Generated<UploadStatus | null>;
   updatedAt: Generated<Timestamp>;
+  width: Generated<number>;
 }
 
 export interface FragranceNote {
@@ -181,6 +183,13 @@ export interface FragranceTraitVote {
   vote: number;
 }
 
+export interface FragranceView {
+  fragranceId: number;
+  id: Generated<number>;
+  userId: number;
+  viewedAt: Generated<Timestamp | null>;
+}
+
 export interface FragranceVote {
   createdAt: Generated<Timestamp | null>;
   deletedAt: Timestamp | null;
@@ -227,6 +236,7 @@ export interface DB {
   fragrances: Fragrance;
   fragranceTraits: FragranceTrait;
   fragranceTraitVotes: FragranceTraitVote;
+  fragranceViews: FragranceView;
   fragranceVotes: FragranceVote;
   notes: Note;
   users: User;
