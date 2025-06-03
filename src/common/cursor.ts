@@ -19,7 +19,10 @@ export interface ApiRawCursor {
 }
 
 export const encodeCursor = (sortValue: unknown, id: string): string => {
-  const value = String(sortValue)
+  console.log(sortValue)
+  const value = typeof sortValue === 'string'
+    ? sortValue
+    : String(sortValue)
   return Buffer
     .from(`${value}|${id}`)
     .toString('base64')
@@ -30,6 +33,8 @@ export const decodeCursor = (cursor: string): ApiRawCursor => {
     .from(cursor, 'base64')
     .toString('ascii')
   const [value, id] = decoded.split('|')
+
+  console.log(value)
 
   return { value, lastId: Number(id) }
 }

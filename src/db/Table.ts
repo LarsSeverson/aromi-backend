@@ -13,6 +13,7 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   private db!: ApiDataSources['db']
   private readonly table: T
   private readonly alias?: string
+  private baseQuery?: SelectQueryBuilder<DB, T, R>
 
   constructor (
     table: T,
@@ -24,6 +25,13 @@ export class Table<T extends keyof DB, R extends Row<T>> {
 
   setDb (db: ApiDataSources['db']): this {
     this.db = db
+    return this
+  }
+
+  setBaseQuery (
+    query: SelectQueryBuilder<DB, T, R>
+  ): this {
+    this.baseQuery = query
     return this
   }
 
@@ -42,7 +50,7 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   find (
     where?: ExpressionOrFactory<DB, T, SqlBool>
   ): SelectQueryBuilder<DB, T, R> {
-    const query = this
+    const query = this.baseQuery ?? this
       .db
       .selectFrom(this.from())
       .selectAll() as unknown as SelectQueryBuilder<DB, T, R>

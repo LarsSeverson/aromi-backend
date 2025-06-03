@@ -27,7 +27,7 @@ export type NoteLayerEnum = "base" | "middle" | "top";
 
 export type Numeric = ColumnType<string, number | string, number | string>;
 
-export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+export type Timestamp = ColumnType<string, string, string>;
 
 export type UploadStatus = "failed" | "pending" | "uploaded";
 

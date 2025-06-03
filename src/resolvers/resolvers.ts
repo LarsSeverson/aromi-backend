@@ -87,6 +87,8 @@ export class ApiResolvers implements Resolvers {
     voteOnTrait: fragranceResolver.voteOnTrait,
     voteOnAccord: fragranceResolver.voteOnAccord,
     voteOnNote: fragranceResolver.voteOnNote,
-    voteOnReview: reviewResolver.voteOnReview
+    voteOnReview: reviewResolver.voteOnReview,
+
+    logFragranceView: fragranceResolver.logFragranceView
   }
 }

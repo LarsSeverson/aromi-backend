@@ -17,7 +17,7 @@ export class AssetService extends ApiService {
   cloudfront: ApiDataSources['cloudfront']
 
   constructor (sources: ApiDataSources) {
-    super()
+    super(sources)
     this.s3 = sources.s3
     this.cloudfront = sources.cloudfront
   }
