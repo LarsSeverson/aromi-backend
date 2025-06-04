@@ -92,7 +92,7 @@ export class ReviewService extends DBService<'fragranceReviews'> {
               .doUpdateSet({
                 rating,
                 reviewText,
-                updatedAt: new Date()
+                updatedAt: new Date().toISOString()
               })
           )
           .returningAll()
@@ -123,7 +123,7 @@ export class ReviewService extends DBService<'fragranceReviews'> {
     }
 
     const voteValue = vote == null ? 0 : vote ? 1 : -1
-    const deletedAt = vote == null ? new Date() : null
+    const deletedAt = vote == null ? new Date().toISOString() : null
 
     return ResultAsync
       .fromPromise(

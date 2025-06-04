@@ -70,11 +70,7 @@ export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): Fragr
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
 
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    },
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
 
     isFill: isFill ?? false
   }

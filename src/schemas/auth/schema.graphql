@@ -1,7 +1,7 @@
 type AuthPayload {
   idToken: String!
   accessToken: String!
-  expiresAt: Int!
+  expiresIn: Int!
 }
 
 type SignUpResult {
@@ -22,7 +22,7 @@ extend type Mutation {
   logOut: Boolean!
 
   signUp(email: String!, password: String!): SignUpResult!
-  confirmSignUp(email: String!, confirmationCode: String!): Boolean!
+  confirmSignUp(email: String!, confirmationCode: String!): User!
 
   forgotPassword(email: String!): Boolean!
   confirmForgotPassword(email: String!, confirmationCode: String!, newPassword: String!): Boolean!

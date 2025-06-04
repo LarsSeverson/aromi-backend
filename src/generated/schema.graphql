@@ -30,7 +30,7 @@ type Audit {
 
 type AuthPayload {
   accessToken: String!
-  expiresAt: Int!
+  expiresIn: Int!
   idToken: String!
 }
 
@@ -261,7 +261,7 @@ input MoveFragranceCollectionItemInput {
 type Mutation {
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
   confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
-  confirmSignUp(confirmationCode: String!, email: String!): Boolean!
+  confirmSignUp(confirmationCode: String!, email: String!): User!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!

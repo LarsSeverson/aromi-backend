@@ -358,11 +358,7 @@ export const mapFragranceRowToFragranceSummary = (row: FragranceRow): FragranceS
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
 
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 
@@ -401,11 +397,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
 
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    },
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
 
     isFill: isFill ?? false
   }
@@ -424,11 +416,7 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
     alt: '', // TODO:
     bg: primaryColor,
 
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 
@@ -450,11 +438,7 @@ export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceRevi
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 

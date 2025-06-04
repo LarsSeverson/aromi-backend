@@ -211,14 +211,14 @@ export interface Note {
 
 export interface User {
   cognitoId: string;
-  createdAt: Timestamp;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  email: Generated<string>;
+  email: string;
   followerCount: Generated<number>;
   followingCount: Generated<number>;
   id: Generated<number>;
-  updatedAt: Timestamp;
-  username: string;
+  updatedAt: Generated<Timestamp>;
+  username: string | null;
 }
 
 export interface DB {

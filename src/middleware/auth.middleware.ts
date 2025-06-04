@@ -65,7 +65,7 @@ const decodeToken = (token: string, client: JwksClient): ResultAsync<JwtPayload,
 }
 
 export const authenticateMe = async (context: ApiContext): Promise<UserSummary | undefined> => {
-  const { req, sources, services } = context
+  const { req, res, sources, services } = context
   const { user } = services
 
   const { authorization } = req.headers
@@ -78,8 +78,19 @@ export const authenticateMe = async (context: ApiContext): Promise<UserSummary |
   const cognitoId = result.value.sub
   if (cognitoId == null) return undefined
 
+  const oldRefresh = req.cookies.refreshToken as (string | undefined)
+
   return await user
     .find({ cognitoId })
+    .mapErr(_ => {
+      if (oldRefresh != null) {
+        res.clearCookie('refreshToken', {
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production'
+        })
+      }
+    })
     .match(
       row => mapUserRowToUserSummary(row),
       _ => undefined

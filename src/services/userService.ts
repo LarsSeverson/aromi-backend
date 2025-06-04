@@ -8,6 +8,21 @@ import { type PaginationParams } from '@src/common/pagination'
 export type UserRow = Selectable<User>
 
 export class UserService extends DBService<'users'> {
+  create (
+    data: Partial<UserRow> & { email: string, cognitoId: string }
+  ): ResultAsync<UserRow, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .db
+          .insertInto('users')
+          .values(data)
+          .returningAll()
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
   find (
     criteria: ServiceFindCriteria<'users'>
   ): ResultAsync<UserRow, ApiError> {

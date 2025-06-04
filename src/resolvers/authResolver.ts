@@ -2,6 +2,8 @@ import { type MutationResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
 import { z } from 'zod'
 import { parseSchema } from '@src/common/schema'
+import { mapUserRowToUserSummary } from './userResolver'
+import { type Response } from 'express'
 
 const loginSchema = z
   .object({
@@ -36,25 +38,23 @@ const confirmSignUpSchema = z
 
 export class AuthResolver extends ApiResolver {
   refresh: MutationResolvers['refresh'] = async (parent, args, context, info) => {
-    const { req, services } = context
+    const { req, res, services } = context
     const { auth } = services
 
     const old = req.cookies.refreshToken as (string | undefined)
 
-    if (old == null) {
-      return null
-    }
+    if (old == null) return null
 
-    const result = await auth.refresh({ old })
-
-    return result.match(
-      (tokens) => {
-        const { idToken, accessToken, expiresIn } = tokens
-        const now = Math.floor(Date.now() / 1000)
-        return { idToken, accessToken, expiresAt: now + expiresIn }
-      },
-      _ => null
-    )
+    return await auth
+      .refresh({ old })
+      .match(
+        (tokens) => {
+          const { idToken, accessToken, refreshToken, accExpiresIn, refMaxAge } = tokens
+          this.signRefreshCookie(refreshToken, refMaxAge, res)
+          return { idToken, accessToken, expiresIn: accExpiresIn }
+        },
+        _ => null
+      )
   }
 
   logIn: MutationResolvers['logIn'] = async (parent, args, context, info) => {
@@ -62,25 +62,19 @@ export class AuthResolver extends ApiResolver {
 
     const { email, password } = args
     const { res, services } = context
-    const { auth } = services
+    const { auth, user } = services
 
-    const result = await auth.logIn({ email, password })
-
-    return result
+    return await auth
+      .logIn({ email, password })
+      .andThen(tokens => user
+        .find({ email }) // Possible to have a healing side effect of creating the user if they exist in cog but not db
+        .map(_ => tokens)
+      )
       .match(
         (tokens) => {
-          const { idToken, accessToken, refreshToken, expiresIn } = tokens
-          const now = Math.floor(Date.now() / 1000)
-
-          res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            path: '/',
-            sameSite: 'lax',
-            maxAge: 90 * 24 * 60 * 60 * 1000 // 90 days
-          })
-
-          return { idToken, accessToken, expiresAt: now + expiresIn }
+          const { idToken, accessToken, refreshToken, accExpiresIn, refMaxAge } = tokens
+          this.signRefreshCookie(refreshToken, refMaxAge, res)
+          return { idToken, accessToken, expiresIn: accExpiresIn }
         },
         error => { throw error }
       )
@@ -114,9 +108,8 @@ export class AuthResolver extends ApiResolver {
     const { services } = context
     const { auth } = services
 
-    const result = await auth.signUp({ email, password })
-
-    return result
+    return await auth
+      .signUp({ email, password })
       .match(
         cogOutput => {
           const { UserConfirmed, CodeDeliveryDetails } = cogOutput
@@ -143,14 +136,17 @@ export class AuthResolver extends ApiResolver {
 
     const { email, confirmationCode } = args
     const { services } = context
-    const { auth } = services
+    const { auth, user } = services
 
-    const result = await auth.confirmSignUp({ email, confirmationCode })
-
-    return result
+    return await auth
+      .confirmSignUp({ email, confirmationCode })
+      .andThen(sub => user.create({ email, cognitoId: sub }))
       .match(
-        _ => true,
-        error => { throw error }
+        mapUserRowToUserSummary,
+        error => {
+          console.log(error)
+          throw error
+        }
       )
   }
 
@@ -194,5 +190,19 @@ export class AuthResolver extends ApiResolver {
         _ => true,
         error => { throw error }
       )
+  }
+
+  private signRefreshCookie (
+    token: string,
+    maxAge: number,
+    res: Response
+  ): void {
+    res.cookie('refreshToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: 'lax',
+      maxAge
+    })
   }
 }

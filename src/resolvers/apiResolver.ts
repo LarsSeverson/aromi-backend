@@ -31,6 +31,18 @@ interface NewPageParams<N extends ResolverNode = ResolverNode> {
 }
 
 export class ApiResolver {
+  static audit (
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string | null
+  ): Audit {
+    return {
+      createdAt: new Date(createdAt),
+      updatedAt: new Date(updatedAt),
+      deletedAt: deletedAt == null ? deletedAt : new Date(deletedAt)
+    }
+  }
+
   protected mapToPage <N extends ResolverNode, T = unknown, C extends SortColumn = SortBy>(
     params: MapToPageParams<N, T, C>
   ): Page<N> {

@@ -9,6 +9,7 @@ import { type VoteSortBy } from '@src/generated/gql-types'
 import { FragranceImagesRepo, type FragranceImageRow } from './fragrance/fragranceImageRepo'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { FragranceViewsRepo } from './fragrance/fragranceViewsRepo'
+import { type ApiServiceContext } from './apiService'
 
 /*
   TODO:
@@ -87,6 +88,12 @@ export class FragranceService extends DBService<'fragrances'> {
 
     this.images = new FragranceImagesRepo(sources)
     this.views = new FragranceViewsRepo(sources)
+  }
+
+  setContext (context: ApiServiceContext): this {
+    this.images.setContext(context)
+    this.views.setContext(context)
+    return this
   }
 
   find (criteria: ServiceFindCriteria<'fragrances'>): ResultAsync<FragranceRow, ApiError> {
@@ -752,7 +759,7 @@ export class FragranceService extends DBService<'fragrances'> {
     }
 
     const voteValue = vote == null ? 0 : vote ? 1 : -1
-    const deletedAt = vote == null ? new Date() : null
+    const deletedAt = vote == null ? new Date().toISOString() : null
 
     return ResultAsync
       .fromPromise(
@@ -850,7 +857,7 @@ export class FragranceService extends DBService<'fragrances'> {
     }
 
     const voteValue = vote == null ? 0 : vote ? 1 : -1
-    const deletedAt = vote == null ? new Date() : null
+    const deletedAt = vote == null ? new Date().toISOString() : null
 
     return ResultAsync
       .fromPromise(
@@ -865,7 +872,7 @@ export class FragranceService extends DBService<'fragrances'> {
               .onConflict(c =>
                 c
                   .columns(['fragranceId', 'accordId'])
-                  .doUpdateSet({ updatedAt: new Date() })
+                  .doUpdateSet({ updatedAt: new Date().toISOString() })
               )
               .returning('id')
           )
@@ -944,7 +951,7 @@ export class FragranceService extends DBService<'fragrances'> {
     }
 
     const voteValue = vote == null ? 0 : vote ? 1 : -1
-    const deletedAt = vote == null ? new Date() : null
+    const deletedAt = vote == null ? new Date().toISOString() : null
 
     return ResultAsync
       .fromPromise(
@@ -960,7 +967,7 @@ export class FragranceService extends DBService<'fragrances'> {
               .onConflict(c =>
                 c
                   .columns(['fragranceId', 'noteId', 'layer'])
-                  .doUpdateSet({ updatedAt: new Date() })
+                  .doUpdateSet({ updatedAt: new Date().toISOString() })
               )
           )
           .insertInto('fragranceNoteVotes')

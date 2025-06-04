@@ -9,9 +9,9 @@ import { type FragranceCollectionItem, type FragranceCollection, type DB } from 
 export type FragranceCollectionRow = Selectable<FragranceCollection>
 export interface FragranceCollectionItemRow extends Selectable<FragranceCollectionItem>,
   Omit<FragranceRow, 'createdAt' | 'updatedAt' | 'deletedAt'> {
-  fCreatedAt: Date
-  fUpdatedAt: Date
-  fDeletedAt: Date | null
+  fCreatedAt: string
+  fUpdatedAt: string
+  fDeletedAt: string | null
 }
 
 export class CollectionService extends DBService<'fragranceCollections'> {

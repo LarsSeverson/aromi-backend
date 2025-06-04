@@ -66,7 +66,9 @@ export const COGNITO_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   InvalidPasswordException: new ApiError('INVALID_PASSWORD', 'Password does not conform to policy', 400),
   CodeDeliveryFailureException: new ApiError('CODE_DELIVERY_FAILURE', 'Failed to deliver verification code', 500),
   TooManyRequestsException: new ApiError('TOO_MANY_REQUESTS', 'Too many requests, please slow down', 429),
-  InvalidParameterException: new ApiError('INVALID_PARAMETER', 'Invalid input provided', 400)
+  InvalidParameterException: new ApiError('INVALID_PARAMETER', 'Invalid input provided', 400),
+  AccessDeniedException: new ApiError('ACCESS_DENIED', 'Access denied to this operation', 403),
+  ResourceNotFoundException: new ApiError('RESOURCE_NOT_FOUND', 'Cognito resource not found', 500)
 } as const
 
 export const S3_ERROR_TO_API_ERROR: Record<string, ApiError> = {

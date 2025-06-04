@@ -91,7 +91,6 @@ export class UserResolver extends ApiResolver {
   }
 }
 
-// This is outside the class for a reason. See auth middleware
 export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
   const {
     id,
@@ -103,15 +102,11 @@ export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
   return {
     id,
     email,
-    username,
+    username: username ?? email,
     followerCount,
     followingCount,
 
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 
@@ -125,11 +120,7 @@ export const mapFragranceCollectionRowToFragranceCollectionSummary = (row: Fragr
   return {
     id,
     name,
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 
@@ -151,10 +142,6 @@ export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceRevi
       dislikesCount,
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
-    audit: {
-      createdAt,
-      updatedAt,
-      deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }

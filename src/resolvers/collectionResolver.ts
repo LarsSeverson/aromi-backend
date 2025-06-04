@@ -133,14 +133,8 @@ export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollec
         myVote: myVote === 1 ? true : myVote === -1 ? false : null
       },
 
-      audit: {
-        createdAt: fCreatedAt,
-        updatedAt: fUpdatedAt,
-        deletedAt: fDeletedAt
-      }
+      audit: ApiResolver.audit(fCreatedAt, fUpdatedAt, fDeletedAt)
     },
-    audit: {
-      createdAt, updatedAt, deletedAt
-    }
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
