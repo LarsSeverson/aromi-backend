@@ -25,5 +25,8 @@
   "terminal.integrated.confirmOnExit": "never",
   "[graphql]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[dockercompose]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

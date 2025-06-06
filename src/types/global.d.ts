@@ -25,6 +25,9 @@ export interface Env {
   CLOUDFRONT_DOMAIN: string
   CLOUDFRONT_KEY_PAIR_ID: string
   CLOUDFRONT_PRIVATE_KEY: string
+
+  MEILISEARCH_URL: string
+  MEILISEARCH_API_KEY: string
 }
 
 declare global {
