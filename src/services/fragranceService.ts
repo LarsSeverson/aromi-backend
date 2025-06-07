@@ -10,6 +10,7 @@ import { FragranceImagesRepo, type FragranceImageRow } from './fragrance/fragran
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { FragranceViewsRepo } from './fragrance/fragranceViewsRepo'
 import { type ApiServiceContext } from './apiService'
+import { FragranceSearchRepo } from './fragrance/fragranceSearchRepo'
 
 /*
   TODO:
@@ -82,12 +83,14 @@ export interface GetLikedParams {
 export class FragranceService extends DBService<'fragrances'> {
   readonly images: FragranceImagesRepo
   readonly views: FragranceViewsRepo
+  readonly searcher: FragranceSearchRepo
 
   constructor (sources: ApiDataSources) {
     super(sources)
 
     this.images = new FragranceImagesRepo(sources)
     this.views = new FragranceViewsRepo(sources)
+    this.searcher = new FragranceSearchRepo(sources, 'fragrances')
   }
 
   setContext (context: ApiServiceContext): this {

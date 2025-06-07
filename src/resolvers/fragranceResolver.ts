@@ -46,6 +46,33 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
+  searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
+    const { input } = args
+    const { services } = context
+    const { fragrance } = services
+
+    const query = input?.query ?? undefined
+    const pagination = input?.pagination
+    const paginationParams = getPaginationParams(pagination)
+    console.log(paginationParams)
+    const limit = paginationParams.first
+
+    return await fragrance
+      .searcher
+      .search({ query, limit })
+      .map(docs => docs.hits.map(doc => doc.id))
+      .andThen((ids) => fragrance.getByIds(ids))
+      .match(
+        rows => this
+          .mapToPage({
+            rows,
+            paginationParams,
+            mapFn: mapFragranceRowToFragranceSummary
+          }),
+        error => { throw error }
+      )
+  }
+
   fragranceTraits: FragranceFieldResolvers['traits'] = async (parent, args, context, info) => {
     const { id } = parent
     const { loaders } = context

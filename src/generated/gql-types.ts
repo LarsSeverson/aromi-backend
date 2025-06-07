@@ -501,6 +501,7 @@ export type Query = {
   fragrance?: Maybe<Fragrance>;
   fragrances: FragranceConnection;
   me?: Maybe<User>;
+  searchFragrances: FragranceConnection;
   user?: Maybe<User>;
 };
 
@@ -520,8 +521,18 @@ export type QueryFragrancesArgs = {
 };
 
 
+export type QuerySearchFragrancesArgs = {
+  input?: InputMaybe<SearchFragrancesInput>;
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['Int']['input'];
+};
+
+export type SearchFragrancesInput = {
+  pagination?: InputMaybe<PaginationInput>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SignUpResult = {
@@ -754,6 +765,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
   PaginationInput: ResolverTypeWrapper<Partial<PaginationInput>>;
   Query: ResolverTypeWrapper<{}>;
+  SearchFragrancesInput: ResolverTypeWrapper<Partial<SearchFragrancesInput>>;
   SignUpResult: ResolverTypeWrapper<Partial<SignUpResult>>;
   SortBy: ResolverTypeWrapper<Partial<SortBy>>;
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
@@ -821,6 +833,7 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: Partial<PageInfo>;
   PaginationInput: Partial<PaginationInput>;
   Query: {};
+  SearchFragrancesInput: Partial<SearchFragrancesInput>;
   SignUpResult: Partial<SignUpResult>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
@@ -1100,6 +1113,7 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType, RequireFields<QueryFragranceArgs, 'id'>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  searchFragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 

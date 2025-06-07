@@ -26,7 +26,7 @@ type VoteSummary {
 
 input SortByInput {
   by: SortBy! = updatedAt
-  direction: SortDirection! = DESCENDING 
+  direction: SortDirection! = DESCENDING
 }
 
 input PaginationInput {
@@ -41,14 +41,14 @@ input VotePaginationInput {
   sort: VoteSortByInput
 }
 
-input VoteSortByInput { 
+input VoteSortByInput {
   by: VoteSortBy! = updatedAt
   direction: SortDirection! = DESCENDING
 }
 
 enum SortDirection {
-  ASCENDING 
-  DESCENDING 
+  ASCENDING
+  DESCENDING
 }
 
 enum SortBy {

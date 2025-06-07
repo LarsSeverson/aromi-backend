@@ -96,18 +96,28 @@ extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
   collection(id: Int!): FragranceCollection!
+
+  searchFragrances(input: SearchFragrancesInput): FragranceConnection!
 }
 
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
-  createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  createFragranceCollection(
+    input: CreateFragranceCollectionInput!
+  ): FragranceCollection!
 
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
 
-  createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
-  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
-  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
+  createFragranceCollectionItem(
+    input: CreateFragranceCollectionItemInput!
+  ): FragranceCollectionItem!
+  deleteFragranceCollectionItem(
+    input: DeleteFragranceCollectionItemInput!
+  ): Boolean!
+  moveFragranceCollectionItem(
+    input: MoveFragranceCollectionItemInput!
+  ): FragranceCollection!
 
   voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
@@ -215,6 +225,11 @@ input AccordsInput {
 input NotesInput {
   pagination: VotePaginationInput
   fill: Boolean
+}
+
+input SearchFragrancesInput {
+  query: String
+  pagination: PaginationInput
 }
 
 # Fragrance

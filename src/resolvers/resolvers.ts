@@ -23,6 +23,7 @@ export class ApiResolvers implements Resolvers {
 
     fragrance: fragranceResolver.fragrance,
     fragrances: fragranceResolver.fragrances,
+    searchFragrances: fragranceResolver.searchFragrances,
 
     collection: collectionResolver.collection
   }

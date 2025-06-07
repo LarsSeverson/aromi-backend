@@ -1,5 +1,6 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors'
 import { GraphQLError, type GraphQLFormattedError } from 'graphql'
+import { MeiliSearchApiError, MeiliSearchError } from 'meilisearch'
 
 export class ApiError extends GraphQLError {
   readonly code: string
@@ -29,6 +30,23 @@ export class ApiError extends GraphQLError {
     const mapping = S3_ERROR_TO_API_ERROR[error.name]
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
     return new ApiError('S3_SERVICE_ERROR', 'Something went wrong with S3. Please try again later', 500, error)
+  }
+
+  static fromMeili (error: unknown): ApiError {
+    const code = (error as MeiliSearchApiError)?.cause?.code
+
+    if (code == null) {
+      return new ApiError(
+        'MEILI_SERVICE_ERROR',
+        'Something went wrong searching. Please try again later',
+        500,
+        error
+      )
+    }
+
+    const mapping = MEILI_ERROR_TO_API_ERROR[code]
+    if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
+    return new ApiError('MEILI_SERVICE_ERROR', 'Search service failed. Please try again later', 500, error)
   }
 
   serialize (): GraphQLFormattedError {
@@ -80,4 +98,12 @@ export const S3_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   EntityTooLarge: new ApiError('S3_FILE_TOO_LARGE', 'The uploaded file is too large', 413),
   SlowDown: new ApiError('S3_TOO_MANY_REQUESTS', 'Too many requests to S3, please slow down', 429),
   NotFound: new ApiError('S3_NO_OBJECT', 'The requested asset does not exist', 404)
+} as const
+
+export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
+  index_not_found: new ApiError('MEILI_INDEX_NOT_FOUND', 'The requested search index was not found', 404),
+  invalid_api_key: new ApiError('MEILI_INVALID_API_KEY', 'Invalid API key provided to search service', 403),
+  missing_authorization_header: new ApiError('MEILI_MISSING_AUTH', 'Missing authorization header for search', 401),
+  invalid_request: new ApiError('MEILI_INVALID_REQUEST', 'Invalid request made to search service', 400),
+  internal: new ApiError('MEILI_INTERNAL_ERROR', 'Search service encountered an internal error', 500)
 } as const

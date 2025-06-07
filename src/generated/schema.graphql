@@ -311,7 +311,13 @@ type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
   me: User
+  searchFragrances(input: SearchFragrancesInput): FragranceConnection!
   user(id: Int!): User
+}
+
+input SearchFragrancesInput {
+  pagination: PaginationInput
+  query: String
 }
 
 type SignUpResult {
