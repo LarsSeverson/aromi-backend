@@ -1,18 +1,8 @@
-// import { type UploadStatus, type FragranceTraitEnum } from '@src/db/schema'
-// import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
-// import { type FragranceReviewDistRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
-// import { ResultAsync } from 'neverthrow'
-// import { ApiResolver, SortByColumn } from './apiResolver'
-// import { type FragranceReviewRow } from '@src/services/fragrance/FragranceReviewRepo'
-// import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } from './noteResolver'
-// import { ApiError } from '@src/common/error'
-// import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
-
-import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, VoteSortBy } from '@src/generated/gql-types'
+import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord } from '@src/generated/gql-types'
 import { ApiResolver, SortByColumn, VoteSortByColumn } from './apiResolver'
 import { type FragranceRow } from '@src/services/FrragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { ResultAsync } from 'neverthrow'
+import { okAsync, ResultAsync } from 'neverthrow'
 import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
 import { type FragranceTraitEnum } from '@src/db/schema'
 import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
@@ -144,31 +134,57 @@ export class FragranceResolver extends ApiResolver {
     const { loaders } = context
 
     const { pagination, fill } = input ?? {}
+    let isFill = false
 
     const normalizedInput = this
       .paginationFactory
-      .normalize(pagination, pagination?.sort?.by ?? 'VOTES', (decoded) => String(decoded).split('|'))
+      .normalize(
+        pagination,
+        pagination?.sort?.by ?? 'VOTES',
+        (decoded) => {
+          const [value, fillFlag] = String(decoded).split('|')
+          isFill = fillFlag === '1'
+          return value
+        }
+      )
 
     const parsedInput = this
       .paginationFactory
       .parse(normalizedInput, () => VoteSortByColumn[normalizedInput.sort.by])
 
-    const [value, isFill] = normalizedInput.cursor.value
+    const loader = isFill
+      ? loaders.fragrance.getFillerAccordsLoader({ pagination: parsedInput })
+      : loaders.fragrance.getAccordsLoader({ pagination: parsedInput })
 
     return await ResultAsync
       .fromPromise(
-        loaders
-          .fragrance
-          .getAccordsLoader({ pagination: parsedInput })
-          .load({ fragranceId: id }),
+        loader.load({ fragranceId: id }),
         error => error
       )
+      .andThen(rows => {
+        if (isFill) return okAsync(rows)
+        if (!(fill ?? false)) return okAsync(rows)
+        if (rows.length >= parsedInput.first) return okAsync(rows)
+
+        const needed = parsedInput.first - rows.length
+        const fillInput = { ...parsedInput, first: needed }
+
+        return ResultAsync
+          .fromPromise(
+            loaders
+              .fragrance
+              .getFillerAccordsLoader({ pagination: fillInput })
+              .load({ fragranceId: id }),
+            error => error
+          )
+          .map(filled => rows.concat(filled))
+      })
       .match(
         rows => this
           .newPage(
             rows,
             parsedInput,
-            (row) => String(row[parsedInput.column]),
+            (row) => `${row[parsedInput.column]}|${row.isFill ? '1' : '0'}`,
             mapFragranceAccordRowToFragranceAccord
           ),
         error => { throw error }
@@ -455,7 +471,8 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
     id, accordId,
     name, color,
     voteScore, likesCount, dislikesCount, myVote,
-    createdAt, updatedAt, deletedAt
+    createdAt, updatedAt, deletedAt,
+    isFill
   } = row
 
   return {
@@ -473,7 +490,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
 
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
 
-    isFill: false
+    isFill
   }
 }
 

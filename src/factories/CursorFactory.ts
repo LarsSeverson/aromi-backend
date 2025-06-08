@@ -6,7 +6,7 @@ export interface ApiCursor<T> {
 
 export interface ApiRawCursor {
   value: unknown
-  lastId: string
+  lastId: string | undefined | null
 }
 
 export type CursorParser<T> = (decodedValue: unknown) => T
@@ -33,7 +33,9 @@ export class CursorFactory {
       ? parser(rawValue)
       : rawValue) as T
 
-    return { value, lastId, isValid: lastId != null }
+    const isValid = lastId != null && lastId.length > 0
+
+    return { value, lastId: lastId ?? '', isValid }
   }
 
   private decodeRawCursor (
@@ -42,8 +44,10 @@ export class CursorFactory {
     const decoded = Buffer
       .from(rawCursor, 'base64')
       .toString('ascii')
-    const [value, id] = decoded.split('|')
+    const parts = decoded.split('|')
+    const lastId = parts.pop()
+    const value = parts.join('|')
 
-    return { value, lastId: id }
+    return { value, lastId }
   }
 }

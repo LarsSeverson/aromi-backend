@@ -1,12 +1,14 @@
 import { type DB } from '@src/db/schema'
-import { type Selectable } from 'kysely'
+import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
 import { type MyVote, TableService } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
+import { INVALID_ID } from '@src/common/types'
 
 export interface FragranceAccordRow extends Selectable<DB['fragranceAccords']>, MyVote {
   accordId: number
   name: string
   color: string
+  isFill: boolean
 }
 
 export class FragranceAccordsRepo extends TableService<'fragranceAccords', FragranceAccordRow> {
@@ -38,16 +40,39 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
             'av.vote as myVote',
             'accords.id as accordId',
             'accords.name',
-            'accords.color'
+            'accords.color',
+            sql<boolean>`FALSE`.as('isFill')
           ])
       })
   }
 }
 
-export type FragranceAccordFillerRow = Selectable<DB['accords']>
-
-export class FragranceAccordFillerRepo extends TableService<'accords', FragranceAccordFillerRow> {
+export class FragranceAccordFillerRepo extends TableService<'accords', FragranceAccordRow> {
   constructor (sources: ApiDataSources) {
     super(sources, 'accords')
+
+    this
+      .Table
+      .setAlias('fillerAccords')
+      .setBaseQueryFactory(() => {
+        const subquery = sources.db
+          .selectFrom('accords')
+          .selectAll('accords')
+          .select([
+            'accords.id as accordId',
+            sql<number>`${INVALID_ID}`.as('fragranceId'),
+            sql<number>`0`.as('dislikesCount'),
+            sql<number>`0`.as('likesCount'),
+            sql<number>`0`.as('voteScore'),
+            sql<number>`0`.as('myVote'),
+            sql<boolean>`TRUE`.as('isFill')
+          ])
+          .as('fillerAccords')
+
+        return sources
+          .db
+          .selectFrom(subquery)
+          .selectAll() as SelectQueryBuilder<DB, 'accords', FragranceAccordRow>
+      })
   }
 }

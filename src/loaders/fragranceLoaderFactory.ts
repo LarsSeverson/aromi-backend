@@ -4,7 +4,7 @@ import { type FragranceService } from '@src/services/FrragranceService'
 import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
 import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
-import { type FragranceAccordFillerRow, type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
+import { type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
 // import { type FragranceService, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
 // import { LoaderFactory } from './loaderFactory'
 // import { type NoteLayerEnum } from '@src/db/schema'
@@ -19,7 +19,7 @@ interface FragranceLoaders {
   images: DataLoader<FragranceLoaderKey, FragranceImageRow[]>
   traits: DataLoader<FragranceLoaderKey, FragranceTraitRow[]>
   accords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
-  fillerAccords: DataLoader<FragranceLoaderKey, FragranceAccordFillerRow[]>
+  fillerAccords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
   // notes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
   // reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
   // reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
@@ -194,7 +194,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
   private createFillerAccordsLoader (params: GetFillerAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
     const { pagination } = params
 
-    return new DataLoader<FragranceLoaderKey, FragranceAccordFillerRow[]>(async (keys) => {
+    return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
       return await this
         .fragranceService
         .accords

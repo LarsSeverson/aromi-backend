@@ -13,8 +13,8 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   private readonly db: ApiDataSources['db']
   private readonly eb = expressionBuilder<DB, T>()
   private readonly table: T
-  private readonly alias?: string
 
+  private alias?: string
   private baseQueryFactory?: BaseQueryFactory<T, R>
 
   constructor (
@@ -39,6 +39,13 @@ export class Table<T extends keyof DB, R extends Row<T>> {
     factory: BaseQueryFactory<T, R>
   ): this {
     this.baseQueryFactory = factory
+    return this
+  }
+
+  setAlias (
+    alias: string
+  ): this {
+    this.alias = alias
     return this
   }
 
