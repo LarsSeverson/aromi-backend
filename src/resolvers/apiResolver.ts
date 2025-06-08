@@ -1,36 +1,66 @@
-import { type ApiCursor, encodeCursor } from '@src/common/cursor'
-import { type PaginationParams } from '@src/common/pagination'
-import { type SortColumn } from '@src/common/types'
-import { type PageInfo, type Audit, type SortBy } from '@src/generated/gql-types'
+import { type ApiCursor, CursorFactory } from '@src/factories/CursorFactory'
+import { ConnectionFactory, type ConnectionNode, type ConnectionEdge, type RelayConnection } from '@src/factories/ConnectionFactory'
+import { type Audit, SortBy, VoteSortBy } from '@src/generated/gql-types'
+import { PaginationFactory } from '@src/factories/PaginationFactory'
 
-export interface ResolverNode {
-  id: number
-  audit: Audit
-}
-
-export interface ResolverEdge<N extends ResolverNode = ResolverNode> {
-  node: N
-  cursor: string
-}
-
-export interface MapToPageParams<N extends ResolverNode, T = unknown, C extends SortColumn = SortBy> {
-  rows: T[]
-  mapFn: (row: T) => N
-  paginationParams: PaginationParams<C>
-}
-
-interface Page<N extends ResolverNode = ResolverNode> {
-  edges: Array<ResolverEdge<N>>
-  pageInfo: PageInfo
-}
-
-interface NewPageParams<N extends ResolverNode = ResolverNode> {
+export type TransformDataFn<N extends ConnectionNode> = (d: N) => N
+export interface NewPageInput<C> {
   first: number
-  cursor: ApiCursor
-  edges: Array<ResolverEdge<N>>
+  cursor: ApiCursor<C>
 }
 
 export class ApiResolver {
+  protected readonly cursorFactory = new CursorFactory()
+  protected readonly connectionFactory = new ConnectionFactory()
+  protected readonly paginationFactory = new PaginationFactory()
+
+  protected newEdges <N extends ConnectionNode, O extends ConnectionNode = N>(
+    data: N[],
+    extractCursorValueFn: (d: N) => string,
+    transform?: (d: N) => O
+  ): Array<ConnectionEdge<O>> {
+    return data
+      .map(d => {
+        const value = extractCursorValueFn(d)
+        const id = String(d.id)
+        const cursor = this.cursorFactory.encodeCursor(value, id)
+        const node = transform != null ? transform(d) : d
+        return this.connectionFactory.newEdge(node as O, cursor)
+      })
+  }
+
+  protected newPage <N extends ConnectionNode, C, O extends ConnectionNode = N>(
+    data: N[],
+    input: NewPageInput<C>,
+    extractCursorValueFn: (d: N) => string,
+    transform?: (d: N) => O
+  ): RelayConnection<O> {
+    const { first, cursor: lastCursor } = input
+    const edges = this.newEdges(data, extractCursorValueFn, transform)
+
+    const hasExtraEdge = edges.length > first
+    const trimmed = hasExtraEdge ? edges.slice(0, first) : edges
+
+    const startCursor = trimmed.at(0)?.cursor ?? null
+    const endCursor = trimmed.at(-1)?.cursor ?? null
+
+    const pageInfo = this
+      .connectionFactory
+      .newPageInfo(
+        lastCursor.isValid,
+        hasExtraEdge,
+        startCursor,
+        endCursor
+      )
+
+    return this
+      .connectionFactory
+      .newConnection(
+        trimmed,
+        pageInfo
+      )
+  }
+
   static audit (
     createdAt: string,
     updatedAt: string,
@@ -42,59 +72,41 @@ export class ApiResolver {
       deletedAt: deletedAt == null ? deletedAt : new Date(deletedAt)
     }
   }
-
-  protected mapToPage <N extends ResolverNode, T = unknown, C extends SortColumn = SortBy>(
-    params: MapToPageParams<N, T, C>
-  ): Page<N> {
-    const { rows, paginationParams, mapFn } = params
-    const { first, cursor } = paginationParams
-
-    const edges = rows.map(row => this.mapToEdge(row, mapFn, paginationParams))
-    const page = this.newPage({ first, cursor, edges })
-
-    return page
-  }
-
-  protected mapToEdge <N extends ResolverNode, T = unknown, C extends SortColumn = SortBy>(
-    row: T,
-    mapFn: (row: T) => N,
-    paginationParams: PaginationParams<C>
-  ): ResolverEdge<N> {
-    return { node: mapFn(row), cursor: this.makeCursor(row, paginationParams) }
-  }
-
-  private makeCursor <T = unknown, C extends SortColumn = SortBy>(
-    row: T,
-    paginationParams: PaginationParams<C>
-  ): string {
-    const { sortParams } = paginationParams
-    const { column } = sortParams
-
-    const parsedRow = row as Record<string, unknown>
-
-    const sortValue = parsedRow[column]
-    const id = String(parsedRow.id)
-
-    return encodeCursor(sortValue, id)
-  }
-
-  private newPage <N extends ResolverNode>(params: NewPageParams<N>): Page<N> {
-    const { first, cursor, edges } = params
-
-    const hasExtraRow = edges.length > first
-    const trimmed = hasExtraRow ? edges.slice(0, first) : edges
-
-    const startCursor = trimmed.at(0)?.cursor ?? null
-    const endCursor = trimmed.at(-1)?.cursor ?? null
-
-    return {
-      edges: trimmed,
-      pageInfo: {
-        hasNextPage: hasExtraRow,
-        hasPreviousPage: cursor.isValid,
-        startCursor,
-        endCursor
-      }
-    }
-  }
 }
+
+export const SortByColumn = {
+  [SortBy.Updated]: 'updatedAt'
+} as const
+
+export const VoteSortByColumn = {
+  [VoteSortBy.Updated]: 'updatedAt',
+  [VoteSortBy.Votes]: 'voteScore'
+} as const
+
+// export const DEFAULT_DIRECTION = SortDirection.Descending
+// export const DEFAULT_SORT_BY = SortBy.Updated
+
+// export const CURSOR_PAGINATION_OPERATORS = {
+//   [SortDirection.Ascending]: '>',
+//   [SortDirection.Descending]: '<'
+// } as const
+
+// export const CURSOR_PAGINATION_DIRECTIONS = {
+//   [SortDirection.Ascending]: 'asc',
+//   [SortDirection.Descending]: 'desc'
+// } as const
+
+// export type CursorPaginationOperator = typeof CURSOR_PAGINATION_OPERATORS[keyof typeof CURSOR_PAGINATION_OPERATORS]
+// export type CursorPaginationDirection = typeof CURSOR_PAGINATION_DIRECTIONS[keyof typeof CURSOR_PAGINATION_DIRECTIONS]
+
+// export interface CursorSortParams<C extends SortColumn> {
+//   column: C
+//   operator: CursorPaginationOperator
+//   direction: CursorPaginationDirection
+// }
+
+// export interface CursorPaginationParams<C, S extends SortColumn> {
+//   first: number
+//   cursor: ApiCursor<C>
+//   sortParams: CursorSortParams<S>
+// }

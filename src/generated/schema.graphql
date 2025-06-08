@@ -326,13 +326,11 @@ type SignUpResult {
 }
 
 enum SortBy {
-  createdAt
-  id
-  updatedAt
+  UPDATED
 }
 
 input SortByInput {
-  by: SortBy! = updatedAt
+  by: SortBy!
   direction: SortDirection! = DESCENDING
 }
 
@@ -388,14 +386,12 @@ input VotePaginationInput {
 }
 
 enum VoteSortBy {
-  createdAt
-  id
-  updatedAt
-  voteScore
+  UPDATED
+  VOTES
 }
 
 input VoteSortByInput {
-  by: VoteSortBy! = updatedAt
+  by: VoteSortBy!
   direction: SortDirection! = DESCENDING
 }
 

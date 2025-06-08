@@ -52,14 +52,10 @@ enum SortDirection {
 }
 
 enum SortBy {
-  id
-  createdAt
-  updatedAt
+  UPDATED
 }
 
 enum VoteSortBy {
-  id
-  createdAt
-  updatedAt
-  voteScore
+  UPDATED
+  VOTES
 }

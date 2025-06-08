@@ -542,14 +542,12 @@ export type SignUpResult = {
 };
 
 export const SortBy = {
-  CreatedAt: 'createdAt',
-  Id: 'id',
-  UpdatedAt: 'updatedAt'
+  Updated: 'UPDATED'
 } as const;
 
 export type SortBy = typeof SortBy[keyof typeof SortBy];
 export type SortByInput = {
-  by?: SortBy;
+  by: SortBy;
   direction?: SortDirection;
 };
 
@@ -622,15 +620,13 @@ export type VotePaginationInput = {
 };
 
 export const VoteSortBy = {
-  CreatedAt: 'createdAt',
-  Id: 'id',
-  UpdatedAt: 'updatedAt',
-  VoteScore: 'voteScore'
+  Updated: 'UPDATED',
+  Votes: 'VOTES'
 } as const;
 
 export type VoteSortBy = typeof VoteSortBy[keyof typeof VoteSortBy];
 export type VoteSortByInput = {
-  by?: VoteSortBy;
+  by: VoteSortBy;
   direction?: SortDirection;
 };
 

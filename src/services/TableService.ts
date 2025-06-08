@@ -3,14 +3,13 @@ import { ApiService } from './apiService'
 import { Table, type Row } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
-import { type PaginationParams } from '@src/common/pagination'
-import { type SortColumn } from '@src/common/types'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
+import { type PaginationParams } from '@src/factories/PaginationFactory'
 
-export interface QueryOptions<P extends SortColumn> {
-  pagination?: PaginationParams<P>
+export interface QueryOptions<C> {
+  pagination: PaginationParams<C>
 }
 
 export abstract class TableService<T extends keyof DB, R extends Row<T>> extends ApiService {
@@ -21,7 +20,7 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
     table: T
   ) {
     super(sources)
-    this.Table = new Table<T, R>(table).setDb(sources.db)
+    this.Table = new Table<T, R>(sources.db, table)
   }
 
   create (
@@ -50,20 +49,20 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
       )
   }
 
-  find <P extends SortColumn>(
+  find <C>(
     where?: ExpressionOrFactory<DB, T, SqlBool>,
-    options?: QueryOptions<P>
+    options?: QueryOptions<C>
   ): ResultAsync<R[], ApiError> {
     const { pagination } = options ?? {}
 
-    const query = this
+    let query = this
       .Table
       .find(where)
 
     if (pagination != null) {
-      this
+      query = this
         .Table
-        .paginatedQuery(query, pagination)
+        .paginatedQuery(pagination, query)
     }
 
     return ResultAsync
@@ -72,4 +71,20 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
         error => ApiError.fromDatabase(error as Error)
       )
   }
+
+  paginate <C>(
+    input: PaginationParams<C>
+  ): ResultAsync<R[], ApiError> {
+    const query = this
+      .Table
+      .paginatedQuery(input)
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
 }
+
+export interface MyVote { myVote: number | null }

@@ -1,37 +1,44 @@
-import { type PaginationParams } from '@src/common/pagination'
-import { type SortColumn } from '@src/common/types'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type ExpressionOrFactory, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type InsertQueryBuilder } from 'kysely'
+import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, expressionBuilder } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
+import { type PaginationParams } from '../factories/PaginationFactory'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
 // export type TableNameFor<R extends Row> = { [K in keyof DB]: Selectable<DB[K]> extends R ? (R extends Selectable<DB[K]> ? K : never) : never }[keyof DB]
 export type WhereArgs<TB extends keyof DB, R extends Row<TB>> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
+type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, T, R>
 
 export class Table<T extends keyof DB, R extends Row<T>> {
-  private db!: ApiDataSources['db']
+  private readonly db: ApiDataSources['db']
+  private readonly eb = expressionBuilder<DB, T>()
   private readonly table: T
   private readonly alias?: string
-  private baseQuery?: SelectQueryBuilder<DB, T, R>
+
+  private baseQueryFactory?: BaseQueryFactory<T, R>
 
   constructor (
+    db: ApiDataSources['db'],
     table: T,
     alias?: string
   ) {
+    this.db = db
     this.table = table
     this.alias = alias
   }
 
-  setDb (db: ApiDataSources['db']): this {
-    this.db = db
+  get baseQuery (): SelectQueryBuilder<DB, T, R> {
+    if (this.baseQueryFactory != null) return this.baseQueryFactory()
     return this
+      .eb
+      .selectFrom(this.from())
+      .selectAll() as SelectQueryBuilder<DB, T, R>
   }
 
-  setBaseQuery (
-    query: SelectQueryBuilder<DB, T, R>
+  setBaseQueryFactory (
+    factory: BaseQueryFactory<T, R>
   ): this {
-    this.baseQuery = query
+    this.baseQueryFactory = factory
     return this
   }
 
@@ -50,13 +57,10 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   find (
     where?: ExpressionOrFactory<DB, T, SqlBool>
   ): SelectQueryBuilder<DB, T, R> {
-    const query = this.baseQuery ?? this
-      .db
-      .selectFrom(this.from())
-      .selectAll() as unknown as SelectQueryBuilder<DB, T, R>
+    let query = this.baseQuery
 
     if (where != null) {
-      query.where(where)
+      query = query.where(where)
     }
 
     return query
@@ -70,13 +74,12 @@ export class Table<T extends keyof DB, R extends Row<T>> {
       .limit(1)
   }
 
-  paginatedQuery <P extends SortColumn>(
-    qb: SelectQueryBuilder<DB, T, R>,
-    params: PaginationParams<P>
+  paginatedQuery <C>(
+    paginationParams: PaginationParams<C>,
+    qb: SelectQueryBuilder<DB, T, R> = this.baseQuery
   ): SelectQueryBuilder<DB, T, R> {
     const alias = this.alias ?? this.table
-    const { first, cursor, sortParams } = params
-    const { column, operator, direction } = sortParams
+    const { first, column, operator, direction, cursor } = paginationParams
 
     const parsedColumn = `${alias}.${column}` as ReferenceExpression<DB, T>
     const idColumn = `${alias}.id` as ReferenceExpression<DB, T>
@@ -99,10 +102,10 @@ export class Table<T extends keyof DB, R extends Row<T>> {
       .limit(first + 1)
   }
 
-  private from (): TableExpressionOrList<DB, never> {
+  private from (): TableExpressionOrList<DB, T> {
     const from = (this.alias != null
       ? `${this.table} as ${this.alias}`
-      : this.table) as TableExpressionOrList<DB, never>
+      : this.table) as TableExpressionOrList<DB, T>
 
     return from
   }

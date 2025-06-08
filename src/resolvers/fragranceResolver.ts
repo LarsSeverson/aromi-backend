@@ -1,16 +1,24 @@
-import { getPaginationParams } from '@src/common/pagination'
-import { type UploadStatus, type FragranceTraitEnum } from '@src/db/schema'
-import { FragranceTraitType, type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, type FragranceReviewDistribution, type FragranceTrait, type FragranceAccord, type MutationResolvers, type VoteSortBy, type AssetStatus } from '@src/generated/gql-types'
-import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { type FragranceReviewDistRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
-import { ResultAsync } from 'neverthrow'
-import { ApiResolver } from './apiResolver'
-import { type FragranceReviewRow } from '@src/services/reviewService'
-import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } from './noteResolver'
-import { ApiError } from '@src/common/error'
-import { type FragranceImageRow } from '@src/services/fragrance/fragranceImageRepo'
+// import { type UploadStatus, type FragranceTraitEnum } from '@src/db/schema'
+// import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
+// import { type FragranceReviewDistRow, type FragranceRow, type FragranceTraitRow, type FragranceAccordRow } from '@src/services/fragranceService'
+// import { ResultAsync } from 'neverthrow'
+// import { ApiResolver, SortByColumn } from './apiResolver'
+// import { type FragranceReviewRow } from '@src/services/fragrance/FragranceReviewRepo'
+// import { GQL_NOTE_LAYER_TO_DB_NOTE_LAYER, mapFragranceNoteRowToFragranceNote } from './noteResolver'
+// import { ApiError } from '@src/common/error'
+// import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
 
-const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
+import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, VoteSortBy } from '@src/generated/gql-types'
+import { ApiResolver, SortByColumn, VoteSortByColumn } from './apiResolver'
+import { type FragranceRow } from '@src/services/FrragranceService'
+import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
+import { ResultAsync } from 'neverthrow'
+import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
+import { type FragranceTraitEnum } from '@src/db/schema'
+import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
+import { type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
+
+// const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
@@ -19,7 +27,7 @@ export class FragranceResolver extends ApiResolver {
 
     return await services
       .fragrance
-      .find({ id })
+      .findOne(eb => eb('fragrances.id', '=', id))
       .match(
         mapFragranceRowToFragranceSummary,
         error => { throw error }
@@ -30,45 +38,84 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const paginationParams = getPaginationParams(input)
+    const normalizedInput = this
+      .paginationFactory
+      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
+
+    const parsedInput = this
+      .paginationFactory
+      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
 
     return await services
       .fragrance
-      .list(paginationParams)
+      .paginate(parsedInput)
       .match(
         rows => this
-          .mapToPage({
+          .newPage(
             rows,
-            paginationParams,
-            mapFn: mapFragranceRowToFragranceSummary
-          }),
+            normalizedInput,
+            (row) => row[parsedInput.column],
+            mapFragranceRowToFragranceSummary
+          ),
         error => { throw error }
       )
   }
 
-  searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
+  // searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
+  //   const { fragrance } = services
+
+  //   const query = input?.query ?? undefined
+  //   const pagination = input?.pagination
+  //   const paginationParams = getPaginationParams(pagination)
+  //   const limit = paginationParams.first
+
+  //   return await fragrance
+  //     .searcher
+  //     .search({ query, limit })
+  //     .map(docs => docs.hits.map(doc => doc.id))
+  //     .andThen((ids) => fragrance.getByIds(ids))
+  //     .match(
+  //       rows => this
+  //         .mapToPage({
+  //           rows,
+  //           paginationParams,
+  //           mapFn: mapFragranceRowToFragranceSummary
+  //         }),
+  //       error => { throw error }
+  //     )
+  // }
+
+  fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
+    const { id } = parent
     const { input } = args
-    const { services } = context
-    const { fragrance } = services
+    const { loaders } = context
 
-    const query = input?.query ?? undefined
-    const pagination = input?.pagination
-    const paginationParams = getPaginationParams(pagination)
-    console.log(paginationParams)
-    const limit = paginationParams.first
+    const normalizedInput = this
+      .paginationFactory
+      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
 
-    return await fragrance
-      .searcher
-      .search({ query, limit })
-      .map(docs => docs.hits.map(doc => doc.id))
-      .andThen((ids) => fragrance.getByIds(ids))
+    const parsedInput = this
+      .paginationFactory
+      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getImagesLoader({ pagination: parsedInput })
+          .load({ fragranceId: id }),
+        error => error
+      )
       .match(
         rows => this
-          .mapToPage({
+          .newPage(
             rows,
-            paginationParams,
-            mapFn: mapFragranceRowToFragranceSummary
-          }),
+            normalizedInput,
+            (row) => row[parsedInput.column],
+            mapFragranceImageRowToFragranceImage
+          ),
         error => { throw error }
       )
   }
@@ -91,265 +138,249 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
-    const { id } = parent
-    const { input } = args
-    const { loaders, services } = context
-
-    const paginationParams = getPaginationParams(input)
-
-    return await ResultAsync
-      .fromPromise(
-        loaders
-          .fragrance
-          .getImagesLoader({ paginationParams })
-          .load({ fragranceId: id }),
-        error => error
-      )
-      .match(
-        rows => this
-          .mapToPage({
-            rows,
-            paginationParams,
-            mapFn: (row) => services.asset.publicizeAsset(mapFragranceImageRowToFragranceImage(row))
-          }),
-        error => { throw error }
-      )
-  }
-
   fragranceAccords: FragranceFieldResolvers['accords'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
     const { loaders } = context
 
-    const { pagination: paginationInput = null, fill } = input ?? {}
-    const paginationParams = getPaginationParams<VoteSortBy>(paginationInput)
+    const { pagination, fill } = input ?? {}
+
+    const normalizedInput = this
+      .paginationFactory
+      .normalize(pagination, pagination?.sort?.by ?? 'VOTES', (decoded) => String(decoded).split('|'))
+
+    const parsedInput = this
+      .paginationFactory
+      .parse(normalizedInput, () => VoteSortByColumn[normalizedInput.sort.by])
+
+    const [value, isFill] = normalizedInput.cursor.value
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .getAccordsLoader({ paginationParams, fill: fill?.valueOf() })
+          .getAccordsLoader({ pagination: parsedInput })
           .load({ fragranceId: id }),
         error => error
       )
       .match(
         rows => this
-          .mapToPage({
+          .newPage(
             rows,
-            paginationParams,
-            mapFn: mapFragranceAccordRowToFragranceAccord
-          }),
+            parsedInput,
+            (row) => String(row[parsedInput.column]),
+            mapFragranceAccordRowToFragranceAccord
+          ),
         error => { throw error }
       )
   }
 
-  fragranceNotes: FragranceFieldResolvers['notes'] = (parent, args, context, info) => ({ parent })
+  // fragranceNotes: FragranceFieldResolvers['notes'] = (parent, args, context, info) => ({ parent })
 
-  fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
-    const { id } = parent
-    const { input } = args
-    const { loaders } = context
+  // fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
+  //   const { id } = parent
+  //   const { input } = args
+  //   const { loaders } = context
 
-    const paginationParams = getPaginationParams(input)
+  //   const paginationParams = getPaginationParams(input)
 
-    return await ResultAsync
-      .fromPromise(
-        loaders
-          .fragrance
-          .getReviewsLoader({ paginationParams })
-          .load({ fragranceId: id }),
-        error => error
-      )
-      .match(
-        rows => this
-          .mapToPage({
-            rows,
-            paginationParams,
-            mapFn: mapFragranceReviewRowToFragranceReviewSummary
-          }),
-        error => { throw error }
-      )
-  }
+  //   return await ResultAsync
+  //     .fromPromise(
+  //       loaders
+  //         .fragrance
+  //         .getReviewsLoader({ paginationParams })
+  //         .load({ fragranceId: id }),
+  //       error => error
+  //     )
+  //     .match(
+  //       rows => this
+  //         .mapToPage({
+  //           rows,
+  //           paginationParams,
+  //           mapFn: mapFragranceReviewRowToFragranceReviewSummary
+  //         }),
+  //       error => { throw error }
+  //     )
+  // }
 
-  fragranceReviewDistribution: FragranceFieldResolvers['reviewDistribution'] = async (parent, args, context, info) => {
-    const { id } = parent
-    const { loaders } = context
+  // fragranceReviewDistribution: FragranceFieldResolvers['reviewDistribution'] = async (parent, args, context, info) => {
+  //   const { id } = parent
+  //   const { loaders } = context
 
-    return await ResultAsync
-      .fromPromise(
-        loaders
-          .fragrance
-          .getReviewDistributionsLoader()
-          .load({ fragranceId: id }),
-        error => error
-      )
-      .match(
-        mapDistRowsToDist,
-        error => { throw error }
-      )
-  }
+  //   return await ResultAsync
+  //     .fromPromise(
+  //       loaders
+  //         .fragrance
+  //         .getReviewDistributionsLoader()
+  //         .load({ fragranceId: id }),
+  //       error => error
+  //     )
+  //     .match(
+  //       mapDistRowsToDist,
+  //       error => { throw error }
+  //     )
+  // }
 
-  myReview: FragranceFieldResolvers['myReview'] = async (parent, args, context, info) => {
-    const { id } = parent
-    const { me, loaders } = context
+  // myReview: FragranceFieldResolvers['myReview'] = async (parent, args, context, info) => {
+  //   const { id } = parent
+  //   const { me, loaders } = context
 
-    if (me == null) return null
+  //   if (me == null) return null
 
-    return await ResultAsync
-      .fromPromise(
-        loaders
-          .fragrance
-          .getMyReviewsLoader()
-          .load({ fragranceId: id }),
-        error => error
-      )
-      .match(
-        (row) => {
-          if (row == null) return null
-          return mapFragranceReviewRowToFragranceReviewSummary(row)
-        },
-        error => { throw error }
-      )
-  }
+  //   return await ResultAsync
+  //     .fromPromise(
+  //       loaders
+  //         .fragrance
+  //         .getMyReviewsLoader()
+  //         .load({ fragranceId: id }),
+  //       error => error
+  //     )
+  //     .match(
+  //       (row) => {
+  //         if (row == null) return null
+  //         return mapFragranceReviewRowToFragranceReviewSummary(row)
+  //       },
+  //       error => { throw error }
+  //     )
+  // }
 
-  createFragranceImage: MutationResolvers['createFragranceImage'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
-    const { asset } = services
+  // createFragranceImage: MutationResolvers['createFragranceImage'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
+  //   const { asset } = services
 
-    const { fragranceId, fileSize, fileType } = input
+  //   const { fragranceId, fileSize, fileType } = input
 
-    if (!ALLOWED_FRAGRANCE_IMAGE_TYPES.includes(fileType)) {
-      throw new ApiError(
-        'INVALID_INPUT',
-        'This file type is not allowed for fragrance images',
-        400,
-        `Attempt to upload type: ${fileType} for fragrance image`
-      )
-    }
+  //   if (!ALLOWED_FRAGRANCE_IMAGE_TYPES.includes(fileType)) {
+  //     throw new ApiError(
+  //       'INVALID_INPUT',
+  //       'This file type is not allowed for fragrance images',
+  //       400,
+  //       `Attempt to upload type: ${fileType} for fragrance image`
+  //     )
+  //   }
 
-    const key = asset.genKey(`fragrance_images/${String(fragranceId)}`)
+  //   const key = asset.genKey(`fragrance_images/${String(fragranceId)}`)
 
-    return await services
-      .asset
-      .presignUpload({ key, fileSize, fileType })
-      .map(payload => ({ ...payload, s3Key: key }))
-      .match(
-        payload => payload,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .asset
+  //     .presignUpload({ key, fileSize, fileType })
+  //     .map(payload => ({ ...payload, s3Key: key }))
+  //     .match(
+  //       payload => payload,
+  //       error => { throw error }
+  //     )
+  // }
 
-  confirmFragranceImage: MutationResolvers['confirmFragranceImage'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
-    const { asset, fragrance } = services
+  // confirmFragranceImage: MutationResolvers['confirmFragranceImage'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
+  //   const { asset, fragrance } = services
 
-    const { fragranceId, s3Key } = input
+  //   const { fragranceId, s3Key } = input
 
-    const validate = await asset.validateImage(s3Key)
+  //   const validate = await asset.validateImage(s3Key)
 
-    if (validate.isErr()) {
-      if (validate.error.status !== 404) {
-        await asset.delete(s3Key)
-      }
+  //   if (validate.isErr()) {
+  //     if (validate.error.status !== 404) {
+  //       await asset.delete(s3Key)
+  //     }
 
-      throw validate.error
-    }
+  //     throw validate.error
+  //   }
 
-    return await fragrance
-      .images
-      .create({ fragranceId, s3Key })
-      .match(
-        (row) => asset.signAsset(mapFragranceImageRowToFragranceImage(row)),
-        error => { throw error }
-      )
-  }
+  //   return await fragrance
+  //     .images
+  //     .create({ fragranceId, s3Key })
+  //     .match(
+  //       (row) => asset.signAsset(mapFragranceImageRowToFragranceImage(row)),
+  //       error => { throw error }
+  //     )
+  // }
 
-  voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
+  // voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
 
-    const { fragranceId, vote } = input
+  //   const { fragranceId, vote } = input
 
-    return await services
-      .fragrance
-      .vote({ fragranceId, vote: vote ?? null })
-      .match(
-        mapFragranceRowToFragranceSummary,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .fragrance
+  //     .vote({ fragranceId, vote: vote ?? null })
+  //     .match(
+  //       mapFragranceRowToFragranceSummary,
+  //       error => { throw error }
+  //     )
+  // }
 
-  voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
+  // voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
 
-    const { fragranceTraitId, vote } = input
+  //   const { fragranceTraitId, vote } = input
 
-    return await services
-      .fragrance
-      .voteOnTrait({ fragranceTraitId, vote })
-      .match(
-        mapFragranceTraitRowToFragranceTrait,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .fragrance
+  //     .voteOnTrait({ fragranceTraitId, vote })
+  //     .match(
+  //       mapFragranceTraitRowToFragranceTrait,
+  //       error => { throw error }
+  //     )
+  // }
 
-  voteOnAccord: MutationResolvers['voteOnAccord'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
+  // voteOnAccord: MutationResolvers['voteOnAccord'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
 
-    const { fragranceId, accordId, vote } = input
+  //   const { fragranceId, accordId, vote } = input
 
-    return await services
-      .fragrance
-      .voteOnAccord({ fragranceId, accordId, vote: vote ?? null })
-      .match(
-        mapFragranceAccordRowToFragranceAccord,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .fragrance
+  //     .voteOnAccord({ fragranceId, accordId, vote: vote ?? null })
+  //     .match(
+  //       mapFragranceAccordRowToFragranceAccord,
+  //       error => { throw error }
+  //     )
+  // }
 
-  voteOnNote: MutationResolvers['voteOnNote'] = async (_, args, context, info) => {
-    const { input } = args
-    const { services } = context
+  // voteOnNote: MutationResolvers['voteOnNote'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { services } = context
 
-    const { fragranceId, noteId, layer, vote } = input
+  //   const { fragranceId, noteId, layer, vote } = input
 
-    return await services
-      .fragrance
-      .voteOnNote({
-        fragranceId,
-        noteId,
-        layer: GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[layer],
-        vote: vote ?? null
-      })
-      .match(
-        mapFragranceNoteRowToFragranceNote,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .fragrance
+  //     .voteOnNote({
+  //       fragranceId,
+  //       noteId,
+  //       layer: GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[layer],
+  //       vote: vote ?? null
+  //     })
+  //     .match(
+  //       mapFragranceNoteRowToFragranceNote,
+  //       error => { throw error }
+  //     )
+  // }
 
-  logFragranceView: MutationResolvers['logFragranceView'] = async (_, args, context, info) => {
-    const { input } = args
-    const { me, services } = context
+  // logFragranceView: MutationResolvers['logFragranceView'] = async (_, args, context, info) => {
+  //   const { input } = args
+  //   const { me, services } = context
 
-    if (me == null) return false
+  //   if (me == null) return false
 
-    const { fragranceId } = input
-    const userId = me.id
+  //   const { fragranceId } = input
+  //   const userId = me.id
 
-    return await services
-      .fragrance
-      .views
-      .create({ fragranceId, userId })
-      .match(
-        _ => true,
-        error => { throw error }
-      )
-  }
+  //   return await services
+  //     .fragrance
+  //     .views
+  //     .create({ fragranceId, userId })
+  //     .match(
+  //       _ => true,
+  //       error => { throw error }
+  //     )
+  // }
 }
 
 export const FRAGRANCE_TRAIT_TO_TYPE: Record<FragranceTraitEnum, FragranceTraitType> = {
@@ -389,6 +420,23 @@ export const mapFragranceRowToFragranceSummary = (row: FragranceRow): FragranceS
   }
 }
 
+export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): FragranceImage => {
+  const {
+    id, s3Key,
+    primaryColor,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    src: s3Key,
+    alt: '', // TODO:
+    bg: primaryColor,
+
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
+  }
+}
+
 export const mapFragranceTraitRowToFragranceTrait = (row: FragranceTraitRow): FragranceTrait => {
   const { trait, voteScore, myVote } = row
   return {
@@ -407,8 +455,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
     id, accordId,
     name, color,
     voteScore, likesCount, dislikesCount, myVote,
-    createdAt, updatedAt, deletedAt,
-    isFill
+    createdAt, updatedAt, deletedAt
   } = row
 
   return {
@@ -426,68 +473,51 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
 
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
 
-    isFill: isFill ?? false
+    isFill: false
   }
 }
 
-export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): FragranceImage => {
-  const {
-    id, s3Key,
-    primaryColor,
-    createdAt, updatedAt, deletedAt
-  } = row
+// export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
+//   const {
+//     id,
+//     rating, reviewText,
+//     voteScore, likesCount, dislikesCount, myVote,
+//     createdAt, updatedAt, deletedAt
+//   } = row
 
-  return {
-    id,
-    src: s3Key,
-    alt: '', // TODO:
-    bg: primaryColor,
+//   return {
+//     id,
+//     rating,
+//     text: reviewText,
+//     votes: {
+//       voteScore,
+//       likesCount,
+//       dislikesCount,
+//       myVote: myVote === 1 ? true : myVote === -1 ? false : null
+//     },
+//     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
+//   }
+// }
 
-    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
-  }
-}
+// export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceReviewDistribution => {
+//   const ratingKeys: Record<number, keyof FragranceReviewDistribution> = {
+//     1: 'one',
+//     2: 'two',
+//     3: 'three',
+//     4: 'four',
+//     5: 'five'
+//   }
 
-export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
-  const {
-    id,
-    rating, reviewText,
-    voteScore, likesCount, dislikesCount, myVote,
-    createdAt, updatedAt, deletedAt
-  } = row
+//   return rows
+//     .reduce((acc, { rating, count }) => {
+//       const key = ratingKeys[rating]
+//       if (key != null) acc[key] = count
+//       return acc
+//     }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
+// }
 
-  return {
-    id,
-    rating,
-    text: reviewText,
-    votes: {
-      voteScore,
-      likesCount,
-      dislikesCount,
-      myVote: myVote === 1 ? true : myVote === -1 ? false : null
-    },
-    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
-  }
-}
-
-export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceReviewDistribution => {
-  const ratingKeys: Record<number, keyof FragranceReviewDistribution> = {
-    1: 'one',
-    2: 'two',
-    3: 'three',
-    4: 'four',
-    5: 'five'
-  }
-
-  return rows
-    .reduce((acc, { rating, count }) => {
-      const key = ratingKeys[rating]
-      if (key != null) acc[key] = count
-      return acc
-    }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
-}
-
-export const GQL_ASSET_STATUS_TO_DB_UPLOAD_STATUS: Record<AssetStatus, UploadStatus> = {
-  PENDING: 'pending',
-  UPLOADED: 'uploaded',
-  FAILED: 'failed'
-} as const
+// export const GQL_ASSET_STATUS_TO_DB_UPLOAD_STATUS: Record<AssetStatus, UploadStatus> = {
+//   PENDING: 'pending',
+//   UPLOADED: 'uploaded',
+//   FAILED: 'failed'
+// } as const

@@ -1,6 +1,6 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors'
 import { GraphQLError, type GraphQLFormattedError } from 'graphql'
-import { MeiliSearchApiError, MeiliSearchError } from 'meilisearch'
+import { type MeiliSearchApiError } from 'meilisearch'
 
 export class ApiError extends GraphQLError {
   readonly code: string
