@@ -1,5 +1,5 @@
 import { type DB } from '@src/db/schema'
-import { type SelectQueryBuilder, sql, type Selectable } from 'kysely'
+import { sql, type Selectable } from 'kysely'
 import { type MyVote, TableService } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { INVALID_ID } from '@src/common/types'
@@ -47,15 +47,16 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
   }
 }
 
-export class FragranceAccordFillerRepo extends TableService<'accords', FragranceAccordRow> {
+export class FragranceAccordFillerRepo extends TableService<'fragranceAccords', FragranceAccordRow> {
   constructor (sources: ApiDataSources) {
-    super(sources, 'accords')
+    super(sources, 'fragranceAccords')
 
     this
       .Table
       .setAlias('fillerAccords')
       .setBaseQueryFactory(() => {
-        const subquery = sources.db
+        const subquery = sources
+          .db
           .selectFrom('accords')
           .selectAll('accords')
           .select([
@@ -72,7 +73,7 @@ export class FragranceAccordFillerRepo extends TableService<'accords', Fragrance
         return sources
           .db
           .selectFrom(subquery)
-          .selectAll() as SelectQueryBuilder<DB, 'accords', FragranceAccordRow>
+          .selectAll()
       })
   }
 }

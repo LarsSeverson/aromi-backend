@@ -5,6 +5,9 @@ import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRe
 import { type PaginationParams } from '@src/factories/PaginationFactory'
 import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
 import { type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
+import { type FragranceNoteRow } from '@src/services/fragrance/FragranceNotesRepo'
+import { type NoteLayerEnum } from '@src/db/schema'
+import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/fragrance/FragranceReviewsRepo'
 // import { type FragranceService, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
 // import { LoaderFactory } from './loaderFactory'
 // import { type NoteLayerEnum } from '@src/db/schema'
@@ -20,10 +23,11 @@ interface FragranceLoaders {
   traits: DataLoader<FragranceLoaderKey, FragranceTraitRow[]>
   accords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
   fillerAccords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
-  // notes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
-  // reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
-  // reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
-  // myReviews: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
+  notes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
+  fillerNotes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
+  reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
+  reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
+  myReviews: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
 }
 
 export interface GetImagesLoaderParams {
@@ -34,19 +38,14 @@ export interface GetAccordsLoaderParams {
   pagination: PaginationParams<string>
 }
 
-export interface GetFillerAccordsLoaderParams {
+export interface GetNotesLoaderParams {
+  layer: NoteLayerEnum
   pagination: PaginationParams<string>
 }
 
-// export interface GetNotesLoaderParams {
-//   layer: NoteLayerEnum
-//   paginationParams: PaginationParams<VoteSortBy>
-//   fill?: boolean
-// }
-
-// export interface GetReviewsLoaderParams {
-//   paginationParams: PaginationParams<VoteSortBy>
-// }
+export interface GetReviewsLoaderParams {
+  pagination: PaginationParams<string>
+}
 
 export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
   constructor (
@@ -82,7 +81,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       )
   }
 
-  getFillerAccordsLoader (params: GetFillerAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
+  getFillerAccordsLoader (params: GetAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
     const key = this.generateKey('fAccords', params)
     return this
       .getLoader(
@@ -91,41 +90,50 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       )
   }
 
-  // getNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
-  //   const key = this.generateKey('notes', params)
-  //   return this
-  //     .getLoader(
-  //       key,
-  //       () => this.createNotesLoader(params)
-  //     )
-  // }
+  getNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
+    const key = this.generateKey('notes', params)
+    return this
+      .getLoader(
+        key,
+        () => this.createNotesLoader(params)
+      )
+  }
 
-  // getReviewsLoader (params: GetReviewsLoaderParams): FragranceLoaders['reviews'] {
-  //   const key = this.generateKey('reviews', params)
-  //   return this
-  //     .getLoader(
-  //       key,
-  //       () => this.createReviewsLoader(params)
-  //     )
-  // }
+  getFillerNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
+    const key = this.generateKey('fNotes', params)
+    return this
+      .getLoader(
+        key,
+        () => this.createFillerNotesLoader(params)
+      )
+  }
 
-  // getReviewDistributionsLoader (): FragranceLoaders['reviewDistributions'] {
-  //   const key = this.generateKey('reviewDistributions')
-  //   return this
-  //     .getLoader(
-  //       key,
-  //       () => this.createReviewDistributionsLoader()
-  //     )
-  // }
+  getReviewsLoader (params: GetReviewsLoaderParams): FragranceLoaders['reviews'] {
+    const key = this.generateKey('reviews', params)
+    return this
+      .getLoader(
+        key,
+        () => this.createReviewsLoader(params)
+      )
+  }
 
-  // getMyReviewsLoader (): FragranceLoaders['myReviews'] {
-  //   const key = this.generateKey('myReview')
-  //   return this
-  //     .getLoader(
-  //       key,
-  //       () => this.createMyReviewsLoader()
-  //     )
-  // }
+  getReviewDistributionsLoader (): FragranceLoaders['reviewDistributions'] {
+    const key = this.generateKey('reviewDistributions')
+    return this
+      .getLoader(
+        key,
+        () => this.createReviewDistributionsLoader()
+      )
+  }
+
+  getMyReviewsLoader (): FragranceLoaders['myReviews'] {
+    const key = this.generateKey('myReview')
+    return this
+      .getLoader(
+        key,
+        () => this.createMyReviewsLoader()
+      )
+  }
 
   private createImagesLoader (params: GetImagesLoaderParams): FragranceLoaders['images'] {
     const { pagination } = params
@@ -191,7 +199,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     })
   }
 
-  private createFillerAccordsLoader (params: GetFillerAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
+  private createFillerAccordsLoader (params: GetAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
     const { pagination } = params
 
     return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
@@ -207,85 +215,118 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     })
   }
 
-  // private createNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
-  //   const { layer, paginationParams, fill } = params
+  private createNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
+    const { layer, pagination } = params
 
-  //   return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
-  //     const fragranceIds = this.getFragranceIds(keys)
+    return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
 
-  //     return await this
-  //       .fragranceService
-  //       .getNotes({ fragranceIds, layer, paginationParams, fill })
-  //       .match(
-  //         rows => {
-  //           const notesMap = new Map(fragranceIds.map(id => [id, rows.filter(rows => rows.fragranceId === id)]))
-  //           return fragranceIds.map(id => notesMap.get(id) ?? [])
-  //         },
-  //         error => { throw error }
-  //       )
-  //   })
-  // }
+      return await this
+        .fragranceService
+        .notes
+        .find(
+          eb => eb.and([
+            eb('fragranceNotes.fragranceId', 'in', fragranceIds),
+            eb('fragranceNotes.layer', '=', layer)
+          ]),
+          { pagination }
+        )
+        .match(
+          rows => {
+            const notesMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => notesMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
 
-  // private createReviewsLoader (params: GetReviewsLoaderParams): FragranceLoaders['reviews'] {
-  //   const { paginationParams } = params
+  private createFillerNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['fillerNotes'] {
+    const { pagination } = params
 
-  //   return new DataLoader<FragranceLoaderKey, FragranceReviewRow[]>(async (keys) => {
-  //     const fragranceIds = this.getFragranceIds(keys)
+    return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
+      return await this
+        .fragranceService
+        .notes
+        .fillers
+        .find(undefined, { pagination })
+        .match(
+          rows => keys.map(() => rows),
+          error => { throw error }
+        )
+    })
+  }
 
-  //     return await this
-  //       .fragranceService
-  //       .getReviewsOnMultiple({ fragranceIds, paginationParams })
-  //       .match(
-  //         rows => {
-  //           const reviewsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-  //           return fragranceIds.map(id => reviewsMap.get(id) ?? [])
-  //         },
-  //         error => { throw error }
-  //       )
-  //   })
-  // }
+  private createReviewsLoader (params: GetReviewsLoaderParams): FragranceLoaders['reviews'] {
+    const { pagination } = params
 
-  // private createReviewDistributionsLoader (): FragranceLoaders['reviewDistributions'] {
-  //   return new DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>(async (keys) => {
-  //     const fragranceIds = this.getFragranceIds(keys)
+    return new DataLoader<FragranceLoaderKey, FragranceReviewRow[]>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
 
-  //     return await this
-  //       .fragranceService
-  //       .getReviewDistributionsOnMultiple({ fragranceIds })
-  //       .match(
-  //         rows => {
-  //           const distMap = new Map(
-  //             fragranceIds
-  //               .map(id => [id, rows.filter(row => row.fragranceId === id)])
-  //           )
+      return await this
+        .fragranceService
+        .reviews
+        .find(
+          eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds),
+          { pagination }
+        )
+        .match(
+          rows => {
+            const reviewsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => reviewsMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
 
-  //           return fragranceIds.map(id => distMap.get(id) ?? [])
-  //         },
-  //         error => { throw error }
-  //       )
-  //   })
-  // }
+  private createReviewDistributionsLoader (): FragranceLoaders['reviewDistributions'] {
+    return new DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
 
-  // private createMyReviewsLoader (): FragranceLoaders['myReviews'] {
-  //   return new DataLoader<FragranceLoaderKey, FragranceReviewRow | null>(async (keys) => {
-  //     const fragranceIds = this.getFragranceIds(keys)
+      return await this
+        .fragranceService
+        .reviews
+        .dist
+        .find(eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds))
+        .match(
+          rows => {
+            const distMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
+            return fragranceIds.map(id => distMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
 
-  //     return await this
-  //       .reviewService
-  //       .findAll({ fragranceId: fragranceIds })
-  //       .match(
-  //         rows => {
-  //           const reviewsMap = new Map<number, FragranceReviewRow>()
-  //           rows.forEach(row => {
-  //             reviewsMap.set(row.fragranceId, row)
-  //           })
+  private createMyReviewsLoader (): FragranceLoaders['myReviews'] {
+    return new DataLoader<FragranceLoaderKey, FragranceReviewRow | null>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
 
-  //           return fragranceIds.map(id => reviewsMap.get(id) ?? null)
-  //         },
-  //         error => { throw error }
-  //       )
-  //   })
-  // }
+      const myId = this.fragranceService.context.me?.id ?? null
+
+      return await this
+        .fragranceService
+        .reviews
+        .find(
+          eb => eb.and([
+            eb('fragranceReviews.userId', '=', myId),
+            eb('fragranceReviews.fragranceId', 'in', fragranceIds)
+          ])
+        )
+        .match(
+          rows => {
+            const reviewsMap = new Map<number, FragranceReviewRow>()
+            rows.forEach(row => {
+              reviewsMap.set(row.fragranceId, row)
+            })
+
+            return fragranceIds.map(id => reviewsMap.get(id) ?? null)
+          },
+          error => { throw error }
+        )
+    })
+  }
 
   private getFragranceIds (keys: readonly FragranceLoaderKey[]): Array<FragranceLoaderKey['fragranceId']> {
     return keys.map(({ fragranceId }) => fragranceId)

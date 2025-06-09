@@ -19,3 +19,6 @@ export type Override<T, U> = Omit<T, keyof U> & U
 export type ValueOf<T> = T[keyof T]
 
 export type SortByInputs = SortBy | VoteSortBy
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DBAny = any

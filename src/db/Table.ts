@@ -3,11 +3,11 @@ import { type DB } from '@src/db/schema'
 import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, expressionBuilder } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '../factories/PaginationFactory'
+import { type DBAny } from '@src/common/types'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
-// export type TableNameFor<R extends Row> = { [K in keyof DB]: Selectable<DB[K]> extends R ? (R extends Selectable<DB[K]> ? K : never) : never }[keyof DB]
 export type WhereArgs<TB extends keyof DB, R extends Row<TB>> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
-type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, T, R>
+type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, DBAny, R>
 
 export class Table<T extends keyof DB, R extends Row<T>> {
   private readonly db: ApiDataSources['db']

@@ -6,6 +6,8 @@ import { type ApiServiceContext } from './apiService'
 import { FragranceImagesRepo } from './fragrance/FragranceImageRepo'
 import { FragranceTraitsRepo } from './fragrance/FragranceTraitsRepo'
 import { FragranceAccordsRepo } from './fragrance/FragranceAccordsRepo'
+import { FragranceNotesRepo } from './fragrance/FragranceNotesRepo'
+import { FragranceReviewsRepo } from './fragrance/FragranceReviewsRepo'
 
 export type FragranceRow = Selectable<DB['fragrances']> & MyVote
 
@@ -13,6 +15,8 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
   images: FragranceImagesRepo
   traits: FragranceTraitsRepo
   accords: FragranceAccordsRepo
+  notes: FragranceNotesRepo
+  reviews: FragranceReviewsRepo
 
   constructor (sources: ApiDataSources) {
     super(sources, 'fragrances')
@@ -20,6 +24,8 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
     this.images = new FragranceImagesRepo(sources)
     this.traits = new FragranceTraitsRepo(sources)
     this.accords = new FragranceAccordsRepo(sources)
+    this.notes = new FragranceNotesRepo(sources)
+    this.reviews = new FragranceReviewsRepo(sources)
 
     this
       .Table
@@ -54,6 +60,14 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
 
     this
       .accords
+      .setContext(context)
+
+    this
+      .notes
+      .setContext(context)
+
+    this
+      .reviews
       .setContext(context)
 
     return this
