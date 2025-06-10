@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary, FragranceCollectionSummary, FragranceCollectionSummaryEdge, FragranceCollectionItemSummary, FragranceCollectionItemSummaryEdge } from '../schemas/fragrance/mappers';
+import { FragranceSummary, FragranceSummaryEdge, FragranceReviewSummary, FragranceReviewSummaryEdge, FragranceNotesSummary, FragranceCollectionSummary, FragranceCollectionSummaryEdge, FragranceCollectionItemSummary, FragranceCollectionItemSummaryEdge, FragranceVoteSummary, FragranceVoteSummaryEdge } from '../schemas/fragrance/mappers';
 import { UserSummary, UserReviewSummary, UserReviewSummaryEdge } from '../schemas/user/mappers';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
@@ -333,6 +333,27 @@ export const FragranceTraitType = {
 } as const;
 
 export type FragranceTraitType = typeof FragranceTraitType[keyof typeof FragranceTraitType];
+export type FragranceVote = {
+  __typename?: 'FragranceVote';
+  audit: Audit;
+  fragrance: Fragrance;
+  id: Scalars['Int']['output'];
+  user: User;
+  vote: Scalars['Int']['output'];
+};
+
+export type FragranceVoteConnection = {
+  __typename?: 'FragranceVoteConnection';
+  edges: Array<FragranceVoteEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceVoteEdge = {
+  __typename?: 'FragranceVoteEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceVote;
+};
+
 export type LogFragranceViewInput = {
   fragranceId: Scalars['Int']['input'];
 };
@@ -565,7 +586,7 @@ export type User = {
   followerCount: Scalars['Int']['output'];
   followingCount: Scalars['Int']['output'];
   id: Scalars['Int']['output'];
-  likes: FragranceConnection;
+  likes: FragranceVoteConnection;
   reviews: FragranceReviewConnection;
   username: Scalars['String']['output'];
 };
@@ -751,6 +772,9 @@ export type ResolversTypes = ResolversObject<{
   FragranceReviewEdge: ResolverTypeWrapper<FragranceReviewSummaryEdge>;
   FragranceTrait: ResolverTypeWrapper<Partial<FragranceTrait>>;
   FragranceTraitType: ResolverTypeWrapper<Partial<FragranceTraitType>>;
+  FragranceVote: ResolverTypeWrapper<FragranceVoteSummary>;
+  FragranceVoteConnection: ResolverTypeWrapper<Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceVoteEdge']> }>>;
+  FragranceVoteEdge: ResolverTypeWrapper<FragranceVoteSummaryEdge>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
   JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
   LogFragranceViewInput: ResolverTypeWrapper<Partial<LogFragranceViewInput>>;
@@ -820,6 +844,9 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceReviewDistribution: Partial<FragranceReviewDistribution>;
   FragranceReviewEdge: FragranceReviewSummaryEdge;
   FragranceTrait: Partial<FragranceTrait>;
+  FragranceVote: FragranceVoteSummary;
+  FragranceVoteConnection: Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceVoteEdge']> }>;
+  FragranceVoteEdge: FragranceVoteSummaryEdge;
   Int: Partial<Scalars['Int']['output']>;
   JSON: Partial<Scalars['JSON']['output']>;
   LogFragranceViewInput: Partial<LogFragranceViewInput>;
@@ -1068,6 +1095,27 @@ export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FragranceVoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceVote'] = ResolversParentTypes['FragranceVote']> = ResolversObject<{
+  audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  vote?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceVoteConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceVoteConnection'] = ResolversParentTypes['FragranceVoteConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceVoteEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceVoteEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceVoteEdge'] = ResolversParentTypes['FragranceVoteEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
@@ -1126,7 +1174,7 @@ export type UserResolvers<ContextType = ApiContext, ParentType extends Resolvers
   followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   followingCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  likes?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
+  likes?: Resolver<ResolversTypes['FragranceVoteConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<UserReviewsArgs>>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1171,6 +1219,9 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceReviewDistribution?: FragranceReviewDistributionResolvers<ContextType>;
   FragranceReviewEdge?: FragranceReviewEdgeResolvers<ContextType>;
   FragranceTrait?: FragranceTraitResolvers<ContextType>;
+  FragranceVote?: FragranceVoteResolvers<ContextType>;
+  FragranceVoteConnection?: FragranceVoteConnectionResolvers<ContextType>;
+  FragranceVoteEdge?: FragranceVoteEdgeResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;

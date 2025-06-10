@@ -1,13 +1,14 @@
-import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, FragranceReviewDistribution } from '@src/generated/gql-types'
+import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution } from '@src/generated/gql-types'
 import { ApiResolver, SortByColumn, VoteSortByColumn } from './apiResolver'
-import { type FragranceRow } from '@src/services/FrragranceService'
-import { type FragranceReviewSummary, type FragranceSummary } from '@src/schemas/fragrance/mappers'
+import { type FragranceRow } from '@src/services/FragranceService'
+import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { okAsync, ResultAsync } from 'neverthrow'
-import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
+import { type FragranceImageRow } from '@src/services/repositories/FragranceImageRepo'
 import { type FragranceTraitEnum } from '@src/db/schema'
-import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
-import { type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
-import { FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/fragrance/FragranceReviewsRepo'
+import { type FragranceTraitRow } from '@src/services/repositories/FragranceTraitsRepo'
+import { type FragranceAccordRow } from '@src/services/repositories/FragranceAccordsRepo'
+import { type FragranceReviewDistRow } from '@src/services/repositories/FragranceReviewsRepo'
+import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
 
 // const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
@@ -502,28 +503,6 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
   }
 }
 
-export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
-  const {
-    id,
-    rating, reviewText,
-    voteScore, likesCount, dislikesCount, myVote,
-    createdAt, updatedAt, deletedAt
-  } = row
-
-  return {
-    id,
-    rating,
-    text: reviewText,
-    votes: {
-      voteScore,
-      likesCount,
-      dislikesCount,
-      myVote: myVote === 1 ? true : myVote === -1 ? false : null
-    },
-    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
-  }
-}
-
 export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceReviewDistribution => {
   const ratingKeys: Record<number, keyof FragranceReviewDistribution> = {
     1: 'one',
@@ -540,9 +519,3 @@ export const mapDistRowsToDist = (rows: FragranceReviewDistRow[]): FragranceRevi
       return acc
     }, { one: 0, two: 0, three: 0, four: 0, five: 0 })
 }
-
-// export const GQL_ASSET_STATUS_TO_DB_UPLOAD_STATUS: Record<AssetStatus, UploadStatus> = {
-//   PENDING: 'pending',
-//   UPLOADED: 'uploaded',
-//   FAILED: 'failed'
-// } as const

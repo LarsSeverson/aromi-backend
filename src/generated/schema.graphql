@@ -245,6 +245,24 @@ enum FragranceTraitType {
   SILLAGE
 }
 
+type FragranceVote {
+  audit: Audit!
+  fragrance: Fragrance!
+  id: Int!
+  user: User!
+  vote: Int!
+}
+
+type FragranceVoteConnection {
+  edges: [FragranceVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceVoteEdge {
+  cursor: String!
+  node: FragranceVote!
+}
+
 scalar JSON
 
 input LogFragranceViewInput {
@@ -346,7 +364,7 @@ type User {
   followerCount: Int!
   followingCount: Int!
   id: Int!
-  likes(input: PaginationInput): FragranceConnection!
+  likes(input: PaginationInput): FragranceVoteConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
   username: String!
 }

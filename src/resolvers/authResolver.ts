@@ -5,15 +5,15 @@ import { parseSchema } from '@src/common/schema'
 import { mapUserRowToUserSummary } from './userResolver'
 import { type Response } from 'express'
 
-// const loginSchema = z
-//   .object({
-//     email: z
-//       .string({ required_error: 'Email is required' })
-//       .email('Please enter a valid email address'),
-//     password: z
-//       .string({ required_error: 'Password is required' })
-//       .min(8, 'Password must be at least 8 characters long')
-//   })
+const loginSchema = z
+  .object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Please enter a valid email address'),
+    password: z
+      .string({ required_error: 'Password is required' })
+      .min(8, 'Password must be at least 8 characters long')
+  })
 
 const signUpSchema = z
   .object({
@@ -57,28 +57,28 @@ export class AuthResolver extends ApiResolver {
       )
   }
 
-  // logIn: MutationResolvers['logIn'] = async (parent, args, context, info) => {
-  //   parseSchema(loginSchema, args)
+  logIn: MutationResolvers['logIn'] = async (parent, args, context, info) => {
+    parseSchema(loginSchema, args)
 
-  //   const { email, password } = args
-  //   const { res, services } = context
-  //   const { auth, user } = services
+    const { email, password } = args
+    const { res, services } = context
+    const { auth, user } = services
 
-  //   return await auth
-  //     .logIn({ email, password })
-  //     .andThen(tokens => user
-  //       .find({ email }) // Possible to have a healing side effect of creating the user if they exist in cog but not db
-  //       .map(_ => tokens)
-  //     )
-  //     .match(
-  //       (tokens) => {
-  //         const { idToken, accessToken, refreshToken, accExpiresIn, refMaxAge } = tokens
-  //         this.signRefreshCookie(refreshToken, refMaxAge, res)
-  //         return { idToken, accessToken, expiresIn: accExpiresIn }
-  //       },
-  //       error => { throw error }
-  //     )
-  // }
+    return await auth
+      .logIn({ email, password })
+      .andThen(tokens => user
+        .findOne(eb => eb('users.email', '=', email)) // Possible to have a healing side effect of creating the user if they exist in cog but not db
+        .map(_ => tokens)
+      )
+      .match(
+        (tokens) => {
+          const { idToken, accessToken, refreshToken, accExpiresIn, refMaxAge } = tokens
+          this.signRefreshCookie(refreshToken, refMaxAge, res)
+          return { idToken, accessToken, expiresIn: accExpiresIn }
+        },
+        error => { throw error }
+      )
+  }
 
   logOut: MutationResolvers['logOut'] = async (parent, args, context, info) => {
     const { res, services } = context

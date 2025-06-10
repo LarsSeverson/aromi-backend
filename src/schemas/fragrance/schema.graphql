@@ -92,6 +92,14 @@ type FragranceCollectionItem {
   audit: Audit!
 }
 
+type FragranceVote {
+  id: Int!
+  vote: Int!
+  user: User!
+  fragrance: Fragrance!
+  audit: Audit!
+}
+
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
@@ -306,4 +314,15 @@ type FragranceCollectionItemConnection {
 type FragranceCollectionItemEdge {
   cursor: String!
   node: FragranceCollectionItem!
+}
+
+# Vote
+type FragranceVoteConnection {
+  edges: [FragranceVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceVoteEdge {
+  cursor: String!
+  node: FragranceVote!
 }

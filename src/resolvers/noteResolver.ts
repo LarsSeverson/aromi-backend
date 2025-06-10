@@ -2,7 +2,7 @@ import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceNote, NoteLayer, type FragranceNotesResolvers } from '@src/generated/gql-types'
 import { okAsync, ResultAsync } from 'neverthrow'
 import { ApiResolver, VoteSortByColumn } from './apiResolver'
-import { type FragranceNoteRow } from '@src/services/fragrance/FragranceNotesRepo'
+import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
 
 export class NoteResolver extends ApiResolver {
   notes: FragranceNotesResolvers['top' | 'middle' | 'base'] = async (parent, args, context, info) => {

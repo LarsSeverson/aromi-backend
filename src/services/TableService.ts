@@ -1,5 +1,5 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { ApiService } from './apiService'
+import { ApiService } from './ApiService'
 import { Table, type Row } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'

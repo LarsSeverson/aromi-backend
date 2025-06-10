@@ -1,8 +1,8 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type ApiServiceContext } from './apiService'
-import { FragranceService } from './FrragranceService'
-import { AuthService } from './authService'
-import { UserService } from './userService'
+import { type ApiServiceContext } from './ApiService'
+import { FragranceService } from './FragranceService'
+import { AuthService } from './AuthService'
+import { UserService } from './UserService'
 
 export class ApiServices {
   auth: AuthService

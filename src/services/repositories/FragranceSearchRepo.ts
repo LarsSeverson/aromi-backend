@@ -1,4 +1,4 @@
-import { SearchService, type BaseIndex } from '../searchService'
+import { SearchService, type BaseIndex } from '../SearchService'
 
 export interface FragranceDoc extends BaseIndex {
   name: string

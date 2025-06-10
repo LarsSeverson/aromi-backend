@@ -1,5 +1,5 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { ApiService } from './apiService'
+import { ApiService } from './ApiService'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'

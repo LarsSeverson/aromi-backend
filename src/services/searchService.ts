@@ -1,5 +1,5 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { ApiService } from './apiService'
+import { ApiService } from './ApiService'
 import { ResultAsync } from 'neverthrow'
 import { type SearchResponse } from 'meilisearch'
 import { ApiError } from '@src/common/error'

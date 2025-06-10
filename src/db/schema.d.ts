@@ -86,7 +86,7 @@ export interface FragranceCollection {
   id: Generated<number>;
   name: string;
   updatedAt: Generated<Timestamp>;
-  userId: number | null;
+  userId: number;
 }
 
 export interface FragranceImage {
@@ -191,11 +191,11 @@ export interface FragranceView {
 }
 
 export interface FragranceVote {
-  createdAt: Generated<Timestamp | null>;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: number;
   id: Generated<number>;
-  updatedAt: Generated<Timestamp | null>;
+  updatedAt: Generated<Timestamp>;
   userId: number;
   vote: number;
 }

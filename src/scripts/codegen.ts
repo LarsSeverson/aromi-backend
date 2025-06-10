@@ -23,6 +23,8 @@ const config: CodegenConfig = {
           FragranceCollectionEdge: '../schemas/fragrance/mappers#FragranceCollectionSummaryEdge',
           FragranceCollectionItem: '../schemas/fragrance/mappers#FragranceCollectionItemSummary',
           FragranceCollectionItemEdge: '../schemas/fragrance/mappers#FragranceCollectionItemSummaryEdge',
+          FragranceVote: '../schemas/fragrance/mappers#FragranceVoteSummary',
+          FragranceVoteEdge: '../schemas/fragrance/mappers#FragranceVoteSummaryEdge',
 
           User: '../schemas/user/mappers#UserSummary',
           UserReview: '../schemas/user/mappers#UserReviewSummary',

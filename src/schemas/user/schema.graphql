@@ -7,8 +7,8 @@ type User {
   followingCount: Int!
 
   collections(input: PaginationInput): FragranceCollectionConnection!
+  likes(input: PaginationInput): FragranceVoteConnection!
   reviews(input: PaginationInput): FragranceReviewConnection!
-  likes(input: PaginationInput): FragranceConnection!
 
   audit: Audit!
 }

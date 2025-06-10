@@ -1,24 +1,19 @@
 import DataLoader from 'dataloader'
-import { LoaderFactory } from './loaderFactory'
-import { type FragranceService } from '@src/services/FrragranceService'
-import { type FragranceImageRow } from '@src/services/fragrance/FragranceImageRepo'
+import { LoaderFactory } from './LoaderFactory'
+import { type FragranceRow } from '@src/services/FragranceService'
+import { type FragranceImageRow } from '@src/services/repositories/FragranceImageRepo'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
-import { type FragranceTraitRow } from '@src/services/fragrance/FragranceTraitsRepo'
-import { type FragranceAccordRow } from '@src/services/fragrance/FragranceAccordsRepo'
-import { type FragranceNoteRow } from '@src/services/fragrance/FragranceNotesRepo'
+import { type FragranceTraitRow } from '@src/services/repositories/FragranceTraitsRepo'
+import { type FragranceAccordRow } from '@src/services/repositories/FragranceAccordsRepo'
+import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
 import { type NoteLayerEnum } from '@src/db/schema'
-import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/fragrance/FragranceReviewsRepo'
-// import { type FragranceService, type FragranceTraitRow, type FragranceAccordRow, type FragranceReviewDistRow, type FragranceNoteRow } from '@src/services/fragranceService'
-// import { LoaderFactory } from './loaderFactory'
-// import { type NoteLayerEnum } from '@src/db/schema'
-// import { type ReviewService, type FragranceReviewRow } from '@src/services/reviewService'
-// import { type VoteSortBy } from '@src/generated/gql-types'
-// import { type FragranceImageRow } from '@src/services/fragrance/fragranceImageRepo'
-// import { type PaginationOptions } from '@src/services/TableService'
+import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
+import { ApiError } from '@src/common/error'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
 interface FragranceLoaders {
+  fragrance: DataLoader<FragranceLoaderKey, FragranceRow>
   images: DataLoader<FragranceLoaderKey, FragranceImageRow[]>
   traits: DataLoader<FragranceLoaderKey, FragranceTraitRow[]>
   accords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
@@ -27,7 +22,7 @@ interface FragranceLoaders {
   fillerNotes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
   reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
   reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
-  myReviews: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
+  myReview: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
 }
 
 export interface GetImagesLoaderParams {
@@ -48,10 +43,13 @@ export interface GetReviewsLoaderParams {
 }
 
 export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
-  constructor (
-    private readonly fragranceService: FragranceService
-  ) {
-    super()
+  getFragranceLoader (): FragranceLoaders['fragrance'] {
+    const key = this.generateKey('fragrance')
+    return this
+      .getLoader(
+        key,
+        () => this.createFragranceLoader()
+      )
   }
 
   getImagesLoader (params: GetImagesLoaderParams): FragranceLoaders['images'] {
@@ -126,13 +124,41 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       )
   }
 
-  getMyReviewsLoader (): FragranceLoaders['myReviews'] {
+  getMyReviewsLoader (): FragranceLoaders['myReview'] {
     const key = this.generateKey('myReview')
     return this
       .getLoader(
         key,
         () => this.createMyReviewsLoader()
       )
+  }
+
+  private createFragranceLoader (): FragranceLoaders['fragrance'] {
+    return new DataLoader<FragranceLoaderKey, FragranceRow>(async (keys) => {
+      const fragranceIds = this.getFragranceIds(keys)
+
+      return await this
+        .services
+        .fragrance
+        .find(eb => eb('fragrances.id', 'in', fragranceIds))
+        .match(
+          rows => {
+            const fragrancesMap = new Map(rows.map(row => [row.id, row]))
+            return fragranceIds.map(id => {
+              const fragrance = fragrancesMap.get(id)
+              if (fragrance == null) {
+                throw new ApiError(
+                  'NOT_FOUND',
+                  "We couldn't find this fragrance",
+                  404
+                )
+              }
+              return fragrance
+            })
+          },
+          error => { throw error }
+        )
+    })
   }
 
   private createImagesLoader (params: GetImagesLoaderParams): FragranceLoaders['images'] {
@@ -142,7 +168,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .images
         .find(
           eb => eb('fragranceImages.fragranceId', 'in', fragranceIds),
@@ -163,7 +190,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .traits
         .find(eb => eb('fragranceTraits.fragranceId', 'in', fragranceIds))
         .match(
@@ -183,7 +211,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .accords
         .find(
           eb => eb('fragranceAccords.fragranceId', 'in', fragranceIds),
@@ -204,7 +233,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
 
     return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .accords
         .fillers
         .find(undefined, { pagination })
@@ -222,7 +252,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .notes
         .find(
           eb => eb.and([
@@ -246,7 +277,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
 
     return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .notes
         .fillers
         .find(undefined, { pagination })
@@ -264,7 +296,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .reviews
         .find(
           eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds),
@@ -285,7 +318,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       const fragranceIds = this.getFragranceIds(keys)
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .reviews
         .dist
         .find(eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds))
@@ -299,14 +333,15 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     })
   }
 
-  private createMyReviewsLoader (): FragranceLoaders['myReviews'] {
+  private createMyReviewsLoader (): FragranceLoaders['myReview'] {
     return new DataLoader<FragranceLoaderKey, FragranceReviewRow | null>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      const myId = this.fragranceService.context.me?.id ?? null
+      const myId = this.services.fragrance.context.me?.id ?? null
 
       return await this
-        .fragranceService
+        .services
+        .fragrance
         .reviews
         .find(
           eb => eb.and([
