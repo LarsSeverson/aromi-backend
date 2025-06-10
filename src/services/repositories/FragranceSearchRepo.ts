@@ -1,3 +1,4 @@
+import { type ApiDataSources } from '@src/datasources/datasources'
 import { SearchService, type BaseIndex } from '../SearchService'
 
 export interface FragranceDoc extends BaseIndex {
@@ -5,4 +6,8 @@ export interface FragranceDoc extends BaseIndex {
   brand: string
 }
 
-export class FragranceSearchRepo extends SearchService<FragranceDoc> {}
+export class FragranceSearchRepo extends SearchService<FragranceDoc> {
+  constructor (sources: ApiDataSources) {
+    super(sources, 'fragrances')
+  }
+}

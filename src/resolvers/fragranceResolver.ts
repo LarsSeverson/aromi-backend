@@ -53,31 +53,45 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  // searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
-  //   const { fragrance } = services
+  searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
+    const { input } = args
+    const { services } = context
+    const { fragrance } = services
 
-  //   const query = input?.query ?? undefined
-  //   const pagination = input?.pagination
-  //   const paginationParams = getPaginationParams(pagination)
-  //   const limit = paginationParams.first
+    const query = input?.query ?? undefined
+    const pagination = input?.pagination
 
-  //   return await fragrance
-  //     .searcher
-  //     .search({ query, limit })
-  //     .map(docs => docs.hits.map(doc => doc.id))
-  //     .andThen((ids) => fragrance.getByIds(ids))
-  //     .match(
-  //       rows => this
-  //         .mapToPage({
-  //           rows,
-  //           paginationParams,
-  //           mapFn: mapFragranceRowToFragranceSummary
-  //         }),
-  //       error => { throw error }
-  //     )
-  // }
+    const normalizedInput = this
+      .paginationFactory
+      .normalize(
+        pagination,
+        pagination?.sort?.by ?? 'UPDATED',
+        (decoded) => String(decoded)
+      )
+
+    const parsedInput = this
+      .paginationFactory
+      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+
+    const limit = parsedInput.first + 1
+    const offset = parsedInput.offset != null ? parsedInput.offset + 1 : 0
+
+    return await fragrance
+      .searcher
+      .search({ query, limit, offset })
+      .map(docs => docs.hits.map(doc => doc.id))
+      .andThen((ids) => fragrance.find(eb => eb('fragrances.id', 'in', ids)))
+      .match(
+        rows => this
+          .newPage(
+            rows,
+            parsedInput,
+            (row, idx) => `${row.id}|${idx + offset}`,
+            mapFragranceRowToFragranceSummary
+          ),
+        error => { throw error }
+      )
+  }
 
   fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
     const { id } = parent

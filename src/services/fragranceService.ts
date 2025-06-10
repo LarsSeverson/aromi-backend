@@ -9,6 +9,7 @@ import { FragranceAccordsRepo } from './repositories/FragranceAccordsRepo'
 import { FragranceNotesRepo } from './repositories/FragranceNotesRepo'
 import { FragranceReviewsRepo } from './repositories/FragranceReviewsRepo'
 import { FragranceCollectionRepo } from './repositories/FragranceCollectionRepo'
+import { FragranceSearchRepo } from './repositories/FragranceSearchRepo'
 
 export type FragranceRow = Selectable<DB['fragrances']> & MyVote
 
@@ -20,6 +21,8 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
   reviews: FragranceReviewsRepo
   collections: FragranceCollectionRepo
 
+  searcher: FragranceSearchRepo
+
   constructor (sources: ApiDataSources) {
     super(sources, 'fragrances')
 
@@ -29,6 +32,8 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
     this.notes = new FragranceNotesRepo(sources)
     this.reviews = new FragranceReviewsRepo(sources)
     this.collections = new FragranceCollectionRepo(sources)
+
+    this.searcher = new FragranceSearchRepo(sources)
 
     this
       .Table

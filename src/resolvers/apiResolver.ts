@@ -4,6 +4,8 @@ import { type Audit, SortBy, VoteSortBy } from '@src/generated/gql-types'
 import { PaginationFactory } from '@src/factories/PaginationFactory'
 
 export type TransformDataFn<N extends ConnectionNode> = (d: N) => N
+export type ExtractCursorValueFn<N extends ConnectionNode> = (d: N, idx: number) => string
+
 export interface NewPageInput<C> {
   first: number
   cursor: ApiCursor<C>
@@ -16,12 +18,12 @@ export class ApiResolver {
 
   protected newEdges <N extends ConnectionNode, O extends ConnectionNode = N>(
     data: N[],
-    extractCursorValueFn: (d: N) => string,
+    extractCursorValueFn: ExtractCursorValueFn<N>,
     transform?: (d: N) => O
   ): Array<ConnectionEdge<O>> {
     return data
-      .map(d => {
-        const value = extractCursorValueFn(d)
+      .map((d, i) => {
+        const value = extractCursorValueFn(d, i)
         const id = String(d.id)
         const cursor = this.cursorFactory.encodeCursor(value, id)
         const node = transform != null ? transform(d) : d
@@ -32,7 +34,7 @@ export class ApiResolver {
   protected newPage <N extends ConnectionNode, C, O extends ConnectionNode = N>(
     data: N[],
     input: NewPageInput<C>,
-    extractCursorValueFn: (d: N) => string,
+    extractCursorValueFn: ExtractCursorValueFn<N>,
     transform?: (d: N) => O
   ): RelayConnection<O> {
     const { first, cursor: lastCursor } = input

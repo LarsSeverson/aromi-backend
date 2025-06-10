@@ -19,6 +19,7 @@ export type PaginationDirection = typeof PAGINATION_DIRECTIONS[keyof typeof PAGI
 
 export interface PaginationParams<C, T extends string = string> {
   first: number
+  offset?: number
   column: T
   operator: PaginationOperator
   direction: PaginationDirection
@@ -40,6 +41,7 @@ export interface NormalizedPaginationInput<C, S> {
   first: number
   cursor: ApiCursor<C>
   sort: NormalizedSortInput<S>
+  offset?: number
 }
 
 export type ExtractColumnFn<I, T extends string> = (input: I) => T
@@ -47,26 +49,16 @@ export type ExtractColumnFn<I, T extends string> = (input: I) => T
 export class PaginationFactory {
   private readonly cursorFactory = new CursorFactory()
 
-  newPaginationParams <C, T extends string>(
-    first: number,
-    column: T,
-    operator: PaginationOperator,
-    direction: PaginationDirection,
-    cursor: ApiCursor<C>
-  ): PaginationParams<C, T> {
-    return { first, column, operator, direction, cursor }
-  }
-
   parse <C, I, T extends string>(
     input: NormalizedPaginationInput<C, I>,
     extractColumnFn: ExtractColumnFn<typeof input, T>
   ): PaginationParams<C, T> {
-    const { first, sort, cursor } = input
+    const { first, offset, sort, cursor } = input
     const operator = PAGINATION_OPERATORS[sort.direction]
     const direction = PAGINATION_DIRECTIONS[sort.direction]
     const column = extractColumnFn(input)
 
-    return this.newPaginationParams(first, column, operator, direction, cursor)
+    return { first, offset, column, operator, direction, cursor }
   }
 
   normalize <C, T>(
@@ -78,7 +70,9 @@ export class PaginationFactory {
     const cursor = this.cursorFactory.decodeCursor(after, cursorParser)
     const sort = { by, direction }
 
-    return { first, cursor, sort }
+    const offset = this.getOffset(cursor)
+
+    return { first, cursor, sort, offset }
   }
 
   private getUniversalDefaults (
@@ -90,6 +84,20 @@ export class PaginationFactory {
     const sort = { direction }
 
     return { first, after, sort }
+  }
+
+  private getOffset (cursor: ApiCursor<unknown>): number | undefined {
+    if (!cursor.isValid) return
+    if (typeof cursor.value !== 'string') return
+
+    let offset: number | undefined
+    const [, rawOffset] = cursor.value.split('|')
+    const parsed = Number(rawOffset)
+    if (Number.isInteger(parsed) && parsed >= 0) {
+      offset = parsed
+    }
+
+    return offset
   }
 }
 
