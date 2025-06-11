@@ -1,4 +1,4 @@
-import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution } from '@src/generated/gql-types'
+import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution, type MutationResolvers } from '@src/generated/gql-types'
 import { ApiResolver, SortByColumn, VoteSortByColumn } from './apiResolver'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
@@ -9,6 +9,8 @@ import { type FragranceTraitRow } from '@src/services/repositories/FragranceTrai
 import { type FragranceAccordRow } from '@src/services/repositories/FragranceAccordsRepo'
 import { type FragranceReviewDistRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
+import { mapFragranceVoteRowToFragranceVoteSummary } from './fragranceVoteResolver'
+import { ApiError } from '@src/common/error'
 
 // const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
@@ -337,20 +339,32 @@ export class FragranceResolver extends ApiResolver {
   //     )
   // }
 
-  // voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services, me } = context
 
-  //   const { fragranceId, vote } = input
+    if (me == null) {
+      throw new ApiError(
+        '403',
+        'You must be logged in vote on a fragrance',
+        403
+      )
+    }
 
-  //   return await services
-  //     .fragrance
-  //     .vote({ fragranceId, vote: vote ?? null })
-  //     .match(
-  //       mapFragranceRowToFragranceSummary,
-  //       error => { throw error }
-  //     )
-  // }
+    const userId = me.id
+    const { fragranceId, vote } = input
+
+    const { voteValue, deletedAt } = this.getVoteMutationValues(vote)
+
+    return await services
+      .user
+      .votes
+      .create({ fragranceId, userId, vote: voteValue, deletedAt })
+      .match(
+        mapFragranceVoteRowToFragranceVoteSummary,
+        error => { throw error }
+      )
+  }
 
   // voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
   //   const { input } = args

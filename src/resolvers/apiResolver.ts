@@ -63,6 +63,14 @@ export class ApiResolver {
       )
   }
 
+  protected getVoteMutationValues (
+    vote: boolean | null | undefined
+  ): { voteValue: number, deletedAt: string | null } {
+    const voteValue = vote == null ? 0 : vote ? 1 : -1
+    const deletedAt = vote == null ? new Date().toISOString() : null
+    return { voteValue, deletedAt }
+  }
+
   static audit (
     createdAt: string,
     updatedAt: string,

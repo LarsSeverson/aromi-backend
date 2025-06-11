@@ -1,11 +1,10 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { ApiService } from './ApiService'
-import { Table, type Row } from '../db/Table'
+import { type ExtendInsertFn, Table, type Row } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
-import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
 
 export interface QueryOptions<C> {
@@ -24,13 +23,14 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
   }
 
   create (
-    values: InsertExpression<DB, T>
+    values: Partial<R>,
+    extend?: ExtendInsertFn<T, R>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
       .fromPromise(
         this
           .Table
-          .create(values)
+          .create(values, extend)
           .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
       )

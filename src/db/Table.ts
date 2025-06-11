@@ -7,7 +7,11 @@ import { type DBAny } from '@src/common/types'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
 export type WhereArgs<TB extends keyof DB, R extends Row<TB>> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
-type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, DBAny, R>
+
+export type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, DBAny, R>
+export type ExtendInsertFn<T extends keyof DB, R extends Row<T>> = (
+  qb: InsertQueryBuilder<DB, T, R>
+) => InsertQueryBuilder<DB, T, R>
 
 export class Table<T extends keyof DB, R extends Row<T>> {
   private readonly db: ApiDataSources['db']
@@ -50,15 +54,18 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   }
 
   create (
-    values: InsertExpression<DB, T>
+    values: Partial<R>,
+    extend?: ExtendInsertFn<T, R>
   ): InsertQueryBuilder<DB, T, R> {
-    const query = this
+    const kyValues = values as InsertExpression<DB, T>
+
+    const qb = this
       .db
       .insertInto(this.table)
-      .values(values)
-      .returningAll()
+      .values(kyValues)
+      .returningAll() as InsertQueryBuilder<DB, T, R>
 
-    return query as unknown as InsertQueryBuilder<DB, T, R>
+    return extend != null ? extend(qb) : qb
   }
 
   find (

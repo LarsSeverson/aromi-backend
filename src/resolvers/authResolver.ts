@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { parseSchema } from '@src/common/schema'
 import { mapUserRowToUserSummary } from './userResolver'
 import { type Response } from 'express'
+import { ApiError } from '@src/common/error'
 
 const loginSchema = z
   .object({
@@ -81,12 +82,21 @@ export class AuthResolver extends ApiResolver {
   }
 
   logOut: MutationResolvers['logOut'] = async (parent, args, context, info) => {
-    const { res, services } = context
+    const { req, res, services } = context
     const { auth } = services
 
-    const result = await auth.logOut()
+    const refreshToken = req.cookies.refreshToken as (string | undefined)
 
-    return result
+    if (refreshToken == null) {
+      throw new ApiError(
+        'AUTH_ERROR',
+        'You need to log in before logging out',
+        401
+      )
+    }
+
+    return await auth
+      .logOut(refreshToken)
       .match(
         () => {
           res.clearCookie('refreshToken', {

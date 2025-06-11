@@ -127,7 +127,7 @@ extend type Mutation {
     input: MoveFragranceCollectionItemInput!
   ): FragranceCollection!
 
-  voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
+  voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!

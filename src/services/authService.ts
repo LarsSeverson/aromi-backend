@@ -1,4 +1,4 @@
-import { AdminGetUserCommand, type AuthenticationResultType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
+import { AdminGetUserCommand, type AuthenticationResultType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { err, errAsync, ok, okAsync, type Result, ResultAsync } from 'neverthrow'
@@ -88,11 +88,19 @@ export class AuthService {
       .andThen(result => this.parseTokenPayload(result.AuthenticationResult))
   }
 
-  logOut (): ResultAsync<void, ApiError> {
-    // Placeholder
+  logOut (
+    refreshToken: string
+  ): ResultAsync<void, ApiError> {
+    const { client, clientId } = this.cog
+
     return ResultAsync
       .fromPromise(
-        Promise.resolve(),
+        client.send(
+          new RevokeTokenCommand({
+            ClientId: clientId,
+            Token: refreshToken
+          })
+        ),
         error => new ApiError('AUTH_ERROR', 'Authentication failed', 401, error)
       )
       .map(() => undefined)

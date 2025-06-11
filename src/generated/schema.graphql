@@ -294,7 +294,7 @@ type Mutation {
   resendSignUpConfirmationCode(email: String!): Boolean!
   signUp(email: String!, password: String!): SignUpResult!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
-  voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
+  voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
   voteOnReview(input: VoteOnReviewInput!): FragranceReview!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
