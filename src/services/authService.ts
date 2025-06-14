@@ -1,4 +1,4 @@
-import { AdminGetUserCommand, type AuthenticationResultType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand, type SignUpCommandOutput } from '@aws-sdk/client-cognito-identity-provider'
+import { AdminGetUserCommand, type AuthenticationResultType, type CodeDeliveryDetailsType, ConfirmForgotPasswordCommand, type ConfirmForgotPasswordCommandOutput, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { ApiError } from '@src/common/error'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { err, errAsync, ok, okAsync, type Result, ResultAsync } from 'neverthrow'
@@ -15,33 +15,11 @@ export interface AuthTokens {
   refMaxAge: number
 }
 
-export interface RefreshParams {
-  old: string
-}
-
-export interface LogInParams {
-  email: string
-  password: string
-}
-
-export interface SignUpParams {
-  email: string
-  password: string
-}
-
-export interface ConfirmSignUpParams {
-  email: string
-  confirmationCode: string
-}
-
-export interface ForgotPasswordParams {
-  email: string
-}
-
-export interface ConfirmForgotPasswordParams {
-  email: string
-  confirmationCode: string
-  newPassword: string
+export interface DeliveryResult {
+  isComplete?: boolean | undefined
+  attribute?: string | undefined
+  destination?: string | undefined
+  method?: string | undefined
 }
 
 export class AuthService {
@@ -51,8 +29,9 @@ export class AuthService {
     this.cog = sources.cog
   }
 
-  refresh (params: RefreshParams): ResultAsync<AuthTokens, ApiError> {
-    const { old } = params
+  refresh (
+    old: string
+  ): ResultAsync<AuthTokens, ApiError> {
     const { cog } = this
     const { client, clientId } = cog
 
@@ -70,8 +49,10 @@ export class AuthService {
       .andThen(result => this.parseTokenPayload(result.AuthenticationResult, old))
   }
 
-  logIn (params: LogInParams): ResultAsync<AuthTokens, ApiError> {
-    const { email, password } = params
+  logIn (
+    email: string,
+    password: string
+  ): ResultAsync<AuthTokens, ApiError> {
     const { client, clientId } = this.cog
 
     return ResultAsync
@@ -106,8 +87,10 @@ export class AuthService {
       .map(() => undefined)
   }
 
-  signUp (params: SignUpParams): ResultAsync<SignUpCommandOutput, ApiError> {
-    const { email, password } = params
+  signUp (
+    email: string,
+    password: string
+  ): ResultAsync<DeliveryResult, ApiError> {
     const { client, clientId } = this.cog
 
     return ResultAsync
@@ -127,10 +110,22 @@ export class AuthService {
         ),
         error => ApiError.fromCognito(error as Error)
       )
+      .map(cogOutput => {
+        const { UserConfirmed, CodeDeliveryDetails } = cogOutput
+        const confirmed = UserConfirmed ?? false
+        const delivery = this.getDeliveryDetails(CodeDeliveryDetails)
+
+        return {
+          isComplete: confirmed,
+          ...delivery
+        }
+      })
   }
 
-  confirmSignUp (params: ConfirmSignUpParams): ResultAsync<string, ApiError> {
-    const { email, confirmationCode } = params
+  confirmSignUp (
+    email: string,
+    confirmationCode: string
+  ): ResultAsync<string, ApiError> {
     const { client, clientId, userPoolId } = this.cog
 
     return ResultAsync
@@ -172,8 +167,10 @@ export class AuthService {
       })
   }
 
-  forgotPassword (params: ForgotPasswordParams): ResultAsync<void, ApiError> {
-    const { email: username } = params
+  forgotPassword (
+    email: string
+  ): ResultAsync<DeliveryResult, ApiError> {
+    const username = email
     const { client, clientId } = this.cog
 
     return ResultAsync
@@ -186,11 +183,15 @@ export class AuthService {
         ),
         error => ApiError.fromCognito(error as Error)
       )
-      .map(() => undefined)
+      .map(cogOutput => this.getDeliveryDetails(cogOutput.CodeDeliveryDetails) ?? {})
   }
 
-  confirmForgotPassword (params: ConfirmForgotPasswordParams): ResultAsync<void, ApiError> {
-    const { email: username, confirmationCode, newPassword } = params
+  confirmForgotPassword (
+    email: string,
+    confirmationCode: string,
+    newPassword: string
+  ): ResultAsync<ConfirmForgotPasswordCommandOutput, ApiError> {
+    const username = email
     const { client, clientId } = this.cog
 
     return ResultAsync
@@ -205,11 +206,11 @@ export class AuthService {
         ),
         error => ApiError.fromCognito(error as Error)
       )
-      .map(() => undefined)
   }
 
-  resendSignUpConfirmationCode (params: { email: string }): ResultAsync<void, ApiError> {
-    const { email } = params
+  resendSignUpConfirmationCode (
+    email: string
+  ): ResultAsync<DeliveryResult, ApiError> {
     const { client, clientId } = this.cog
 
     return ResultAsync
@@ -222,7 +223,15 @@ export class AuthService {
         ),
         error => ApiError.fromCognito(error as Error)
       )
-      .map(() => undefined)
+      .map(cogOutput => {
+        const { CodeDeliveryDetails } = cogOutput
+        const delivery = this.getDeliveryDetails(CodeDeliveryDetails)
+
+        return {
+          isComplete: true,
+          ...delivery
+        }
+      })
   }
 
   private parseTokenPayload (
@@ -256,5 +265,19 @@ export class AuthService {
       accExpiresIn: NOW() + ExpiresIn,
       refMaxAge: REFR_TOKEN_MAX_AGE
     })
+  }
+
+  private getDeliveryDetails (
+    cogOutput: CodeDeliveryDetailsType | undefined
+  ): Omit<DeliveryResult, 'isComplete'> | undefined {
+    const delivery = cogOutput != null
+      ? {
+          attribute: cogOutput.AttributeName,
+          destination: cogOutput.Destination,
+          method: cogOutput.DeliveryMedium
+        }
+      : undefined
+
+    return delivery
   }
 }

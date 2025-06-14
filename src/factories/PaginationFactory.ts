@@ -29,7 +29,7 @@ export interface PaginationParams<C, T extends string = string> {
 export interface BasePaginationInput {
   first?: InputMaybe<number>
   after?: InputMaybe<string>
-  sort?: InputMaybe<{ direction?: SortDirection }>
+  sort?: InputMaybe<{ direction?: SortDirection | null }>
 }
 
 export interface NormalizedSortInput<T> {

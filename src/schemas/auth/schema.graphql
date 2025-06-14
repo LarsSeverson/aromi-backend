@@ -4,7 +4,29 @@ type AuthPayload {
   expiresIn: Int!
 }
 
-type SignUpResult {
+extend type Mutation {
+  refresh: AuthPayload
+
+  logIn(email: String!, password: String!): AuthPayload!
+  logOut: Boolean!
+
+  signUp(email: String!, password: String!): DeliveryResult!
+  confirmSignUp(email: String!, confirmationCode: String!): User!
+
+  forgotPassword(email: String!): DeliveryResult!
+  confirmForgotPassword(
+    email: String!
+    confirmationCode: String!
+    newPassword: String!
+  ): GenericAuthResult!
+  resendSignUpConfirmationCode(email: String!): DeliveryResult!
+}
+
+type GenericAuthResult {
+  complete: Boolean!
+}
+
+type DeliveryResult {
   complete: Boolean!
   delivery: CodeDeliveryDetails
 }
@@ -13,18 +35,4 @@ type CodeDeliveryDetails {
   attribute: String
   destination: String
   method: String
-}
-
-extend type Mutation {
-  refresh: AuthPayload
-
-  logIn(email: String!, password: String!): AuthPayload!
-  logOut: Boolean!
-
-  signUp(email: String!, password: String!): SignUpResult!
-  confirmSignUp(email: String!, confirmationCode: String!): User!
-
-  forgotPassword(email: String!): Boolean!
-  confirmForgotPassword(email: String!, confirmationCode: String!, newPassword: String!): Boolean!
-  resendSignUpConfirmationCode(email: String!): Boolean!
 }

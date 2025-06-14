@@ -47,7 +47,7 @@ export class AuthResolver extends ApiResolver {
     if (old == null) return null
 
     return await auth
-      .refresh({ old })
+      .refresh(old)
       .match(
         (tokens) => {
           const { idToken, accessToken, refreshToken, accExpiresIn, refMaxAge } = tokens
@@ -66,7 +66,7 @@ export class AuthResolver extends ApiResolver {
     const { auth, user } = services
 
     return await auth
-      .logIn({ email, password })
+      .logIn(email, password)
       .andThen(tokens => user
         .findOne(eb => eb('users.email', '=', email)) // Possible to have a healing side effect of creating the user if they exist in cog but not db
         .map(_ => tokens)
@@ -119,24 +119,12 @@ export class AuthResolver extends ApiResolver {
     const { auth } = services
 
     return await auth
-      .signUp({ email, password })
+      .signUp(email, password)
       .match(
-        cogOutput => {
-          const { UserConfirmed, CodeDeliveryDetails } = cogOutput
-          const complete = UserConfirmed ?? false
-          const delivery = CodeDeliveryDetails != null
-            ? {
-                attribute: CodeDeliveryDetails.AttributeName,
-                destination: CodeDeliveryDetails.Destination,
-                method: CodeDeliveryDetails.DeliveryMedium
-              }
-            : undefined
-
-          return {
-            complete,
-            delivery
-          }
-        },
+        ({ isComplete, ...rest }) => ({
+          complete: isComplete ?? false,
+          ...rest
+        }),
         error => { throw error }
       )
   }
@@ -149,7 +137,7 @@ export class AuthResolver extends ApiResolver {
     const { auth, user } = services
 
     return await auth
-      .confirmSignUp({ email, confirmationCode })
+      .confirmSignUp(email, confirmationCode)
       .andThen(sub => user.create({ email, cognitoId: sub }))
       .match(
         mapUserRowToUserSummary,
@@ -165,11 +153,11 @@ export class AuthResolver extends ApiResolver {
     const { services } = context
     const { auth } = services
 
-    const result = await auth.forgotPassword({ email })
+    const result = await auth.forgotPassword(email)
 
     return result
       .match(
-        () => true,
+        ({ isComplete, ...rest }) => ({ complete: true, ...rest }),
         error => { throw error }
       )
   }
@@ -179,11 +167,10 @@ export class AuthResolver extends ApiResolver {
     const { services } = context
     const { auth } = services
 
-    const result = await auth.confirmForgotPassword({ email, confirmationCode, newPassword })
-
-    return result
+    return await auth
+      .confirmForgotPassword(email, confirmationCode, newPassword)
       .match(
-        () => true,
+        () => ({ complete: true }),
         error => { throw error }
       )
   }
@@ -193,11 +180,11 @@ export class AuthResolver extends ApiResolver {
     const { services } = context
     const { auth } = services
 
-    const result = await auth.resendSignUpConfirmationCode({ email })
+    const result = await auth.resendSignUpConfirmationCode(email)
 
     return result
       .match(
-        _ => true,
+        _ => ({ complete: true }),
         error => { throw error }
       )
   }

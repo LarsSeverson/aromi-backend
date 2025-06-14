@@ -76,6 +76,11 @@ input DeleteFragranceCollectionItemInput {
   fragranceId: Int!
 }
 
+type DeliveryResult {
+  complete: Boolean!
+  delivery: CodeDeliveryDetails
+}
+
 type Fragrance {
   accords(input: AccordsInput): FragranceAccordConnection!
   audit: Audit!
@@ -263,6 +268,10 @@ type FragranceVoteEdge {
   node: FragranceVote!
 }
 
+type GenericAuthResult {
+  complete: Boolean!
+}
+
 scalar JSON
 
 input LogFragranceViewInput {
@@ -277,7 +286,7 @@ input MoveFragranceCollectionItemInput {
 }
 
 type Mutation {
-  confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): Boolean!
+  confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): GenericAuthResult!
   confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
   confirmSignUp(confirmationCode: String!, email: String!): User!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
@@ -285,14 +294,14 @@ type Mutation {
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
-  forgotPassword(email: String!): Boolean!
+  forgotPassword(email: String!): DeliveryResult!
   logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
   moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
   refresh: AuthPayload
-  resendSignUpConfirmationCode(email: String!): Boolean!
-  signUp(email: String!, password: String!): SignUpResult!
+  resendSignUpConfirmationCode(email: String!): GenericAuthResult!
+  signUp(email: String!, password: String!): DeliveryResult!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
@@ -338,18 +347,13 @@ input SearchFragrancesInput {
   query: String
 }
 
-type SignUpResult {
-  complete: Boolean!
-  delivery: CodeDeliveryDetails
-}
-
 enum SortBy {
   UPDATED
 }
 
 input SortByInput {
-  by: SortBy!
-  direction: SortDirection! = DESCENDING
+  by: SortBy
+  direction: SortDirection = DESCENDING
 }
 
 enum SortDirection {
@@ -409,8 +413,8 @@ enum VoteSortBy {
 }
 
 input VoteSortByInput {
-  by: VoteSortBy!
-  direction: SortDirection! = DESCENDING
+  by: VoteSortBy
+  direction: SortDirection = DESCENDING
 }
 
 type VoteSummary {

@@ -104,6 +104,12 @@ export type DeleteFragranceCollectionItemInput = {
   fragranceId: Scalars['Int']['input'];
 };
 
+export type DeliveryResult = {
+  __typename?: 'DeliveryResult';
+  complete: Scalars['Boolean']['output'];
+  delivery?: Maybe<CodeDeliveryDetails>;
+};
+
 export type Fragrance = {
   __typename?: 'Fragrance';
   accords: FragranceAccordConnection;
@@ -354,6 +360,11 @@ export type FragranceVoteEdge = {
   node: FragranceVote;
 };
 
+export type GenericAuthResult = {
+  __typename?: 'GenericAuthResult';
+  complete: Scalars['Boolean']['output'];
+};
+
 export type LogFragranceViewInput = {
   fragranceId: Scalars['Int']['input'];
 };
@@ -367,7 +378,7 @@ export type MoveFragranceCollectionItemInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  confirmForgotPassword: Scalars['Boolean']['output'];
+  confirmForgotPassword: GenericAuthResult;
   confirmFragranceImage: FragranceImage;
   confirmSignUp: User;
   createFragranceCollection: FragranceCollection;
@@ -375,14 +386,14 @@ export type Mutation = {
   createFragranceImage: AssetUploadPayload;
   createFragranceReview: FragranceReview;
   deleteFragranceCollectionItem: Scalars['Boolean']['output'];
-  forgotPassword: Scalars['Boolean']['output'];
+  forgotPassword: DeliveryResult;
   logFragranceView: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
   moveFragranceCollectionItem: FragranceCollection;
   refresh?: Maybe<AuthPayload>;
-  resendSignUpConfirmationCode: Scalars['Boolean']['output'];
-  signUp: SignUpResult;
+  resendSignUpConfirmationCode: GenericAuthResult;
+  signUp: DeliveryResult;
   voteOnAccord: FragranceAccord;
   voteOnFragrance: FragranceVote;
   voteOnNote: FragranceNote;
@@ -556,20 +567,14 @@ export type SearchFragrancesInput = {
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type SignUpResult = {
-  __typename?: 'SignUpResult';
-  complete: Scalars['Boolean']['output'];
-  delivery?: Maybe<CodeDeliveryDetails>;
-};
-
 export const SortBy = {
   Updated: 'UPDATED'
 } as const;
 
 export type SortBy = typeof SortBy[keyof typeof SortBy];
 export type SortByInput = {
-  by: SortBy;
-  direction?: SortDirection;
+  by?: InputMaybe<SortBy>;
+  direction?: InputMaybe<SortDirection>;
 };
 
 export const SortDirection = {
@@ -647,8 +652,8 @@ export const VoteSortBy = {
 
 export type VoteSortBy = typeof VoteSortBy[keyof typeof VoteSortBy];
 export type VoteSortByInput = {
-  by: VoteSortBy;
-  direction?: SortDirection;
+  by?: InputMaybe<VoteSortBy>;
+  direction?: InputMaybe<SortDirection>;
 };
 
 export type VoteSummary = {
@@ -746,6 +751,7 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteFragranceCollectionItemInput: ResolverTypeWrapper<Partial<DeleteFragranceCollectionItemInput>>;
+  DeliveryResult: ResolverTypeWrapper<Partial<DeliveryResult>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   Fragrance: ResolverTypeWrapper<FragranceSummary>;
   FragranceAccord: ResolverTypeWrapper<Partial<FragranceAccord>>;
@@ -775,6 +781,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceVote: ResolverTypeWrapper<FragranceVoteSummary>;
   FragranceVoteConnection: ResolverTypeWrapper<Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceVoteEdge']> }>>;
   FragranceVoteEdge: ResolverTypeWrapper<FragranceVoteSummaryEdge>;
+  GenericAuthResult: ResolverTypeWrapper<Partial<GenericAuthResult>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
   JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
   LogFragranceViewInput: ResolverTypeWrapper<Partial<LogFragranceViewInput>>;
@@ -786,7 +793,6 @@ export type ResolversTypes = ResolversObject<{
   PaginationInput: ResolverTypeWrapper<Partial<PaginationInput>>;
   Query: ResolverTypeWrapper<{}>;
   SearchFragrancesInput: ResolverTypeWrapper<Partial<SearchFragrancesInput>>;
-  SignUpResult: ResolverTypeWrapper<Partial<SignUpResult>>;
   SortBy: ResolverTypeWrapper<Partial<SortBy>>;
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
@@ -819,6 +825,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   Date: Partial<Scalars['Date']['output']>;
   DeleteFragranceCollectionItemInput: Partial<DeleteFragranceCollectionItemInput>;
+  DeliveryResult: Partial<DeliveryResult>;
   Float: Partial<Scalars['Float']['output']>;
   Fragrance: FragranceSummary;
   FragranceAccord: Partial<FragranceAccord>;
@@ -847,6 +854,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceVote: FragranceVoteSummary;
   FragranceVoteConnection: Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceVoteEdge']> }>;
   FragranceVoteEdge: FragranceVoteSummaryEdge;
+  GenericAuthResult: Partial<GenericAuthResult>;
   Int: Partial<Scalars['Int']['output']>;
   JSON: Partial<Scalars['JSON']['output']>;
   LogFragranceViewInput: Partial<LogFragranceViewInput>;
@@ -857,7 +865,6 @@ export type ResolversParentTypes = ResolversObject<{
   PaginationInput: Partial<PaginationInput>;
   Query: {};
   SearchFragrancesInput: Partial<SearchFragrancesInput>;
-  SignUpResult: Partial<SignUpResult>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
   User: UserSummary;
@@ -910,6 +917,12 @@ export type CodeDeliveryDetailsResolvers<ContextType = ApiContext, ParentType ex
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type DeliveryResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['DeliveryResult'] = ResolversParentTypes['DeliveryResult']> = ResolversObject<{
+  complete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  delivery?: Resolver<Maybe<ResolversTypes['CodeDeliveryDetails']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 
 export type FragranceResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
   accords?: Resolver<ResolversTypes['FragranceAccordConnection'], ParentType, ContextType, Partial<FragranceAccordsArgs>>;
@@ -1116,12 +1129,17 @@ export type FragranceVoteEdgeResolvers<ContextType = ApiContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GenericAuthResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['GenericAuthResult'] = ResolversParentTypes['GenericAuthResult']> = ResolversObject<{
+  complete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
 
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
+  confirmForgotPassword?: Resolver<ResolversTypes['GenericAuthResult'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
   confirmFragranceImage?: Resolver<ResolversTypes['FragranceImage'], ParentType, ContextType, RequireFields<MutationConfirmFragranceImageArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'confirmationCode' | 'email'>>;
   createFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionArgs, 'input'>>;
@@ -1129,14 +1147,14 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceImage?: Resolver<ResolversTypes['AssetUploadPayload'], ParentType, ContextType, RequireFields<MutationCreateFragranceImageArgs, 'input'>>;
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
-  forgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
+  forgotPassword?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   moveFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
-  resendSignUpConfirmationCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
-  signUp?: Resolver<ResolversTypes['SignUpResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  resendSignUpConfirmationCode?: Resolver<ResolversTypes['GenericAuthResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
+  signUp?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
   voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
   voteOnNote?: Resolver<ResolversTypes['FragranceNote'], ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'input'>>;
@@ -1159,12 +1177,6 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   searchFragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-}>;
-
-export type SignUpResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['SignUpResult'] = ResolversParentTypes['SignUpResult']> = ResolversObject<{
-  complete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  delivery?: Resolver<Maybe<ResolversTypes['CodeDeliveryDetails']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
@@ -1195,6 +1207,7 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   CodeDeliveryDetails?: CodeDeliveryDetailsResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  DeliveryResult?: DeliveryResultResolvers<ContextType>;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceAccord?: FragranceAccordResolvers<ContextType>;
   FragranceAccordConnection?: FragranceAccordConnectionResolvers<ContextType>;
@@ -1222,11 +1235,11 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceVote?: FragranceVoteResolvers<ContextType>;
   FragranceVoteConnection?: FragranceVoteConnectionResolvers<ContextType>;
   FragranceVoteEdge?: FragranceVoteEdgeResolvers<ContextType>;
+  GenericAuthResult?: GenericAuthResultResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  SignUpResult?: SignUpResultResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   VoteSummary?: VoteSummaryResolvers<ContextType>;
 }>;
