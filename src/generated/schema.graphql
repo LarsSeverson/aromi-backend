@@ -300,7 +300,7 @@ type Mutation {
   logOut: Boolean!
   moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
   refresh: AuthPayload
-  resendSignUpConfirmationCode(email: String!): GenericAuthResult!
+  resendSignUpConfirmationCode(email: String!): DeliveryResult!
   signUp(email: String!, password: String!): DeliveryResult!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!

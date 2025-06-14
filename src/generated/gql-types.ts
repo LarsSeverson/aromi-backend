@@ -392,7 +392,7 @@ export type Mutation = {
   logOut: Scalars['Boolean']['output'];
   moveFragranceCollectionItem: FragranceCollection;
   refresh?: Maybe<AuthPayload>;
-  resendSignUpConfirmationCode: GenericAuthResult;
+  resendSignUpConfirmationCode: DeliveryResult;
   signUp: DeliveryResult;
   voteOnAccord: FragranceAccord;
   voteOnFragrance: FragranceVote;
@@ -1153,7 +1153,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   moveFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
-  resendSignUpConfirmationCode?: Resolver<ResolversTypes['GenericAuthResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
+  resendSignUpConfirmationCode?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
   voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
