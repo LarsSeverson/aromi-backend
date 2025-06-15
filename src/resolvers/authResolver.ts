@@ -68,7 +68,7 @@ export class AuthResolver extends ApiResolver {
     return await auth
       .logIn(email, password)
       .andThen(tokens => user
-        .findOne(eb => eb('users.email', '=', email)) // Possible to have a healing side effect of creating the user if they exist in cog but not db
+        .findOne(eb => eb('users.email', '=', email))
         .map(_ => tokens)
       )
       .match(
@@ -77,7 +77,9 @@ export class AuthResolver extends ApiResolver {
           this.signRefreshCookie(refreshToken, refMaxAge, res)
           return { idToken, accessToken, expiresIn: accExpiresIn }
         },
-        error => { throw error }
+        error => {
+          throw error
+        }
       )
   }
 

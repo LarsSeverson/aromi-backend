@@ -1,25 +1,31 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, expressionBuilder } from 'kysely'
+import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
-export type WhereArgs<TB extends keyof DB, R extends Row<TB>> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
+export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
 
-export type BaseQueryFactory<T extends keyof DB, R extends Row<T>> = () => SelectQueryBuilder<DB, DBAny, R>
-export type ExtendInsertFn<T extends keyof DB, R extends Row<T>> = (
+export type BaseQueryFactory<R> = () => SelectQueryBuilder<DB, DBAny, R>
+
+export type ExtendSelectFn<
+  TB extends keyof DB,
+  R,
+  QB extends SelectQueryBuilder<DB, TB, R> = SelectQueryBuilder<DB, TB, R>
+> = (qb: QB) => QB
+
+export type ExtendInsertFn<T extends keyof DB, R> = (
   qb: InsertQueryBuilder<DB, T, R>
 ) => InsertQueryBuilder<DB, T, R>
 
-export class Table<T extends keyof DB, R extends Row<T>> {
+export class Table<T extends keyof DB, R> {
   private readonly db: ApiDataSources['db']
-  private readonly eb = expressionBuilder<DB, T>()
   private readonly table: T
 
   private alias?: string
-  private baseQueryFactory?: BaseQueryFactory<T, R>
+  private baseQueryFactory?: BaseQueryFactory<R>
 
   constructor (
     db: ApiDataSources['db'],
@@ -34,13 +40,13 @@ export class Table<T extends keyof DB, R extends Row<T>> {
   get baseQuery (): SelectQueryBuilder<DB, T, R> {
     if (this.baseQueryFactory != null) return this.baseQueryFactory()
     return this
-      .eb
+      .db
       .selectFrom(this.from())
       .selectAll() as SelectQueryBuilder<DB, T, R>
   }
 
   setBaseQueryFactory (
-    factory: BaseQueryFactory<T, R>
+    factory: BaseQueryFactory<R>
   ): this {
     this.baseQueryFactory = factory
     return this
@@ -116,10 +122,10 @@ export class Table<T extends keyof DB, R extends Row<T>> {
       .limit(first + 1)
   }
 
-  private from (): TableExpressionOrList<DB, T> {
+  private from (): TableExpressionOrList<DB, never> {
     const from = (this.alias != null
       ? `${this.table} as ${this.alias}`
-      : this.table) as TableExpressionOrList<DB, T>
+      : this.table) as TableExpressionOrList<DB, never>
 
     return from
   }

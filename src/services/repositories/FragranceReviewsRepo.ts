@@ -33,7 +33,7 @@ export class FragranceReviewsRepo extends TableService<'fragranceReviews', Fragr
   }
 }
 
-export type FragranceReviewDistRow = Selectable<DB['fragranceReviews']> & { count: number }
+export type FragranceReviewDistRow = Pick<Selectable<DB['fragranceReviews']>, 'fragranceId' | 'rating'> & { count: number }
 
 export class FragranceReviewsDistRepo extends TableService<'fragranceReviews', FragranceReviewDistRow> {
   constructor (sources: ApiDataSources) {
@@ -44,8 +44,9 @@ export class FragranceReviewsDistRepo extends TableService<'fragranceReviews', F
       .setBaseQueryFactory(() => sources
         .db
         .selectFrom('fragranceReviews')
-        .selectAll()
         .select([
+          'fragranceId',
+          'rating',
           sources
             .db
             .fn

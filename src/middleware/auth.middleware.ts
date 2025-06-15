@@ -82,7 +82,8 @@ export const authenticateMe = async (context: ApiContext): Promise<UserSummary |
 
   return await user
     .findOne(eb => eb('users.cognitoId', '=', cognitoId))
-    .mapErr(_ => {
+    .mapErr(error => {
+      console.log(error)
       if (oldRefresh != null) {
         res.clearCookie('refreshToken', {
           path: '/',

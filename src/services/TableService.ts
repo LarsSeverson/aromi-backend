@@ -1,17 +1,18 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { ApiService } from './ApiService'
-import { type ExtendInsertFn, Table, type Row } from '../db/Table'
+import { type ExtendInsertFn, Table, type ExtendSelectFn } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
 
-export interface QueryOptions<C> {
-  pagination: PaginationParams<C>
+export interface QueryOptions<T extends keyof DB, R, C> {
+  pagination?: PaginationParams<C>
+  extend?: ExtendSelectFn<T, R>
 }
 
-export abstract class TableService<T extends keyof DB, R extends Row<T>> extends ApiService {
+export abstract class TableService<T extends keyof DB, R> extends ApiService {
   protected readonly Table: Table<T, R>
 
   constructor (
@@ -51,9 +52,9 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
 
   find <C>(
     where?: ExpressionOrFactory<DB, T, SqlBool>,
-    options?: QueryOptions<C>
+    options?: QueryOptions<T, R, C>
   ): ResultAsync<R[], ApiError> {
-    const { pagination } = options ?? {}
+    const { pagination, extend } = options ?? {}
 
     let query = this
       .Table
@@ -63,6 +64,10 @@ export abstract class TableService<T extends keyof DB, R extends Row<T>> extends
       query = this
         .Table
         .paginatedQuery(pagination, query)
+    }
+
+    if (extend != null) {
+      query = extend(query)
     }
 
     return ResultAsync

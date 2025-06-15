@@ -9,6 +9,7 @@ import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotes
 import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { ApiError } from '@src/common/error'
+import { ResultAsync } from 'neverthrow'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
@@ -22,7 +23,7 @@ interface FragranceLoaders {
   fillerNotes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
   reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
   reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
-  myReview: DataLoader<FragranceLoaderKey, FragranceReviewRow | null>
+  myReview: DataLoader<FragranceLoaderKey, FragranceReviewRow>
 }
 
 export interface GetImagesLoaderParams {
@@ -156,7 +157,9 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
               return fragrance
             })
           },
-          error => { throw error }
+          error => {
+            throw error
+          }
         )
     })
   }
@@ -167,19 +170,20 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceImageRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .images
-        .find(
-          eb => eb('fragranceImages.fragranceId', 'in', fragranceIds),
-          { pagination }
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .images
+            .find(
+              eb => eb('fragranceImages.fragranceId', '=', id),
+              { pagination }
+            )
+          )
         )
         .match(
-          rows => {
-            const imagesMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => imagesMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
@@ -189,16 +193,18 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceTraitRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .traits
-        .find(eb => eb('fragranceTraits.fragranceId', 'in', fragranceIds))
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this.services
+            .fragrance
+            .traits
+            .find(
+              eb => eb('fragranceTraits.fragranceId', '=', id)
+            )
+          )
+        )
         .match(
-          rows => {
-            const traitsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => traitsMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
@@ -210,19 +216,20 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .accords
-        .find(
-          eb => eb('fragranceAccords.fragranceId', 'in', fragranceIds),
-          { pagination }
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .accords
+            .find(
+              eb => eb('fragranceAccords.fragranceId', '=', id),
+              { pagination }
+            )
+          )
         )
         .match(
-          rows => {
-            const accordsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => accordsMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
@@ -251,22 +258,23 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .notes
-        .find(
-          eb => eb.and([
-            eb('fragranceNotes.fragranceId', 'in', fragranceIds),
-            eb('fragranceNotes.layer', '=', layer)
-          ]),
-          { pagination }
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .notes
+            .find(
+              eb => eb.and([
+                eb('fragranceNotes.fragranceId', '=', id),
+                eb('fragranceNotes.layer', '=', layer)
+              ]),
+              { pagination }
+            )
+          )
         )
         .match(
-          rows => {
-            const notesMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => notesMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
@@ -295,19 +303,20 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceReviewRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .reviews
-        .find(
-          eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds),
-          { pagination }
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .reviews
+            .find(
+              eb => eb('fragranceReviews.fragranceId', '=', id),
+              { pagination }
+            )
+          )
         )
         .match(
-          rows => {
-            const reviewsMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => reviewsMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
@@ -317,47 +326,52 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     return new DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
-      return await this
-        .services
-        .fragrance
-        .reviews
-        .dist
-        .find(eb => eb('fragranceReviews.fragranceId', 'in', fragranceIds))
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .reviews
+            .dist
+            .find(
+              eb => eb('fragranceReviews.fragranceId', '=', id),
+              {
+                extend: qb => qb
+                  .groupBy(['fragranceId', 'rating'])
+                  .orderBy('count', 'asc')
+              }
+            )
+          )
+        )
         .match(
-          rows => {
-            const distMap = new Map(fragranceIds.map(id => [id, rows.filter(row => row.fragranceId === id)]))
-            return fragranceIds.map(id => distMap.get(id) ?? [])
-          },
+          rows => rows,
           error => { throw error }
         )
     })
   }
 
   private createMyReviewsLoader (): FragranceLoaders['myReview'] {
-    return new DataLoader<FragranceLoaderKey, FragranceReviewRow | null>(async (keys) => {
+    return new DataLoader<FragranceLoaderKey, FragranceReviewRow>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
 
       const myId = this.services.fragrance.context.me?.id ?? null
 
-      return await this
-        .services
-        .fragrance
-        .reviews
-        .find(
-          eb => eb.and([
-            eb('fragranceReviews.userId', '=', myId),
-            eb('fragranceReviews.fragranceId', 'in', fragranceIds)
-          ])
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .reviews
+            .findOne(
+              eb => eb.and([
+                eb('fragranceReviews.userId', '=', myId),
+                eb('fragranceReviews.fragranceId', '=', id)
+              ])
+            )
+          )
         )
         .match(
-          rows => {
-            const reviewsMap = new Map<number, FragranceReviewRow>()
-            rows.forEach(row => {
-              reviewsMap.set(row.fragranceId, row)
-            })
-
-            return fragranceIds.map(id => reviewsMap.get(id) ?? null)
-          },
+          rows => rows,
           error => { throw error }
         )
     })

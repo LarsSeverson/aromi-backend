@@ -17,11 +17,16 @@ import { ApiError } from '@src/common/error'
 export class FragranceResolver extends ApiResolver {
   fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
     const { id } = args
-    const { services } = context
+    const { loaders } = context
 
-    return await services
-      .fragrance
-      .findOne(eb => eb('fragrances.id', '=', id))
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getFragranceLoader()
+          .load({ fragranceId: id }),
+        error => error
+      )
       .match(
         mapFragranceRowToFragranceSummary,
         error => { throw error }
@@ -98,7 +103,7 @@ export class FragranceResolver extends ApiResolver {
   fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
     const { id } = parent
     const { input } = args
-    const { loaders } = context
+    const { services, loaders } = context
 
     const normalizedInput = this
       .paginationFactory
@@ -122,7 +127,7 @@ export class FragranceResolver extends ApiResolver {
             rows,
             normalizedInput,
             (row) => row[parsedInput.column],
-            mapFragranceImageRowToFragranceImage
+            row => services.asset.publicize(mapFragranceImageRowToFragranceImage(row))
           ),
         error => { throw error }
       )

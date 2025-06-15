@@ -22,14 +22,14 @@ export class AssetService extends ApiService {
     this.cloudfront = sources.cloudfront
   }
 
-  publicizeAsset <A extends BaseAsset>(
+  publicize <A extends BaseAsset>(
     asset: A
   ): A {
     asset.src = this.getUrl(asset.src)
     return asset
   }
 
-  signAsset <A extends BaseAsset>(
+  sign <A extends BaseAsset>(
     asset: A
   ): A {
     asset.src = this.signUrl(asset.src)
