@@ -359,12 +359,9 @@ export class FragranceResolver extends ApiResolver {
     const userId = me.id
     const { fragranceId, vote } = input
 
-    const { voteValue, deletedAt } = this.getVoteMutationValues(vote)
-
     return await services
-      .user
-      .votes
-      .create({ fragranceId, userId, vote: voteValue, deletedAt })
+      .fragrance
+      .vote({ userId, fragranceId, vote })
       .match(
         mapFragranceVoteRowToFragranceVoteSummary,
         error => { throw error }

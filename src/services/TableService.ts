@@ -6,6 +6,7 @@ import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
+import { type UpdateObject } from 'kysely/dist/cjs/parser/update-set-parser'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
   pagination?: PaginationParams<C>
@@ -23,6 +24,10 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
     this.Table = new Table<T, R>(sources.db, table)
   }
 
+  withConnection (db: ApiDataSources['db']): Table<T, R> {
+    return this.Table.withConnection(db)
+  }
+
   create (
     values: Partial<R>,
     extend?: ExtendInsertFn<T, R>
@@ -32,6 +37,20 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
         this
           .Table
           .create(values, extend)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error as Error)
+      )
+  }
+
+  update (
+    where: ExpressionOrFactory<DB, T, SqlBool>,
+    values: UpdateObject<DB, T>
+  ): ResultAsync<R, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .update(where, values)
           .executeTakeFirstOrThrow(),
         error => ApiError.fromDatabase(error as Error)
       )

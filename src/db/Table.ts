@@ -1,9 +1,10 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList } from 'kysely'
+import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
+import { type UpdateObject } from 'kysely/dist/cjs/parser/update-set-parser'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -21,7 +22,7 @@ export type ExtendInsertFn<T extends keyof DB, R> = (
 ) => InsertQueryBuilder<DB, T, R>
 
 export class Table<T extends keyof DB, R> {
-  private readonly db: ApiDataSources['db']
+  private db: ApiDataSources['db']
   private readonly table: T
 
   private alias?: string
@@ -43,6 +44,11 @@ export class Table<T extends keyof DB, R> {
       .db
       .selectFrom(this.from())
       .selectAll() as SelectQueryBuilder<DB, T, R>
+  }
+
+  withConnection (db: ApiDataSources['db']): this {
+    this.db = db
+    return this
   }
 
   setBaseQueryFactory (
@@ -72,6 +78,24 @@ export class Table<T extends keyof DB, R> {
       .returningAll() as InsertQueryBuilder<DB, T, R>
 
     return extend != null ? extend(qb) : qb
+  }
+
+  update (
+    where: ExpressionOrFactory<DB, T, SqlBool>,
+    values: UpdateObject<DB, T>
+  ): UpdateQueryBuilder<DB, T, T, R> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const qb = this
+      .db
+      .updateTable(this.table)
+      // @ts-expect-error kysely unions are overcomplex for something this simple
+      .set(values)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      .where(where)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      .returningAll() as UpdateQueryBuilder<DB, T, T, R>
+
+    return qb
   }
 
   find (
@@ -130,3 +154,9 @@ export class Table<T extends keyof DB, R> {
     return from
   }
 }
+
+const ta = new Table({} as unknown as ApiDataSources['db'], 'users')
+ta.update(
+  eb => eb('id', '=', 1),
+  { username: '123' }
+)
