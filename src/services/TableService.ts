@@ -1,12 +1,11 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { ApiService } from './ApiService'
-import { type ExtendInsertFn, Table, type ExtendSelectFn } from '../db/Table'
+import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
-import { type UpdateObject } from 'kysely/dist/cjs/parser/update-set-parser'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
   pagination?: PaginationParams<C>
@@ -44,7 +43,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
 
   update (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: UpdateObject<DB, T>
+    values: UpdateValuesFn<T>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
       .fromPromise(

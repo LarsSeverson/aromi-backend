@@ -81,7 +81,7 @@ export class ApiResolvers implements Resolvers {
     confirmSignUp: authResolver.confirmSignUp,
     forgotPassword: authResolver.forgotPassword,
     confirmForgotPassword: authResolver.confirmForgotPassword,
-    resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode
+    resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
 
     //   createFragranceReview: reviewResolver.createReview,
     //   createFragranceCollection: collectionResolver.createCollection,
@@ -91,7 +91,7 @@ export class ApiResolvers implements Resolvers {
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,
 
     //   // Voting
-    //   voteOnFragrance: fragranceResolver.voteOnFragrance,
+    voteOnFragrance: fragranceResolver.voteOnFragrance
     //   voteOnTrait: fragranceResolver.voteOnTrait,
     //   voteOnAccord: fragranceResolver.voteOnAccord,
     //   voteOnNote: fragranceResolver.voteOnNote,

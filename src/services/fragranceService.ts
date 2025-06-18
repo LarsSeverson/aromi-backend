@@ -1,5 +1,5 @@
 import { type DB } from '@src/db/schema'
-import { type Selectable } from 'kysely'
+import { sql, type Selectable } from 'kysely'
 import { type MyVote, TableService } from './TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type ApiServiceContext } from './ApiService'
@@ -99,10 +99,21 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
           .db
           .transaction()
           .execute(async trx => {
+            const db = this.sources.db
+
             this.withConnection(trx)
             this.votes.withConnection(trx)
-            const res = await this.voteInner(params)
-            return res._unsafeUnwrap()
+
+            return await this
+              .voteInner(params)
+              .match(
+                row => row,
+                error => { throw error }
+              )
+              .finally(() => {
+                this.withConnection(db)
+                this.votes.withConnection(db)
+              })
           }),
         error => ApiError.fromDatabase(error as Error)
       )
@@ -138,7 +149,11 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
         return this
           .update(
             eb => eb('fragrances.id', '=', fragranceId),
-            { likesCount, dislikesCount }
+            eb => ({
+              likesCount: eb('likesCount', '+', likesCount),
+              dislikesCount: eb('dislikesCount', '+', dislikesCount),
+              voteScore: sql<number>`(likes_count + ${likesCount}) - (dislikes_count + ${dislikesCount})`
+            })
           )
           .map(() => row)
       })

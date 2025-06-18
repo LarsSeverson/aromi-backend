@@ -1,10 +1,10 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder } from 'kysely'
+import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder, type ExpressionBuilder } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
-import { type UpdateObject } from 'kysely/dist/cjs/parser/update-set-parser'
+import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -20,6 +20,8 @@ export type ExtendSelectFn<
 export type ExtendInsertFn<T extends keyof DB, R> = (
   qb: InsertQueryBuilder<DB, T, R>
 ) => InsertQueryBuilder<DB, T, R>
+
+export type UpdateValuesFn<T extends keyof DB> = UpdateObjectExpression<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObjectExpression<DB, T>)
 
 export class Table<T extends keyof DB, R> {
   private db: ApiDataSources['db']
@@ -82,7 +84,7 @@ export class Table<T extends keyof DB, R> {
 
   update (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: UpdateObject<DB, T>
+    values: UpdateValuesFn<T>
   ): UpdateQueryBuilder<DB, T, T, R> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const qb = this
@@ -154,9 +156,3 @@ export class Table<T extends keyof DB, R> {
     return from
   }
 }
-
-const ta = new Table({} as unknown as ApiDataSources['db'], 'users')
-ta.update(
-  eb => eb('id', '=', 1),
-  { username: '123' }
-)
