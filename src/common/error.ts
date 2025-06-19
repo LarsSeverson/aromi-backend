@@ -1,5 +1,6 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors'
 import { GraphQLError, type GraphQLFormattedError } from 'graphql'
+import { NoResultError } from 'kysely'
 import { type MeiliSearchApiError } from 'meilisearch'
 
 export class ApiError extends GraphQLError {
@@ -17,6 +18,9 @@ export class ApiError extends GraphQLError {
   }
 
   static fromDatabase (error: Error): ApiError {
+    if (error instanceof NoResultError) {
+      return new ApiError('RESOURCE_NOT_FOUND', 'Resource not found', 404, error)
+    }
     return new ApiError('DB_QUERY_FAILED', 'Something went wrong getting this resource. Please try again later', 500, error)
   }
 
