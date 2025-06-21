@@ -32,17 +32,9 @@ export const getContext = async (params: GetContextParams): Promise<ApiContext> 
     me: undefined
   }
 
-  const me = await authenticateMe(context)
+  context.me = await authenticateMe(context)
 
-  context.me = me
-  services.setContext({ me })
+  services.setContext({ me: context.me })
 
-  return {
-    req,
-    res,
-    sources,
-    services,
-    loaders,
-    me
-  }
+  return context
 }

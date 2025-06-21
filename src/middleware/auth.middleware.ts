@@ -32,31 +32,39 @@ const getKey = (header: JwtHeader, client: JwksClient): ResultAsync<string, ApiE
 }
 
 const decodeToken = (token: string, client: JwksClient): ResultAsync<JwtPayload, ApiError> => {
-  const verifyPromise = async (): Promise<JwtPayload> =>
-    await new Promise((resolve, reject) => {
-      verify(
-        token,
-        (header, callback) => {
-          void getKey(header, client)
-            .match(
-              (key) => { callback(null, key) },
-              (err) => { callback(err, undefined) }
-            )
-        },
-        (err, decoded) => {
-          if (err != null) {
-            reject(new ApiError('AUTH_ERROR', 'Token verification failed', 401, err))
-            return
-          }
+  const verifyPromise = async (): Promise<JwtPayload> => {
+    let header: JwtHeader
 
-          if (decoded == null) {
-            reject(new ApiError('AUTH_ERROR', 'Decoded token is null', 401))
-          }
+    try {
+      const headerSegment = token.split('.')[0]
+      const headerJson = Buffer.from(headerSegment, 'base64url').toString('utf8')
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      header = JSON.parse(headerJson)
+    } catch (err) {
+      throw new ApiError('AUTH_ERROR', 'Malformed token header', 401, err)
+    }
 
-          resolve(decoded as JwtPayload)
+    const keyResult = await getKey(header, client)
+    if (keyResult.isErr()) {
+      throw keyResult.error
+    }
+
+    return await new Promise((resolve, reject) => {
+      verify(token, keyResult.value, (err, decoded) => {
+        if (err != null) {
+          reject(new ApiError('AUTH_ERROR', 'Token verification failed', 401, err))
+          return
         }
-      )
+
+        if (decoded == null) {
+          reject(new ApiError('AUTH_ERROR', 'Decoded token is null', 401))
+          return
+        }
+
+        resolve(decoded as JwtPayload)
+      })
     })
+  }
 
   return ResultAsync.fromPromise(
     verifyPromise(),
@@ -70,10 +78,14 @@ export const authenticateMe = async (context: ApiContext): Promise<UserSummary |
 
   const { authorization } = req.headers
   const token = authorization?.replace('Bearer ', '')
-  if (token == null || token.length === 0) return undefined
+  if (token == null || token.length === 0) {
+    return undefined
+  }
 
   const result = await decodeToken(token, sources.jwksClient)
-  if (result.isErr()) return undefined
+  if (result.isErr()) {
+    return undefined
+  }
 
   const cognitoId = result.value.sub
   if (cognitoId == null) return undefined
