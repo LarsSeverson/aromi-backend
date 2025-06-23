@@ -1,4 +1,4 @@
-import { type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceCollectionItemResolvers as CollectionItemFieldResolvers, type QueryResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceCollectionItemResolvers as CollectionItemFieldResolvers, type QueryResolvers } from '@src/generated/gql-types'
 import { ApiResolver, SortByColumn } from './apiResolver'
 import { ResultAsync } from 'neverthrow'
 import { type FragranceCollectionSummary, type FragranceCollectionItemSummary } from '@src/schemas/fragrance/mappers'
@@ -65,7 +65,8 @@ export class CollectionResolver extends ApiResolver {
           .newPage(
             rows,
             parsedInput,
-            (row) => row[parsedInput.column]
+            (row) => row[parsedInput.column],
+            mapCollectionItemRowToCollectionItemSummary
           ),
         error => { throw error }
       )
@@ -89,35 +90,38 @@ export class CollectionResolver extends ApiResolver {
       )
   }
 
-  // createCollection: MutationResolvers['createFragranceCollection'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  createCollection: MutationResolvers['createFragranceCollection'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
 
-  //   const { name } = input
+    const { name } = input
 
-  //   return await services
-  //     .collection
-  //     .create({ name })
-  //     .match(
-  //       mapFragranceCollectionRowToFragranceCollectionSummary,
-  //       error => { throw error }
-  //     )
-  // }
+    return await services
+      .fragrance
+      .collections
+      .create({ name })
+      .match(
+        mapFragranceCollectionRowToFragranceCollectionSummary,
+        error => { throw error }
+      )
+  }
 
-  // createCollectionItem: MutationResolvers['createFragranceCollectionItem'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  createCollectionItem: MutationResolvers['createFragranceCollectionItem'] = async (_, args, context, info) => {
+    const { input } = args
+    const { services } = context
 
-  //   const { fragranceId, collectionId } = input
+    const { fragranceId, collectionId } = input
 
-  //   return await services
-  //     .collection
-  //     .createItem({ fragranceId, collectionId })
-  //     .match(
-  //       mapCollectionItemRowToCollectionItemSummary,
-  //       error => { throw error }
-  //     )
-  // }
+    return await services
+      .fragrance
+      .collections
+      .items
+      .create({ fragranceId, collectionId })
+      .match(
+        mapCollectionItemRowToCollectionItemSummary,
+        error => { throw error }
+      )
+  }
 }
 
 export const mapFragranceCollectionRowToFragranceCollectionSummary = (row: FragranceCollectionRow): FragranceCollectionSummary => {

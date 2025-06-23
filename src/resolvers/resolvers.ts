@@ -1,4 +1,4 @@
-import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceReviewResolvers, type MutationResolvers, type FragranceVoteResolvers as FragranceVoteFieldResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers, type Resolvers, type UserResolvers as UserFieldResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceNotesResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceReviewResolvers, type MutationResolvers, type FragranceVoteResolvers as FragranceVoteFieldResolvers, type FragranceCollectionItemResolvers as FragranceCollectionItemFieldResolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime } from 'graphql-scalars'
 import { AuthResolver } from './authResolver'
 import { UserResolver } from './userResolver'
@@ -67,6 +67,10 @@ export class ApiResolvers implements Resolvers {
     user: collectionResolver.collectionUser
   }
 
+  FragranceCollectionItem?: FragranceCollectionItemFieldResolvers = {
+    fragrance: collectionResolver.itemFragrance
+  }
+
   FragranceVote: FragranceVoteFieldResolvers = {
     user: fragranceVoteResolver.voteUser,
     fragrance: fragranceVoteResolver.voteFragrance
@@ -84,8 +88,8 @@ export class ApiResolvers implements Resolvers {
     resendSignUpConfirmationCode: authResolver.resendSignUpConfirmationCode,
 
     //   createFragranceReview: reviewResolver.createReview,
-    //   createFragranceCollection: collectionResolver.createCollection,
-    //   createFragranceCollectionItem: collectionResolver.createCollectionItem,
+    createFragranceCollection: collectionResolver.createCollection,
+    createFragranceCollectionItem: collectionResolver.createCollectionItem,
 
     //   createFragranceImage: fragranceResolver.createFragranceImage,
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,
