@@ -20,7 +20,7 @@ export type FragranceReviewSummaryEdge = ConnectionEdge<FragranceReviewSummary>
 
 export interface FragranceNotesSummary { parent: FragranceSummary }
 
-export type FragranceCollectionSummary = Omit<FragranceCollection, 'user' | 'items'> & { userId: number }
+export type FragranceCollectionSummary = Omit<FragranceCollection, 'user' | 'items' | 'hasFragrance'> & { userId: number }
 export type FragranceCollectionSummaryEdge = ConnectionEdge<FragranceCollectionSummary>
 
 export type FragranceCollectionItemSummary = Omit<FragranceCollectionItem, 'fragrance' | 'collection'> & { fragranceId: number }

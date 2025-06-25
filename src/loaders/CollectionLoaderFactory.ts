@@ -7,10 +7,15 @@ export interface CollectionLoaderKey { collectionId: number }
 
 interface CollectionLoaders {
   items: DataLoader<CollectionLoaderKey, FragranceCollectionItemRow[]>
+  hasFragrance: DataLoader<CollectionLoaderKey, boolean>
 }
 
 export interface GetItemsLoaderParams {
   pagination: PaginationParams<string>
+}
+
+export interface HasFragranceLoaderParams {
+  fragranceId: number
 }
 
 export class CollectionLoaderFactory extends LoaderFactory<CollectionLoaderKey> {
@@ -20,6 +25,15 @@ export class CollectionLoaderFactory extends LoaderFactory<CollectionLoaderKey> 
       .getLoader(
         key,
         () => this.createItemsLoader(params)
+      )
+  }
+
+  getHasFragranceLoader (params: HasFragranceLoaderParams): CollectionLoaders['hasFragrance'] {
+    const key = this.generateKey('hasFragrance', params)
+    return this
+      .getLoader(
+        key,
+        () => this.createHasFragranceLoader(params)
       )
   }
 
@@ -42,6 +56,33 @@ export class CollectionLoaderFactory extends LoaderFactory<CollectionLoaderKey> 
           rows => {
             const itemsMap = new Map(collectionIds.map(id => [id, rows.filter(row => row.collectionId === id)]))
             return collectionIds.map(id => itemsMap.get(id) ?? [])
+          },
+          error => { throw error }
+        )
+    })
+  }
+
+  private createHasFragranceLoader (params: HasFragranceLoaderParams): CollectionLoaders['hasFragrance'] {
+    const { fragranceId } = params
+
+    return new DataLoader<CollectionLoaderKey, boolean>(async keys => {
+      const collectionIds = this.getCollectionIds(keys)
+
+      return await this
+        .services
+        .fragrance
+        .collections
+        .items
+        .find(
+          eb => eb.and([
+            eb('collectionId', 'in', collectionIds),
+            eb('fragranceId', '=', fragranceId)
+          ])
+        )
+        .match(
+          rows => {
+            const collectionSet = new Set(rows.map(row => row.collectionId))
+            return collectionIds.map(id => collectionSet.has(id))
           },
           error => { throw error }
         )

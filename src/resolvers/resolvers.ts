@@ -63,8 +63,9 @@ export class ApiResolvers implements Resolvers {
 
   // Collection Field resolvers
   FragranceCollection: CollectionFieldResolvers = {
+    user: collectionResolver.collectionUser,
     items: collectionResolver.collectionItems,
-    user: collectionResolver.collectionUser
+    hasFragrance: collectionResolver.collectionHasFragrance
   }
 
   FragranceCollectionItem?: FragranceCollectionItemFieldResolvers = {

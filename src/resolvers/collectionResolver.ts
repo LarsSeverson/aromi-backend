@@ -5,6 +5,7 @@ import { type FragranceCollectionSummary, type FragranceCollectionItemSummary } 
 import { type FragranceCollectionItemRow, type FragranceCollectionRow } from '@src/services/repositories/FragranceCollectionRepo'
 import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
 import { mapUserRowToUserSummary } from './userResolver'
+import { ApiError } from '@src/common/error'
 
 export class CollectionResolver extends ApiResolver {
   collection: QueryResolvers['collection'] = async (parent, args, context, info) => {
@@ -72,6 +73,25 @@ export class CollectionResolver extends ApiResolver {
       )
   }
 
+  collectionHasFragrance: CollectionFieldResolvers['hasFragrance'] = async (parent, args, context, info) => {
+    const { id } = parent
+    const { fragranceId } = args
+    const { loaders } = context
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .collection
+          .getHasFragranceLoader({ fragranceId })
+          .load({ collectionId: id }),
+        error => error
+      )
+      .match(
+        yes => yes,
+        error => { throw error }
+      )
+  }
+
   itemFragrance: CollectionItemFieldResolvers['fragrance'] = async (parent, args, context, info) => {
     const { fragranceId } = parent
     const { loaders } = context
@@ -92,14 +112,23 @@ export class CollectionResolver extends ApiResolver {
 
   createCollection: MutationResolvers['createFragranceCollection'] = async (_, args, context, info) => {
     const { input } = args
-    const { services } = context
+    const { me, services } = context
 
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to sign up or log in before creating a collection',
+        403
+      )
+    }
+
+    const userId = me.id
     const { name } = input
 
     return await services
       .fragrance
       .collections
-      .create({ name })
+      .create({ name, userId })
       .match(
         mapFragranceCollectionRowToFragranceCollectionSummary,
         error => { throw error }

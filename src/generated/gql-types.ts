@@ -169,10 +169,16 @@ export type FragranceAccordEdge = {
 export type FragranceCollection = {
   __typename?: 'FragranceCollection';
   audit: Audit;
+  hasFragrance: Scalars['Boolean']['output'];
   id: Scalars['Int']['output'];
   items: FragranceCollectionItemConnection;
   name: Scalars['String']['output'];
   user: User;
+};
+
+
+export type FragranceCollectionHasFragranceArgs = {
+  fragranceId: Scalars['Int']['input'];
 };
 
 
@@ -967,6 +973,7 @@ export type FragranceAccordEdgeResolvers<ContextType = ApiContext, ParentType ex
 
 export type FragranceCollectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceCollection'] = ResolversParentTypes['FragranceCollection']> = ResolversObject<{
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
+  hasFragrance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<FragranceCollectionHasFragranceArgs, 'fragranceId'>>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   items?: Resolver<ResolversTypes['FragranceCollectionItemConnection'], ParentType, ContextType, Partial<FragranceCollectionItemsArgs>>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

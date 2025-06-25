@@ -83,6 +83,8 @@ type FragranceCollection {
   user: User!
   items(input: PaginationInput): FragranceCollectionItemConnection!
   audit: Audit!
+
+  hasFragrance(fragranceId: Int!): Boolean!
 }
 
 type FragranceCollectionItem {
