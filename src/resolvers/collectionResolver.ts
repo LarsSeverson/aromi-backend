@@ -78,6 +78,8 @@ export class CollectionResolver extends ApiResolver {
     const { fragranceId } = args
     const { loaders } = context
 
+    if (fragranceId == null) return false
+
     return await ResultAsync
       .fromPromise(
         loaders

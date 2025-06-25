@@ -120,7 +120,7 @@ type FragranceAccordEdge {
 
 type FragranceCollection {
   audit: Audit!
-  hasFragrance(fragranceId: Int!): Boolean!
+  hasFragrance(fragranceId: Int): Boolean!
   id: Int!
   items(input: PaginationInput): FragranceCollectionItemConnection!
   name: String!

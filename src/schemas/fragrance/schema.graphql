@@ -84,7 +84,7 @@ type FragranceCollection {
   items(input: PaginationInput): FragranceCollectionItemConnection!
   audit: Audit!
 
-  hasFragrance(fragranceId: Int!): Boolean!
+  hasFragrance(fragranceId: Int): Boolean!
 }
 
 type FragranceCollectionItem {
