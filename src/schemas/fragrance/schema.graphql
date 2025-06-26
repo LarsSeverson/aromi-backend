@@ -127,7 +127,7 @@ extend type Mutation {
   ): Boolean!
   moveFragranceCollectionItem(
     input: MoveFragranceCollectionItemInput!
-  ): FragranceCollection!
+  ): [FragranceCollectionItem!]!
 
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
@@ -167,8 +167,6 @@ input CreateFragranceCollectionInput {
 input CreateFragranceCollectionItemInput {
   collectionId: Int!
   fragranceId: Int!
-  beforeFragranceId: Int
-  afterFragranceId: Int
 }
 
 input CreateFragranceImageInput {
@@ -189,9 +187,9 @@ input DeleteFragranceCollectionItemInput {
 
 input MoveFragranceCollectionItemInput {
   collectionId: Int!
-  fragranceId: Int!
-  beforeFragranceId: Int
-  afterFragranceId: Int
+  insertBefore: Int!
+  rangeStart: Int!
+  rangeLength: Int = 1
 }
 
 input VoteOnFragranceInput {

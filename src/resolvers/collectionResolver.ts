@@ -1,11 +1,13 @@
 import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceCollectionItemResolvers as CollectionItemFieldResolvers, type QueryResolvers } from '@src/generated/gql-types'
 import { ApiResolver, SortByColumn } from './apiResolver'
-import { ResultAsync } from 'neverthrow'
+import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { type FragranceCollectionSummary, type FragranceCollectionItemSummary } from '@src/schemas/fragrance/mappers'
 import { type FragranceCollectionItemRow, type FragranceCollectionRow } from '@src/services/repositories/FragranceCollectionRepo'
 import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
 import { mapUserRowToUserSummary } from './userResolver'
 import { ApiError } from '@src/common/error'
+import { z } from 'zod'
+import { parseSchema } from '@src/common/schema'
 
 export class CollectionResolver extends ApiResolver {
   collection: QueryResolvers['collection'] = async (parent, args, context, info) => {
@@ -139,7 +141,15 @@ export class CollectionResolver extends ApiResolver {
 
   createCollectionItem: MutationResolvers['createFragranceCollectionItem'] = async (_, args, context, info) => {
     const { input } = args
-    const { services } = context
+    const { me, services } = context
+
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to sign up or log in before adding an item to a collection',
+        403
+      )
+    }
 
     const { fragranceId, collectionId } = input
 
@@ -150,6 +160,57 @@ export class CollectionResolver extends ApiResolver {
       .create({ fragranceId, collectionId })
       .match(
         mapCollectionItemRowToCollectionItemSummary,
+        error => { throw error }
+      )
+  }
+
+  moveCollectionItem: MutationResolvers['moveFragranceCollectionItem'] = async (_, args, context, info) => {
+    const { input } = args
+    const { me, services } = context
+
+    // if (me == null) {
+    //   throw new ApiError(
+    //     'NOT_AUTHORIZED',
+    //     'You need to sign up or log in before moving items in a collection',
+    //     403
+    //   )
+    // }
+
+    parseSchema(MoveFragranceCollectionItemInputSchema, input)
+
+    const { collectionId, insertBefore, rangeStart, rangeLength } = input
+
+    return await services
+      .fragrance
+      .collections
+      .findOne(
+        eb => eb('fragranceCollections.id', '=', collectionId)
+      )
+      .andThen(collection => {
+        // if (collection.userId !== me?.id) {
+        //   return errAsync(
+        //     new ApiError(
+        //       'NOT_AUTHORIZED',
+        //       'You are not authorized to perform this action',
+        //       403,
+        //       'User tried modifying another users collection'
+        //     )
+        //   )
+        // }
+
+        return okAsync(collection)
+      })
+      .andThen(() => services
+        .fragrance
+        .collections
+        .items
+        .move(
+          collectionId,
+          { before: insertBefore, start: rangeStart, length: rangeLength ?? 1 }
+        )
+      )
+      .match(
+        rows => rows.map(mapCollectionItemRowToCollectionItemSummary),
         error => { throw error }
       )
   }
@@ -184,3 +245,26 @@ export const mapCollectionItemRowToCollectionItemSummary = (row: FragranceCollec
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
+
+export const MoveFragranceCollectionItemInputSchema = z
+  .object({
+    insertBefore: z
+      .number()
+      .nonnegative(),
+    rangeStart: z
+      .number()
+      .nonnegative(),
+    rangeLength: z
+      .number()
+      .min(1, 'rangeLength must be at least 1')
+      .max(20, 'rangeLength cannot exceed 20')
+      .default(1)
+  })
+  .refine(data => data.insertBefore !== data.rangeStart, {
+    message: 'insertBefore and rangeStart must not be the same',
+    path: ['insertBefore']
+  })
+  .refine(data => (data.insertBefore < data.rangeStart) || (data.insertBefore >= data.rangeStart + data.rangeLength), {
+    message: 'insertBefore cannot point inside the moved range',
+    path: ['insertBefore']
+  })

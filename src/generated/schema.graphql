@@ -51,8 +51,6 @@ input CreateFragranceCollectionInput {
 }
 
 input CreateFragranceCollectionItemInput {
-  afterFragranceId: Int
-  beforeFragranceId: Int
   collectionId: Int!
   fragranceId: Int!
 }
@@ -280,10 +278,10 @@ input LogFragranceViewInput {
 }
 
 input MoveFragranceCollectionItemInput {
-  afterFragranceId: Int
-  beforeFragranceId: Int
   collectionId: Int!
-  fragranceId: Int!
+  insertBefore: Int!
+  rangeLength: Int = 1
+  rangeStart: Int!
 }
 
 type Mutation {
@@ -299,7 +297,7 @@ type Mutation {
   logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
-  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): FragranceCollection!
+  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): [FragranceCollectionItem!]!
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): DeliveryResult!
   signUp(email: String!, password: String!): DeliveryResult!

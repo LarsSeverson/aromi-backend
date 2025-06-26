@@ -81,8 +81,6 @@ export type CreateFragranceCollectionInput = {
 };
 
 export type CreateFragranceCollectionItemInput = {
-  afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
-  beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
   collectionId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
 };
@@ -376,10 +374,10 @@ export type LogFragranceViewInput = {
 };
 
 export type MoveFragranceCollectionItemInput = {
-  afterFragranceId?: InputMaybe<Scalars['Int']['input']>;
-  beforeFragranceId?: InputMaybe<Scalars['Int']['input']>;
   collectionId: Scalars['Int']['input'];
-  fragranceId: Scalars['Int']['input'];
+  insertBefore: Scalars['Int']['input'];
+  rangeLength?: InputMaybe<Scalars['Int']['input']>;
+  rangeStart: Scalars['Int']['input'];
 };
 
 export type Mutation = {
@@ -396,7 +394,7 @@ export type Mutation = {
   logFragranceView: Scalars['Boolean']['output'];
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
-  moveFragranceCollectionItem: FragranceCollection;
+  moveFragranceCollectionItem: Array<FragranceCollectionItem>;
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: DeliveryResult;
   signUp: DeliveryResult;
@@ -1158,7 +1156,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  moveFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
+  moveFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;

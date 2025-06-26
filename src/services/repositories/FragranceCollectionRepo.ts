@@ -41,7 +41,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
         return errAsync(error)
       })
       .andThen(maxRank => {
-        const nextRank = maxRank + 1
+        const nextRank = maxRank + 1000
         return super
           .create(
             {
@@ -51,6 +51,67 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
             extend
           )
       })
+  }
+
+  move (
+    collectionId: number,
+    params: MoveItemParams
+  ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
+    const { before, start, length } = params
+    const windowStart = Math.max(0, Math.min(start, before - 1))
+    const windowEnd = Math.max(start + length, before + 1)
+
+    return ResultAsync
+      .fromPromise(
+        this
+          .sources
+          .db
+          .selectFrom('fragranceCollectionItems')
+          .select(['id', 'rank'])
+          .where('collectionId', '=', collectionId)
+          .orderBy('rank', 'asc')
+          .offset(windowStart)
+          .limit(windowEnd - windowStart)
+          .execute(),
+        error => ApiError.fromDatabase(error)
+      )
+      .andThen(rows => {
+        const moved = rows.slice(start - windowStart, start - windowStart + length)
+
+        const insertIndex = (before > start ? before - length : before) - windowStart
+
+        const left = rows.at(insertIndex - 1)
+        const right = rows.at(insertIndex)
+
+        const leftRank = left == null ? 0 : parseFloat(left.rank)
+        const rightRank = right == null ? leftRank + 1000 : parseFloat(right.rank)
+
+        if (isNaN(leftRank) || isNaN(rightRank)) {
+          return errAsync(
+            new ApiError(
+              'INVALID_OUTPUT',
+              'leftRank or rightRank are NaN',
+              500,
+              { leftRank, rightRank }
+            )
+          )
+        }
+
+        const step = (rightRank - leftRank) / (moved.length + 1)
+
+        return okAsync({ moved, leftRank, step })
+      })
+      .andThen(({ moved, leftRank, step }) => ResultAsync
+        .combine(
+          moved
+            .map((item, idx) => this
+              .update(
+                eb => eb('id', '=', item.id),
+                { rank: (leftRank + step * (idx + 1)) }
+              )
+            )
+        )
+      )
   }
 
   private getMaxRank (
@@ -86,3 +147,9 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
 }
 
 export type FragranceCollectionItemRepoCreateValues = Partial<FragranceCollectionItemRow> & Pick<FragranceCollectionItemRow, 'collectionId' | 'fragranceId'>
+
+export interface MoveItemParams {
+  before: number
+  start: number
+  length: number
+}

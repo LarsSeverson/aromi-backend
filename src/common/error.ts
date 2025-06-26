@@ -17,7 +17,8 @@ export class ApiError extends GraphQLError {
     this.details = details
   }
 
-  static fromDatabase (error: Error): ApiError {
+  static fromDatabase (error: unknown): ApiError {
+    error = error as Error
     if (error instanceof NoResultError) {
       return new ApiError('RESOURCE_NOT_FOUND', 'Resource not found', 404, error)
     }
