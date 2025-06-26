@@ -58,7 +58,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
     params: MoveItemParams
   ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
     const { before, start, length } = params
-    const windowStart = Math.max(0, Math.min(start, before - 1))
+    const windowStart = Math.max(0, Math.min(start, before))
     const windowEnd = Math.max(start + length, before + 1)
 
     return ResultAsync
@@ -77,8 +77,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
       )
       .andThen(rows => {
         const moved = rows.slice(start - windowStart, start - windowStart + length)
-
-        const insertIndex = (before > start ? before - length : before) - windowStart
+        const insertIndex = before - windowStart
 
         const left = rows.at(insertIndex - 1)
         const right = rows.at(insertIndex)
