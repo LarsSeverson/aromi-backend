@@ -101,14 +101,33 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
         return okAsync({ moved, leftRank, step })
       })
       .andThen(({ moved, leftRank, step }) => ResultAsync
-        .combine(
-          moved
-            .map((item, idx) => this
-              .update(
-                eb => eb('id', '=', item.id),
-                { rank: (leftRank + step * (idx + 1)) }
-              )
-            )
+        .fromPromise(
+          this
+            .sources
+            .db
+            .transaction()
+            .execute(async trx => {
+              this.withConnection(trx)
+
+              const updates = moved
+                .map((item, idx) => this
+                  .update(
+                    eb => eb('id', '=', item.id),
+                    { rank: leftRank * step + (idx + 1) }
+                  )
+                )
+
+              return await ResultAsync
+                .combine(updates)
+                .match(
+                  rows => rows,
+                  error => { throw error }
+                )
+                .finally(() => {
+                  this.withConnection(this.sources.db)
+                })
+            }),
+          error => ApiError.fromDatabase(error)
         )
       )
   }
