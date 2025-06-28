@@ -57,30 +57,16 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
     collectionId: number,
     params: MoveItemParams
   ): ResultAsync<FragranceCollectionItemRow[], ApiError> {
-    const { before, start, length } = params
-    const windowStart = Math.max(0, Math.min(start, before))
-    const windowEnd = Math.max(start + length, before + 1)
-
     return ResultAsync
-      .fromPromise(
-        this
-          .sources
-          .db
-          .selectFrom('fragranceCollectionItems')
-          .select(['id', 'rank'])
-          .where('collectionId', '=', collectionId)
-          .orderBy('rank', 'asc')
-          .offset(windowStart)
-          .limit(windowEnd - windowStart)
-          .execute(),
-        error => ApiError.fromDatabase(error)
+      .combine(
+        [
+          this.getMoved(collectionId, params),
+          this.getSurrounding(collectionId, params)
+        ]
       )
-      .andThen(rows => {
-        const moved = rows.slice(start - windowStart, start - windowStart + length)
-        const insertIndex = before - windowStart
-
-        const left = rows.at(insertIndex - 1)
-        const right = rows.at(insertIndex)
+      .andThen(([moved, surrounding]) => {
+        const left = surrounding.at(0)
+        const right = surrounding.at(1)
 
         const leftRank = left == null ? 0 : parseFloat(left.rank)
         const rightRank = right == null ? leftRank + 1000 : parseFloat(right.rank)
@@ -113,7 +99,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
                 .map((item, idx) => this
                   .update(
                     eb => eb('id', '=', item.id),
-                    { rank: leftRank * step + (idx + 1) }
+                    { rank: leftRank + step * (idx + 1) }
                   )
                 )
 
@@ -161,6 +147,49 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
 
         return okAsync(maxRank)
       })
+  }
+
+  private getMoved (
+    collectionId: number,
+    params: MoveItemParams
+  ): ResultAsync<Array<Pick<FragranceCollectionItemRow, 'id' | 'rank'>>, ApiError> {
+    const { start, length } = params
+    return ResultAsync
+      .fromPromise(
+        this
+          .sources
+          .db
+          .selectFrom('fragranceCollectionItems')
+          .select(['id', 'rank'])
+          .where('collectionId', '=', collectionId)
+          .orderBy('rank', 'asc')
+          .offset(start)
+          .limit(length)
+          .execute(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  private getSurrounding (
+    collectionId: number,
+    params: MoveItemParams
+  ): ResultAsync<Array<Pick<FragranceCollectionItemRow, 'rank'>>, ApiError> {
+    const { before } = params
+    const insertIndex = Math.max(0, before - 1)
+    return ResultAsync
+      .fromPromise(
+        this
+          .sources
+          .db
+          .selectFrom('fragranceCollectionItems')
+          .select(['rank'])
+          .where('collectionId', '=', collectionId)
+          .orderBy('rank', 'asc')
+          .offset(insertIndex)
+          .limit(insertIndex > 0 ? 2 : 1)
+          .execute(),
+        error => ApiError.fromDatabase(error)
+      )
   }
 }
 
