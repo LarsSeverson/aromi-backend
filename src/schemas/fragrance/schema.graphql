@@ -81,7 +81,7 @@ type FragranceCollection {
   id: Int!
   name: String!
   user: User!
-  items(input: PaginationInput): FragranceCollectionItemConnection!
+  items(input: ControlledPaginationInput): FragranceCollectionItemConnection!
   audit: Audit!
 
   hasFragrance(fragranceId: Int): Boolean!
@@ -112,6 +112,7 @@ extend type Query {
 
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+
   createFragranceCollection(
     input: CreateFragranceCollectionInput!
   ): FragranceCollection!
@@ -122,9 +123,11 @@ extend type Mutation {
   createFragranceCollectionItem(
     input: CreateFragranceCollectionItemInput!
   ): FragranceCollectionItem!
+
   deleteFragranceCollectionItem(
     input: DeleteFragranceCollectionItemInput!
   ): Boolean!
+
   moveFragranceCollectionItem(
     input: MoveFragranceCollectionItemInput!
   ): [FragranceCollectionItem!]!

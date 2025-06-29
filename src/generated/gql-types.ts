@@ -75,6 +75,16 @@ export type ConfirmFragranceImageInput = {
   s3Key: Scalars['String']['input'];
 };
 
+export type ControlledPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<ControlledSortByInput>;
+};
+
+export type ControlledSortByInput = {
+  direction?: InputMaybe<SortDirection>;
+};
+
 export type CreateFragranceCollectionInput = {
   fragranceId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
@@ -181,7 +191,7 @@ export type FragranceCollectionHasFragranceArgs = {
 
 
 export type FragranceCollectionItemsArgs = {
-  input?: InputMaybe<PaginationInput>;
+  input?: InputMaybe<ControlledPaginationInput>;
 };
 
 export type FragranceCollectionConnection = {
@@ -749,6 +759,8 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
   CodeDeliveryDetails: ResolverTypeWrapper<Partial<CodeDeliveryDetails>>;
   ConfirmFragranceImageInput: ResolverTypeWrapper<Partial<ConfirmFragranceImageInput>>;
+  ControlledPaginationInput: ResolverTypeWrapper<Partial<ControlledPaginationInput>>;
+  ControlledSortByInput: ResolverTypeWrapper<Partial<ControlledSortByInput>>;
   CreateFragranceCollectionInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionInput>>;
   CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
   CreateFragranceImageInput: ResolverTypeWrapper<Partial<CreateFragranceImageInput>>;
@@ -823,6 +835,8 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Partial<Scalars['Boolean']['output']>;
   CodeDeliveryDetails: Partial<CodeDeliveryDetails>;
   ConfirmFragranceImageInput: Partial<ConfirmFragranceImageInput>;
+  ControlledPaginationInput: Partial<ControlledPaginationInput>;
+  ControlledSortByInput: Partial<ControlledSortByInput>;
   CreateFragranceCollectionInput: Partial<CreateFragranceCollectionInput>;
   CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
   CreateFragranceImageInput: Partial<CreateFragranceImageInput>;

@@ -45,6 +45,16 @@ input ConfirmFragranceImageInput {
   s3Key: String!
 }
 
+input ControlledPaginationInput {
+  after: String
+  first: Int
+  sort: ControlledSortByInput
+}
+
+input ControlledSortByInput {
+  direction: SortDirection = DESCENDING
+}
+
 input CreateFragranceCollectionInput {
   fragranceId: Int!
   name: String!
@@ -120,7 +130,7 @@ type FragranceCollection {
   audit: Audit!
   hasFragrance(fragranceId: Int): Boolean!
   id: Int!
-  items(input: PaginationInput): FragranceCollectionItemConnection!
+  items(input: ControlledPaginationInput): FragranceCollectionItemConnection!
   name: String!
   user: User!
 }

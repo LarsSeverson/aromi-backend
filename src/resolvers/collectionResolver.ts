@@ -1,5 +1,5 @@
 import { type MutationResolvers, type FragranceCollectionResolvers as CollectionFieldResolvers, type FragranceCollectionItemResolvers as CollectionItemFieldResolvers, type QueryResolvers } from '@src/generated/gql-types'
-import { ApiResolver, SortByColumn } from './apiResolver'
+import { ApiResolver } from './apiResolver'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { type FragranceCollectionSummary, type FragranceCollectionItemSummary } from '@src/schemas/fragrance/mappers'
 import { type FragranceCollectionItemRow, type FragranceCollectionRow } from '@src/services/repositories/FragranceCollectionRepo'
@@ -49,11 +49,11 @@ export class CollectionResolver extends ApiResolver {
 
     const normalizedInput = this
       .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
+      .normalize(input, 'rank', (decoded) => String(decoded))
 
     const parsedInput = this
       .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+      .parse(normalizedInput, () => 'rank')
 
     return await ResultAsync
       .fromPromise(
@@ -168,13 +168,13 @@ export class CollectionResolver extends ApiResolver {
     const { input } = args
     const { me, services } = context
 
-    // if (me == null) {
-    //   throw new ApiError(
-    //     'NOT_AUTHORIZED',
-    //     'You need to sign up or log in before moving items in a collection',
-    //     403
-    //   )
-    // }
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to sign up or log in before moving items in a collection',
+        403
+      )
+    }
 
     parseSchema(MoveFragranceCollectionItemInputSchema, input)
 
@@ -187,16 +187,16 @@ export class CollectionResolver extends ApiResolver {
         eb => eb('fragranceCollections.id', '=', collectionId)
       )
       .andThen(collection => {
-        // if (collection.userId !== me?.id) {
-        //   return errAsync(
-        //     new ApiError(
-        //       'NOT_AUTHORIZED',
-        //       'You are not authorized to perform this action',
-        //       403,
-        //       'User tried modifying another users collection'
-        //     )
-        //   )
-        // }
+        if (collection.userId !== me?.id) {
+          return errAsync(
+            new ApiError(
+              'NOT_AUTHORIZED',
+              'You are not authorized to perform this action',
+              403,
+              'User tried modifying another users collection'
+            )
+          )
+        }
 
         return okAsync(collection)
       })
@@ -206,7 +206,11 @@ export class CollectionResolver extends ApiResolver {
         .items
         .move(
           collectionId,
-          { before: insertBefore, start: rangeStart, length: rangeLength ?? 1 }
+          {
+            before: insertBefore,
+            start: rangeStart,
+            length: rangeLength ?? 1
+          }
         )
       )
       .match(

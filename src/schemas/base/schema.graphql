@@ -24,11 +24,6 @@ type VoteSummary {
   myVote: Boolean
 }
 
-input SortByInput {
-  by: SortBy = updatedAt
-  direction: SortDirection = DESCENDING
-}
-
 input PaginationInput {
   first: Int
   after: String
@@ -41,8 +36,23 @@ input VotePaginationInput {
   sort: VoteSortByInput
 }
 
+input ControlledPaginationInput {
+  first: Int
+  after: String
+  sort: ControlledSortByInput
+}
+
+input SortByInput {
+  by: SortBy = updatedAt
+  direction: SortDirection = DESCENDING
+}
+
 input VoteSortByInput {
   by: VoteSortBy = updatedAt
+  direction: SortDirection = DESCENDING
+}
+
+input ControlledSortByInput {
   direction: SortDirection = DESCENDING
 }
 
