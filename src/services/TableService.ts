@@ -3,7 +3,7 @@ import { ApiService } from './ApiService'
 import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
-import { type ExpressionOrFactory, type SqlBool } from 'kysely'
+import { type ReferenceExpression, type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
 import { type PaginationParams } from '@src/factories/PaginationFactory'
 
@@ -107,6 +107,34 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
         query.execute(),
         error => ApiError.fromDatabase(error as Error)
       )
+  }
+
+  delete (
+    id: number,
+    soft = true
+  ): ResultAsync<number, ApiError> {
+    if (soft) return this.softDelete(id)
+
+    throw new ApiError(
+      'NOT_IMPL',
+      'Something went wrong on our end',
+      500
+    )
+  }
+
+  private softDelete (
+    id: number
+  ): ResultAsync<number, ApiError> {
+    const values: UpdateValuesFn<T> = {
+      deletedAt: new Date()
+    } as unknown as UpdateValuesFn<T>
+
+    return this
+      .update(
+        eb => eb('id' as ReferenceExpression<DB, T>, '=', null),
+        values
+      )
+      .map(() => id)
   }
 }
 

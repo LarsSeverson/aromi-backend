@@ -6,7 +6,7 @@ import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
 import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser'
 
-export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number }
+export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number, deletedAt: Date | null }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
 
 export type BaseQueryFactory<R> = () => SelectQueryBuilder<DB, DBAny, R>

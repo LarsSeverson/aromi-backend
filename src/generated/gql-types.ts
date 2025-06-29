@@ -86,7 +86,6 @@ export type ControlledSortByInput = {
 };
 
 export type CreateFragranceCollectionInput = {
-  fragranceId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
 };
 

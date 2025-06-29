@@ -163,7 +163,6 @@ input CreateFragranceReviewInput {
 }
 
 input CreateFragranceCollectionInput {
-  fragranceId: Int!
   name: String!
 }
 

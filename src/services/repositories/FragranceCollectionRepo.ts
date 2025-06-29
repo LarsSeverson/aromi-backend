@@ -32,7 +32,11 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
     const { collectionId } = values
     return this
       .getMaxRank(
-        eb => eb('collectionId', '=', collectionId)
+        eb => eb
+          .and([
+            eb('collectionId', '=', collectionId),
+            eb('deletedAt', 'is', null)
+          ])
       )
       .orElse(error => {
         if (error.code === 'INVALID_OUTPUT') {
@@ -163,7 +167,12 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
           .db
           .selectFrom('fragranceCollectionItems')
           .select(['id', 'rank'])
-          .where('collectionId', '=', collectionId)
+          .where(eb => eb
+            .and([
+              eb('collectionId', '=', collectionId),
+              eb('deletedAt', 'is', null)
+            ])
+          )
           .orderBy('rank', 'asc')
           .offset(start)
           .limit(length)
@@ -185,7 +194,12 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
           .db
           .selectFrom('fragranceCollectionItems')
           .select(['rank'])
-          .where('collectionId', '=', collectionId)
+          .where(eb => eb
+            .and([
+              eb('collectionId', '=', collectionId),
+              eb('deletedAt', 'is', null)
+            ])
+          )
           .orderBy('rank', 'asc')
           .offset(insertIndex)
           .limit(insertIndex > 0 ? 2 : 1)
@@ -202,7 +216,12 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
               .db
               .selectFrom('fragranceCollectionItems')
               .select(['rank'])
-              .where('collectionId', '=', collectionId)
+              .where(eb => eb
+                .and([
+                  eb('collectionId', '=', collectionId),
+                  eb('deletedAt', 'is', null)
+                ])
+              )
               .orderBy('rank', 'desc')
               .limit(1)
               .execute(),

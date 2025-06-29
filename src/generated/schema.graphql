@@ -56,7 +56,6 @@ input ControlledSortByInput {
 }
 
 input CreateFragranceCollectionInput {
-  fragranceId: Int!
   name: String!
 }
 
