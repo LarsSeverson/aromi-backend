@@ -65,8 +65,10 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
         ]
       )
       .andThen(([moved, surrounding]) => {
-        const left = surrounding.at(0)
-        const right = surrounding.at(1)
+        const isAtStart = params.before === 0
+
+        const left = isAtStart ? null : surrounding.at(0)
+        const right = isAtStart ? surrounding.at(0) : surrounding.at(1)
 
         const leftRank = left == null ? 0 : parseFloat(left.rank)
         const rightRank = right == null ? leftRank + 1000 : parseFloat(right.rank)
@@ -190,6 +192,23 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
           .execute(),
         error => ApiError.fromDatabase(error)
       )
+      .andThen(surrounding => {
+        if (surrounding.length > 0) return okAsync(surrounding)
+
+        return ResultAsync
+          .fromPromise(
+            this
+              .sources
+              .db
+              .selectFrom('fragranceCollectionItems')
+              .select(['rank'])
+              .where('collectionId', '=', collectionId)
+              .orderBy('rank', 'desc')
+              .limit(1)
+              .execute(),
+            error => ApiError.fromDatabase(error)
+          )
+      })
   }
 }
 
