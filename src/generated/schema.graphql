@@ -80,7 +80,7 @@ scalar Date
 
 input DeleteFragranceCollectionItemInput {
   collectionId: Int!
-  fragranceId: Int!
+  itemId: Int!
 }
 
 type DeliveryResult {
@@ -301,7 +301,7 @@ type Mutation {
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
-  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Boolean!
+  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): Int!
   forgotPassword(email: String!): DeliveryResult!
   logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!

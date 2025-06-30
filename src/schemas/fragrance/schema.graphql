@@ -126,7 +126,7 @@ extend type Mutation {
 
   deleteFragranceCollectionItem(
     input: DeleteFragranceCollectionItemInput!
-  ): Boolean!
+  ): Int!
 
   moveFragranceCollectionItem(
     input: MoveFragranceCollectionItemInput!
@@ -184,7 +184,7 @@ input ConfirmFragranceImageInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: Int!
-  fragranceId: Int!
+  itemId: Int! 
 }
 
 input MoveFragranceCollectionItemInput {

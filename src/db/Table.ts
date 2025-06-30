@@ -148,6 +148,16 @@ export class Table<T extends keyof DB, R> {
       .limit(first + 1)
   }
 
+  softDelete (
+    id: number
+  ): UpdateQueryBuilder<DB, T, T, R> {
+    return this
+      .update(
+        eb => eb('id' as ReferenceExpression<DB, T>, '=', id),
+        { deletedAt: new Date() } as unknown as UpdateValuesFn<T>
+      )
+  }
+
   private from (): TableExpressionOrList<DB, never> {
     const from = (this.alias != null
       ? `${this.table} as ${this.alias}`

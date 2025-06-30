@@ -187,7 +187,7 @@ export class CollectionResolver extends ApiResolver {
         eb => eb('fragranceCollections.id', '=', collectionId)
       )
       .andThen(collection => {
-        if (collection.userId !== me?.id) {
+        if (collection.userId !== me.id) {
           return errAsync(
             new ApiError(
               'NOT_AUTHORIZED',
@@ -215,6 +215,51 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         rows => rows.map(mapCollectionItemRowToCollectionItemSummary),
+        error => { throw error }
+      )
+  }
+
+  deleteCollectionItem: MutationResolvers['deleteFragranceCollectionItem'] = async (_, args, context, info) => {
+    const { input } = args
+    const { collectionId, itemId } = input
+    const { me, services } = context
+
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You are not authorized to perform this action',
+        403
+      )
+    }
+
+    return await services
+      .fragrance
+      .collections
+      .findOne(
+        eb => eb('id', '=', collectionId)
+      )
+      .andThen(row => {
+        if (row.userId !== me.id) {
+          return errAsync(
+            new ApiError(
+              'NOT_AUTHORIZED',
+              'You are not authorized to perform this action',
+              403,
+              'User tried modifying another users collection (item)'
+            )
+          )
+        }
+
+        return okAsync(row)
+      })
+      .andThen(() => services
+        .fragrance
+        .collections
+        .items
+        .delete(itemId)
+      )
+      .match(
+        id => id,
         error => { throw error }
       )
   }
