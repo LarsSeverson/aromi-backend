@@ -242,7 +242,7 @@ export class CollectionResolver extends ApiResolver {
 
   deleteCollectionItem: MutationResolvers['deleteFragranceCollectionItem'] = async (_, args, context, info) => {
     const { input } = args
-    const { collectionId, itemId } = input
+    const { collectionId, fragranceId } = input
     const { me, services } = context
 
     if (me == null) {
@@ -277,10 +277,16 @@ export class CollectionResolver extends ApiResolver {
         .fragrance
         .collections
         .items
-        .delete(itemId)
+        .softDelete(
+          eb => eb
+            .and([
+              eb('collectionId', '=', collectionId),
+              eb('fragranceId', '=', fragranceId)
+            ])
+        )
       )
       .match(
-        id => id,
+        rows => rows.map(row => row.id),
         error => { throw error }
       )
   }

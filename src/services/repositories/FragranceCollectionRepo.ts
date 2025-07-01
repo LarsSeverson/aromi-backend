@@ -103,7 +103,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
 
               const updates = moved
                 .map((item, idx) => this
-                  .update(
+                  .updateOne(
                     eb => eb('id', '=', item.id),
                     { rank: leftRank + step * (idx + 1) }
                   )

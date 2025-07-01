@@ -167,11 +167,11 @@ export class Table<T extends keyof DB, R> {
   }
 
   softDelete (
-    id: number
+    where: ExpressionOrFactory<DB, T, SqlBool>
   ): UpdateQueryBuilder<DB, T, T, R> {
     return this
       .update(
-        eb => eb('id' as ReferenceExpression<DB, T>, '=', id),
+        where,
         { deletedAt: new Date() } as unknown as UpdateValuesFn<T>
       )
   }

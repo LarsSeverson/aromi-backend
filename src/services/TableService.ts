@@ -44,6 +44,20 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   update (
     where: ExpressionOrFactory<DB, T, SqlBool>,
     values: UpdateValuesFn<T>
+  ): ResultAsync<R[], ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .update(where, values)
+          .execute(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  updateOne (
+    where: ExpressionOrFactory<DB, T, SqlBool>,
+    values: UpdateValuesFn<T>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
       .fromPromise(
@@ -69,17 +83,17 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
       )
   }
 
-  delete (
-    id: number,
-    soft = true
-  ): ResultAsync<number, ApiError> {
-    if (soft) return this.softDelete(id)
-
-    throw new ApiError(
-      'NOT_IMPL',
-      'Something went wrong on our end',
-      500
-    )
+  softDelete (
+    where: ExpressionOrFactory<DB, T, SqlBool>
+  ): ResultAsync<R[], ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .softDelete(where)
+          .execute(),
+        error => ApiError.fromDatabase(error)
+      )
   }
 
   findOne (
@@ -134,20 +148,6 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
         query.execute(),
         error => ApiError.fromDatabase(error)
       )
-  }
-
-  private softDelete (
-    id: number
-  ): ResultAsync<number, ApiError> {
-    return ResultAsync
-      .fromPromise(
-        this
-          .Table
-          .softDelete(id)
-          .execute(),
-        error => ApiError.fromDatabase(error)
-      )
-      .map(() => id)
   }
 }
 
