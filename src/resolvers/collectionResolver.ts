@@ -156,8 +156,29 @@ export class CollectionResolver extends ApiResolver {
     return await services
       .fragrance
       .collections
-      .items
-      .create({ fragranceId, collectionId })
+      .findOne(
+        eb => eb('id', '=', collectionId)
+      )
+      .andThen(row => {
+        if (row.userId !== me.id) {
+          return errAsync(
+            new ApiError(
+              'NOT_AUTHORIZED',
+              'You are not authorized to perform this action',
+              403,
+              'User attempted to add an item to another users collection'
+            )
+          )
+        }
+
+        return okAsync(row)
+      })
+      .andThen(() => services
+        .fragrance
+        .collections
+        .items
+        .create({ fragranceId, collectionId })
+      )
       .match(
         mapCollectionItemRowToCollectionItemSummary,
         error => { throw error }

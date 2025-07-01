@@ -1,6 +1,6 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { ApiService } from './ApiService'
-import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn } from '../db/Table'
+import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn, type OnConflictFn } from '../db/Table'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
@@ -37,7 +37,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
           .Table
           .create(values, extend)
           .executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
   }
 
@@ -51,8 +51,35 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
           .Table
           .update(where, values)
           .executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
+  }
+
+  upsert (
+    values: Partial<R>,
+    onConflict: OnConflictFn<T>
+  ): ResultAsync<R, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .upsert(values, onConflict)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  delete (
+    id: number,
+    soft = true
+  ): ResultAsync<number, ApiError> {
+    if (soft) return this.softDelete(id)
+
+    throw new ApiError(
+      'NOT_IMPL',
+      'Something went wrong on our end',
+      500
+    )
   }
 
   findOne (
@@ -64,7 +91,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
           .Table
           .findOne(where)
           .executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
   }
 
@@ -91,7 +118,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
     return ResultAsync
       .fromPromise(
         query.execute(),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
   }
 
@@ -105,21 +132,8 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
     return ResultAsync
       .fromPromise(
         query.execute(),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
-  }
-
-  delete (
-    id: number,
-    soft = true
-  ): ResultAsync<number, ApiError> {
-    if (soft) return this.softDelete(id)
-
-    throw new ApiError(
-      'NOT_IMPL',
-      'Something went wrong on our end',
-      500
-    )
   }
 
   private softDelete (

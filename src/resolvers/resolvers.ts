@@ -93,6 +93,7 @@ export class ApiResolvers implements Resolvers {
     createFragranceCollection: collectionResolver.createCollection,
     createFragranceCollectionItem: collectionResolver.createCollectionItem,
     moveFragranceCollectionItem: collectionResolver.moveCollectionItem,
+    deleteFragranceCollectionItem: collectionResolver.deleteCollectionItem,
 
     //   createFragranceImage: fragranceResolver.createFragranceImage,
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,

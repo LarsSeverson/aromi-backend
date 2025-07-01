@@ -1,6 +1,6 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
-import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder, type ExpressionBuilder } from 'kysely'
+import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder, type ExpressionBuilder, type OnConflictBuilder, type OnConflictUpdateBuilder, type OnConflictDatabase, type OnConflictTables } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
@@ -22,6 +22,8 @@ export type ExtendInsertFn<T extends keyof DB, R> = (
 ) => InsertQueryBuilder<DB, T, R>
 
 export type UpdateValuesFn<T extends keyof DB> = UpdateObjectExpression<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObjectExpression<DB, T>)
+
+export type OnConflictFn<T extends keyof DB> = (oc: OnConflictBuilder<DB, T>) => OnConflictUpdateBuilder<OnConflictDatabase<DB, T>, OnConflictTables<T>>
 
 export class Table<T extends keyof DB, R> {
   private db: ApiDataSources['db']
@@ -98,6 +100,22 @@ export class Table<T extends keyof DB, R> {
       .returningAll() as UpdateQueryBuilder<DB, T, T, R>
 
     return qb
+  }
+
+  upsert (
+    values: Partial<R>,
+    onConflict: OnConflictFn<T>
+  ): InsertQueryBuilder<DB, T, R> {
+    const kyValues = values as InsertExpression<DB, T>
+
+    const qb = this
+      .db
+      .insertInto(this.table)
+      .values(kyValues)
+      .onConflict(onConflict)
+      .returningAll()
+
+    return qb as InsertQueryBuilder<DB, T, R>
   }
 
   find (
