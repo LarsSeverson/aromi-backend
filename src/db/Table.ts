@@ -176,6 +176,21 @@ export class Table<T extends keyof DB, R> {
       )
   }
 
+  filterDeleted (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
+  ): ExpressionOrFactory<DB, T, SqlBool> {
+    const tableRef = this.alias ?? this.table
+    const check = `${tableRef}.deletedAt` as ReferenceExpression<DB, T>
+
+    return (eb) => where != null
+      ? eb
+        .and([
+          eb(check, 'is', null),
+          typeof where === 'function' ? where(eb) : where
+        ])
+      : eb(check, 'is', null)
+  }
+
   private from (): TableExpressionOrList<DB, never> {
     const from = (this.alias != null
       ? `${this.table} as ${this.alias}`

@@ -172,15 +172,16 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
 
       return await ResultAsync
         .combine(
-          fragranceIds.map(id => this
-            .services
-            .fragrance
-            .images
-            .find(
-              eb => eb('fragranceImages.fragranceId', '=', id),
-              { pagination }
+          fragranceIds
+            .map(id => this
+              .services
+              .fragrance
+              .images
+              .find(
+                eb => eb('fragranceImages.fragranceId', '=', id),
+                { pagination }
+              )
             )
-          )
         )
         .match(
           rows => rows,

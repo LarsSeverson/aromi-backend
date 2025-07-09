@@ -83,6 +83,19 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
       )
   }
 
+  softDeleteOne (
+    where: ExpressionOrFactory<DB, T, SqlBool>
+  ): ResultAsync<R, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .softDelete(where)
+          .executeTakeFirstOrThrow(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
   softDelete (
     where: ExpressionOrFactory<DB, T, SqlBool>
   ): ResultAsync<R[], ApiError> {
@@ -117,7 +130,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
 
     let query = this
       .Table
-      .find(where)
+      .find(this.Table.filterDeleted(where))
 
     if (pagination != null) {
       query = this

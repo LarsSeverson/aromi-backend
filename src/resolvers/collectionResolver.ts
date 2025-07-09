@@ -286,7 +286,7 @@ export class CollectionResolver extends ApiResolver {
         )
       )
       .match(
-        rows => rows.map(row => row.id),
+        rows => rows.map(mapCollectionItemRowToCollectionItemSummary),
         error => { throw error }
       )
   }
