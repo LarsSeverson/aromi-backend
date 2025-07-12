@@ -242,8 +242,10 @@ export type FragranceImage = {
   alt?: Maybe<Scalars['String']['output']>;
   audit: Audit;
   bg?: Maybe<Scalars['String']['output']>;
+  height: Scalars['Int']['output'];
   id: Scalars['Int']['output'];
   src: Scalars['String']['output'];
+  width: Scalars['Int']['output'];
 };
 
 export type FragranceImageConnection = {
@@ -1040,8 +1042,10 @@ export type FragranceImageResolvers<ContextType = ApiContext, ParentType extends
   alt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   bg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  width?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

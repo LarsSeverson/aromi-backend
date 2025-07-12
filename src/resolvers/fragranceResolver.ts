@@ -479,6 +479,7 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
   const {
     id, s3Key,
     primaryColor,
+    width, height,
     createdAt, updatedAt, deletedAt
   } = row
 
@@ -487,6 +488,8 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
     src: s3Key,
     alt: '', // TODO:
     bg: primaryColor,
+    width,
+    height,
 
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }

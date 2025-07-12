@@ -175,8 +175,10 @@ type FragranceImage {
   alt: String
   audit: Audit!
   bg: String
+  height: Int!
   id: Int!
   src: String!
+  width: Int!
 }
 
 type FragranceImageConnection {
