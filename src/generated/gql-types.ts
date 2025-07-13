@@ -100,6 +100,11 @@ export type CreateFragranceImageInput = {
   fragranceId: Scalars['Int']['input'];
 };
 
+export type CreateFragranceReportInput = {
+  fragranceId: Scalars['Int']['input'];
+  report: Scalars['String']['input'];
+};
+
 export type CreateFragranceReviewInput = {
   fragranceId: Scalars['Int']['input'];
   rating: Scalars['Int']['input'];
@@ -305,6 +310,14 @@ export type FragranceNotesTopArgs = {
   input?: InputMaybe<NotesInput>;
 };
 
+export type FragranceReport = {
+  __typename?: 'FragranceReport';
+  fragrance: Fragrance;
+  id: Scalars['Int']['output'];
+  report: Scalars['String']['output'];
+  user: User;
+};
+
 export type FragranceReview = {
   __typename?: 'FragranceReview';
   audit: Audit;
@@ -399,6 +412,7 @@ export type Mutation = {
   createFragranceCollection: FragranceCollection;
   createFragranceCollectionItem: FragranceCollectionItem;
   createFragranceImage: AssetUploadPayload;
+  createFragranceReport: FragranceReport;
   createFragranceReview: FragranceReview;
   deleteFragranceCollectionItem: Array<FragranceCollectionItem>;
   forgotPassword: DeliveryResult;
@@ -447,6 +461,11 @@ export type MutationCreateFragranceCollectionItemArgs = {
 
 export type MutationCreateFragranceImageArgs = {
   input: CreateFragranceImageInput;
+};
+
+
+export type MutationCreateFragranceReportArgs = {
+  input: CreateFragranceReportInput;
 };
 
 
@@ -765,6 +784,7 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceCollectionInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionInput>>;
   CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
   CreateFragranceImageInput: ResolverTypeWrapper<Partial<CreateFragranceImageInput>>;
+  CreateFragranceReportInput: ResolverTypeWrapper<Partial<CreateFragranceReportInput>>;
   CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteFragranceCollectionItemInput: ResolverTypeWrapper<Partial<DeleteFragranceCollectionItemInput>>;
@@ -789,6 +809,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceNoteConnection: ResolverTypeWrapper<Partial<FragranceNoteConnection>>;
   FragranceNoteEdge: ResolverTypeWrapper<Partial<FragranceNoteEdge>>;
   FragranceNotes: ResolverTypeWrapper<FragranceNotesSummary>;
+  FragranceReport: ResolverTypeWrapper<Partial<Omit<FragranceReport, 'fragrance' | 'user'> & { fragrance: ResolversTypes['Fragrance'], user: ResolversTypes['User'] }>>;
   FragranceReview: ResolverTypeWrapper<FragranceReviewSummary>;
   FragranceReviewConnection: ResolverTypeWrapper<Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceReviewEdge']> }>>;
   FragranceReviewDistribution: ResolverTypeWrapper<Partial<FragranceReviewDistribution>>;
@@ -841,6 +862,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceCollectionInput: Partial<CreateFragranceCollectionInput>;
   CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
   CreateFragranceImageInput: Partial<CreateFragranceImageInput>;
+  CreateFragranceReportInput: Partial<CreateFragranceReportInput>;
   CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   Date: Partial<Scalars['Date']['output']>;
   DeleteFragranceCollectionItemInput: Partial<DeleteFragranceCollectionItemInput>;
@@ -865,6 +887,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceNoteConnection: Partial<FragranceNoteConnection>;
   FragranceNoteEdge: Partial<FragranceNoteEdge>;
   FragranceNotes: FragranceNotesSummary;
+  FragranceReport: Partial<Omit<FragranceReport, 'fragrance' | 'user'> & { fragrance: ResolversParentTypes['Fragrance'], user: ResolversParentTypes['User'] }>;
   FragranceReview: FragranceReviewSummary;
   FragranceReviewConnection: Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceReviewEdge']> }>;
   FragranceReviewDistribution: Partial<FragranceReviewDistribution>;
@@ -1091,6 +1114,14 @@ export type FragranceNotesResolvers<ContextType = ApiContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FragranceReportResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceReport'] = ResolversParentTypes['FragranceReport']> = ResolversObject<{
+  fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  report?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type FragranceReviewResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
@@ -1167,6 +1198,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionArgs, 'input'>>;
   createFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionItemArgs, 'input'>>;
   createFragranceImage?: Resolver<ResolversTypes['AssetUploadPayload'], ParentType, ContextType, RequireFields<MutationCreateFragranceImageArgs, 'input'>>;
+  createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
@@ -1249,6 +1281,7 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   FragranceNoteConnection?: FragranceNoteConnectionResolvers<ContextType>;
   FragranceNoteEdge?: FragranceNoteEdgeResolvers<ContextType>;
   FragranceNotes?: FragranceNotesResolvers<ContextType>;
+  FragranceReport?: FragranceReportResolvers<ContextType>;
   FragranceReview?: FragranceReviewResolvers<ContextType>;
   FragranceReviewConnection?: FragranceReviewConnectionResolvers<ContextType>;
   FragranceReviewDistribution?: FragranceReviewDistributionResolvers<ContextType>;

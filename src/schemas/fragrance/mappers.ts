@@ -1,5 +1,5 @@
 import { type ConnectionEdge } from '@src/factories/ConnectionFactory'
-import { type FragranceReview, type Fragrance, type FragranceCollection, type FragranceCollectionItem, type FragranceVote } from '@src/generated/gql-types'
+import { type FragranceReview, type Fragrance, type FragranceCollection, type FragranceCollectionItem, type FragranceVote, type FragranceReport } from '@src/generated/gql-types'
 
 export type FragranceSummary = Omit<Fragrance,
 'traits' |
@@ -31,3 +31,5 @@ export type FragranceVoteSummary = Omit<FragranceVote, 'fragrance' | 'user'> & {
   fragranceId: number
 }
 export type FragranceVoteSummaryEdge = ConnectionEdge<FragranceVoteSummary>
+
+export type FragranceReportSummary = Omit<FragranceReport, 'fragrance' | 'user'>

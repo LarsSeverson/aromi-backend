@@ -14,6 +14,7 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { FragranceVotesRepo, type FragranceVoteRow } from './repositories/FragranceVotesRepo'
 import { ApiError } from '@src/common/error'
 import { VoteFactory } from '@src/factories/VoteFactory'
+import { FragranceReportsRepo } from './repositories/FragranceReportsRepo'
 
 export type FragranceRow = Selectable<DB['fragrances']> & MyVote
 
@@ -25,6 +26,7 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
   reviews: FragranceReviewsRepo
   collections: FragranceCollectionRepo
   votes: FragranceVotesRepo
+  reports: FragranceReportsRepo
 
   searcher: FragranceSearchRepo
 
@@ -40,6 +42,7 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
     this.reviews = new FragranceReviewsRepo(sources)
     this.collections = new FragranceCollectionRepo(sources)
     this.votes = new FragranceVotesRepo(sources)
+    this.reports = new FragranceReportsRepo(sources)
 
     this.searcher = new FragranceSearchRepo(sources)
 
@@ -84,6 +87,14 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
 
     this
       .reviews
+      .setContext(context)
+
+    this
+      .votes
+      .setContext(context)
+
+    this
+      .reports
       .setContext(context)
 
     return this

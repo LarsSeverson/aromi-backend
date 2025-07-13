@@ -70,6 +70,11 @@ input CreateFragranceImageInput {
   fragranceId: Int!
 }
 
+input CreateFragranceReportInput {
+  fragranceId: Int!
+  report: String!
+}
+
 input CreateFragranceReviewInput {
   fragranceId: Int!
   rating: Int!
@@ -217,6 +222,13 @@ type FragranceNotes {
   top(input: NotesInput): FragranceNoteConnection!
 }
 
+type FragranceReport {
+  fragrance: Fragrance!
+  id: Int!
+  report: String!
+  user: User!
+}
+
 type FragranceReview {
   audit: Audit!
   fragrance: Fragrance!
@@ -302,6 +314,7 @@ type Mutation {
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
+  createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
   forgotPassword(email: String!): DeliveryResult!

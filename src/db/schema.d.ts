@@ -125,6 +125,16 @@ export interface FragranceNoteVote {
   vote: number;
 }
 
+export interface FragranceReport {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: number;
+  id: Generated<number>;
+  report: string;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
+}
+
 export interface FragranceReview {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -231,6 +241,7 @@ export interface DB {
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
+  fragranceReports: FragranceReport;
   fragranceReviews: FragranceReview;
   fragranceReviewVotes: FragranceReviewVote;
   fragrances: Fragrance;

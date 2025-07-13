@@ -104,6 +104,13 @@ type FragranceVote {
   audit: Audit!
 }
 
+type FragranceReport {
+  id: Int!
+  report: String!
+  fragrance: Fragrance!
+  user: User!
+}
+
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
@@ -133,6 +140,10 @@ extend type Mutation {
   moveFragranceCollectionItem(
     input: MoveFragranceCollectionItemInput!
   ): [FragranceCollectionItem!]!
+
+  createFragranceReport(
+    input: CreateFragranceReportInput!
+  ): FragranceReport!
 
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
@@ -194,6 +205,11 @@ input MoveFragranceCollectionItemInput {
   insertBefore: Int!
   rangeStart: Int!
   rangeLength: Int = 1
+}
+
+input CreateFragranceReportInput {
+  fragranceId: Int!
+  report: String!
 }
 
 input VoteOnFragranceInput {
