@@ -3,6 +3,8 @@ import { ApiResolver } from './apiResolver'
 import { ApiError } from '@src/common/error'
 import { type FragranceReportRow } from '@src/services/repositories/FragranceReportsRepo'
 import { type FragranceReportSummary } from '@src/schemas/fragrance/mappers'
+import { z } from 'zod'
+import { parseSchema } from '@src/common/schema'
 
 export class FragranceReportResolver extends ApiResolver {
   createReport: MutationResolvers['createFragranceReport'] = async (parent, args, context, info) => {
@@ -17,7 +19,9 @@ export class FragranceReportResolver extends ApiResolver {
       )
     }
 
-    const userId = me.id
+    parseSchema(CreateReportSchema, input)
+
+    const userId = me?.id
     const { fragranceId, report } = input
 
     return await services
@@ -41,3 +45,11 @@ export const mapFragranceReportRowToFragranceReportSummary = (row: FragranceRepo
     report
   }
 }
+
+export const CreateReportSchema = z
+  .object({
+    report: z
+      .string()
+      .min(100, 'Report must be at least 100 characters')
+      .max(1000, 'Report must be 1000 characters or fewer')
+  })
