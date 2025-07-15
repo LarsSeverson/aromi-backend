@@ -273,6 +273,7 @@ export type FragranceNote = {
   layer: NoteLayer;
   name: Scalars['String']['output'];
   noteId: Scalars['Int']['output'];
+  thumbnail?: Maybe<Scalars['String']['output']>;
   votes: VoteSummary;
 };
 
@@ -1091,6 +1092,7 @@ export type FragranceNoteResolvers<ContextType = ApiContext, ParentType extends 
   layer?: Resolver<ResolversTypes['NoteLayer'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   noteId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['VoteSummary'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

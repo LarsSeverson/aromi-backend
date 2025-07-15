@@ -49,6 +49,7 @@ type FragranceNote {
   votes: VoteSummary!
   audit: Audit!
   isFill: Boolean!
+  thumbnail: String
 }
 
 type FragranceAccord {

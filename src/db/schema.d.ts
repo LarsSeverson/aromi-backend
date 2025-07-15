@@ -215,7 +215,7 @@ export interface Note {
   deletedAt: Timestamp | null;
   id: Generated<number>;
   name: string;
-  s3Key: Generated<string>;
+  s3Key: string | null;
   updatedAt: Timestamp;
 }
 

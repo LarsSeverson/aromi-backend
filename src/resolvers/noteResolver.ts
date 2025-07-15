@@ -8,7 +8,7 @@ export class NoteResolver extends ApiResolver {
   notes: FragranceNotesResolvers['top' | 'middle' | 'base'] = async (parent, args, context, info) => {
     const { id } = parent.parent
     const { input } = args
-    const { loaders } = context
+    const { loaders, services } = context
     const layer = info.fieldName as NoteLayerEnum
 
     const { pagination, fill } = input ?? {}
@@ -63,7 +63,15 @@ export class NoteResolver extends ApiResolver {
             rows,
             parsedInput,
             (row) => `${row[parsedInput.column]}|${row.isFill ? '1' : '0'}`,
-            mapFragranceNoteRowToFragranceNote
+            (row) => {
+              const note = mapFragranceNoteRowToFragranceNote(row)
+
+              if (note.thumbnail != null) {
+                note.thumbnail = services.asset.publicizeField(note.thumbnail)
+              }
+
+              return note
+            }
           ),
         error => { throw error }
       )
@@ -85,7 +93,7 @@ export const GQL_NOTE_LAYER_TO_DB_NOTE_LAYER: Record<NoteLayer, NoteLayerEnum> =
 export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): FragranceNote => {
   const {
     id, noteId,
-    name, layer,
+    name, s3Key, layer,
     voteScore, likesCount, dislikesCount, myVote,
     createdAt, updatedAt, deletedAt,
     isFill
@@ -107,6 +115,7 @@ export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): Fragr
 
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
 
-    isFill: isFill ?? false
+    isFill: isFill ?? false,
+    thumbnail: s3Key
   }
 }

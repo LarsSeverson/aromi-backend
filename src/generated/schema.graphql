@@ -203,6 +203,7 @@ type FragranceNote {
   layer: NoteLayer!
   name: String!
   noteId: Int!
+  thumbnail: String
   votes: VoteSummary!
 }
 

@@ -29,6 +29,12 @@ export class AssetService extends ApiService {
     return asset
   }
 
+  publicizeField (
+    field: string
+  ): string {
+    return this.getUrl(field)
+  }
+
   sign <A extends BaseAsset>(
     asset: A
   ): A {

@@ -8,6 +8,7 @@ export interface FragranceNoteRow extends Selectable<DB['fragranceNotes']>, MyVo
   noteId: number
   name: string
   isFill: boolean
+  s3Key?: string | undefined | null
 }
 
 export class FragranceNotesRepo extends TableService<'fragranceNotes', FragranceNoteRow> {
@@ -38,6 +39,7 @@ export class FragranceNotesRepo extends TableService<'fragranceNotes', Fragrance
           .select([
             'nv.vote as myVote',
             'notes.id as noteId',
+            'notes.s3Key',
             'notes.name',
             sql<boolean>`FALSE`.as('isFill')
           ])
@@ -59,6 +61,7 @@ export class FragranceNotesFillerRepo extends TableService<'fragranceNotes', Fra
           .selectAll('notes')
           .select([
             'notes.id as noteId',
+            's3Key',
             sql<number>`${INVALID_ID}`.as('fragranceId'),
             sql<number>`0`.as('dislikesCount'),
             sql<number>`0`.as('likesCount'),
