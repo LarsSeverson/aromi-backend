@@ -1,5 +1,5 @@
 import { type DB } from '@src/db/schema'
-import { sql, type Selectable } from 'kysely'
+import { type Selectable } from 'kysely'
 import { type MyVote, TableService } from './TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { type ApiServiceContext } from './ApiService'
@@ -12,7 +12,7 @@ import { FragranceCollectionRepo } from './repositories/FragranceCollectionRepo'
 import { FragranceSearchRepo } from './repositories/FragranceSearchRepo'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { FragranceVotesRepo, type FragranceVoteRow } from './repositories/FragranceVotesRepo'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
 import { VoteFactory } from '@src/factories/VoteFactory'
 import { FragranceReportsRepo } from './repositories/FragranceReportsRepo'
 
@@ -103,15 +103,13 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
   vote (
     params: FragranceVoteParams
   ): ResultAsync<FragranceVoteRow, ApiError> {
+    const db = this.sources.db
+
     return ResultAsync
       .fromPromise(
-        this
-          .sources
-          .db
+        db
           .transaction()
           .execute(async trx => {
-            const db = this.sources.db
-
             this.withConnection(trx)
             this.votes.withConnection(trx)
 
@@ -119,14 +117,14 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
               .voteInner(params)
               .match(
                 row => row,
-                error => { throw error }
+                throwError
               )
               .finally(() => {
                 this.withConnection(db)
                 this.votes.withConnection(db)
               })
           }),
-        error => ApiError.fromDatabase(error as Error)
+        error => ApiError.fromDatabase(error)
       )
   }
 
@@ -134,7 +132,7 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
     params: FragranceVoteParams
   ): ResultAsync<FragranceVoteRow, ApiError> {
     const { userId, fragranceId, vote } = params
-    const [value, deletedAt] = this.voteFactory.value(vote)
+    const [value, deletedAt, updatedAt] = this.voteFactory.value(vote)
 
     return this
       .votes
@@ -150,23 +148,49 @@ export class FragranceService extends TableService<'fragrances', FragranceRow> {
       })
       .andThen(existing => this
         .votes
-        .create({ userId, fragranceId, vote: value, deletedAt })
-        .map(row => ({ existing, row }))
+        .upsert(
+          {
+            userId,
+            fragranceId,
+            vote: value,
+            deletedAt
+          },
+          oc => oc
+            .columns(['userId', 'fragranceId'])
+            .doUpdateSet(
+              {
+                vote: value,
+                deletedAt,
+                updatedAt
+              }
+            )
+        )
+        .map(upserted => ({ existing, upserted }))
       )
-      .andThen(({ existing, row }) => {
+      .andThen(({ existing, upserted }) => {
         const prev = existing?.vote ?? 0
         const next = value
-        const [likesCount, dislikesCount] = this.voteFactory.delta(prev, next)
+
+        const [
+          likesCount,
+          dislikesCount
+        ] = this.voteFactory.getDeltas(prev, next)
+        const [
+          newLikesCount,
+          newDislikesCount,
+          newVoteScore
+        ] = this.voteFactory.getUpdatedValues(likesCount, dislikesCount)
+
         return this
-          .update(
+          .updateOne(
             eb => eb('fragrances.id', '=', fragranceId),
             eb => ({
-              likesCount: eb('likesCount', '+', likesCount),
-              dislikesCount: eb('dislikesCount', '+', dislikesCount),
-              voteScore: sql<number>`(likes_count + ${likesCount}) - (dislikes_count + ${dislikesCount})`
+              likesCount: newLikesCount,
+              dislikesCount: newDislikesCount,
+              voteScore: newVoteScore
             })
           )
-          .map(() => row)
+          .map(() => upserted)
       })
   }
 }

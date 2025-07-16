@@ -112,3 +112,7 @@ export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   invalid_request: new ApiError('MEILI_INVALID_REQUEST', 'Invalid request made to search service', 400),
   internal: new ApiError('MEILI_INTERNAL_ERROR', 'Search service encountered an internal error', 500)
 } as const
+
+export const throwError = (error: ApiError): never => {
+  throw error
+}

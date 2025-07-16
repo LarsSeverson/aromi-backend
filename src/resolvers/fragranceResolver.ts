@@ -350,8 +350,8 @@ export class FragranceResolver extends ApiResolver {
 
     if (me == null) {
       throw new ApiError(
-        '403',
-        'You must be logged in vote on a fragrance',
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before voting on a fragrance',
         403
       )
     }

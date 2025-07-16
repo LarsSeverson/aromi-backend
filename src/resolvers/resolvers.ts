@@ -102,11 +102,11 @@ export class ApiResolvers implements Resolvers {
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,
 
     //   // Voting
-    voteOnFragrance: fragranceResolver.voteOnFragrance
+    voteOnFragrance: fragranceResolver.voteOnFragrance,
     //   voteOnTrait: fragranceResolver.voteOnTrait,
     //   voteOnAccord: fragranceResolver.voteOnAccord,
     //   voteOnNote: fragranceResolver.voteOnNote,
-    //   voteOnReview: reviewResolver.voteOnReview,
+    voteOnReview: reviewResolver.voteOnReview
 
   //   logFragranceView: fragranceResolver.logFragranceView
   }

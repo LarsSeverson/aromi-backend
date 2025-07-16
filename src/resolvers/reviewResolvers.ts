@@ -1,10 +1,11 @@
-import { type FragranceReviewResolvers as FragranceReviewFieldResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers, type FragranceReviewResolvers as FragranceReviewFieldResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
 import { ResultAsync } from 'neverthrow'
 import { mapUserRowToUserSummary } from './userResolver'
 import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
 import { type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { type FragranceReviewSummary } from '@src/schemas/fragrance/mappers'
+import { ApiError } from '@src/common/error'
 
 export class ReviewResolver extends ApiResolver {
   reviewUser: FragranceReviewFieldResolvers['user'] = async (parent, args, context, info) => {
@@ -43,35 +44,32 @@ export class ReviewResolver extends ApiResolver {
       )
   }
 
-  // createReview: MutationResolvers['createFragranceReview'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  voteOnReview: MutationResolvers['voteOnReview'] = async (_, args, context, info) => {
+    const { input } = args
+    const { me, services } = context
 
-  //   const { fragranceId, rating, review } = input
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before voting on a review',
+        403
+      )
+    }
 
-  //   return await services
-  //     .review
-  //     .create({ fragranceId, rating, reviewText: review })
-  //     .match(
-  //       mapFragranceReviewRowToFragranceReviewSummary,
-  //       error => { throw error }
-  //     )
-  // }
+    const userId = me.id
+    const { reviewId, vote } = input
 
-  // voteOnReview: MutationResolvers['voteOnReview'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
-
-  //   const { reviewId, vote } = input
-
-  //   return await services
-  //     .review
-  //     .vote({ reviewId, vote: vote ?? null })
-  //     .match(
-  //       mapFragranceReviewRowToFragranceReviewSummary,
-  //       error => { throw error }
-  //     )
-  // }
+    return await services
+      .fragrance
+      .reviews
+      .vote({ userId, reviewId, vote })
+      .match(
+        mapFragranceReviewRowToFragranceReviewSummary,
+        error => {
+          throw error
+        }
+      )
+  }
 }
 
 export const mapFragranceReviewRowToFragranceReviewSummary = (row: FragranceReviewRow): FragranceReviewSummary => {
