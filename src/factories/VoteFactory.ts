@@ -29,4 +29,23 @@ export class VoteFactory {
 
     return [newLikesCount, newDislikesCount, newVoteScore]
   }
+
+  getUpdatedValuesObj (
+    likesDelta: number,
+    dislikesDelta: number
+  ): VoteValues {
+    const [likesCount, dislikesCount, voteScore] = this.getUpdatedValues(likesDelta, dislikesDelta)
+
+    return {
+      likesCount,
+      dislikesCount,
+      voteScore
+    }
+  }
+}
+
+export interface VoteValues {
+  likesCount: RawBuilder<number>
+  dislikesCount: RawBuilder<number>
+  voteScore: RawBuilder<number>
 }

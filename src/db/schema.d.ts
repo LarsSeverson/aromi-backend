@@ -219,6 +219,16 @@ export interface Note {
   updatedAt: Timestamp;
 }
 
+export interface ReviewReport {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<number>;
+  report: string;
+  reviewId: number;
+  updatedAt: Generated<Timestamp>;
+  userId: number;
+}
+
 export interface User {
   cognitoId: string;
   createdAt: Generated<Timestamp>;
@@ -250,5 +260,6 @@ export interface DB {
   fragranceViews: FragranceView;
   fragranceVotes: FragranceVote;
   notes: Note;
+  reviewReports: ReviewReport;
   users: User;
 }

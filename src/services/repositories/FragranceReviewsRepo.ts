@@ -5,13 +5,15 @@ import { type ApiDataSources } from '@src/datasources/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { ApiError, throwError } from '@src/common/error'
 import { VoteFactory } from '@src/factories/VoteFactory'
-import { ReviewVoteRepo } from './ReviewVotesRepo'
+import { ReviewVotesRepo } from './ReviewVotesRepo'
+import { ReviewReportsRepo } from './ReviewReportsRepo'
 
 export type FragranceReviewRow = Selectable<DB['fragranceReviews']> & MyVote
 
 export class FragranceReviewsRepo extends TableService<'fragranceReviews', FragranceReviewRow> {
   dist: FragranceReviewsDistRepo
-  votes: ReviewVoteRepo
+  votes: ReviewVotesRepo
+  reports: ReviewReportsRepo
 
   voteFactory = new VoteFactory()
 
@@ -19,7 +21,8 @@ export class FragranceReviewsRepo extends TableService<'fragranceReviews', Fragr
     super(sources, 'fragranceReviews')
 
     this.dist = new FragranceReviewsDistRepo(sources)
-    this.votes = new ReviewVoteRepo(sources)
+    this.votes = new ReviewVotesRepo(sources)
+    this.reports = new ReviewReportsRepo(sources)
 
     this
       .Table

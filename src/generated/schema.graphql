@@ -81,6 +81,11 @@ input CreateFragranceReviewInput {
   review: String!
 }
 
+input CreateReviewReportInput {
+  report: String!
+  reviewId: Int!
+}
+
 scalar Date
 
 input DeleteFragranceCollectionItemInput {
@@ -317,6 +322,7 @@ type Mutation {
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  createReviewReport(input: CreateReviewReportInput!): ReviewReport!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
   forgotPassword(email: String!): DeliveryResult!
   logFragranceView(input: LogFragranceViewInput!): Boolean!
@@ -364,6 +370,13 @@ type Query {
   me: User
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
   user(id: Int!): User
+}
+
+type ReviewReport {
+  id: Int!
+  report: String!
+  review: FragranceReview!
+  user: User!
 }
 
 input SearchFragrancesInput {

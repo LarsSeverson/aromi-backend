@@ -8,6 +8,7 @@ import { ReviewResolver } from './reviewResolvers'
 import { CollectionResolver } from './collectionResolver'
 import { FragranceVoteResolver } from './fragranceVoteResolver'
 import { FragranceReportResolver } from './fragranceReportResolver'
+import { ReviewReportResolver } from './reviewReportResolver'
 
 const authResolver = new AuthResolver()
 const userResolver = new UserResolver()
@@ -17,6 +18,7 @@ const collectionResolver = new CollectionResolver()
 const reviewResolver = new ReviewResolver()
 const fragranceVoteResolver = new FragranceVoteResolver()
 const reportResolver = new FragranceReportResolver()
+const reviewReportResolver = new ReviewReportResolver()
 
 export class ApiResolvers implements Resolvers {
   Date = GraphQLDateTime
@@ -98,6 +100,7 @@ export class ApiResolvers implements Resolvers {
     deleteFragranceCollectionItem: collectionResolver.deleteCollectionItem,
 
     createFragranceReport: reportResolver.createReport,
+    createReviewReport: reviewReportResolver.createReport,
     //   createFragranceImage: fragranceResolver.createFragranceImage,
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,
 

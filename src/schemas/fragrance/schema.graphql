@@ -112,6 +112,13 @@ type FragranceReport {
   user: User!
 }
 
+type ReviewReport {
+  id: Int!
+  report: String!
+  review: FragranceReview!
+  user: User!
+}
+
 extend type Query {
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
@@ -145,6 +152,10 @@ extend type Mutation {
   createFragranceReport(
     input: CreateFragranceReportInput!
   ): FragranceReport!
+
+  createReviewReport(
+    input: CreateReviewReportInput!
+  ): ReviewReport!
 
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
@@ -210,6 +221,11 @@ input MoveFragranceCollectionItemInput {
 
 input CreateFragranceReportInput {
   fragranceId: Int!
+  report: String!
+}
+
+input CreateReviewReportInput {
+  reviewId: Int!
   report: String!
 }
 

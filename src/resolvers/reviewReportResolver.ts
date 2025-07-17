@@ -1,41 +1,42 @@
 import { type MutationResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
 import { ApiError, throwError } from '@src/common/error'
-import { type FragranceReportRow } from '@src/services/repositories/FragranceReportsRepo'
-import { type FragranceReportSummary } from '@src/schemas/fragrance/mappers'
 import { z } from 'zod'
 import { parseSchema } from '@src/common/schema'
+import { type ReviewReportRow } from '@src/services/repositories/ReviewReportsRepo'
+import { type ReviewReportSummary } from '@src/schemas/fragrance/mappers'
 
-export class FragranceReportResolver extends ApiResolver {
-  createReport: MutationResolvers['createFragranceReport'] = async (parent, args, context, info) => {
+export class ReviewReportResolver extends ApiResolver {
+  createReport: MutationResolvers['createReviewReport'] = async (parent, args, context, info) => {
     const { input } = args
     const { me, services } = context
 
     if (me == null) {
       throw new ApiError(
         'NOT_AUTHORIZED',
-        'You need to sign up or log in before creating a report',
+        'You need to log in or sign up before creating a report',
         403
       )
     }
 
-    parseSchema(CreateReportSchema, input)
+    parseSchema(CreateReviewReportSchema, input)
 
     const userId = me.id
-    const { fragranceId, report } = input
+    const { reviewId, report } = input
 
     return await services
       .fragrance
+      .reviews
       .reports
-      .create({ fragranceId, userId, report })
+      .create({ reviewId, userId, report })
       .match(
-        mapFragranceReportRowToFragranceReportSummary,
+        mapReviewReportRowToReportSummary,
         throwError
       )
   }
 }
 
-export const mapFragranceReportRowToFragranceReportSummary = (row: FragranceReportRow): FragranceReportSummary => {
+export const mapReviewReportRowToReportSummary = (row: ReviewReportRow): ReviewReportSummary => {
   const { id, report } = row
 
   return {
@@ -44,7 +45,7 @@ export const mapFragranceReportRowToFragranceReportSummary = (row: FragranceRepo
   }
 }
 
-export const CreateReportSchema = z
+export const CreateReviewReportSchema = z
   .object({
     report: z
       .string()

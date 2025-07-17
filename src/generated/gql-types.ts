@@ -111,6 +111,11 @@ export type CreateFragranceReviewInput = {
   review: Scalars['String']['input'];
 };
 
+export type CreateReviewReportInput = {
+  report: Scalars['String']['input'];
+  reviewId: Scalars['Int']['input'];
+};
+
 export type DeleteFragranceCollectionItemInput = {
   collectionId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
@@ -415,6 +420,7 @@ export type Mutation = {
   createFragranceImage: AssetUploadPayload;
   createFragranceReport: FragranceReport;
   createFragranceReview: FragranceReview;
+  createReviewReport: ReviewReport;
   deleteFragranceCollectionItem: Array<FragranceCollectionItem>;
   forgotPassword: DeliveryResult;
   logFragranceView: Scalars['Boolean']['output'];
@@ -472,6 +478,11 @@ export type MutationCreateFragranceReportArgs = {
 
 export type MutationCreateFragranceReviewArgs = {
   input: CreateFragranceReviewInput;
+};
+
+
+export type MutationCreateReviewReportArgs = {
+  input: CreateReviewReportInput;
 };
 
 
@@ -595,6 +606,14 @@ export type QuerySearchFragrancesArgs = {
 
 export type QueryUserArgs = {
   id: Scalars['Int']['input'];
+};
+
+export type ReviewReport = {
+  __typename?: 'ReviewReport';
+  id: Scalars['Int']['output'];
+  report: Scalars['String']['output'];
+  review: FragranceReview;
+  user: User;
 };
 
 export type SearchFragrancesInput = {
@@ -787,6 +806,7 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceImageInput: ResolverTypeWrapper<Partial<CreateFragranceImageInput>>;
   CreateFragranceReportInput: ResolverTypeWrapper<Partial<CreateFragranceReportInput>>;
   CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
+  CreateReviewReportInput: ResolverTypeWrapper<Partial<CreateReviewReportInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteFragranceCollectionItemInput: ResolverTypeWrapper<Partial<DeleteFragranceCollectionItemInput>>;
   DeliveryResult: ResolverTypeWrapper<Partial<DeliveryResult>>;
@@ -831,6 +851,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
   PaginationInput: ResolverTypeWrapper<Partial<PaginationInput>>;
   Query: ResolverTypeWrapper<{}>;
+  ReviewReport: ResolverTypeWrapper<Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversTypes['FragranceReview'], user: ResolversTypes['User'] }>>;
   SearchFragrancesInput: ResolverTypeWrapper<Partial<SearchFragrancesInput>>;
   SortBy: ResolverTypeWrapper<Partial<SortBy>>;
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
@@ -865,6 +886,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceImageInput: Partial<CreateFragranceImageInput>;
   CreateFragranceReportInput: Partial<CreateFragranceReportInput>;
   CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
+  CreateReviewReportInput: Partial<CreateReviewReportInput>;
   Date: Partial<Scalars['Date']['output']>;
   DeleteFragranceCollectionItemInput: Partial<DeleteFragranceCollectionItemInput>;
   DeliveryResult: Partial<DeliveryResult>;
@@ -907,6 +929,7 @@ export type ResolversParentTypes = ResolversObject<{
   PageInfo: Partial<PageInfo>;
   PaginationInput: Partial<PaginationInput>;
   Query: {};
+  ReviewReport: Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversParentTypes['FragranceReview'], user: ResolversParentTypes['User'] }>;
   SearchFragrancesInput: Partial<SearchFragrancesInput>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
@@ -1202,6 +1225,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceImage?: Resolver<ResolversTypes['AssetUploadPayload'], ParentType, ContextType, RequireFields<MutationCreateFragranceImageArgs, 'input'>>;
   createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
+  createReviewReport?: Resolver<ResolversTypes['ReviewReport'], ParentType, ContextType, RequireFields<MutationCreateReviewReportArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
@@ -1233,6 +1257,14 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   searchFragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
+}>;
+
+export type ReviewReportResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['ReviewReport'] = ResolversParentTypes['ReviewReport']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  report?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  review?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
@@ -1297,6 +1329,7 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  ReviewReport?: ReviewReportResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   VoteSummary?: VoteSummaryResolvers<ContextType>;
 }>;
