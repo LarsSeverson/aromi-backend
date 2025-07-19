@@ -2,6 +2,7 @@ import { type ApiCursor, CursorFactory } from '@src/factories/CursorFactory'
 import { ConnectionFactory, type ConnectionNode, type ConnectionEdge, type RelayConnection } from '@src/factories/ConnectionFactory'
 import { type Audit, SortBy, VoteSortBy } from '@src/generated/gql-types'
 import { PaginationFactory } from '@src/factories/PaginationFactory'
+import { PagiFactory } from '@src/factories/PagiFactory'
 
 export type TransformDataFn<N extends ConnectionNode> = (d: N) => N
 export type ExtractCursorValueFn<N extends ConnectionNode> = (d: N, idx: number) => string
@@ -15,6 +16,7 @@ export class ApiResolver {
   protected readonly cursorFactory = new CursorFactory()
   protected readonly connectionFactory = new ConnectionFactory()
   protected readonly paginationFactory = new PaginationFactory()
+  protected readonly pagiFactory = new PagiFactory()
 
   protected newEdges <N extends ConnectionNode, O extends ConnectionNode = N>(
     data: N[],
@@ -92,31 +94,3 @@ export const VoteSortByColumn = {
   [VoteSortBy.Updated]: 'updatedAt',
   [VoteSortBy.Votes]: 'voteScore'
 } as const
-
-// export const DEFAULT_DIRECTION = SortDirection.Descending
-// export const DEFAULT_SORT_BY = SortBy.Updated
-
-// export const CURSOR_PAGINATION_OPERATORS = {
-//   [SortDirection.Ascending]: '>',
-//   [SortDirection.Descending]: '<'
-// } as const
-
-// export const CURSOR_PAGINATION_DIRECTIONS = {
-//   [SortDirection.Ascending]: 'asc',
-//   [SortDirection.Descending]: 'desc'
-// } as const
-
-// export type CursorPaginationOperator = typeof CURSOR_PAGINATION_OPERATORS[keyof typeof CURSOR_PAGINATION_OPERATORS]
-// export type CursorPaginationDirection = typeof CURSOR_PAGINATION_DIRECTIONS[keyof typeof CURSOR_PAGINATION_DIRECTIONS]
-
-// export interface CursorSortParams<C extends SortColumn> {
-//   column: C
-//   operator: CursorPaginationOperator
-//   direction: CursorPaginationDirection
-// }
-
-// export interface CursorPaginationParams<C, S extends SortColumn> {
-//   first: number
-//   cursor: ApiCursor<C>
-//   sortParams: CursorSortParams<S>
-// }

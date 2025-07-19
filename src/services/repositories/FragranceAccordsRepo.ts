@@ -1,8 +1,9 @@
 import { type DB } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
-import { type MyVote, TableService } from '../TableService'
+import { type MyVote, type QueryOptions, TableService } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { INVALID_ID } from '@src/common/types'
+import { ResultAsync } from 'neverthrow'
+import { ApiError } from '@src/common/error'
 
 export interface FragranceAccordRow extends Selectable<DB['fragranceAccords']>, MyVote {
   accordId: number
@@ -12,12 +13,12 @@ export interface FragranceAccordRow extends Selectable<DB['fragranceAccords']>, 
 }
 
 export class FragranceAccordsRepo extends TableService<'fragranceAccords', FragranceAccordRow> {
-  fillers: FragranceAccordFillerRepo
+  fillers: FillerAccordsRepo
 
   constructor (sources: ApiDataSources) {
     super(sources, 'fragranceAccords')
 
-    this.fillers = new FragranceAccordFillerRepo(sources)
+    this.fillers = new FillerAccordsRepo(sources)
 
     this
       .Table
@@ -47,33 +48,56 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
   }
 }
 
-export class FragranceAccordFillerRepo extends TableService<'fragranceAccords', FragranceAccordRow> {
+export class FillerAccordsRepo extends TableService<'accords', FragranceAccordRow> {
   constructor (sources: ApiDataSources) {
-    super(sources, 'fragranceAccords')
+    super(sources, 'accords')
+  }
 
-    this
-      .Table
-      .setAlias('fillerAccords')
-      .setBaseQueryFactory(() => {
-        const subquery = sources
-          .db
-          .selectFrom('accords')
-          .selectAll('accords')
-          .select([
-            'accords.id as accordId',
-            sql<number>`${INVALID_ID}`.as('fragranceId'),
-            sql<number>`0`.as('dislikesCount'),
-            sql<number>`0`.as('likesCount'),
-            sql<number>`0`.as('voteScore'),
-            sql<number>`0`.as('myVote'),
-            sql<boolean>`TRUE`.as('isFill')
-          ])
-          .as('fillerAccords')
+  fill <C>(
+    fragranceId: number,
+    options?: QueryOptions<'accords', FragranceAccordRow, C>
+  ): ResultAsync<FragranceAccordRow[], ApiError> {
+    const { pagination, extend } = options ?? {}
 
-        return sources
-          .db
-          .selectFrom(subquery)
-          .selectAll()
-      })
+    let query = this
+      .sources
+      .db
+      .selectFrom('accords')
+      .leftJoin('fragranceAccords', join =>
+        join
+          .onRef('fragranceAccords.accordId', '=', 'accords.id')
+          .on('fragranceAccords.fragranceId', '=', fragranceId)
+      )
+      .where('fragranceAccords.id', 'is', null)
+      .selectAll('accords')
+      .select([
+        'accords.id as accordId',
+        sql<number>`${fragranceId}`.as('fragranceId'),
+        sql<number>`0`.as('dislikesCount'),
+        sql<number>`0`.as('likesCount'),
+        sql<number>`0`.as('voteScore'),
+        sql<number | null>`0`.as('myVote'),
+        sql<boolean>`TRUE`.as('isFill')
+      ])
+
+    if (pagination != null) {
+      pagination.column = 'id'
+
+      query = this
+        .Table
+        .paginatedQuery(pagination, query)
+    }
+
+    if (extend != null) {
+      query = extend(query)
+    }
+
+    console.log(query.compile())
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error)
+      )
   }
 }

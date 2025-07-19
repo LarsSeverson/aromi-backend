@@ -62,10 +62,12 @@ enum SortDirection {
 }
 
 enum SortBy {
+  ID
   UPDATED
 }
 
 enum VoteSortBy {
+  ID
   UPDATED
   VOTES
 }

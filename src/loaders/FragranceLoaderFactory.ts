@@ -219,15 +219,16 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
 
       return await ResultAsync
         .combine(
-          fragranceIds.map(id => this
-            .services
-            .fragrance
-            .accords
-            .find(
-              eb => eb('fragranceAccords.fragranceId', '=', id),
-              { pagination }
+          fragranceIds
+            .map(id => this
+              .services
+              .fragrance
+              .accords
+              .find(
+                eb => eb('fragranceAccords.fragranceId', '=', id),
+                { pagination }
+              )
             )
-          )
         )
         .match(
           rows => rows,
@@ -240,14 +241,24 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
     const { pagination } = params
 
     return new DataLoader<FragranceLoaderKey, FragranceAccordRow[]>(async (keys) => {
-      return await this
-        .services
-        .fragrance
-        .accords
-        .fillers
-        .find(undefined, { pagination })
+      const fragranceIds = this.getFragranceIds(keys)
+
+      return await ResultAsync
+        .combine(
+          fragranceIds
+            .map(id => this
+              .services
+              .fragrance
+              .accords
+              .fillers
+              .fill(
+                id,
+                { pagination }
+              )
+            )
+        )
         .match(
-          rows => keys.map(() => rows),
+          rows => rows,
           error => { throw error }
         )
     })

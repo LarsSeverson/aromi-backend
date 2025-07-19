@@ -622,6 +622,7 @@ export type SearchFragrancesInput = {
 };
 
 export const SortBy = {
+  Id: 'ID',
   Updated: 'UPDATED'
 } as const;
 
@@ -700,6 +701,7 @@ export type VotePaginationInput = {
 };
 
 export const VoteSortBy = {
+  Id: 'ID',
   Updated: 'UPDATED',
   Votes: 'VOTES'
 } as const;

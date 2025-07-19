@@ -385,6 +385,7 @@ input SearchFragrancesInput {
 }
 
 enum SortBy {
+  ID
   UPDATED
 }
 
@@ -445,6 +446,7 @@ input VotePaginationInput {
 }
 
 enum VoteSortBy {
+  ID
   UPDATED
   VOTES
 }

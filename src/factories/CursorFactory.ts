@@ -38,7 +38,7 @@ export class CursorFactory {
     return { value, lastId: lastId ?? '', isValid }
   }
 
-  private decodeRawCursor (
+  decodeRawCursor (
     rawCursor: string
   ): ApiRawCursor {
     const decoded = Buffer
