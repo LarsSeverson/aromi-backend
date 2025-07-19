@@ -1,15 +1,15 @@
 export interface ApiCursor<T> {
   value: T
-  lastId: string | null
+  lastId: number | undefined | null
   isValid: boolean
 }
 
 export interface ApiRawCursor {
-  value: unknown
-  lastId: string | undefined | null
+  value: string
+  lastId: number | undefined | null
 }
 
-export type CursorParser<T> = (decodedValue: unknown) => T
+export type CursorDecoder<T> = (decodedValue: unknown) => T
 
 export class CursorFactory {
   encodeCursor (
@@ -25,17 +25,17 @@ export class CursorFactory {
 
   decodeCursor <T>(
     eCursor: string,
-    parser?: CursorParser<T>
+    decoder?: CursorDecoder<T>
   ): ApiCursor<T> {
     const { value: rawValue, lastId } = this.decodeRawCursor(eCursor)
 
-    const value = (parser != null
-      ? parser(rawValue)
+    const value = (decoder != null
+      ? decoder(rawValue)
       : rawValue) as T
 
-    const isValid = lastId != null && lastId.length > 0
+    const isValid = value != null && lastId != null && !isNaN(lastId)
 
-    return { value, lastId: lastId ?? '', isValid }
+    return { value, lastId, isValid }
   }
 
   decodeRawCursor (
@@ -44,9 +44,12 @@ export class CursorFactory {
     const decoded = Buffer
       .from(rawCursor, 'base64')
       .toString('ascii')
+
     const parts = decoded.split('|')
-    const lastId = parts.pop()
+    const lastIdRaw = parts.pop()
     const value = parts.join('|')
+
+    const lastId = lastIdRaw?.trim() === '' ? null : Number(lastIdRaw)
 
     return { value, lastId }
   }

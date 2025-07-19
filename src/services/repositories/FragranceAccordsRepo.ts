@@ -81,8 +81,6 @@ export class FillerAccordsRepo extends TableService<'accords', FragranceAccordRo
       ])
 
     if (pagination != null) {
-      pagination.column = 'id'
-
       query = this
         .Table
         .paginatedQuery(pagination, query)
@@ -91,8 +89,6 @@ export class FillerAccordsRepo extends TableService<'accords', FragranceAccordRo
     if (extend != null) {
       query = extend(query)
     }
-
-    console.log(query.compile())
 
     return ResultAsync
       .fromPromise(

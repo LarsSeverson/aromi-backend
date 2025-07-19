@@ -1,5 +1,5 @@
 import { type PaginationInput, type SortBy, SortDirection, type VotePaginationInput, type VoteSortBy } from '@src/generated/gql-types'
-import { CursorFactory, type CursorParser, type ApiCursor } from './CursorFactory'
+import { CursorFactory, type CursorDecoder, type ApiCursor } from './CursorFactory'
 
 export type PaginationInputs = PaginationInput | VotePaginationInput
 export type SortBys = SortBy | VoteSortBy
@@ -47,7 +47,7 @@ export interface NormalizedPaginationInput {
   sort: NormalizedSortInput
 }
 
-export interface ParsedPaginationInput<C> {
+export interface ParsedPaginationInput<C = unknown> {
   first: number
   offset?: number
 
@@ -57,18 +57,31 @@ export interface ParsedPaginationInput<C> {
   direction: PaginationDirection
 
   cursor: ApiCursor<C>
+
+  normalized: NormalizedPaginationInput
 }
 
 export class PagiFactory {
   private readonly cursorFactory = new CursorFactory()
 
-  parse <C>(
-    input: NormalizedPaginationInput,
-    parser?: CursorParser<C>
+  decode <C>(
+    parsed: ParsedPaginationInput<C>,
+    value?: unknown
   ): ParsedPaginationInput<C> {
+    const { normalized } = parsed
+    const decoder = this.getDecoder<C>(normalized.sort)
+    const decoded = decoder(value ?? parsed.cursor.value)
+    parsed.cursor.value = decoded
+
+    return parsed
+  }
+
+  parse (
+    input: NormalizedPaginationInput
+  ): ParsedPaginationInput {
     const { rawCursor, first, sort } = input
 
-    const cursor = this.cursorFactory.decodeCursor(rawCursor, parser)
+    const cursor = this.cursorFactory.decodeCursor(rawCursor)
     const offset = this.getOffset(cursor)
     const column = PAGINATION_COLUMNS[sort.by]
     const operator = PAGINATION_OPERATORS[sort.direction]
@@ -83,7 +96,9 @@ export class PagiFactory {
       operator,
       direction,
 
-      cursor
+      cursor,
+
+      normalized: input
     }
   }
 
@@ -94,16 +109,12 @@ export class PagiFactory {
     return { first, rawCursor: after, sort }
   }
 
-  getParser (
-    normalizedInput: NormalizedPaginationInput,
-    customValue?: unknown
-  ): CursorParser<unknown> {
-    const by = normalizedInput.sort.by
-    const parser = CURSOR_PARSERS[by]
-
-    if (customValue != null) return () => { parser(customValue) }
-
-    return parser
+  getDecoder <C>(
+    sort: NormalizedSortInput
+  ): CursorDecoder<C> {
+    const by = sort.by
+    const decoder = CURSOR_DECODERS[by]
+    return decoder as CursorDecoder<C>
   }
 
   private getDefaults (
@@ -134,7 +145,7 @@ export class PagiFactory {
   }
 }
 
-export const CURSOR_PARSERS: Record<SortBys, (value: unknown) => unknown> = {
+export const CURSOR_DECODERS: Record<SortBys, (value: unknown) => unknown> = {
   ID: function (value: unknown): number {
     return Number(value)
   },

@@ -22,19 +22,19 @@ export class ApiError extends GraphQLError {
     if (error instanceof NoResultError) {
       return new ApiError('RESOURCE_NOT_FOUND', 'Resource not found', 404, error)
     }
-    return new ApiError('DB_QUERY_FAILED', 'Something went wrong getting this resource. Please try again later', 500, error)
+    return new ApiError('DB_QUERY_FAILED', 'Something went wrong. Please try again later', 500, error)
   }
 
   static fromCognito (error: Error): ApiError {
     const mapping = COGNITO_ERROR_TO_API_ERROR[error.name]
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
-    return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong with authentication. Please try again later', 500, error)
+    return new ApiError('AUTH_SERVICE_ERROR', 'Something went wrong. Please try again later', 500, error)
   }
 
   static fromS3 (error: Error): ApiError {
     const mapping = S3_ERROR_TO_API_ERROR[error.name]
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
-    return new ApiError('S3_SERVICE_ERROR', 'Something went wrong with S3. Please try again later', 500, error)
+    return new ApiError('S3_SERVICE_ERROR', 'Something went wrong. Please try again later', 500, error)
   }
 
   static fromMeili (error: unknown): ApiError {
@@ -51,7 +51,7 @@ export class ApiError extends GraphQLError {
 
     const mapping = MEILI_ERROR_TO_API_ERROR[code]
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
-    return new ApiError('MEILI_SERVICE_ERROR', 'Search service failed. Please try again later', 500, error)
+    return new ApiError('MEILI_SERVICE_ERROR', 'Something went wrong. Please try again later', 500, error)
   }
 
   serialize (): GraphQLFormattedError {
@@ -113,6 +113,6 @@ export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   internal: new ApiError('MEILI_INTERNAL_ERROR', 'Search service encountered an internal error', 500)
 } as const
 
-export const throwError = (error: ApiError): never => {
+export const throwError = (error: unknown): never => {
   throw error
 }

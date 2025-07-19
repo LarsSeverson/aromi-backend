@@ -1,5 +1,5 @@
 import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution, type MutationResolvers } from '@src/generated/gql-types'
-import { ApiResolver, SortByColumn, VoteSortByColumn } from './apiResolver'
+import { ApiResolver, FILLER_FLAG, SortByColumn, VoteSortByColumn } from './apiResolver'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { okAsync, ResultAsync } from 'neverthrow'
@@ -10,8 +10,8 @@ import { type FragranceAccordRow } from '@src/services/repositories/FragranceAcc
 import { type FragranceReviewDistRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
 import { mapFragranceVoteRowToFragranceVoteSummary } from './fragranceVoteResolver'
-import { ApiError } from '@src/common/error'
-import { CURSOR_PARSERS } from '@src/factories/PagiFactory'
+import { ApiError, throwError } from '@src/common/error'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 // const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
@@ -160,13 +160,59 @@ export class FragranceResolver extends ApiResolver {
     const { pagination, fill } = input ?? {}
 
     const normalized = this.pagiFactory.normalize(pagination)
+    const parsed = this.pagiFactory.parse(normalized)
 
-    const decoded = normalized.rawCursor
-    const [value, fillFlag] = String(decoded).split('|')
-    const isFill = fillFlag === 'filler'
+    const [cursorValue, fillFlag] = String(parsed.cursor.value).split('|')
+    const isFill = fillFlag === FILLER_FLAG
 
-    const parser = this.pagiFactory.getParser(normalized, value)
-    const parsed = this.pagiFactory.parse(normalized, parser)
+    this.pagiFactory.decode(parsed, cursorValue)
+
+    const loader = isFill
+      ? loaders.fragrance.getFillerAccordsLoader({ pagination: parsed })
+      : loaders.fragrance.getAccordsLoader({ pagination: parsed })
+
+    return await ResultAsync
+      .fromPromise(
+        loader.load({ fragranceId: id }),
+        error => error
+      )
+      .andThen(rows => {
+        if (isFill) return okAsync(rows)
+        if (!(fill ?? false)) return okAsync(rows)
+        if (rows.length > parsed.first) return okAsync(rows)
+
+        const needed = parsed.first - rows.length
+
+        const fillInput: ParsedPaginationInput = {
+          ...parsed,
+          column: 'id',
+          first: needed,
+          cursor: {
+            ...parsed.cursor,
+            isValid: false
+          }
+        }
+
+        return ResultAsync
+          .fromPromise(
+            loaders
+              .fragrance
+              .getFillerAccordsLoader({ pagination: fillInput })
+              .load({ fragranceId: id }),
+            error => error
+          )
+          .map(filled => rows.concat(filled))
+      })
+      .match(
+        rows => this
+          .newPage(
+            rows,
+            parsed,
+            (row) => `${row[parsed.column]}|${row.isFill ? FILLER_FLAG : ''}`,
+            mapFragranceAccordRowToFragranceAccord
+          ),
+        throwError
+      )
   }
 
   fragranceNotes: FragranceFieldResolvers['notes'] = (parent, args, context, info) => ({ parent })

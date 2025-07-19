@@ -10,6 +10,7 @@ import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { ApiError } from '@src/common/error'
 import { ResultAsync } from 'neverthrow'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
@@ -31,7 +32,7 @@ export interface GetImagesLoaderParams {
 }
 
 export interface GetAccordsLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput<unknown>
 }
 
 export interface GetNotesLoaderParams {

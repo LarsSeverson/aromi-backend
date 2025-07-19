@@ -1,5 +1,5 @@
 import { type InputMaybe, SortDirection } from '@src/generated/gql-types'
-import { CursorFactory, type CursorParser, type ApiCursor } from './CursorFactory'
+import { CursorFactory, type CursorDecoder, type ApiCursor } from './CursorFactory'
 
 export const DEFAULT_LIMIT = 20
 export const MAX_LIMIT = 40
@@ -64,7 +64,7 @@ export class PaginationFactory {
   normalize <C, T>(
     input: BasePaginationInput | null | undefined,
     by: T,
-    cursorParser?: CursorParser<C>
+    cursorParser?: CursorDecoder<C>
   ): NormalizedPaginationInput<C, T> {
     const { first, after, sort: { direction } } = this.getUniversalDefaults(input)
     const cursor = this.cursorFactory.decodeCursor(after, cursorParser)

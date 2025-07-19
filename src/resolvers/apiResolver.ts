@@ -94,3 +94,5 @@ export const VoteSortByColumn = {
   [VoteSortBy.Updated]: 'updatedAt',
   [VoteSortBy.Votes]: 'voteScore'
 } as const
+
+export const FILLER_FLAG = 'filler'
