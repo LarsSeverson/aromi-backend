@@ -1,14 +1,15 @@
 import { type NoteLayerEnum, type DB } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
-import { TableService, type MyVote } from '../TableService'
+import { type QueryOptions, TableService, type MyVote } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { INVALID_ID } from '@src/common/types'
+import { ResultAsync } from 'neverthrow'
+import { ApiError } from '@src/common/error'
 
 export interface FragranceNoteRow extends Selectable<DB['fragranceNotes']>, MyVote {
   noteId: number
   name: string
   isFill: boolean
-  s3Key?: string | undefined | null
+  s3Key: string | null
 }
 
 export class FragranceNotesRepo extends TableService<'fragranceNotes', FragranceNoteRow> {
@@ -47,35 +48,53 @@ export class FragranceNotesRepo extends TableService<'fragranceNotes', Fragrance
   }
 }
 
-export class FragranceNotesFillerRepo extends TableService<'fragranceNotes', FragranceNoteRow> {
+export class FragranceNotesFillerRepo extends TableService<'notes', FragranceNoteRow> {
   constructor (sources: ApiDataSources) {
-    super(sources, 'fragranceNotes')
+    super(sources, 'notes')
+  }
 
-    this
-      .Table
-      .setAlias('fillerNotes')
-      .setBaseQueryFactory(() => {
-        const subquery = sources
-          .db
-          .selectFrom('notes')
-          .selectAll('notes')
-          .select([
-            'notes.id as noteId',
-            's3Key',
-            sql<number>`${INVALID_ID}`.as('fragranceId'),
-            sql<number>`0`.as('dislikesCount'),
-            sql<number>`0`.as('likesCount'),
-            sql<number>`0`.as('voteScore'),
-            sql<number>`0`.as('myVote'),
-            sql<NoteLayerEnum>``.as('layer'),
-            sql<boolean>`TRUE`.as('isFill')
-          ])
-          .as('fillerNotes')
+  fill <C>(
+    fragranceId: number,
+    options?: QueryOptions<'notes', FragranceNoteRow, C>
+  ): ResultAsync<FragranceNoteRow[], ApiError> {
+    const { pagination, extend } = options ?? {}
 
-        return sources
-          .db
-          .selectFrom(subquery)
-          .selectAll()
-      })
+    let query = this
+      .sources
+      .db
+      .selectFrom('notes')
+      .leftJoin('fragranceNotes', join =>
+        join
+          .onRef('fragranceNotes.noteId', '=', 'notes.id')
+          .on('fragranceNotes.fragranceId', '=', fragranceId)
+      )
+      .where('fragranceNotes.id', 'is', null)
+      .selectAll('notes')
+      .select([
+        'notes.id as noteId',
+        sql<NoteLayerEnum>``.as('layer'),
+        sql<number>`${fragranceId}`.as('fragranceId'),
+        sql<number>`0`.as('dislikesCount'),
+        sql<number>`0`.as('likesCount'),
+        sql<number>`0`.as('voteScore'),
+        sql<number | null>`0`.as('myVote'),
+        sql<boolean>`TRUE`.as('isFill')
+      ])
+
+    if (pagination != null) {
+      query = this
+        .Table
+        .paginatedQuery(pagination, query)
+    }
+
+    if (extend != null) {
+      query = extend(query)
+    }
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error)
+      )
   }
 }

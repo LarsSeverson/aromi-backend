@@ -61,8 +61,20 @@ export interface ParsedPaginationInput<C = unknown> {
   normalized: NormalizedPaginationInput
 }
 
-export class PagiFactory {
+export class PaginationFactory {
   private readonly cursorFactory = new CursorFactory()
+
+  process <C>(
+    input: PaginationInputs | null | undefined,
+    by?: SortBys,
+    value?: unknown
+  ): ParsedPaginationInput<C> {
+    const normalized = this.normalize(input, by)
+    const parsed = this.parse<C>(normalized)
+    this.decode(parsed, value)
+
+    return parsed
+  }
 
   decode <C>(
     parsed: ParsedPaginationInput<C>,
@@ -76,12 +88,12 @@ export class PagiFactory {
     return parsed
   }
 
-  parse (
+  parse <C = unknown>(
     input: NormalizedPaginationInput
-  ): ParsedPaginationInput {
+  ): ParsedPaginationInput<C> {
     const { rawCursor, first, sort } = input
 
-    const cursor = this.cursorFactory.decodeCursor(rawCursor)
+    const cursor = this.cursorFactory.decodeCursor<C>(rawCursor)
     const offset = this.getOffset(cursor)
     const column = PAGINATION_COLUMNS[sort.by]
     const operator = PAGINATION_OPERATORS[sort.direction]
@@ -103,9 +115,15 @@ export class PagiFactory {
   }
 
   normalize (
-    input: PaginationInputs | null | undefined
+    input: PaginationInputs | null | undefined,
+    by?: SortBys
   ): NormalizedPaginationInput {
     const { first, after, sort } = this.getDefaults(input)
+
+    if (by != null) {
+      sort.by = by
+    }
+
     return { first, rawCursor: after, sort }
   }
 

@@ -1,8 +1,10 @@
 import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceNote, NoteLayer, type FragranceNotesResolvers } from '@src/generated/gql-types'
 import { okAsync, ResultAsync } from 'neverthrow'
-import { ApiResolver, VoteSortByColumn } from './apiResolver'
+import { ApiResolver, FILLER_FLAG } from './apiResolver'
 import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { throwError } from '@src/common/error'
 
 export class NoteResolver extends ApiResolver {
   notes: FragranceNotesResolvers['top' | 'middle' | 'base'] = async (parent, args, context, info) => {
@@ -12,27 +14,18 @@ export class NoteResolver extends ApiResolver {
     const layer = info.fieldName as NoteLayerEnum
 
     const { pagination, fill } = input ?? {}
-    let isFill = false
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(
-        pagination,
-        pagination?.sort?.by ?? 'VOTES',
-        (decoded) => {
-          const [value, fillFlag] = String(decoded).split('|')
-          isFill = fillFlag === '1'
-          return value
-        }
-      )
+    const normalized = this.pagination.normalize(pagination, 'VOTES')
+    const parsed = this.pagination.parse(normalized)
 
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => VoteSortByColumn[normalizedInput.sort.by])
+    const [cursorValue, fillFlag] = String(parsed.cursor.value).split('|')
+    const isFill = fillFlag === FILLER_FLAG
+
+    this.pagination.decode(parsed, cursorValue)
 
     const loader = isFill
-      ? loaders.fragrance.getFillerNotesLoader({ layer, pagination: parsedInput })
-      : loaders.fragrance.getNotesLoader({ layer, pagination: parsedInput })
+      ? loaders.fragrance.getFillerNotesLoader({ layer, pagination: parsed })
+      : loaders.fragrance.getNotesLoader({ layer, pagination: parsed })
 
     return await ResultAsync
       .fromPromise(
@@ -42,10 +35,19 @@ export class NoteResolver extends ApiResolver {
       .andThen(rows => {
         if (isFill) return okAsync(rows)
         if (!(fill ?? false)) return okAsync(rows)
-        if (rows.length >= parsedInput.first) return okAsync(rows)
+        if (rows.length > parsed.first) return okAsync(rows)
 
-        const needed = parsedInput.first - rows.length
-        const fillInput = { ...parsedInput, first: needed }
+        const needed = parsed.first - rows.length
+
+        const fillInput: ParsedPaginationInput = {
+          ...parsed,
+          first: needed,
+          column: 'id',
+          cursor: {
+            ...parsed.cursor,
+            isValid: false
+          }
+        }
 
         return ResultAsync
           .fromPromise(
@@ -61,8 +63,8 @@ export class NoteResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => `${row[parsedInput.column]}|${row.isFill ? '1' : '0'}`,
+            parsed,
+            (row) => `${row[parsed.column]}|${row.isFill ? FILLER_FLAG : ''}`,
             (row) => {
               const note = mapFragranceNoteRowToFragranceNote(row)
 
@@ -73,7 +75,7 @@ export class NoteResolver extends ApiResolver {
               return note
             }
           ),
-        error => { throw error }
+        throwError
       )
   }
 }

@@ -2,7 +2,6 @@ import DataLoader from 'dataloader'
 import { LoaderFactory } from './LoaderFactory'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceImageRow } from '@src/services/repositories/FragranceImageRepo'
-import { type PaginationParams } from '@src/factories/PaginationFactory'
 import { type FragranceTraitRow } from '@src/services/repositories/FragranceTraitsRepo'
 import { type FragranceAccordRow } from '@src/services/repositories/FragranceAccordsRepo'
 import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
@@ -28,20 +27,20 @@ interface FragranceLoaders {
 }
 
 export interface GetImagesLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export interface GetAccordsLoaderParams {
-  pagination: ParsedPaginationInput<unknown>
+  pagination: ParsedPaginationInput
 }
 
 export interface GetNotesLoaderParams {
   layer: NoteLayerEnum
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export interface GetReviewsLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {

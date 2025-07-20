@@ -1,8 +1,7 @@
 import { type ApiCursor, CursorFactory } from '@src/factories/CursorFactory'
 import { ConnectionFactory, type ConnectionNode, type ConnectionEdge, type RelayConnection } from '@src/factories/ConnectionFactory'
 import { type Audit, SortBy, VoteSortBy } from '@src/generated/gql-types'
-import { PaginationFactory } from '@src/factories/PaginationFactory'
-import { PagiFactory } from '@src/factories/PagiFactory'
+import { PaginationFactory } from '@src/factories/PagiFactory'
 
 export type TransformDataFn<N extends ConnectionNode> = (d: N) => N
 export type ExtractCursorValueFn<N extends ConnectionNode> = (d: N, idx: number) => string
@@ -15,8 +14,7 @@ export interface NewPageInput<C> {
 export class ApiResolver {
   protected readonly cursorFactory = new CursorFactory()
   protected readonly connectionFactory = new ConnectionFactory()
-  protected readonly paginationFactory = new PaginationFactory()
-  protected readonly pagiFactory = new PagiFactory()
+  protected readonly pagination = new PaginationFactory()
 
   protected newEdges <N extends ConnectionNode, O extends ConnectionNode = N>(
     data: N[],

@@ -2,9 +2,9 @@ import { type ApiDataSources } from '@src/datasources/datasources'
 import { type DB } from '@src/db/schema'
 import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder, type ExpressionBuilder, type OnConflictBuilder, type OnConflictUpdateBuilder, type OnConflictDatabase, type OnConflictTables } from 'kysely'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
-import { type PaginationParams } from '../factories/PaginationFactory'
 import { type DBAny } from '@src/common/types'
 import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number, deletedAt: Date | null }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -139,11 +139,11 @@ export class Table<T extends keyof DB, R> {
   }
 
   paginatedQuery <C>(
-    paginationParams: PaginationParams<C>,
+    input: ParsedPaginationInput<C>,
     qb: SelectQueryBuilder<DB, T, R> = this.baseQuery
   ): SelectQueryBuilder<DB, T, R> {
     const alias = this.alias ?? this.table
-    const { first, column, operator, direction, cursor } = paginationParams
+    const { first, column, operator, direction, cursor } = input
 
     const parsedColumn = `${alias}.${column}` as ReferenceExpression<DB, T>
     const idColumn = `${alias}.id` as ReferenceExpression<DB, T>

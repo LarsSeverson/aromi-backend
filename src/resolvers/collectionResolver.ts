@@ -5,7 +5,7 @@ import { type FragranceCollectionSummary, type FragranceCollectionItemSummary } 
 import { type FragranceCollectionItemRow, type FragranceCollectionRow } from '@src/services/repositories/FragranceCollectionRepo'
 import { mapFragranceRowToFragranceSummary } from './fragranceResolver'
 import { mapUserRowToUserSummary } from './userResolver'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
 import { z } from 'zod'
 import { parseSchema } from '@src/common/schema'
 
@@ -20,7 +20,7 @@ export class CollectionResolver extends ApiResolver {
       .findOne(eb => eb('fragranceCollections.id', '=', id))
       .match(
         mapFragranceCollectionRowToFragranceCollectionSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -38,7 +38,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         mapUserRowToUserSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -47,19 +47,14 @@ export class CollectionResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, 'rank', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => 'rank')
+    const processed = this.pagination.process(input)
+    processed.column = 'rank'
 
     return await ResultAsync
       .fromPromise(
         loaders
           .collection
-          .getItemsLoader({ pagination: parsedInput })
+          .getItemsLoader({ pagination: processed })
           .load({ collectionId: id }),
         error => error
       )
@@ -67,11 +62,11 @@ export class CollectionResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => row[parsedInput.column],
+            processed,
+            (row) => String(row.rank),
             mapCollectionItemRowToCollectionItemSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -92,7 +87,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         yes => yes,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -110,7 +105,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         mapFragranceRowToFragranceSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -135,7 +130,7 @@ export class CollectionResolver extends ApiResolver {
       .create({ name, userId })
       .match(
         mapFragranceCollectionRowToFragranceCollectionSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -181,7 +176,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         mapCollectionItemRowToCollectionItemSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -236,7 +231,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         rows => rows.map(mapCollectionItemRowToCollectionItemSummary),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -287,7 +282,7 @@ export class CollectionResolver extends ApiResolver {
       )
       .match(
         rows => rows.map(mapCollectionItemRowToCollectionItemSummary),
-        error => { throw error }
+        throwError
       )
   }
 }

@@ -1,11 +1,12 @@
 import { type UserSummary } from '@src/schemas/user/mappers'
 import { type UserRow } from '@src/services/UserService'
-import { ApiResolver, SortByColumn } from './apiResolver'
+import { ApiResolver } from './apiResolver'
 import { type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
 import { ResultAsync } from 'neverthrow'
 import { mapFragranceCollectionRowToFragranceCollectionSummary } from './collectionResolver'
 import { mapFragranceVoteRowToFragranceVoteSummary } from './fragranceVoteResolver'
 import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
+import { throwError } from '@src/common/error'
 
 export class UserResolver extends ApiResolver {
   me: QueryResolvers['me'] = (parent, args, context, info) => {
@@ -21,7 +22,7 @@ export class UserResolver extends ApiResolver {
       .findOne(eb => eb('users.id', '=', id))
       .match(
         mapUserRowToUserSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -30,19 +31,13 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(
         loaders
           .user
-          .getCollectionsLoader({ pagination: parsedInput })
+          .getCollectionsLoader({ pagination: processed })
           .load({ userId: id }),
         error => error
       )
@@ -50,11 +45,11 @@ export class UserResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => row[parsedInput.column],
+            processed,
+            (row) => String(row[processed.column]),
             mapFragranceCollectionRowToFragranceCollectionSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -63,19 +58,13 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(
         loaders
           .user
-          .getLikesLoader({ pagination: parsedInput })
+          .getLikesLoader({ pagination: processed })
           .load({ userId: id }),
         error => error
       )
@@ -83,11 +72,11 @@ export class UserResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => String(row[parsedInput.column]),
+            processed,
+            (row) => String(row[processed.column]),
             mapFragranceVoteRowToFragranceVoteSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -96,19 +85,13 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(
         loaders
           .user
-          .getReviewsLoader({ pagination: parsedInput })
+          .getReviewsLoader({ pagination: processed })
           .load({ userId: id }),
         error => error
       )
@@ -116,11 +99,11 @@ export class UserResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => row[parsedInput.column],
+            processed,
+            (row) => String(row[processed.column]),
             mapFragranceReviewRowToFragranceReviewSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 }

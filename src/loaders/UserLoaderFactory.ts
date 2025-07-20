@@ -3,9 +3,9 @@ import DataLoader from 'dataloader'
 import { ApiError } from '@src/common/error'
 import { type FragranceCollectionRow } from '@src/services/repositories/FragranceCollectionRepo'
 import { LoaderFactory } from './LoaderFactory'
-import { type PaginationParams } from '@src/factories/PaginationFactory'
 import { type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { type FragranceVoteRow } from '@src/services/repositories/FragranceVotesRepo'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 export interface UserLoaderKey { userId: number }
 
@@ -17,15 +17,15 @@ interface UserLoaders {
 }
 
 export interface GetCollectionsLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export interface GetReviewsLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export interface GetFragranceVotesLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export class UserLoaderFactory extends LoaderFactory<UserLoaderKey> {

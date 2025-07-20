@@ -1,5 +1,5 @@
 import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution, type MutationResolvers } from '@src/generated/gql-types'
-import { ApiResolver, FILLER_FLAG, SortByColumn, VoteSortByColumn } from './apiResolver'
+import { ApiResolver, FILLER_FLAG } from './apiResolver'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
 import { okAsync, ResultAsync } from 'neverthrow'
@@ -30,7 +30,7 @@ export class FragranceResolver extends ApiResolver {
       )
       .match(
         mapFragranceRowToFragranceSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -38,26 +38,20 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { services } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input, 'UPDATED')
 
     return await services
       .fragrance
-      .paginate(parsedInput)
+      .paginate(processed)
       .match(
         rows => this
           .newPage(
             rows,
-            normalizedInput,
-            (row) => row[parsedInput.column],
+            processed,
+            (row) => String(row[processed.column]),
             mapFragranceRowToFragranceSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -69,20 +63,10 @@ export class FragranceResolver extends ApiResolver {
     const query = input?.query ?? undefined
     const pagination = input?.pagination
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(
-        pagination,
-        pagination?.sort?.by ?? 'UPDATED',
-        (decoded) => String(decoded)
-      )
+    const processed = this.pagination.process(pagination)
 
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
-
-    const limit = parsedInput.first + 1
-    const offset = parsedInput.offset != null ? parsedInput.offset + 1 : 0
+    const limit = processed.first + 1
+    const offset = processed.offset != null ? processed.offset + 1 : 0
 
     return await fragrance
       .searcher
@@ -93,11 +77,11 @@ export class FragranceResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
+            processed,
             (row, idx) => `${row.id}|${idx + offset}`,
             mapFragranceRowToFragranceSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -106,19 +90,13 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { services, loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'UPDATED', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => SortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input)
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .getImagesLoader({ pagination: parsedInput })
+          .getImagesLoader({ pagination: processed })
           .load({ fragranceId: id }),
         error => error
       )
@@ -126,11 +104,11 @@ export class FragranceResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            normalizedInput,
-            (row) => row[parsedInput.column],
+            processed,
+            (row) => String(row[processed.column]),
             row => services.asset.publicize(mapFragranceImageRowToFragranceImage(row))
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -148,7 +126,7 @@ export class FragranceResolver extends ApiResolver {
       )
       .match(
         mapFragranceTraitRowsToFragranceTraits,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -159,13 +137,13 @@ export class FragranceResolver extends ApiResolver {
 
     const { pagination, fill } = input ?? {}
 
-    const normalized = this.pagiFactory.normalize(pagination)
-    const parsed = this.pagiFactory.parse(normalized)
+    const normalized = this.pagination.normalize(pagination, 'VOTES')
+    const parsed = this.pagination.parse(normalized)
 
     const [cursorValue, fillFlag] = String(parsed.cursor.value).split('|')
     const isFill = fillFlag === FILLER_FLAG
 
-    this.pagiFactory.decode(parsed, cursorValue)
+    this.pagination.decode(parsed, cursorValue)
 
     const loader = isFill
       ? loaders.fragrance.getFillerAccordsLoader({ pagination: parsed })
@@ -185,8 +163,8 @@ export class FragranceResolver extends ApiResolver {
 
         const fillInput: ParsedPaginationInput = {
           ...parsed,
-          column: 'id',
           first: needed,
+          column: 'id',
           cursor: {
             ...parsed.cursor,
             isValid: false
@@ -222,19 +200,13 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const normalizedInput = this
-      .paginationFactory
-      .normalize(input, input?.sort?.by ?? 'VOTES', (decoded) => String(decoded))
-
-    const parsedInput = this
-      .paginationFactory
-      .parse(normalizedInput, () => VoteSortByColumn[normalizedInput.sort.by])
+    const processed = this.pagination.process(input, 'VOTES')
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .getReviewsLoader({ pagination: parsedInput })
+          .getReviewsLoader({ pagination: processed })
           .load({ fragranceId: id }),
         error => error
       )
@@ -242,11 +214,11 @@ export class FragranceResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            parsedInput,
-            (row) => String(row[parsedInput.column]),
+            processed,
+            (row) => String(row[processed.column]),
             mapFragranceReviewRowToFragranceReviewSummary
           ),
-        error => { throw error }
+        throwError
       )
   }
 
@@ -264,7 +236,7 @@ export class FragranceResolver extends ApiResolver {
       )
       .match(
         mapDistRowsToDist,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -287,7 +259,7 @@ export class FragranceResolver extends ApiResolver {
           if (row == null) return null
           return mapFragranceReviewRowToFragranceReviewSummary(row)
         },
-        error => { throw error }
+        throwError
       )
   }
 

@@ -5,10 +5,10 @@ import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
-import { type PaginationParams } from '@src/factories/PaginationFactory'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
-  pagination?: PaginationParams<C>
+  pagination?: ParsedPaginationInput<C>
   extend?: ExtendSelectFn<T, R>
 }
 
@@ -150,7 +150,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   }
 
   paginate <C>(
-    input: PaginationParams<C>
+    input: ParsedPaginationInput<C>
   ): ResultAsync<R[], ApiError> {
     const query = this
       .Table

@@ -1,8 +1,8 @@
 import DataLoader from 'dataloader'
 import { type FragranceCollectionItemRow } from '@src/services/repositories/FragranceCollectionRepo'
-import { type PaginationParams } from '@src/factories/PaginationFactory'
 import { LoaderFactory } from './LoaderFactory'
 import { ResultAsync } from 'neverthrow'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
 export interface CollectionLoaderKey { collectionId: number }
 
@@ -12,7 +12,7 @@ interface CollectionLoaders {
 }
 
 export interface GetItemsLoaderParams {
-  pagination: PaginationParams<string>
+  pagination: ParsedPaginationInput
 }
 
 export interface HasFragranceLoaderParams {
