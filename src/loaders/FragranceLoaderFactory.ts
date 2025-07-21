@@ -7,7 +7,7 @@ import { type FragranceAccordRow } from '@src/services/repositories/FragranceAcc
 import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
 import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
 import { ResultAsync } from 'neverthrow'
 import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 
@@ -15,12 +15,17 @@ export interface FragranceLoaderKey { fragranceId: number }
 
 interface FragranceLoaders {
   fragrance: DataLoader<FragranceLoaderKey, FragranceRow>
+
   images: DataLoader<FragranceLoaderKey, FragranceImageRow[]>
+
   traits: DataLoader<FragranceLoaderKey, FragranceTraitRow[]>
+
   accords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
   fillerAccords: DataLoader<FragranceLoaderKey, FragranceAccordRow[]>
+
   notes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
   fillerNotes: DataLoader<FragranceLoaderKey, FragranceNoteRow[]>
+
   reviews: DataLoader<FragranceLoaderKey, FragranceReviewRow[]>
   reviewDistributions: DataLoader<FragranceLoaderKey, FragranceReviewDistRow[]>
   myReview: DataLoader<FragranceLoaderKey, FragranceReviewRow>
@@ -81,7 +86,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
   }
 
   getFillerAccordsLoader (params: GetAccordsLoaderParams): FragranceLoaders['fillerAccords'] {
-    const key = this.generateKey('fAccords', params)
+    const key = this.generateKey('fillerAccords', params)
     return this
       .getLoader(
         key,
@@ -98,8 +103,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       )
   }
 
-  getFillerNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['notes'] {
-    const key = this.generateKey('fNotes', params)
+  getFillerNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['fillerNotes'] {
+    const key = this.generateKey('fillerNotes', params)
     return this
       .getLoader(
         key,
@@ -157,9 +162,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
               return fragrance
             })
           },
-          error => {
-            throw error
-          }
+          throwError
         )
     })
   }
@@ -185,7 +188,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -206,7 +209,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -232,7 +235,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -246,20 +249,18 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
       return await ResultAsync
         .combine(
           fragranceIds
-            .map(id => this
-              .services
-              .fragrance
-              .accords
-              .fillers
-              .fill(
-                id,
-                { pagination }
-              )
+            .map(
+              id => this
+                .services
+                .fragrance
+                .accords
+                .fillers
+                .fill(id, pagination)
             )
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -287,24 +288,34 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
 
   private createFillerNotesLoader (params: GetNotesLoaderParams): FragranceLoaders['fillerNotes'] {
-    const { pagination } = params
+    const { layer, pagination } = params
 
     return new DataLoader<FragranceLoaderKey, FragranceNoteRow[]>(async (keys) => {
-      return await this
-        .services
-        .fragrance
-        .notes
-        .fillers
-        .find(undefined, { pagination })
+      const fragranceIds = this.getFragranceIds(keys)
+
+      return await ResultAsync
+        .combine(
+          fragranceIds.map(id => this
+            .services
+            .fragrance
+            .notes
+            .fillers
+            .fill(
+              id,
+              layer,
+              pagination
+            )
+          )
+        )
         .match(
-          rows => keys.map(() => rows),
-          error => { throw error }
+          rows => rows,
+          throwError
         )
     })
   }
@@ -329,7 +340,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -357,7 +368,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }
@@ -384,7 +395,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
         )
         .match(
           rows => rows,
-          error => { throw error }
+          throwError
         )
     })
   }

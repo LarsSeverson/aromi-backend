@@ -1,22 +1,25 @@
-import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution, type MutationResolvers } from '@src/generated/gql-types'
-import { ApiResolver, FILLER_FLAG } from './apiResolver'
+import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers, type FragranceImage, FragranceTraitType, type FragranceTrait, type FragranceAccord, type FragranceReviewDistribution, type MutationResolvers, type FragranceNotesResolvers, NoteLayer, type FragranceNote } from '@src/generated/gql-types'
+import { ApiResolver } from './apiResolver'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 import { type FragranceImageRow } from '@src/services/repositories/FragranceImageRepo'
-import { type FragranceTraitEnum } from '@src/db/schema'
+import { type NoteLayerEnum, type FragranceTraitEnum } from '@src/db/schema'
 import { type FragranceTraitRow } from '@src/services/repositories/FragranceTraitsRepo'
 import { type FragranceAccordRow } from '@src/services/repositories/FragranceAccordsRepo'
 import { type FragranceReviewDistRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
 import { mapFragranceVoteRowToFragranceVoteSummary } from './fragranceVoteResolver'
 import { ApiError, throwError } from '@src/common/error'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
-
-// const ALLOWED_FRAGRANCE_IMAGE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
+import { type FragranceNoteRow } from '@src/services/repositories/FragranceNotesRepo'
 
 export class FragranceResolver extends ApiResolver {
-  fragrance: QueryResolvers['fragrance'] = async (parent, args, context, info) => {
+  fragrance: QueryResolvers['fragrance'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = args
     const { loaders } = context
 
@@ -34,28 +37,38 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  fragrances: QueryResolvers['fragrances'] = async (parent, args, context, info) => {
+  fragrances: QueryResolvers['fragrances'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { input } = args
     const { services } = context
 
-    const processed = this.pagination.process(input, 'UPDATED')
+    const pagination = this.paginationFactory.process(input, 'UPDATED')
 
     return await services
       .fragrance
-      .paginate(processed)
+      .paginate(pagination)
       .match(
         rows => this
           .newPage(
             rows,
-            processed,
-            (row) => String(row[processed.column]),
+            pagination,
+            (row) => String(row[pagination.column]),
             mapFragranceRowToFragranceSummary
           ),
         throwError
       )
   }
 
-  searchFragrances: QueryResolvers['searchFragrances'] = async (parent, args, context, info) => {
+  searchFragrances: QueryResolvers['searchFragrances'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { input } = args
     const { services } = context
     const { fragrance } = services
@@ -63,7 +76,7 @@ export class FragranceResolver extends ApiResolver {
     const query = input?.query ?? undefined
     const pagination = input?.pagination
 
-    const processed = this.pagination.process(pagination)
+    const processed = this.paginationFactory.process(pagination)
 
     const limit = processed.first + 1
     const offset = processed.offset != null ? processed.offset + 1 : 0
@@ -85,18 +98,23 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  fragranceImages: FragranceFieldResolvers['images'] = async (parent, args, context, info) => {
+  fragranceImages: FragranceFieldResolvers['images'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = parent
     const { input } = args
     const { services, loaders } = context
 
-    const processed = this.pagination.process(input)
+    const pagination = this.paginationFactory.process(input)
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .getImagesLoader({ pagination: processed })
+          .getImagesLoader({ pagination })
           .load({ fragranceId: id }),
         error => error
       )
@@ -104,15 +122,20 @@ export class FragranceResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            processed,
-            (row) => String(row[processed.column]),
+            pagination,
+            (row) => String(row[pagination.column]),
             row => services.asset.publicize(mapFragranceImageRowToFragranceImage(row))
           ),
         throwError
       )
   }
 
-  fragranceTraits: FragranceFieldResolvers['traits'] = async (parent, args, context, info) => {
+  fragranceTraits: FragranceFieldResolvers['traits'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = parent
     const { loaders } = context
 
@@ -130,83 +153,23 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  fragranceAccords: FragranceFieldResolvers['accords'] = async (parent, args, context, info) => {
+  fragranceAccords: FragranceFieldResolvers['accords'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = parent
     const { input } = args
     const { loaders } = context
 
-    const { pagination, fill } = input ?? {}
-
-    const normalized = this.pagination.normalize(pagination, 'VOTES')
-    const parsed = this.pagination.parse(normalized)
-
-    const [cursorValue, fillFlag] = String(parsed.cursor.value).split('|')
-    const isFill = fillFlag === FILLER_FLAG
-
-    this.pagination.decode(parsed, cursorValue)
-
-    const loader = isFill
-      ? loaders.fragrance.getFillerAccordsLoader({ pagination: parsed })
-      : loaders.fragrance.getAccordsLoader({ pagination: parsed })
-
-    return await ResultAsync
-      .fromPromise(
-        loader.load({ fragranceId: id }),
-        error => error
-      )
-      .andThen(rows => {
-        if (isFill) return okAsync(rows)
-        if (!(fill ?? false)) return okAsync(rows)
-        if (rows.length > parsed.first) return okAsync(rows)
-
-        const needed = parsed.first - rows.length
-
-        const fillInput: ParsedPaginationInput = {
-          ...parsed,
-          first: needed,
-          column: 'id',
-          cursor: {
-            ...parsed.cursor,
-            isValid: false
-          }
-        }
-
-        return ResultAsync
-          .fromPromise(
-            loaders
-              .fragrance
-              .getFillerAccordsLoader({ pagination: fillInput })
-              .load({ fragranceId: id }),
-            error => error
-          )
-          .map(filled => rows.concat(filled))
-      })
-      .match(
-        rows => this
-          .newPage(
-            rows,
-            parsed,
-            (row) => `${row[parsed.column]}|${row.isFill ? FILLER_FLAG : ''}`,
-            mapFragranceAccordRowToFragranceAccord
-          ),
-        throwError
-      )
-  }
-
-  fragranceNotes: FragranceFieldResolvers['notes'] = (parent, args, context, info) => ({ parent })
-
-  fragranceReviews: FragranceFieldResolvers['reviews'] = async (parent, args, context, info) => {
-    const { id } = parent
-    const { input } = args
-    const { loaders } = context
-
-    const processed = this.pagination.process(input, 'VOTES')
+    const pagination = this.paginationFactory.process(input, 'VOTES')
 
     return await ResultAsync
       .fromPromise(
         loaders
           .fragrance
-          .getReviewsLoader({ pagination: processed })
+          .getAccordsLoader({ pagination })
           .load({ fragranceId: id }),
         error => error
       )
@@ -214,15 +177,163 @@ export class FragranceResolver extends ApiResolver {
         rows => this
           .newPage(
             rows,
-            processed,
-            (row) => String(row[processed.column]),
+            pagination,
+            (row) => String(row[pagination.column]),
+            mapFragranceAccordRowToFragranceAccord
+          ),
+        throwError
+      )
+  }
+
+  fillerFragranceAccords: FragranceFieldResolvers['fillerAccords'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { loaders } = context
+
+    const pagination = this.paginationFactory.process(input)
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getFillerAccordsLoader({ pagination })
+          .load({ fragranceId: id }),
+        error => error
+      )
+      .match(
+        rows => this.newPage(
+          rows,
+          pagination,
+          (row) => String(row.id),
+          mapFragranceAccordRowToFragranceAccord
+        ),
+        throwError
+      )
+  }
+
+  fragranceNotesParent: FragranceFieldResolvers['notes'] = (
+    parent,
+    args,
+    context,
+    info
+  ) => ({ parent })
+
+  fragranceNotes: FragranceNotesResolvers['top' | 'middle' | 'base'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent.parent
+    const { input } = args
+    const { services, loaders } = context
+
+    const layer = info.fieldName as NoteLayerEnum
+
+    const pagination = this.paginationFactory.process(input, 'VOTES')
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getNotesLoader({ layer, pagination })
+          .load({ fragranceId: id }),
+        error => error
+      )
+      .match(
+        rows => this
+          .newPage(
+            rows,
+            pagination,
+            (row) => String(row[pagination.column]),
+            (row) => mapFragranceNoteRowToFragranceNote(
+              services.asset.publicizeField(row, 's3Key')
+            )
+          ),
+        throwError
+      )
+  }
+
+  fillerFragranceNotes: FragranceNotesResolvers['fillerTop' | 'fillerMiddle' | 'fillerBase'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent.parent
+    const { input } = args
+    const { loaders } = context
+
+    const layer = info.fieldName === 'fillerTop'
+      ? 'top'
+      : info.fieldName === 'fillerMiddle'
+        ? 'middle'
+        : 'base'
+
+    const pagination = this.paginationFactory.process(input)
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getFillerNotesLoader({ pagination, layer })
+          .load({ fragranceId: id }),
+        error => error
+      )
+      .match(
+        rows => this.newPage(
+          rows,
+          pagination,
+          row => String(row.id),
+          mapFragranceNoteRowToFragranceNote
+        ),
+        throwError
+      )
+  }
+
+  fragranceReviews: FragranceFieldResolvers['reviews'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { loaders } = context
+
+    const pagination = this.paginationFactory.process(input, 'VOTES')
+
+    return await ResultAsync
+      .fromPromise(
+        loaders
+          .fragrance
+          .getReviewsLoader({ pagination })
+          .load({ fragranceId: id }),
+        error => error
+      )
+      .match(
+        rows => this
+          .newPage(
+            rows,
+            pagination,
+            (row) => String(row[pagination.column]),
             mapFragranceReviewRowToFragranceReviewSummary
           ),
         throwError
       )
   }
 
-  fragranceReviewDistribution: FragranceFieldResolvers['reviewDistribution'] = async (parent, args, context, info) => {
+  fragranceReviewDistribution: FragranceFieldResolvers['reviewDistribution'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = parent
     const { loaders } = context
 
@@ -240,7 +351,12 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  myReview: FragranceFieldResolvers['myReview'] = async (parent, args, context, info) => {
+  myReview: FragranceFieldResolvers['myReview'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
     const { id } = parent
     const { me, loaders } = context
 
@@ -263,61 +379,12 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  // createFragranceImage: MutationResolvers['createFragranceImage'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
-  //   const { asset } = services
-
-  //   const { fragranceId, fileSize, fileType } = input
-
-  //   if (!ALLOWED_FRAGRANCE_IMAGE_TYPES.includes(fileType)) {
-  //     throw new ApiError(
-  //       'INVALID_INPUT',
-  //       'This file type is not allowed for fragrance images',
-  //       400,
-  //       `Attempt to upload type: ${fileType} for fragrance image`
-  //     )
-  //   }
-
-  //   const key = asset.genKey(`fragrance_images/${String(fragranceId)}`)
-
-  //   return await services
-  //     .asset
-  //     .presignUpload({ key, fileSize, fileType })
-  //     .map(payload => ({ ...payload, s3Key: key }))
-  //     .match(
-  //       payload => payload,
-  //       error => { throw error }
-  //     )
-  // }
-
-  // confirmFragranceImage: MutationResolvers['confirmFragranceImage'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
-  //   const { asset, fragrance } = services
-
-  //   const { fragranceId, s3Key } = input
-
-  //   const validate = await asset.validateImage(s3Key)
-
-  //   if (validate.isErr()) {
-  //     if (validate.error.status !== 404) {
-  //       await asset.delete(s3Key)
-  //     }
-
-  //     throw validate.error
-  //   }
-
-  //   return await fragrance
-  //     .images
-  //     .create({ fragranceId, s3Key })
-  //     .match(
-  //       (row) => asset.signAsset(mapFragranceImageRowToFragranceImage(row)),
-  //       error => { throw error }
-  //     )
-  // }
-
-  voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (_, args, context, info) => {
+  voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
     const { input } = args
     const { services, me } = context
 
@@ -337,7 +404,7 @@ export class FragranceResolver extends ApiResolver {
       .vote({ userId, fragranceId, vote })
       .match(
         mapFragranceVoteRowToFragranceVoteSummary,
-        error => { throw error }
+        throwError
       )
   }
 
@@ -486,8 +553,7 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
     id, accordId,
     name, color,
     voteScore, likesCount, dislikesCount, myVote,
-    createdAt, updatedAt, deletedAt,
-    isFill
+    createdAt, updatedAt, deletedAt
   } = row
 
   return {
@@ -503,9 +569,45 @@ export const mapFragranceAccordRowToFragranceAccord = (row: FragranceAccordRow):
       myVote: myVote === 1 ? true : myVote === -1 ? false : null
     },
 
-    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt),
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
+  }
+}
 
-    isFill
+export const DB_NOTE_LAYER_TO_GQL_NOTE_LAYER: Record<NoteLayerEnum, NoteLayer> = {
+  top: NoteLayer.Top,
+  middle: NoteLayer.Middle,
+  base: NoteLayer.Base
+} as const
+
+export const GQL_NOTE_LAYER_TO_DB_NOTE_LAYER: Record<NoteLayer, NoteLayerEnum> = {
+  TOP: 'top',
+  MIDDLE: 'middle',
+  BASE: 'base'
+} as const
+
+export const mapFragranceNoteRowToFragranceNote = (row: FragranceNoteRow): FragranceNote => {
+  const {
+    id, noteId,
+    name, s3Key, layer,
+    voteScore, likesCount, dislikesCount, myVote,
+    createdAt, updatedAt, deletedAt
+  } = row
+
+  return {
+    id,
+    noteId,
+    name,
+    layer: DB_NOTE_LAYER_TO_GQL_NOTE_LAYER[layer],
+    thumbnail: s3Key,
+
+    votes: {
+      voteScore,
+      likesCount,
+      dislikesCount,
+      myVote: myVote === 1 ? true : myVote === -1 ? false : null
+    },
+
+    audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
 

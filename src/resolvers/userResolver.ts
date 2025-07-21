@@ -31,7 +31,7 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const processed = this.pagination.process(input, 'UPDATED')
+    const processed = this.paginationFactory.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(
@@ -58,7 +58,7 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const processed = this.pagination.process(input, 'UPDATED')
+    const processed = this.paginationFactory.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(
@@ -85,7 +85,7 @@ export class UserResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const processed = this.pagination.process(input, 'UPDATED')
+    const processed = this.paginationFactory.process(input, 'UPDATED')
 
     return await ResultAsync
       .fromPromise(

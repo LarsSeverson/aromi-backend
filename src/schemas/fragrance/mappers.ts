@@ -5,6 +5,7 @@ export type FragranceSummary = Omit<Fragrance,
 'traits' |
 'notes' |
 'accords' |
+'fillerAccords' |
 'images' |
 'reviews' |
 'reviewDistribution' |

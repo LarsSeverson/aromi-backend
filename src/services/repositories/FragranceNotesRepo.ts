@@ -1,24 +1,70 @@
 import { type NoteLayerEnum, type DB } from '@src/db/schema'
 import { sql, type Selectable } from 'kysely'
-import { type QueryOptions, TableService, type MyVote } from '../TableService'
+import { TableService, type MyVote } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
+import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 
 export interface FragranceNoteRow extends Selectable<DB['fragranceNotes']>, MyVote {
   noteId: number
   name: string
-  isFill: boolean
   s3Key: string | null
 }
 
+class FillerNotesRepo extends TableService<'notes', FragranceNoteRow> {
+  constructor (sources: ApiDataSources) {
+    super(sources, 'notes')
+  }
+
+  fill (
+    fragranceId: number,
+    layer: NoteLayerEnum,
+    pagination?: ParsedPaginationInput
+  ): ResultAsync<FragranceNoteRow[], ApiError> {
+    let query = this
+      .sources
+      .db
+      .selectFrom('notes')
+      .leftJoin('fragranceNotes', join =>
+        join
+          .onRef('fragranceNotes.noteId', '=', 'notes.id')
+          .on('fragranceNotes.fragranceId', '=', fragranceId)
+          .on('fragranceNotes.layer', '=', layer)
+      )
+      .where('fragranceNotes.id', 'is', null)
+      .selectAll('notes')
+      .select([
+        'notes.id as noteId',
+        sql<NoteLayerEnum>``.as('layer'),
+        sql<number>`${fragranceId}`.as('fragranceId'),
+        sql<number>`0`.as('dislikesCount'),
+        sql<number>`0`.as('likesCount'),
+        sql<number>`0`.as('voteScore'),
+        sql<number | null>`0`.as('myVote')
+      ])
+
+    if (pagination != null) {
+      query = this
+        .Table
+        .paginatedQuery(pagination)
+    }
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+}
+
 export class FragranceNotesRepo extends TableService<'fragranceNotes', FragranceNoteRow> {
-  fillers: FragranceNotesFillerRepo
+  fillers: FillerNotesRepo
 
   constructor (sources: ApiDataSources) {
     super(sources, 'fragranceNotes')
 
-    this.fillers = new FragranceNotesFillerRepo(sources)
+    this.fillers = new FillerNotesRepo(sources)
 
     this
       .Table
@@ -41,60 +87,8 @@ export class FragranceNotesRepo extends TableService<'fragranceNotes', Fragrance
             'nv.vote as myVote',
             'notes.id as noteId',
             'notes.s3Key',
-            'notes.name',
-            sql<boolean>`FALSE`.as('isFill')
+            'notes.name'
           ])
       })
-  }
-}
-
-export class FragranceNotesFillerRepo extends TableService<'notes', FragranceNoteRow> {
-  constructor (sources: ApiDataSources) {
-    super(sources, 'notes')
-  }
-
-  fill <C>(
-    fragranceId: number,
-    options?: QueryOptions<'notes', FragranceNoteRow, C>
-  ): ResultAsync<FragranceNoteRow[], ApiError> {
-    const { pagination, extend } = options ?? {}
-
-    let query = this
-      .sources
-      .db
-      .selectFrom('notes')
-      .leftJoin('fragranceNotes', join =>
-        join
-          .onRef('fragranceNotes.noteId', '=', 'notes.id')
-          .on('fragranceNotes.fragranceId', '=', fragranceId)
-      )
-      .where('fragranceNotes.id', 'is', null)
-      .selectAll('notes')
-      .select([
-        'notes.id as noteId',
-        sql<NoteLayerEnum>``.as('layer'),
-        sql<number>`${fragranceId}`.as('fragranceId'),
-        sql<number>`0`.as('dislikesCount'),
-        sql<number>`0`.as('likesCount'),
-        sql<number>`0`.as('voteScore'),
-        sql<number | null>`0`.as('myVote'),
-        sql<boolean>`TRUE`.as('isFill')
-      ])
-
-    if (pagination != null) {
-      query = this
-        .Table
-        .paginatedQuery(pagination, query)
-    }
-
-    if (extend != null) {
-      query = extend(query)
-    }
-
-    return ResultAsync
-      .fromPromise(
-        query.execute(),
-        error => ApiError.fromDatabase(error)
-      )
   }
 }

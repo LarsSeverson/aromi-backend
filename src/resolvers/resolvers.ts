@@ -3,7 +3,6 @@ import { GraphQLDateTime } from 'graphql-scalars'
 import { AuthResolver } from './authResolver'
 import { UserResolver } from './userResolver'
 import { FragranceResolver } from './fragranceResolver'
-import { NoteResolver } from './noteResolver'
 import { ReviewResolver } from './reviewResolvers'
 import { CollectionResolver } from './collectionResolver'
 import { FragranceVoteResolver } from './fragranceVoteResolver'
@@ -13,7 +12,6 @@ import { ReviewReportResolver } from './reviewReportResolver'
 const authResolver = new AuthResolver()
 const userResolver = new UserResolver()
 const fragranceResolver = new FragranceResolver()
-const noteResolver = new NoteResolver()
 const collectionResolver = new CollectionResolver()
 const reviewResolver = new ReviewResolver()
 const fragranceVoteResolver = new FragranceVoteResolver()
@@ -37,9 +35,14 @@ export class ApiResolvers implements Resolvers {
   // Fragrance Field resolvers
   Fragrance: FragranceFieldResolvers = {
     images: fragranceResolver.fragranceImages,
+
     traits: fragranceResolver.fragranceTraits,
+
     accords: fragranceResolver.fragranceAccords,
-    notes: fragranceResolver.fragranceNotes,
+    fillerAccords: fragranceResolver.fillerFragranceAccords,
+
+    notes: fragranceResolver.fragranceNotesParent,
+
     reviews: fragranceResolver.fragranceReviews,
     reviewDistribution: fragranceResolver.fragranceReviewDistribution,
     myReview: fragranceResolver.myReview
@@ -47,9 +50,14 @@ export class ApiResolvers implements Resolvers {
 
   // Fragrance Field Note resolvers
   FragranceNotes: FragranceNotesResolvers = {
-    top: noteResolver.notes,
-    middle: noteResolver.notes,
-    base: noteResolver.notes
+    top: fragranceResolver.fragranceNotes,
+    fillerTop: fragranceResolver.fillerFragranceNotes,
+
+    middle: fragranceResolver.fragranceNotes,
+    fillerMiddle: fragranceResolver.fillerFragranceNotes,
+
+    base: fragranceResolver.fragranceNotes,
+    fillerBase: fragranceResolver.fillerFragranceNotes
   }
 
   // Fragrance Review Field resolvers

@@ -1,10 +1,10 @@
-import { type NoteRow } from '@src/services/NoteService'
+import { type Accord, type QueryResolvers } from '@src/generated/gql-types'
 import { ApiResolver } from './apiResolver'
-import { type QueryResolvers, type Note } from '@src/generated/gql-types'
 import { throwError } from '@src/common/error'
+import { type AccordRow } from '@src/services/AccordService'
 
-export class NoteResolver extends ApiResolver {
-  notes: QueryResolvers['notes'] = async (
+export class AccordResolver extends ApiResolver {
+  accords: QueryResolvers['accords'] = async (
     parent,
     args,
     context,
@@ -16,32 +16,32 @@ export class NoteResolver extends ApiResolver {
     const processed = this.paginationFactory.process(input)
 
     return await services
-      .note
+      .accord
       .paginate(processed)
       .match(
         rows => this.newPage(
           rows,
           processed,
           (row) => String(row[processed.column]),
-          mapNoteRowToNote
+          mapAccordRowToAccord
         ),
         throwError
       )
   }
 }
 
-export const mapNoteRowToNote = (row: NoteRow): Note => {
+export const mapAccordRowToAccord = (row: AccordRow): Accord => {
   const {
     id,
     name,
-    s3Key,
+    color,
     createdAt, updatedAt, deletedAt
   } = row
 
   return {
     id,
     name,
-    thumbnail: s3Key,
+    color,
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }

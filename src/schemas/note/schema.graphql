@@ -1,0 +1,20 @@
+type Note {
+  id: Int!
+  name: String
+  thumbnail: String
+  audit: Audit!
+}
+
+extend type Query {
+  notes(input: PaginationInput): NoteConnection!
+}
+
+type NoteEdge {
+  cursor: String!
+  node: Note!
+}
+
+type NoteConnection {
+  edges: [NoteEdge!]!
+  pageInfo: PageInfo!
+}

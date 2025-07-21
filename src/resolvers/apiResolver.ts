@@ -14,7 +14,7 @@ export interface NewPageInput<C> {
 export class ApiResolver {
   protected readonly cursorFactory = new CursorFactory()
   protected readonly connectionFactory = new ConnectionFactory()
-  protected readonly pagination = new PaginationFactory()
+  protected readonly paginationFactory = new PaginationFactory()
 
   protected newEdges <N extends ConnectionNode, O extends ConnectionNode = N>(
     data: N[],

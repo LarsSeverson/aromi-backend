@@ -1,6 +1,18 @@
-input AccordsInput {
-  fill: Boolean
-  pagination: VotePaginationInput
+type Accord {
+  audit: Audit!
+  color: String!
+  id: Int!
+  name: String!
+}
+
+type AccordConnection {
+  edges: [AccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AccordEdge {
+  cursor: String!
+  node: Accord!
 }
 
 type Asset {
@@ -99,9 +111,10 @@ type DeliveryResult {
 }
 
 type Fragrance {
-  accords(input: AccordsInput): FragranceAccordConnection!
+  accords(input: VotePaginationInput): FragranceAccordConnection!
   audit: Audit!
   brand: String!
+  fillerAccords(input: PaginationInput): FragranceAccordConnection!
   id: Int!
   images(input: PaginationInput): FragranceImageConnection!
   myReview: FragranceReview
@@ -120,7 +133,6 @@ type FragranceAccord {
   audit: Audit!
   color: String!
   id: Int!
-  isFill: Boolean!
   name: String!
   votes: VoteSummary!
 }
@@ -204,7 +216,6 @@ type FragranceImageEdge {
 type FragranceNote {
   audit: Audit!
   id: Int!
-  isFill: Boolean!
   layer: NoteLayer!
   name: String!
   noteId: Int!
@@ -223,9 +234,12 @@ type FragranceNoteEdge {
 }
 
 type FragranceNotes {
-  base(input: NotesInput): FragranceNoteConnection!
-  middle(input: NotesInput): FragranceNoteConnection!
-  top(input: NotesInput): FragranceNoteConnection!
+  base(input: VotePaginationInput): FragranceNoteConnection!
+  fillerBase(input: PaginationInput): FragranceNoteConnection!
+  fillerMiddle(input: PaginationInput): FragranceNoteConnection!
+  fillerTop(input: PaginationInput): FragranceNoteConnection!
+  middle(input: VotePaginationInput): FragranceNoteConnection!
+  top(input: VotePaginationInput): FragranceNoteConnection!
 }
 
 type FragranceReport {
@@ -339,15 +353,27 @@ type Mutation {
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
 }
 
+type Note {
+  audit: Audit!
+  id: Int!
+  name: String
+  thumbnail: String
+}
+
+type NoteConnection {
+  edges: [NoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type NoteEdge {
+  cursor: String!
+  node: Note!
+}
+
 enum NoteLayer {
   BASE
   MIDDLE
   TOP
-}
-
-input NotesInput {
-  fill: Boolean
-  pagination: VotePaginationInput
 }
 
 type PageInfo {
@@ -364,10 +390,12 @@ input PaginationInput {
 }
 
 type Query {
+  accords(input: PaginationInput): AccordConnection!
   collection(id: Int!): FragranceCollection!
   fragrance(id: Int!): Fragrance
   fragrances(input: PaginationInput): FragranceConnection!
   me: User
+  notes(input: PaginationInput): NoteConnection!
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
   user(id: Int!): User
 }

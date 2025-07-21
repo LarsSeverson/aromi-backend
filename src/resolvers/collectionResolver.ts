@@ -47,7 +47,7 @@ export class CollectionResolver extends ApiResolver {
     const { input } = args
     const { loaders } = context
 
-    const processed = this.pagination.process(input)
+    const processed = this.paginationFactory.process(input)
     processed.column = 'rank'
 
     return await ResultAsync

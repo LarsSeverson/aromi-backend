@@ -7,15 +7,19 @@ type Fragrance {
 
   votes: VoteSummary!
 
+  images(input: PaginationInput): FragranceImageConnection!
+
+  accords(input: VotePaginationInput): FragranceAccordConnection!
+  fillerAccords(input: PaginationInput): FragranceAccordConnection!
+
   traits: [FragranceTrait!]!
 
   notes: FragranceNotes!
-  accords(input: AccordsInput): FragranceAccordConnection!
-  images(input: PaginationInput): FragranceImageConnection!
+
   reviews(input: VotePaginationInput): FragranceReviewConnection!
   reviewDistribution: FragranceReviewDistribution!
-
   myReview: FragranceReview
+
   audit: Audit!
 }
 
@@ -36,9 +40,14 @@ type FragranceImage {
 }
 
 type FragranceNotes {
-  top(input: NotesInput): FragranceNoteConnection!
-  middle(input: NotesInput): FragranceNoteConnection!
-  base(input: NotesInput): FragranceNoteConnection!
+  top(input: VotePaginationInput): FragranceNoteConnection!
+  fillerTop(input: PaginationInput): FragranceNoteConnection!
+
+  middle(input: VotePaginationInput): FragranceNoteConnection!
+  fillerMiddle(input: PaginationInput): FragranceNoteConnection!
+
+  base(input: VotePaginationInput): FragranceNoteConnection!
+  fillerBase(input: PaginationInput): FragranceNoteConnection!
 }
 
 type FragranceNote {
@@ -48,7 +57,6 @@ type FragranceNote {
   layer: NoteLayer!
   votes: VoteSummary!
   audit: Audit!
-  isFill: Boolean!
   thumbnail: String
 }
 
@@ -59,7 +67,6 @@ type FragranceAccord {
   color: String!
   votes: VoteSummary!
   audit: Audit!
-  isFill: Boolean!
 }
 
 type FragranceReview {
@@ -262,16 +269,6 @@ input LogFragranceViewInput {
 }
 
 # Pagination
-input AccordsInput {
-  pagination: VotePaginationInput
-  fill: Boolean
-}
-
-input NotesInput {
-  pagination: VotePaginationInput
-  fill: Boolean
-}
-
 input SearchFragrancesInput {
   query: String
   pagination: PaginationInput

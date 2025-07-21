@@ -29,10 +29,14 @@ export class AssetService extends ApiService {
     return asset
   }
 
-  publicizeField (
-    field: string
-  ): string {
-    return this.getUrl(field)
+  publicizeField <A>(
+    asset: A,
+    field: keyof A
+  ): A {
+    if (typeof asset[field] === 'string') {
+      asset[field] = this.getUrl(asset[field] as string) as A[typeof field]
+    }
+    return asset
   }
 
   sign <A extends BaseAsset>(
