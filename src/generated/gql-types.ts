@@ -395,6 +395,7 @@ export type FragranceReviewEdge = {
 
 export type FragranceTrait = {
   __typename?: 'FragranceTrait';
+  id: Scalars['Int']['output'];
   myVote?: Maybe<Scalars['Float']['output']>;
   type: FragranceTraitType;
   voteScore: Scalars['Float']['output'];
@@ -1276,6 +1277,7 @@ export type FragranceReviewEdgeResolvers<ContextType = ApiContext, ParentType ex
 }>;
 
 export type FragranceTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['FragranceTraitType'], ParentType, ContextType>;
   voteScore?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;

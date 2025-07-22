@@ -36,7 +36,7 @@ class FillerNotesRepo extends TableService<'notes', FragranceNoteRow> {
       .selectAll('notes')
       .select([
         'notes.id as noteId',
-        sql<NoteLayerEnum>``.as('layer'),
+        sql<NoteLayerEnum>`${layer}`.as('layer'),
         sql<number>`${fragranceId}`.as('fragranceId'),
         sql<number>`0`.as('dislikesCount'),
         sql<number>`0`.as('likesCount'),
@@ -47,7 +47,7 @@ class FillerNotesRepo extends TableService<'notes', FragranceNoteRow> {
     if (pagination != null) {
       query = this
         .Table
-        .paginatedQuery(pagination)
+        .paginatedQuery(pagination, query)
     }
 
     return ResultAsync

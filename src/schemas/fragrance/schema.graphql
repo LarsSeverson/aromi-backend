@@ -24,6 +24,7 @@ type Fragrance {
 }
 
 type FragranceTrait {
+  id: Int!
   type: FragranceTraitType!
   voteScore: Float!
   myVote: Float

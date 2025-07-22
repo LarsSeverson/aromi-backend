@@ -278,6 +278,7 @@ type FragranceReviewEdge {
 }
 
 type FragranceTrait {
+  id: Int!
   myVote: Float
   type: FragranceTraitType!
   voteScore: Float!

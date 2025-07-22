@@ -267,7 +267,7 @@ export class FragranceResolver extends ApiResolver {
   ) => {
     const { id } = parent.parent
     const { input } = args
-    const { loaders } = context
+    const { services, loaders } = context
 
     const layer = info.fieldName === 'fillerTop'
       ? 'top'
@@ -290,7 +290,9 @@ export class FragranceResolver extends ApiResolver {
           rows,
           pagination,
           row => String(row.id),
-          mapFragranceNoteRowToFragranceNote
+          (row) => mapFragranceNoteRowToFragranceNote(
+            services.asset.publicizeField(row, 's3Key')
+          )
         ),
         throwError
       )
@@ -536,8 +538,9 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
 }
 
 export const mapFragranceTraitRowToFragranceTrait = (row: FragranceTraitRow): FragranceTrait => {
-  const { trait, voteScore, myVote } = row
+  const { id, trait, voteScore, myVote } = row
   return {
+    id,
     type: FRAGRANCE_TRAIT_TO_TYPE[trait],
     voteScore,
     myVote
