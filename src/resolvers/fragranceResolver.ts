@@ -246,15 +246,14 @@ export class FragranceResolver extends ApiResolver {
         error => error
       )
       .match(
-        rows => this
-          .newPage(
-            rows,
-            pagination,
-            (row) => String(row[pagination.column]),
-            (row) => mapFragranceNoteRowToFragranceNote(
-              services.asset.publicizeField(row, 's3Key')
-            )
-          ),
+        rows => this.newPage(
+          rows,
+          pagination,
+          (row) => String(row[pagination.column]),
+          (row) => mapFragranceNoteRowToFragranceNote(
+            services.asset.publicizeField(row, 's3Key')
+          )
+        ),
         throwError
       )
   }
@@ -410,20 +409,30 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  // voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
+    const { input } = args
+    const { me, services } = context
 
-  //   const { fragranceTraitId, vote } = input
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before voting on a characteristic',
+        403
+      )
+    }
 
-  //   return await services
-  //     .fragrance
-  //     .voteOnTrait({ fragranceTraitId, vote })
-  //     .match(
-  //       mapFragranceTraitRowToFragranceTrait,
-  //       error => { throw error }
-  //     )
-  // }
+    const { fragranceTraitId, vote } = input
+    const userId = me.id
+
+    return await services
+      .fragrance
+      .traits
+      .vote({ userId, traitId: fragranceTraitId, vote })
+      .match(
+        mapFragranceTraitRowToFragranceTrait,
+        throwError
+      )
+  }
 
   // voteOnAccord: MutationResolvers['voteOnAccord'] = async (_, args, context, info) => {
   //   const { input } = args

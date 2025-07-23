@@ -397,6 +397,7 @@ type Query {
   fragrances(input: PaginationInput): FragranceConnection!
   me: User
   notes(input: PaginationInput): NoteConnection!
+  searchFragranceNotes(input: SearchFragranceNotesInput): FragranceNoteConnection!
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
   user(id: Int!): User
 }
@@ -406,6 +407,11 @@ type ReviewReport {
   report: String!
   review: FragranceReview!
   user: User!
+}
+
+input SearchFragranceNotesInput {
+  pagination: VotePaginationInput
+  query: String
 }
 
 input SearchFragrancesInput {

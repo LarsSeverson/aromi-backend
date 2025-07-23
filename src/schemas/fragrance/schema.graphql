@@ -133,6 +133,14 @@ extend type Query {
   collection(id: Int!): FragranceCollection!
 
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
+
+  searchFragranceNotes(
+    input: SearchFragranceNotesInput
+  ): FragranceNoteConnection!
+
+  searchFillerFragranceNotes(
+    input: SearchFragranceNotesInput
+  ): FragranceNoteConnection!
 }
 
 extend type Mutation {
@@ -157,13 +165,9 @@ extend type Mutation {
     input: MoveFragranceCollectionItemInput!
   ): [FragranceCollectionItem!]!
 
-  createFragranceReport(
-    input: CreateFragranceReportInput!
-  ): FragranceReport!
+  createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
 
-  createReviewReport(
-    input: CreateReviewReportInput!
-  ): ReviewReport!
+  createReviewReport(input: CreateReviewReportInput!): ReviewReport!
 
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
@@ -217,7 +221,7 @@ input ConfirmFragranceImageInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: Int!
-  fragranceId: Int! 
+  fragranceId: Int!
 }
 
 input MoveFragranceCollectionItemInput {
@@ -269,10 +273,16 @@ input LogFragranceViewInput {
   fragranceId: Int!
 }
 
-# Pagination
+# Query input
 input SearchFragrancesInput {
   query: String
   pagination: PaginationInput
+}
+
+input SearchFragranceNotesInput {
+  query: String
+  layer: NoteLayer
+  pagination: VotePaginationInput
 }
 
 # Fragrance

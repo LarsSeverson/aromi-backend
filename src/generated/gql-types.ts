@@ -634,6 +634,7 @@ export type Query = {
   fragrances: FragranceConnection;
   me?: Maybe<User>;
   notes: NoteConnection;
+  searchFragranceNotes: FragranceNoteConnection;
   searchFragrances: FragranceConnection;
   user?: Maybe<User>;
 };
@@ -664,6 +665,11 @@ export type QueryNotesArgs = {
 };
 
 
+export type QuerySearchFragranceNotesArgs = {
+  input?: InputMaybe<SearchFragranceNotesInput>;
+};
+
+
 export type QuerySearchFragrancesArgs = {
   input?: InputMaybe<SearchFragrancesInput>;
 };
@@ -679,6 +685,11 @@ export type ReviewReport = {
   report: Scalars['String']['output'];
   review: FragranceReview;
   user: User;
+};
+
+export type SearchFragranceNotesInput = {
+  pagination?: InputMaybe<VotePaginationInput>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SearchFragrancesInput = {
@@ -923,6 +934,7 @@ export type ResolversTypes = ResolversObject<{
   PaginationInput: ResolverTypeWrapper<Partial<PaginationInput>>;
   Query: ResolverTypeWrapper<{}>;
   ReviewReport: ResolverTypeWrapper<Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversTypes['FragranceReview'], user: ResolversTypes['User'] }>>;
+  SearchFragranceNotesInput: ResolverTypeWrapper<Partial<SearchFragranceNotesInput>>;
   SearchFragrancesInput: ResolverTypeWrapper<Partial<SearchFragrancesInput>>;
   SortBy: ResolverTypeWrapper<Partial<SortBy>>;
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
@@ -1005,6 +1017,7 @@ export type ResolversParentTypes = ResolversObject<{
   PaginationInput: Partial<PaginationInput>;
   Query: {};
   ReviewReport: Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversParentTypes['FragranceReview'], user: ResolversParentTypes['User'] }>;
+  SearchFragranceNotesInput: Partial<SearchFragranceNotesInput>;
   SearchFragrancesInput: Partial<SearchFragrancesInput>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
@@ -1375,6 +1388,7 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
+  searchFragranceNotes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, Partial<QuerySearchFragranceNotesArgs>>;
   searchFragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;

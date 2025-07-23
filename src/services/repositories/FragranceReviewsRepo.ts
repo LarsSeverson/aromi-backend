@@ -116,6 +116,7 @@ export class FragranceReviewsRepo extends TableService<'fragranceReviews', Fragr
           likesDelta,
           dislikesDelta
         ] = this.voteFactory.getDeltas(prev, next)
+
         const [
           likesCount,
           dislikesCount,
