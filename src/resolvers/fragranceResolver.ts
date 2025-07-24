@@ -443,15 +443,15 @@ export class FragranceResolver extends ApiResolver {
     const { input } = args
     const { me, services } = context
 
-    // if (me == null) {
-    //   throw new ApiError(
-    //     'NOT_AUTHORIZED',
-    //     'You need to log in or sign up before voting on a note',
-    //     403
-    //   )
-    // }
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before voting on a note',
+        403
+      )
+    }
 
-    const userId = me?.id ?? 7
+    const userId = me.id
     const { fragranceId, noteId, layer: gqlLayer, vote } = input
     const layer = GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[gqlLayer]
 
