@@ -27,7 +27,6 @@ export class ApiResolvers implements Resolvers {
 
     fragrance: fragranceResolver.fragrance,
     fragrances: fragranceResolver.fragrances,
-    searchFragrances: fragranceResolver.searchFragrances,
 
     collection: collectionResolver.collection
   }
@@ -115,8 +114,8 @@ export class ApiResolvers implements Resolvers {
     //   // Voting
     voteOnFragrance: fragranceResolver.voteOnFragrance,
     voteOnTrait: fragranceResolver.voteOnTrait,
-    //   voteOnAccord: fragranceResolver.voteOnAccord,
-    //   voteOnNote: fragranceResolver.voteOnNote,
+    voteOnAccord: fragranceResolver.voteOnAccord,
+    voteOnNote: fragranceResolver.voteOnNote,
     voteOnReview: reviewResolver.voteOnReview
 
   //   logFragranceView: fragranceResolver.logFragranceView

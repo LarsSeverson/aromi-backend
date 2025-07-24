@@ -63,41 +63,6 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  searchFragrances: QueryResolvers['searchFragrances'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const { input } = args
-    const { services } = context
-    const { fragrance } = services
-
-    const query = input?.query ?? undefined
-    const pagination = input?.pagination
-
-    const processed = this.paginationFactory.process(pagination)
-
-    const limit = processed.first + 1
-    const offset = processed.offset != null ? processed.offset + 1 : 0
-
-    return await fragrance
-      .searcher
-      .search({ query, limit, offset })
-      .map(docs => docs.hits.map(doc => doc.id))
-      .andThen((ids) => fragrance.find(eb => eb('fragrances.id', 'in', ids)))
-      .match(
-        rows => this
-          .newPage(
-            rows,
-            processed,
-            (row, idx) => `${row.id}|${idx + offset}`,
-            mapFragranceRowToFragranceSummary
-          ),
-        throwError
-      )
-  }
-
   fragranceImages: FragranceFieldResolvers['images'] = async (
     parent,
     args,
@@ -409,7 +374,12 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  voteOnTrait: MutationResolvers['voteOnTrait'] = async (_, args, context, info) => {
+  voteOnTrait: MutationResolvers['voteOnTrait'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
     const { input } = args
     const { me, services } = context
 
@@ -434,40 +404,74 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  // voteOnAccord: MutationResolvers['voteOnAccord'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+  voteOnAccord: MutationResolvers['voteOnAccord'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { me, services } = context
 
-  //   const { fragranceId, accordId, vote } = input
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before voting on an accord',
+        403
+      )
+    }
 
-  //   return await services
-  //     .fragrance
-  //     .voteOnAccord({ fragranceId, accordId, vote: vote ?? null })
-  //     .match(
-  //       mapFragranceAccordRowToFragranceAccord,
-  //       error => { throw error }
-  //     )
-  // }
+    const userId = me.id
+    const { fragranceId, accordId, vote } = input
 
-  // voteOnNote: MutationResolvers['voteOnNote'] = async (_, args, context, info) => {
-  //   const { input } = args
-  //   const { services } = context
+    return await services
+      .fragrance
+      .accords
+      .vote({ userId, fragranceId, accordId, vote })
+      .match(
+        mapFragranceAccordRowToFragranceAccord,
+        throwError
+      )
+  }
 
-  //   const { fragranceId, noteId, layer, vote } = input
+  voteOnNote: MutationResolvers['voteOnNote'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { me, services } = context
 
-  //   return await services
-  //     .fragrance
-  //     .voteOnNote({
-  //       fragranceId,
-  //       noteId,
-  //       layer: GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[layer],
-  //       vote: vote ?? null
-  //     })
-  //     .match(
-  //       mapFragranceNoteRowToFragranceNote,
-  //       error => { throw error }
-  //     )
-  // }
+    // if (me == null) {
+    //   throw new ApiError(
+    //     'NOT_AUTHORIZED',
+    //     'You need to log in or sign up before voting on a note',
+    //     403
+    //   )
+    // }
+
+    const userId = me?.id ?? 7
+    const { fragranceId, noteId, layer: gqlLayer, vote } = input
+    const layer = GQL_NOTE_LAYER_TO_DB_NOTE_LAYER[gqlLayer]
+
+    return await services
+      .fragrance
+      .notes
+      .vote({
+        userId,
+        fragranceId,
+        noteId,
+        layer,
+        vote
+      })
+      .match(
+        (row) => mapFragranceNoteRowToFragranceNote(
+          services.asset.publicizeField(row, 's3Key')
+        ),
+        throwError
+      )
+  }
 
   // logFragranceView: MutationResolvers['logFragranceView'] = async (_, args, context, info) => {
   //   const { input } = args

@@ -1,10 +1,12 @@
 import { type DB } from '@src/db/schema'
-import { sql, type Selectable } from 'kysely'
+import { type Selectable } from 'kysely'
 import { type MyVote, TableService } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { AccordVotesRepo } from './AccordVotesRepo'
+import { AccordFillersRepo } from './AccordFillersRepo'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
+import { VoteFactory } from '@src/factories/VoteFactory'
 
 export interface FragranceAccordRow extends Selectable<DB['fragranceAccords']>, MyVote {
   accordId: number
@@ -12,56 +14,24 @@ export interface FragranceAccordRow extends Selectable<DB['fragranceAccords']>, 
   color: string
 }
 
-class FillerAccordsRepo extends TableService<'accords', FragranceAccordRow> {
-  constructor (sources: ApiDataSources) {
-    super(sources, 'accords')
-  }
-
-  fill (
-    fragranceId: number,
-    pagination?: ParsedPaginationInput
-  ): ResultAsync<FragranceAccordRow[], ApiError> {
-    let query = this
-      .sources
-      .db
-      .selectFrom('accords')
-      .leftJoin('fragranceAccords', join =>
-        join
-          .onRef('fragranceAccords.accordId', '=', 'accords.id')
-          .on('fragranceAccords.fragranceId', '=', fragranceId)
-      )
-      .where('fragranceAccords.id', 'is', null)
-      .selectAll('accords')
-      .select([
-        'accords.id as accordId',
-        sql<number>`${fragranceId}`.as('fragranceId'),
-        sql<number>`0`.as('dislikesCount'),
-        sql<number>`0`.as('likesCount'),
-        sql<number>`0`.as('voteScore'),
-        sql<number | null>`0`.as('myVote')
-      ])
-
-    if (pagination != null) {
-      query = this
-        .Table
-        .paginatedQuery(pagination, query)
-    }
-
-    return ResultAsync
-      .fromPromise(
-        query.execute(),
-        error => ApiError.fromDatabase(error)
-      )
-  }
+export interface VoteOnAccordParams {
+  userId: number
+  fragranceId: number
+  accordId: number
+  vote?: boolean | null | undefined
 }
 
 export class FragranceAccordsRepo extends TableService<'fragranceAccords', FragranceAccordRow> {
-  fillers: FillerAccordsRepo
+  fillers: AccordFillersRepo
+  votes: AccordVotesRepo
+
+  voteFactory = new VoteFactory()
 
   constructor (sources: ApiDataSources) {
     super(sources, 'fragranceAccords')
 
-    this.fillers = new FillerAccordsRepo(sources)
+    this.fillers = new AccordFillersRepo(sources)
+    this.votes = new AccordVotesRepo(sources)
 
     this
       .Table
@@ -86,6 +56,85 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
             'accords.name',
             'accords.color'
           ])
+      })
+  }
+
+  vote (
+    params: VoteOnAccordParams
+  ): ResultAsync<FragranceAccordRow, ApiError> {
+    const db = this.sources.db
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .transaction()
+          .execute(async trx => {
+            this.withConnection(trx)
+            this.votes.withConnection(trx)
+
+            return await this
+              .voteInner(params)
+              .match(
+                row => row,
+                throwError
+              )
+              .finally(() => {
+                this.withConnection(db)
+                this.votes.withConnection(db)
+              })
+          }),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  private voteInner (
+    params: VoteOnAccordParams
+  ): ResultAsync<FragranceAccordRow, ApiError> {
+    const { userId, fragranceId, accordId, vote } = params
+    const [value, deletedAt, updatedAt] = this.voteFactory.value(vote)
+
+    return this
+      .findOrCreate(
+        eb => eb.and([
+          eb('fragranceAccords.fragranceId', '=', fragranceId),
+          eb('fragranceAccords.accordId', '=', accordId)
+        ]),
+        {
+          fragranceId,
+          accordId
+        }
+      )
+      .andThen(fragranceAccordRow => this
+        .votes
+        .vote({
+          userId,
+          fragranceAccordId: fragranceAccordRow.id,
+          vote: value,
+          updatedAt,
+          deletedAt
+        })
+        .map(({ previousVoteRow }) => ({ fragranceAccordRow, previousVoteRow }))
+      )
+      .andThen(({ fragranceAccordRow, previousVoteRow }) => {
+        const prev = previousVoteRow?.vote ?? 0
+        const next = value
+
+        const [
+          likesDelta,
+          dislikesDelta
+        ] = this.voteFactory.getDeltas(prev, next)
+
+        const updated = this.voteFactory.getUpdatedValuesObj(likesDelta, dislikesDelta)
+
+        return this
+          .updateOne(
+            eb => eb('fragranceAccords.id', '=', fragranceAccordRow.id),
+            updated
+          )
+          .map(updatedAccordRow => ({
+            ...fragranceAccordRow,
+            ...updatedAccordRow
+          }))
       })
   }
 }

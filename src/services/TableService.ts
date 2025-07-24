@@ -1,11 +1,11 @@
 import { type ApiDataSources } from '@src/datasources/datasources'
 import { ApiService } from './ApiService'
 import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn, type OnConflictFn } from '../db/Table'
-import { ResultAsync } from 'neverthrow'
+import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
   pagination?: ParsedPaginationInput<C>
@@ -147,6 +147,21 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
         query.execute(),
         error => ApiError.fromDatabase(error)
       )
+  }
+
+  findOrCreate (
+    where: ExpressionOrFactory<DB, T, SqlBool>,
+    values: Partial<R>
+  ): ResultAsync<R, ApiError> {
+    return this
+      .findOne(where)
+      .orElse(error => {
+        if (error.status === 404) {
+          return this.create(values)
+        }
+
+        return errAsync(error)
+      })
   }
 
   paginate <C>(

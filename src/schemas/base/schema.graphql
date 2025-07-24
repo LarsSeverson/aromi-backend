@@ -36,6 +36,12 @@ input VotePaginationInput {
   sort: VoteSortByInput
 }
 
+input SearchPaginationInput {
+  first: Int
+  after: String
+  sort: SearchSortByInput
+}
+
 input ControlledPaginationInput {
   first: Int
   after: String
@@ -43,18 +49,23 @@ input ControlledPaginationInput {
 }
 
 input SortByInput {
-  by: SortBy = updatedAt
-  direction: SortDirection = DESCENDING
+  by: SortBy
+  direction: SortDirection
 }
 
 input VoteSortByInput {
-  by: VoteSortBy = updatedAt
-  direction: SortDirection = DESCENDING
+  by: VoteSortBy
+  direction: SortDirection
+}
+
+input SearchSortByInput {
+  by: SearchSortBy
 }
 
 input ControlledSortByInput {
   direction: SortDirection = DESCENDING
 }
+
 
 enum SortDirection {
   ASCENDING
@@ -70,4 +81,8 @@ enum VoteSortBy {
   ID
   UPDATED
   VOTES
+}
+
+enum SearchSortBy {
+  RELEVANCE
 }

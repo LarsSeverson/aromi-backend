@@ -4,7 +4,7 @@ import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type S
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type DBAny } from '@src/common/types'
 import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: number, deletedAt: Date | null }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -48,6 +48,10 @@ export class Table<T extends keyof DB, R> {
       .db
       .selectFrom(this.from())
       .selectAll() as SelectQueryBuilder<DB, T, R>
+  }
+
+  get connection (): ApiDataSources['db'] {
+    return this.db
   }
 
   withConnection (db: ApiDataSources['db']): this {

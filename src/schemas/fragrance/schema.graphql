@@ -134,6 +134,8 @@ extend type Query {
 
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
 
+  searchFragranceAccords(input: SearchInput): FragranceAccordConnection!
+
   searchFragranceNotes(
     input: SearchFragranceNotesInput
   ): FragranceNoteConnection!
@@ -274,6 +276,11 @@ input LogFragranceViewInput {
 }
 
 # Query input
+input SearchInput {
+  query: String
+  pagination: SearchPaginationInput
+}
+
 input SearchFragrancesInput {
   query: String
   pagination: PaginationInput

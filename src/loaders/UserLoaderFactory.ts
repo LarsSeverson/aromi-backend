@@ -5,7 +5,7 @@ import { type FragranceCollectionRow } from '@src/services/repositories/Fragranc
 import { LoaderFactory } from './LoaderFactory'
 import { type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { type FragranceVoteRow } from '@src/services/repositories/FragranceVotesRepo'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
 
 export interface UserLoaderKey { userId: number }
 

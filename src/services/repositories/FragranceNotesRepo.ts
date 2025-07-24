@@ -1,10 +1,12 @@
 import { type NoteLayerEnum, type DB } from '@src/db/schema'
-import { sql, type Selectable } from 'kysely'
+import { type Selectable } from 'kysely'
 import { TableService, type MyVote } from '../TableService'
 import { type ApiDataSources } from '@src/datasources/datasources'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { NoteFillersRepo } from './NoteFillersRepo'
+import { NoteVotesRepo } from './NoteVotesRepo'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
+import { VoteFactory } from '@src/factories/VoteFactory'
 
 export interface FragranceNoteRow extends Selectable<DB['fragranceNotes']>, MyVote {
   noteId: number
@@ -12,67 +14,34 @@ export interface FragranceNoteRow extends Selectable<DB['fragranceNotes']>, MyVo
   s3Key: string | null
 }
 
-class FillerNotesRepo extends TableService<'notes', FragranceNoteRow> {
-  constructor (sources: ApiDataSources) {
-    super(sources, 'notes')
-  }
-
-  fill (
-    fragranceId: number,
-    layer: NoteLayerEnum,
-    pagination?: ParsedPaginationInput
-  ): ResultAsync<FragranceNoteRow[], ApiError> {
-    let query = this
-      .sources
-      .db
-      .selectFrom('notes')
-      .leftJoin('fragranceNotes', join =>
-        join
-          .onRef('fragranceNotes.noteId', '=', 'notes.id')
-          .on('fragranceNotes.fragranceId', '=', fragranceId)
-          .on('fragranceNotes.layer', '=', layer)
-      )
-      .where('fragranceNotes.id', 'is', null)
-      .selectAll('notes')
-      .select([
-        'notes.id as noteId',
-        sql<NoteLayerEnum>`${layer}`.as('layer'),
-        sql<number>`${fragranceId}`.as('fragranceId'),
-        sql<number>`0`.as('dislikesCount'),
-        sql<number>`0`.as('likesCount'),
-        sql<number>`0`.as('voteScore'),
-        sql<number | null>`0`.as('myVote')
-      ])
-
-    if (pagination != null) {
-      query = this
-        .Table
-        .paginatedQuery(pagination, query)
-    }
-
-    return ResultAsync
-      .fromPromise(
-        query.execute(),
-        error => ApiError.fromDatabase(error)
-      )
-  }
+export interface VoteOnNoteParams {
+  userId: number
+  fragranceId: number
+  noteId: number
+  layer: NoteLayerEnum
+  vote?: boolean | null | undefined
 }
 
 export class FragranceNotesRepo extends TableService<'fragranceNotes', FragranceNoteRow> {
-  fillers: FillerNotesRepo
+  fillers: NoteFillersRepo
+  votes: NoteVotesRepo
+
+  voteFactory = new VoteFactory()
 
   constructor (sources: ApiDataSources) {
     super(sources, 'fragranceNotes')
 
-    this.fillers = new FillerNotesRepo(sources)
+    this.fillers = new NoteFillersRepo(sources)
+    this.votes = new NoteVotesRepo(sources)
 
     this
       .Table
       .setBaseQueryFactory(() => {
         const userId = this.context.me?.id ?? null
 
-        return sources
-          .db
+        const query = this
+          .Table
+          .connection
           .selectFrom('fragranceNotes')
           .innerJoin('notes', 'notes.id', 'fragranceNotes.noteId')
           .leftJoin('fragrances', 'fragrances.id', 'fragranceNotes.fragranceId')
@@ -89,6 +58,90 @@ export class FragranceNotesRepo extends TableService<'fragranceNotes', Fragrance
             'notes.s3Key',
             'notes.name'
           ])
+
+        return query
       })
+  }
+
+  vote (
+    params: VoteOnNoteParams
+  ): ResultAsync<FragranceNoteRow, ApiError> {
+    const db = this.sources.db
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .transaction()
+          .execute(async trx => {
+            this.withConnection(trx)
+            this.votes.withConnection(trx)
+
+            return await this
+              .voteInner(params)
+              .match(
+                row => row,
+                throwError
+              )
+              .finally(() => {
+                this.withConnection(db)
+                this.votes.withConnection(db)
+              })
+          }),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  private voteInner (
+    params: VoteOnNoteParams
+  ): ResultAsync<FragranceNoteRow, ApiError> {
+    const { userId, fragranceId, noteId, layer, vote } = params
+    const [value, deletedAt, updatedAt] = this.voteFactory.value(vote)
+
+    return this
+      .findOrCreate(
+        eb => eb.and([
+          eb('fragranceNotes.fragranceId', '=', fragranceId),
+          eb('fragranceNotes.noteId', '=', noteId),
+          eb('fragranceNotes.layer', '=', layer)
+        ]),
+        {
+          fragranceId,
+          noteId,
+          layer
+        }
+      )
+      .andThen(fragranceNoteRow => this
+        .votes
+        .vote({
+          userId,
+          fragranceNoteId: fragranceNoteRow.id,
+          vote: value,
+          updatedAt,
+          deletedAt
+        })
+        .map(({ previousVoteRow }) => ({ fragranceNoteRow, previousVoteRow }))
+      )
+      .andThen(({ fragranceNoteRow, previousVoteRow }) => {
+        const prev = previousVoteRow?.vote ?? 0
+        const next = value
+
+        const [
+          likesDelta,
+          dislikesDelta
+        ] = this.voteFactory.getDeltas(prev, next)
+
+        const updated = this.voteFactory.getUpdatedValuesObj(likesDelta, dislikesDelta)
+
+        return this
+          .updateOne(
+            eb => eb('fragranceNotes.id', '=', fragranceNoteRow.id),
+            updated
+          )
+      })
+      .andThen(row => this
+        .findOne(
+          eb => eb('fragranceNotes.id', '=', row.id)
+        )
+      )
   }
 }

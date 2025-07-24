@@ -2,7 +2,7 @@ import DataLoader from 'dataloader'
 import { type FragranceCollectionItemRow } from '@src/services/repositories/FragranceCollectionRepo'
 import { LoaderFactory } from './LoaderFactory'
 import { ResultAsync } from 'neverthrow'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
 
 export interface CollectionLoaderKey { collectionId: number }
 

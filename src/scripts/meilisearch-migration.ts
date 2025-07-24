@@ -1,7 +1,9 @@
 import { config } from 'dotenv'
 import { MeiliSearch } from 'meilisearch'
 import { Pool } from 'pg'
+
 config()
+
 const db = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -15,29 +17,56 @@ const meili = new MeiliSearch({
   apiKey: process.env.MEILISEARCH_API_KEY
 })
 
-interface F {
+// interface F {
+//   id: number
+//   name: string
+//   brand: string
+// }
+
+// const sync = async (): Promise<void> => {
+//   const res = await db.query<F>(/* sql */`
+//     SELECT
+//       id, name, brand
+//     FROM fragrances
+//   `)
+
+//   const docs = res
+//     .rows
+//     .map(row => ({
+//       id: row.id,
+//       name: row.name,
+//       brand: row.brand
+//     }))
+
+//   await meili.index('fragrances').addDocuments(docs)
+
+//   console.log(`Synced ${docs.length} fragrances`)
+// }
+
+// void sync().catch(err => { console.log(err) })
+
+interface A {
   id: number
   name: string
-  brand: string
 }
+
 const sync = async (): Promise<void> => {
-  const res = await db.query<F>(/* sql */`
+  const res = await db.query<A>(/* sql */`
     SELECT
-      id, name, brand
-    FROM fragrances
+      id, name
+    FROM accords
   `)
 
   const docs = res
     .rows
     .map(row => ({
       id: row.id,
-      name: row.name,
-      brand: row.brand
+      name: row.name
     }))
 
-  await meili.index('fragrances').addDocuments(docs)
+  await meili.index('accords').addDocuments(docs)
 
-  console.log(`Synced ${docs.length} fragrances`)
+  console.log(`Synced ${docs.length} accords`)
 }
 
 void sync().catch(err => { console.log(err) })

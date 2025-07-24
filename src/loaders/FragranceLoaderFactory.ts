@@ -9,7 +9,7 @@ import { type NoteLayerEnum } from '@src/db/schema'
 import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/services/repositories/FragranceReviewsRepo'
 import { ApiError, throwError } from '@src/common/error'
 import { ResultAsync } from 'neverthrow'
-import { type ParsedPaginationInput } from '@src/factories/PagiFactory'
+import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
 
 export interface FragranceLoaderKey { fragranceId: number }
 

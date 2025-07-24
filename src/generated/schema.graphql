@@ -397,6 +397,8 @@ type Query {
   fragrances(input: PaginationInput): FragranceConnection!
   me: User
   notes(input: PaginationInput): NoteConnection!
+  searchFillerFragranceNotes(input: SearchFragranceNotesInput): FragranceNoteConnection!
+  searchFragranceAccords(input: SearchInput): FragranceAccordConnection!
   searchFragranceNotes(input: SearchFragranceNotesInput): FragranceNoteConnection!
   searchFragrances(input: SearchFragrancesInput): FragranceConnection!
   user(id: Int!): User
@@ -410,6 +412,7 @@ type ReviewReport {
 }
 
 input SearchFragranceNotesInput {
+  layer: NoteLayer
   pagination: VotePaginationInput
   query: String
 }
@@ -419,6 +422,25 @@ input SearchFragrancesInput {
   query: String
 }
 
+input SearchInput {
+  pagination: SearchPaginationInput
+  query: String
+}
+
+input SearchPaginationInput {
+  after: String
+  first: Int
+  sort: SearchSortByInput
+}
+
+enum SearchSortBy {
+  RELEVANCE
+}
+
+input SearchSortByInput {
+  by: SearchSortBy
+}
+
 enum SortBy {
   ID
   UPDATED
@@ -426,7 +448,7 @@ enum SortBy {
 
 input SortByInput {
   by: SortBy
-  direction: SortDirection = DESCENDING
+  direction: SortDirection
 }
 
 enum SortDirection {
@@ -488,7 +510,7 @@ enum VoteSortBy {
 
 input VoteSortByInput {
   by: VoteSortBy
-  direction: SortDirection = DESCENDING
+  direction: SortDirection
 }
 
 type VoteSummary {
