@@ -38,8 +38,9 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
       .setBaseQueryFactory(() => {
         const userId = this.context.me?.id ?? null
 
-        return sources
-          .db
+        return this
+          .Table
+          .connection
           .selectFrom('fragranceAccords')
           .innerJoin('accords', 'accords.id', 'fragranceAccords.accordId')
           .leftJoin('fragrances', 'fragrances.id', 'fragranceAccords.fragranceId')
@@ -131,10 +132,11 @@ export class FragranceAccordsRepo extends TableService<'fragranceAccords', Fragr
             eb => eb('fragranceAccords.id', '=', fragranceAccordRow.id),
             updated
           )
-          .map(updatedAccordRow => ({
-            ...fragranceAccordRow,
-            ...updatedAccordRow
-          }))
       })
+      .andThen(row => this
+        .findOne(
+          eb => eb('fragranceAccords.id', '=', row.id)
+        )
+      )
   }
 }
