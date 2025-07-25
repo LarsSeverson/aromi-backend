@@ -5,6 +5,7 @@ import { type ApiDataSources } from '@src/datasources/datasources'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExtendInsertFn } from '@src/db/Table'
+import { ASCENDING_ORDER, DESCENDING_ORDER } from '@src/utils/constants'
 
 export type FragranceCollectionRow = Selectable<DB['fragranceCollections']>
 
@@ -173,7 +174,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
               eb('deletedAt', 'is', null)
             ])
           )
-          .orderBy('rank', 'asc')
+          .orderBy('rank', ASCENDING_ORDER)
           .offset(start)
           .limit(length)
           .execute(),
@@ -200,7 +201,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
               eb('deletedAt', 'is', null)
             ])
           )
-          .orderBy('rank', 'asc')
+          .orderBy('rank', ASCENDING_ORDER)
           .offset(insertIndex)
           .limit(insertIndex > 0 ? 2 : 1)
           .execute(),
@@ -222,7 +223,7 @@ export class FragranceCollectionItemRepo extends TableService<'fragranceCollecti
                   eb('deletedAt', 'is', null)
                 ])
               )
-              .orderBy('rank', 'desc')
+              .orderBy('rank', DESCENDING_ORDER)
               .limit(1)
               .execute(),
             error => ApiError.fromDatabase(error)

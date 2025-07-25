@@ -1,4 +1,5 @@
 import { type PaginationInput, type SortBy, SortDirection, type VotePaginationInput, type VoteSortBy } from '@src/generated/gql-types'
+import { ASCENDING_ORDER, DESCENDING_ORDER } from '@src/utils/constants'
 import { CursorFactory, type CursorDecoder, type ApiCursor } from './CursorFactory'
 
 export type PaginationInputs = PaginationInput | VotePaginationInput
@@ -13,8 +14,8 @@ export const PAGINATION_OPERATORS = {
 } as const
 
 export const PAGINATION_DIRECTIONS = {
-  [SortDirection.Ascending]: 'asc',
-  [SortDirection.Descending]: 'desc'
+  [SortDirection.Ascending]: ASCENDING_ORDER,
+  [SortDirection.Descending]: DESCENDING_ORDER
 } as const
 
 export const PAGINATION_COLUMNS: Record<SortBys, string> = {

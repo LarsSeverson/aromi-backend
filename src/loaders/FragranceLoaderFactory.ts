@@ -10,6 +10,7 @@ import { type FragranceReviewDistRow, type FragranceReviewRow } from '@src/servi
 import { ApiError, throwError } from '@src/common/error'
 import { ResultAsync } from 'neverthrow'
 import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
+import { ASCENDING_ORDER } from '@src/utils/constants'
 
 export interface FragranceLoaderKey { fragranceId: number }
 
@@ -361,7 +362,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
               {
                 extend: qb => qb
                   .groupBy(['fragranceId', 'rating'])
-                  .orderBy('count', 'asc')
+                  .orderBy('count', ASCENDING_ORDER)
               }
             )
           )
