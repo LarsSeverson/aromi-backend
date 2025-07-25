@@ -167,6 +167,8 @@ extend type Mutation {
     input: MoveFragranceCollectionItemInput!
   ): [FragranceCollectionItem!]!
 
+  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
 
   createReviewReport(input: CreateReviewReportInput!): ReviewReport!

@@ -345,6 +345,58 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
+  createFragranceReview: MutationResolvers['createFragranceReview'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { me, services } = context
+
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before writing a review',
+        403
+      )
+    }
+
+    const userId = me.id
+    const { fragranceId, rating, review } = input
+    const updatedAt = new Date().toISOString()
+
+    return await services
+      .fragrance
+      .reviews
+      .upsert(
+        {
+          userId,
+          fragranceId,
+          rating,
+          reviewText: review
+        },
+        oc => oc
+          .columns(['userId', 'fragranceId'])
+          .doUpdateSet({
+            rating,
+            reviewText: review,
+            updatedAt
+          })
+      )
+      .andThen((upsertedRow) => services
+        .fragrance
+        .reviews
+        .findOne(
+          eb => eb('fragranceReviews.id', '=', upsertedRow.id)
+        )
+      )
+      .match(
+        mapFragranceReviewRowToFragranceReviewSummary,
+        throwError
+      )
+  }
+
   voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (
     _,
     args,

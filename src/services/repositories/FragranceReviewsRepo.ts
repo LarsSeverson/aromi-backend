@@ -29,8 +29,9 @@ export class FragranceReviewsRepo extends TableService<'fragranceReviews', Fragr
       .setBaseQueryFactory(() => {
         const userId = this.context.me?.id ?? null
 
-        return sources
-          .db
+        return this
+          .Table
+          .connection
           .selectFrom('fragranceReviews')
           .leftJoin('fragranceReviewVotes as rv', join =>
             join
