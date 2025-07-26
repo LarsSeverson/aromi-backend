@@ -1,7 +1,6 @@
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
-import { expressMiddleware } from '@apollo/server/express4'
 import { readFileSync } from 'fs'
 import { ApiResolvers } from './resolvers/resolvers'
 import depthLimit from 'graphql-depth-limit'
@@ -15,6 +14,7 @@ import http from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { ApiServices } from './services/services'
+import { expressMiddleware } from '@as-integrations/express5'
 
 const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 

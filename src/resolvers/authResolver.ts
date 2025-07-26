@@ -9,30 +9,45 @@ import { ApiError } from '@src/common/error'
 const loginSchema = z
   .object({
     email: z
-      .string({ required_error: 'Email is required' })
-      .email('Please enter a valid email address'),
+      .string()
+      .nonempty('Email is required')
+      .regex(
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Please enter a valid email address'
+      ),
     password: z
-      .string({ required_error: 'Password is required' })
+      .string()
+      .nonempty('Password is required')
       .min(8, 'Password must be at least 8 characters long')
   })
 
 const signUpSchema = z
   .object({
     email: z
-      .string({ required_error: 'Email is required' })
-      .email('Please enter a valid email address'),
+      .string()
+      .nonempty('Email is required')
+      .regex(
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Please enter a valid email address'
+      ),
     password: z
-      .string({ required_error: 'Password is required' })
+      .string()
+      .nonempty('Password is required')
       .min(8, 'Password must be at least 8 characters long')
   })
 
 const confirmSignUpSchema = z
   .object({
     email: z
-      .string({ required_error: 'Email is required' })
-      .email('Please enter a valid email address'),
+      .string()
+      .nonempty('Email is required')
+      .regex(
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Please enter a valid email address'
+      ),
     confirmationCode: z
-      .string({ required_error: 'Code is required' })
+      .string()
+      .nonempty('Code is required')
       .length(6)
       .regex(/^\d{6}$/, 'Code must be a 6-digit number')
   })

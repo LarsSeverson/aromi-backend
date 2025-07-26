@@ -1,9 +1,9 @@
 import { ApiLoaders } from './loaders/loaders'
 import { authenticateMe } from './middleware/auth.middleware'
 import { type ApiDataSources } from './datasources/datasources'
-import { type ExpressContextFunctionArgument } from '@apollo/server/dist/esm/express4'
 import { type ApiServices } from './services/services'
 import { type UserSummary } from './schemas/user/mappers'
+import { type ExpressContextFunctionArgument } from '@as-integrations/express5'
 
 export interface ApiContext extends ExpressContextFunctionArgument {
   sources: ApiDataSources
