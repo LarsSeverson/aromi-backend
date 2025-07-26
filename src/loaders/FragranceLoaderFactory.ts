@@ -394,7 +394,8 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
             .findOne(
               eb => eb.and([
                 eb('fragranceReviews.userId', '=', myId),
-                eb('fragranceReviews.fragranceId', '=', id)
+                eb('fragranceReviews.fragranceId', '=', id),
+                eb('fragranceReviews.deletedAt', 'is', null)
               ])
             )
           )
