@@ -2,7 +2,7 @@ import { type QueryResolvers, type FragranceResolvers as FragranceFieldResolvers
 import { ApiResolver } from './apiResolver'
 import { type FragranceRow } from '@src/services/FragranceService'
 import { type FragranceSummary } from '@src/schemas/fragrance/mappers'
-import { ResultAsync } from 'neverthrow'
+import { errAsync, ResultAsync } from 'neverthrow'
 import { type FragranceImageRow } from '@src/services/repositories/FragranceImageRepo'
 import { type NoteLayerEnum, type FragranceTraitEnum } from '@src/db/schema'
 import { type FragranceTraitRow } from '@src/services/repositories/FragranceTraitsRepo'
@@ -345,7 +345,7 @@ export class FragranceResolver extends ApiResolver {
       )
   }
 
-  createFragranceReview: MutationResolvers['createFragranceReview'] = async (
+  upsertFragranceReview: MutationResolvers['upsertFragranceReview'] = async (
     _,
     args,
     context,
@@ -393,6 +393,61 @@ export class FragranceResolver extends ApiResolver {
       )
       .match(
         mapFragranceReviewRowToFragranceReviewSummary,
+        throwError
+      )
+  }
+
+  deleteFragranceReview: MutationResolvers['deleteFragranceReview'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { me, services } = context
+
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before deleting this review',
+        403
+      )
+    }
+
+    const reviewId = input.reviewId
+    const userId = me.id
+
+    return await services
+      .fragrance
+      .reviews
+      .findOne(
+        eb => eb.and([
+          eb('fragranceReviews.id', '=', reviewId),
+          eb('fragranceReviews.deletedAt', 'is', null)
+        ])
+      )
+      .andThen(row => {
+        if (row.userId !== userId) {
+          return errAsync(
+            new ApiError(
+              'NOT_AUTHORIZED',
+              'You can only delete your own reviews',
+              403
+            )
+          )
+        }
+
+        return services
+          .fragrance
+          .reviews
+          .softDeleteOne(
+            eb => eb('fragranceReviews.id', '=', reviewId)
+          )
+      })
+      .match(
+        () => {
+          return true
+        },
         throwError
       )
   }

@@ -120,12 +120,6 @@ export type CreateFragranceReportInput = {
   report: Scalars['String']['input'];
 };
 
-export type CreateFragranceReviewInput = {
-  fragranceId: Scalars['Int']['input'];
-  rating: Scalars['Int']['input'];
-  review: Scalars['String']['input'];
-};
-
 export type CreateReviewReportInput = {
   report: Scalars['String']['input'];
   reviewId: Scalars['Int']['input'];
@@ -134,6 +128,10 @@ export type CreateReviewReportInput = {
 export type DeleteFragranceCollectionItemInput = {
   collectionId: Scalars['Int']['input'];
   fragranceId: Scalars['Int']['input'];
+};
+
+export type DeleteFragranceReviewInput = {
+  reviewId: Scalars['Int']['input'];
 };
 
 export type DeliveryResult = {
@@ -457,9 +455,9 @@ export type Mutation = {
   createFragranceCollectionItem: FragranceCollectionItem;
   createFragranceImage: AssetUploadPayload;
   createFragranceReport: FragranceReport;
-  createFragranceReview: FragranceReview;
   createReviewReport: ReviewReport;
   deleteFragranceCollectionItem: Array<FragranceCollectionItem>;
+  deleteFragranceReview: Scalars['Boolean']['output'];
   forgotPassword: DeliveryResult;
   logFragranceView: Scalars['Boolean']['output'];
   logIn: AuthPayload;
@@ -468,6 +466,7 @@ export type Mutation = {
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: DeliveryResult;
   signUp: DeliveryResult;
+  upsertFragranceReview: FragranceReview;
   voteOnAccord: FragranceAccord;
   voteOnFragrance: FragranceVote;
   voteOnNote: FragranceNote;
@@ -514,11 +513,6 @@ export type MutationCreateFragranceReportArgs = {
 };
 
 
-export type MutationCreateFragranceReviewArgs = {
-  input: CreateFragranceReviewInput;
-};
-
-
 export type MutationCreateReviewReportArgs = {
   input: CreateReviewReportInput;
 };
@@ -526,6 +520,11 @@ export type MutationCreateReviewReportArgs = {
 
 export type MutationDeleteFragranceCollectionItemArgs = {
   input: DeleteFragranceCollectionItemInput;
+};
+
+
+export type MutationDeleteFragranceReviewArgs = {
+  input: DeleteFragranceReviewInput;
 };
 
 
@@ -558,6 +557,11 @@ export type MutationResendSignUpConfirmationCodeArgs = {
 export type MutationSignUpArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationUpsertFragranceReviewArgs = {
+  input: UpsertFragranceReviewInput;
 };
 
 
@@ -747,6 +751,12 @@ export const SortDirection = {
 } as const;
 
 export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
+export type UpsertFragranceReviewInput = {
+  fragranceId: Scalars['Int']['input'];
+  rating: Scalars['Int']['input'];
+  review: Scalars['String']['input'];
+};
+
 export type User = {
   __typename?: 'User';
   audit: Audit;
@@ -918,10 +928,10 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
   CreateFragranceImageInput: ResolverTypeWrapper<Partial<CreateFragranceImageInput>>;
   CreateFragranceReportInput: ResolverTypeWrapper<Partial<CreateFragranceReportInput>>;
-  CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   CreateReviewReportInput: ResolverTypeWrapper<Partial<CreateReviewReportInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteFragranceCollectionItemInput: ResolverTypeWrapper<Partial<DeleteFragranceCollectionItemInput>>;
+  DeleteFragranceReviewInput: ResolverTypeWrapper<Partial<DeleteFragranceReviewInput>>;
   DeliveryResult: ResolverTypeWrapper<Partial<DeliveryResult>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   Fragrance: ResolverTypeWrapper<FragranceSummary>;
@@ -977,6 +987,7 @@ export type ResolversTypes = ResolversObject<{
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
+  UpsertFragranceReviewInput: ResolverTypeWrapper<Partial<UpsertFragranceReviewInput>>;
   User: ResolverTypeWrapper<UserSummary>;
   VoteOnAccordInput: ResolverTypeWrapper<Partial<VoteOnAccordInput>>;
   VoteOnFragranceInput: ResolverTypeWrapper<Partial<VoteOnFragranceInput>>;
@@ -1007,10 +1018,10 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
   CreateFragranceImageInput: Partial<CreateFragranceImageInput>;
   CreateFragranceReportInput: Partial<CreateFragranceReportInput>;
-  CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   CreateReviewReportInput: Partial<CreateReviewReportInput>;
   Date: Partial<Scalars['Date']['output']>;
   DeleteFragranceCollectionItemInput: Partial<DeleteFragranceCollectionItemInput>;
+  DeleteFragranceReviewInput: Partial<DeleteFragranceReviewInput>;
   DeliveryResult: Partial<DeliveryResult>;
   Float: Partial<Scalars['Float']['output']>;
   Fragrance: FragranceSummary;
@@ -1061,6 +1072,7 @@ export type ResolversParentTypes = ResolversObject<{
   SearchSortByInput: Partial<SearchSortByInput>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
+  UpsertFragranceReviewInput: Partial<UpsertFragranceReviewInput>;
   User: UserSummary;
   VoteOnAccordInput: Partial<VoteOnAccordInput>;
   VoteOnFragranceInput: Partial<VoteOnFragranceInput>;
@@ -1375,9 +1387,9 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionItemArgs, 'input'>>;
   createFragranceImage?: Resolver<ResolversTypes['AssetUploadPayload'], ParentType, ContextType, RequireFields<MutationCreateFragranceImageArgs, 'input'>>;
   createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
-  createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   createReviewReport?: Resolver<ResolversTypes['ReviewReport'], ParentType, ContextType, RequireFields<MutationCreateReviewReportArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
+  deleteFragranceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFragranceReviewArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
@@ -1386,6 +1398,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  upsertFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationUpsertFragranceReviewArgs, 'input'>>;
   voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
   voteOnNote?: Resolver<ResolversTypes['FragranceNote'], ParentType, ContextType, RequireFields<MutationVoteOnNoteArgs, 'input'>>;

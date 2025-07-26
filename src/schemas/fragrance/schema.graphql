@@ -146,8 +146,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
-
   createFragranceCollection(
     input: CreateFragranceCollectionInput!
   ): FragranceCollection!
@@ -167,7 +165,8 @@ extend type Mutation {
     input: MoveFragranceCollectionItemInput!
   ): [FragranceCollectionItem!]!
 
-  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  upsertFragranceReview(input: UpsertFragranceReviewInput!): FragranceReview!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): Boolean!
 
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
 
@@ -197,10 +196,14 @@ enum NoteLayer {
   BASE
 }
 
-input CreateFragranceReviewInput {
+input UpsertFragranceReviewInput {
   fragranceId: Int!
   rating: Int!
   review: String!
+}
+
+input DeleteFragranceReviewInput {
+  reviewId: Int!
 }
 
 input CreateFragranceCollectionInput {

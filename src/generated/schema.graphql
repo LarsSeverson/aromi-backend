@@ -87,12 +87,6 @@ input CreateFragranceReportInput {
   report: String!
 }
 
-input CreateFragranceReviewInput {
-  fragranceId: Int!
-  rating: Int!
-  review: String!
-}
-
 input CreateReviewReportInput {
   report: String!
   reviewId: Int!
@@ -103,6 +97,10 @@ scalar Date
 input DeleteFragranceCollectionItemInput {
   collectionId: Int!
   fragranceId: Int!
+}
+
+input DeleteFragranceReviewInput {
+  reviewId: Int!
 }
 
 type DeliveryResult {
@@ -336,9 +334,9 @@ type Mutation {
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
-  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   createReviewReport(input: CreateReviewReportInput!): ReviewReport!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): Boolean!
   forgotPassword(email: String!): DeliveryResult!
   logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
@@ -347,6 +345,7 @@ type Mutation {
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): DeliveryResult!
   signUp(email: String!, password: String!): DeliveryResult!
+  upsertFragranceReview(input: UpsertFragranceReviewInput!): FragranceReview!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
   voteOnNote(input: VoteOnNoteInput!): FragranceNote!
@@ -454,6 +453,12 @@ input SortByInput {
 enum SortDirection {
   ASCENDING
   DESCENDING
+}
+
+input UpsertFragranceReviewInput {
+  fragranceId: Int!
+  rating: Int!
+  review: String!
 }
 
 type User {

@@ -108,7 +108,8 @@ export class ApiResolvers implements Resolvers {
     createReviewReport: reviewReportResolver.createReport,
     //   createFragranceImage: fragranceResolver.createFragranceImage,
     //   confirmFragranceImage: fragranceResolver.confirmFragranceImage,
-    createFragranceReview: fragranceResolver.createFragranceReview,
+    upsertFragranceReview: fragranceResolver.upsertFragranceReview,
+    deleteFragranceReview: fragranceResolver.deleteFragranceReview,
 
     // Voting
     voteOnFragrance: fragranceResolver.voteOnFragrance,

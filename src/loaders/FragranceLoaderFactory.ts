@@ -323,6 +323,7 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
 
   private createReviewsLoader (params: GetReviewsLoaderParams): FragranceLoaders['reviews'] {
     const { pagination } = params
+    const userId = this.services.fragrance.context.me?.id ?? null
 
     return new DataLoader<FragranceLoaderKey, FragranceReviewRow[]>(async (keys) => {
       const fragranceIds = this.getFragranceIds(keys)
@@ -334,7 +335,11 @@ export class FragranceLoaderFactory extends LoaderFactory<FragranceLoaderKey> {
             .fragrance
             .reviews
             .find(
-              eb => eb('fragranceReviews.fragranceId', '=', id),
+              eb => eb.and([
+                eb('fragranceReviews.fragranceId', '=', id),
+                eb('fragranceReviews.userId', '!=', userId),
+                eb('fragranceReviews.deletedAt', 'is', null)
+              ]),
               { pagination }
             )
           )
