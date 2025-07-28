@@ -457,7 +457,7 @@ export type Mutation = {
   createFragranceReport: FragranceReport;
   createReviewReport: ReviewReport;
   deleteFragranceCollectionItem: Array<FragranceCollectionItem>;
-  deleteFragranceReview: Scalars['Boolean']['output'];
+  deleteFragranceReview: FragranceReview;
   forgotPassword: DeliveryResult;
   logFragranceView: Scalars['Boolean']['output'];
   logIn: AuthPayload;
@@ -1389,7 +1389,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
   createReviewReport?: Resolver<ResolversTypes['ReviewReport'], ParentType, ContextType, RequireFields<MutationCreateReviewReportArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
-  deleteFragranceReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteFragranceReviewArgs, 'input'>>;
+  deleteFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationDeleteFragranceReviewArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'email'>>;
   logFragranceView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationLogFragranceViewArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;

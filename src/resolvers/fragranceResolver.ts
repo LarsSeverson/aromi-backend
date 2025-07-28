@@ -381,7 +381,8 @@ export class FragranceResolver extends ApiResolver {
           .doUpdateSet({
             rating,
             reviewText: review,
-            updatedAt
+            updatedAt,
+            deletedAt: null
           })
       )
       .andThen((upsertedRow) => services
@@ -445,9 +446,7 @@ export class FragranceResolver extends ApiResolver {
           )
       })
       .match(
-        () => {
-          return true
-        },
+        mapFragranceReviewRowToFragranceReviewSummary,
         throwError
       )
   }

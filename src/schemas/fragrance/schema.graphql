@@ -166,7 +166,7 @@ extend type Mutation {
   ): [FragranceCollectionItem!]!
 
   upsertFragranceReview(input: UpsertFragranceReviewInput!): FragranceReview!
-  deleteFragranceReview(input: DeleteFragranceReviewInput!): Boolean!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
 
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
 

@@ -31,3 +31,7 @@ export const getS3 = (): Result<S3DataSource, ApiError> => {
 
   return ok({ client, bucket })
 }
+
+export const AVATAR_KEY = (
+  userId: number
+): string => `users/${userId}/avatars/avatar.jpg`

@@ -336,7 +336,7 @@ type Mutation {
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
   createReviewReport(input: CreateReviewReportInput!): ReviewReport!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
-  deleteFragranceReview(input: DeleteFragranceReviewInput!): Boolean!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   forgotPassword(email: String!): DeliveryResult!
   logFragranceView(input: LogFragranceViewInput!): Boolean!
   logIn(email: String!, password: String!): AuthPayload!
