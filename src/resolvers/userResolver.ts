@@ -1,12 +1,15 @@
 import { type UserSummary } from '@src/schemas/user/mappers'
 import { type UserRow } from '@src/services/UserService'
 import { ApiResolver } from './apiResolver'
-import { type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers, type QueryResolvers, type UserResolvers as UserFieldResolvers } from '@src/generated/gql-types'
 import { ResultAsync } from 'neverthrow'
 import { mapFragranceCollectionRowToFragranceCollectionSummary } from './collectionResolver'
 import { mapFragranceVoteRowToFragranceVoteSummary } from './fragranceVoteResolver'
 import { mapFragranceReviewRowToFragranceReviewSummary } from './reviewResolvers'
-import { throwError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
+import z from 'zod'
+import { parseSchema } from '@src/common/schema'
+import { PRESIGN_AVATAR_KEY } from '@src/datasources/s3'
 
 export class UserResolver extends ApiResolver {
   me: QueryResolvers['me'] = (parent, args, context, info) => {
@@ -106,6 +109,43 @@ export class UserResolver extends ApiResolver {
         throwError
       )
   }
+
+  presignUserAvatar: MutationResolvers['presignUserAvatar'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { me, services } = context
+
+    parseSchema(PresignUserAvatarInputSchema, input)
+
+    if (me == null) {
+      throw new ApiError(
+        'NOT_AUTHORIZED',
+        'You need to log in or sign up before updating your avatar',
+        403
+      )
+    }
+
+    const {
+      userId,
+      fileName,
+      fileSize,
+      fileType
+    } = input
+
+    const key = PRESIGN_AVATAR_KEY(userId, fileName)
+
+    return await services
+      .asset
+      .presignUpload({ key, fileSize, fileType })
+      .match(
+        payload => payload,
+        throwError
+      )
+  }
 }
 
 export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
@@ -126,3 +166,21 @@ export const mapUserRowToUserSummary = (row: UserRow): UserSummary => {
     audit: ApiResolver.audit(createdAt, updatedAt, deletedAt)
   }
 }
+
+export const PresignUserAvatarInputSchema = z
+  .object({
+    fileType: z
+      .string()
+      .regex(
+        /^image\/(jpeg|png|webp)$/,
+        'File type must be JPEG, PNG, or WEBP image'
+      ),
+    fileSize: z
+      .number()
+      .int({ error: 'File size must be an integer' })
+      .positive({ error: 'File size mus be greater than 0' })
+      .max(
+        5 * 1024 * 1024, // 5 MB max
+        'File size must be 5MB or less'
+      )
+  })

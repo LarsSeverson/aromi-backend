@@ -57,13 +57,6 @@ export const AssetStatus = {
 } as const;
 
 export type AssetStatus = typeof AssetStatus[keyof typeof AssetStatus];
-export type AssetUploadPayload = {
-  __typename?: 'AssetUploadPayload';
-  fields: Scalars['JSON']['output'];
-  s3Key: Scalars['String']['output'];
-  url: Scalars['String']['output'];
-};
-
 export type Audit = {
   __typename?: 'Audit';
   createdAt: Scalars['Date']['output'];
@@ -85,11 +78,6 @@ export type CodeDeliveryDetails = {
   method?: Maybe<Scalars['String']['output']>;
 };
 
-export type ConfirmFragranceImageInput = {
-  fragranceId: Scalars['Int']['input'];
-  s3Key: Scalars['String']['input'];
-};
-
 export type ControlledPaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -106,12 +94,6 @@ export type CreateFragranceCollectionInput = {
 
 export type CreateFragranceCollectionItemInput = {
   collectionId: Scalars['Int']['input'];
-  fragranceId: Scalars['Int']['input'];
-};
-
-export type CreateFragranceImageInput = {
-  fileSize: Scalars['Int']['input'];
-  fileType: Scalars['String']['input'];
   fragranceId: Scalars['Int']['input'];
 };
 
@@ -449,11 +431,9 @@ export type MoveFragranceCollectionItemInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   confirmForgotPassword: GenericAuthResult;
-  confirmFragranceImage: FragranceImage;
   confirmSignUp: User;
   createFragranceCollection: FragranceCollection;
   createFragranceCollectionItem: FragranceCollectionItem;
-  createFragranceImage: AssetUploadPayload;
   createFragranceReport: FragranceReport;
   createReviewReport: ReviewReport;
   deleteFragranceCollectionItem: Array<FragranceCollectionItem>;
@@ -463,9 +443,11 @@ export type Mutation = {
   logIn: AuthPayload;
   logOut: Scalars['Boolean']['output'];
   moveFragranceCollectionItem: Array<FragranceCollectionItem>;
+  presignUserAvatar: PresignUploadPayload;
   refresh?: Maybe<AuthPayload>;
   resendSignUpConfirmationCode: DeliveryResult;
   signUp: DeliveryResult;
+  updateUserAvatar: Scalars['String']['output'];
   upsertFragranceReview: FragranceReview;
   voteOnAccord: FragranceAccord;
   voteOnFragrance: FragranceVote;
@@ -482,11 +464,6 @@ export type MutationConfirmForgotPasswordArgs = {
 };
 
 
-export type MutationConfirmFragranceImageArgs = {
-  input: ConfirmFragranceImageInput;
-};
-
-
 export type MutationConfirmSignUpArgs = {
   confirmationCode: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -500,11 +477,6 @@ export type MutationCreateFragranceCollectionArgs = {
 
 export type MutationCreateFragranceCollectionItemArgs = {
   input: CreateFragranceCollectionItemInput;
-};
-
-
-export type MutationCreateFragranceImageArgs = {
-  input: CreateFragranceImageInput;
 };
 
 
@@ -549,6 +521,11 @@ export type MutationMoveFragranceCollectionItemArgs = {
 };
 
 
+export type MutationPresignUserAvatarArgs = {
+  input: PresignUserAvatarInput;
+};
+
+
 export type MutationResendSignUpConfirmationCodeArgs = {
   email: Scalars['String']['input'];
 };
@@ -557,6 +534,11 @@ export type MutationResendSignUpConfirmationCodeArgs = {
 export type MutationSignUpArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateUserAvatarArgs = {
+  input: UpdateUserAvatarInput;
 };
 
 
@@ -628,6 +610,21 @@ export type PaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<SortByInput>;
+};
+
+export type PresignUploadPayload = {
+  __typename?: 'PresignUploadPayload';
+  fields: Scalars['JSON']['output'];
+  s3Key: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type PresignUserAvatarInput = {
+  __typename?: 'PresignUserAvatarInput';
+  fileName: Scalars['String']['output'];
+  fileSize: Scalars['Int']['output'];
+  fileType: Scalars['String']['output'];
+  userId: Scalars['Int']['output'];
 };
 
 export type Query = {
@@ -751,6 +748,12 @@ export const SortDirection = {
 } as const;
 
 export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
+export type UpdateUserAvatarInput = {
+  __typename?: 'UpdateUserAvatarInput';
+  s3Key: Scalars['String']['output'];
+  userId: Scalars['Int']['output'];
+};
+
 export type UpsertFragranceReviewInput = {
   fragranceId: Scalars['Int']['input'];
   rating: Scalars['Int']['input'];
@@ -916,17 +919,14 @@ export type ResolversTypes = ResolversObject<{
   AccordEdge: ResolverTypeWrapper<Partial<AccordEdge>>;
   Asset: ResolverTypeWrapper<Partial<Asset>>;
   AssetStatus: ResolverTypeWrapper<Partial<AssetStatus>>;
-  AssetUploadPayload: ResolverTypeWrapper<Partial<AssetUploadPayload>>;
   Audit: ResolverTypeWrapper<Partial<Audit>>;
   AuthPayload: ResolverTypeWrapper<Partial<AuthPayload>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
   CodeDeliveryDetails: ResolverTypeWrapper<Partial<CodeDeliveryDetails>>;
-  ConfirmFragranceImageInput: ResolverTypeWrapper<Partial<ConfirmFragranceImageInput>>;
   ControlledPaginationInput: ResolverTypeWrapper<Partial<ControlledPaginationInput>>;
   ControlledSortByInput: ResolverTypeWrapper<Partial<ControlledSortByInput>>;
   CreateFragranceCollectionInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionInput>>;
   CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
-  CreateFragranceImageInput: ResolverTypeWrapper<Partial<CreateFragranceImageInput>>;
   CreateFragranceReportInput: ResolverTypeWrapper<Partial<CreateFragranceReportInput>>;
   CreateReviewReportInput: ResolverTypeWrapper<Partial<CreateReviewReportInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
@@ -975,6 +975,8 @@ export type ResolversTypes = ResolversObject<{
   NoteLayer: ResolverTypeWrapper<Partial<NoteLayer>>;
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
   PaginationInput: ResolverTypeWrapper<Partial<PaginationInput>>;
+  PresignUploadPayload: ResolverTypeWrapper<Partial<PresignUploadPayload>>;
+  PresignUserAvatarInput: ResolverTypeWrapper<Partial<PresignUserAvatarInput>>;
   Query: ResolverTypeWrapper<{}>;
   ReviewReport: ResolverTypeWrapper<Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversTypes['FragranceReview'], user: ResolversTypes['User'] }>>;
   SearchFragranceNotesInput: ResolverTypeWrapper<Partial<SearchFragranceNotesInput>>;
@@ -987,6 +989,7 @@ export type ResolversTypes = ResolversObject<{
   SortByInput: ResolverTypeWrapper<Partial<SortByInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
+  UpdateUserAvatarInput: ResolverTypeWrapper<Partial<UpdateUserAvatarInput>>;
   UpsertFragranceReviewInput: ResolverTypeWrapper<Partial<UpsertFragranceReviewInput>>;
   User: ResolverTypeWrapper<UserSummary>;
   VoteOnAccordInput: ResolverTypeWrapper<Partial<VoteOnAccordInput>>;
@@ -1006,17 +1009,14 @@ export type ResolversParentTypes = ResolversObject<{
   AccordConnection: Partial<AccordConnection>;
   AccordEdge: Partial<AccordEdge>;
   Asset: Partial<Asset>;
-  AssetUploadPayload: Partial<AssetUploadPayload>;
   Audit: Partial<Audit>;
   AuthPayload: Partial<AuthPayload>;
   Boolean: Partial<Scalars['Boolean']['output']>;
   CodeDeliveryDetails: Partial<CodeDeliveryDetails>;
-  ConfirmFragranceImageInput: Partial<ConfirmFragranceImageInput>;
   ControlledPaginationInput: Partial<ControlledPaginationInput>;
   ControlledSortByInput: Partial<ControlledSortByInput>;
   CreateFragranceCollectionInput: Partial<CreateFragranceCollectionInput>;
   CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
-  CreateFragranceImageInput: Partial<CreateFragranceImageInput>;
   CreateFragranceReportInput: Partial<CreateFragranceReportInput>;
   CreateReviewReportInput: Partial<CreateReviewReportInput>;
   Date: Partial<Scalars['Date']['output']>;
@@ -1063,6 +1063,8 @@ export type ResolversParentTypes = ResolversObject<{
   NoteEdge: Partial<NoteEdge>;
   PageInfo: Partial<PageInfo>;
   PaginationInput: Partial<PaginationInput>;
+  PresignUploadPayload: Partial<PresignUploadPayload>;
+  PresignUserAvatarInput: Partial<PresignUserAvatarInput>;
   Query: {};
   ReviewReport: Partial<Omit<ReviewReport, 'review' | 'user'> & { review: ResolversParentTypes['FragranceReview'], user: ResolversParentTypes['User'] }>;
   SearchFragranceNotesInput: Partial<SearchFragranceNotesInput>;
@@ -1072,6 +1074,7 @@ export type ResolversParentTypes = ResolversObject<{
   SearchSortByInput: Partial<SearchSortByInput>;
   SortByInput: Partial<SortByInput>;
   String: Partial<Scalars['String']['output']>;
+  UpdateUserAvatarInput: Partial<UpdateUserAvatarInput>;
   UpsertFragranceReviewInput: Partial<UpsertFragranceReviewInput>;
   User: UserSummary;
   VoteOnAccordInput: Partial<VoteOnAccordInput>;
@@ -1109,13 +1112,6 @@ export type AssetResolvers<ContextType = ApiContext, ParentType extends Resolver
   audit?: Resolver<ResolversTypes['Audit'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   src?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type AssetUploadPayloadResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AssetUploadPayload'] = ResolversParentTypes['AssetUploadPayload']> = ResolversObject<{
-  fields?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
-  s3Key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1381,11 +1377,9 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   confirmForgotPassword?: Resolver<ResolversTypes['GenericAuthResult'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'confirmationCode' | 'email' | 'newPassword'>>;
-  confirmFragranceImage?: Resolver<ResolversTypes['FragranceImage'], ParentType, ContextType, RequireFields<MutationConfirmFragranceImageArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'confirmationCode' | 'email'>>;
   createFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionArgs, 'input'>>;
   createFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionItemArgs, 'input'>>;
-  createFragranceImage?: Resolver<ResolversTypes['AssetUploadPayload'], ParentType, ContextType, RequireFields<MutationCreateFragranceImageArgs, 'input'>>;
   createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
   createReviewReport?: Resolver<ResolversTypes['ReviewReport'], ParentType, ContextType, RequireFields<MutationCreateReviewReportArgs, 'input'>>;
   deleteFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationDeleteFragranceCollectionItemArgs, 'input'>>;
@@ -1395,9 +1389,11 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   logIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'email' | 'password'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   moveFragranceCollectionItem?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemArgs, 'input'>>;
+  presignUserAvatar?: Resolver<ResolversTypes['PresignUploadPayload'], ParentType, ContextType, RequireFields<MutationPresignUserAvatarArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthPayload']>, ParentType, ContextType>;
   resendSignUpConfirmationCode?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpConfirmationCodeArgs, 'email'>>;
   signUp?: Resolver<ResolversTypes['DeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  updateUserAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUpdateUserAvatarArgs, 'input'>>;
   upsertFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationUpsertFragranceReviewArgs, 'input'>>;
   voteOnAccord?: Resolver<ResolversTypes['FragranceAccord'], ParentType, ContextType, RequireFields<MutationVoteOnAccordArgs, 'input'>>;
   voteOnFragrance?: Resolver<ResolversTypes['FragranceVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceArgs, 'input'>>;
@@ -1434,6 +1430,21 @@ export type PageInfoResolvers<ContextType = ApiContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PresignUploadPayloadResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PresignUploadPayload'] = ResolversParentTypes['PresignUploadPayload']> = ResolversObject<{
+  fields?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  s3Key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PresignUserAvatarInputResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PresignUserAvatarInput'] = ResolversParentTypes['PresignUserAvatarInput']> = ResolversObject<{
+  fileName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fileSize?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  fileType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   accords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, Partial<QueryAccordsArgs>>;
   collection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<QueryCollectionArgs, 'id'>>;
@@ -1453,6 +1464,12 @@ export type ReviewReportResolvers<ContextType = ApiContext, ParentType extends R
   report?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   review?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UpdateUserAvatarInputResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UpdateUserAvatarInput'] = ResolversParentTypes['UpdateUserAvatarInput']> = ResolversObject<{
+  s3Key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1482,7 +1499,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   AccordConnection?: AccordConnectionResolvers<ContextType>;
   AccordEdge?: AccordEdgeResolvers<ContextType>;
   Asset?: AssetResolvers<ContextType>;
-  AssetUploadPayload?: AssetUploadPayloadResolvers<ContextType>;
   Audit?: AuditResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   CodeDeliveryDetails?: CodeDeliveryDetailsResolvers<ContextType>;
@@ -1523,8 +1539,11 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   NoteConnection?: NoteConnectionResolvers<ContextType>;
   NoteEdge?: NoteEdgeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
+  PresignUploadPayload?: PresignUploadPayloadResolvers<ContextType>;
+  PresignUserAvatarInput?: PresignUserAvatarInputResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReviewReport?: ReviewReportResolvers<ContextType>;
+  UpdateUserAvatarInput?: UpdateUserAvatarInputResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   VoteSummary?: VoteSummaryResolvers<ContextType>;
 }>;

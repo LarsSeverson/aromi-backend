@@ -150,9 +150,6 @@ extend type Mutation {
     input: CreateFragranceCollectionInput!
   ): FragranceCollection!
 
-  createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
-  confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
-
   createFragranceCollectionItem(
     input: CreateFragranceCollectionItemInput!
   ): FragranceCollectionItem!
@@ -213,17 +210,6 @@ input CreateFragranceCollectionInput {
 input CreateFragranceCollectionItemInput {
   collectionId: Int!
   fragranceId: Int!
-}
-
-input CreateFragranceImageInput {
-  fragranceId: Int!
-  fileType: String!
-  fileSize: Int!
-}
-
-input ConfirmFragranceImageInput {
-  fragranceId: Int!
-  s3Key: String!
 }
 
 input DeleteFragranceCollectionItemInput {

@@ -17,3 +17,20 @@ extend type Query {
   me: User
   user(id: Int!): User
 }
+
+extend type Mutation {
+  presignUserAvatar(input: PresignUserAvatarInput!): PresignUploadPayload!
+  updateUserAvatar(input: UpdateUserAvatarInput!): String!
+}
+
+type PresignUserAvatarInput {
+  userId: Int!
+  fileType: String!
+  fileName: String!
+  fileSize: Int!
+}
+
+type UpdateUserAvatarInput {
+  userId: Int!
+  s3Key: String!
+}

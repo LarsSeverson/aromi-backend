@@ -28,12 +28,6 @@ enum AssetStatus {
   UPLOADED
 }
 
-type AssetUploadPayload {
-  fields: JSON!
-  s3Key: String!
-  url: String!
-}
-
 type Audit {
   createdAt: Date!
   deletedAt: Date
@@ -52,11 +46,6 @@ type CodeDeliveryDetails {
   method: String
 }
 
-input ConfirmFragranceImageInput {
-  fragranceId: Int!
-  s3Key: String!
-}
-
 input ControlledPaginationInput {
   after: String
   first: Int
@@ -73,12 +62,6 @@ input CreateFragranceCollectionInput {
 
 input CreateFragranceCollectionItemInput {
   collectionId: Int!
-  fragranceId: Int!
-}
-
-input CreateFragranceImageInput {
-  fileSize: Int!
-  fileType: String!
   fragranceId: Int!
 }
 
@@ -328,11 +311,9 @@ input MoveFragranceCollectionItemInput {
 
 type Mutation {
   confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): GenericAuthResult!
-  confirmFragranceImage(input: ConfirmFragranceImageInput!): FragranceImage!
   confirmSignUp(confirmationCode: String!, email: String!): User!
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
-  createFragranceImage(input: CreateFragranceImageInput!): AssetUploadPayload!
   createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
   createReviewReport(input: CreateReviewReportInput!): ReviewReport!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
@@ -342,9 +323,11 @@ type Mutation {
   logIn(email: String!, password: String!): AuthPayload!
   logOut: Boolean!
   moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): [FragranceCollectionItem!]!
+  presignUserAvatar(input: PresignUserAvatarInput!): PresignUploadPayload!
   refresh: AuthPayload
   resendSignUpConfirmationCode(email: String!): DeliveryResult!
   signUp(email: String!, password: String!): DeliveryResult!
+  updateUserAvatar(input: UpdateUserAvatarInput!): String!
   upsertFragranceReview(input: UpsertFragranceReviewInput!): FragranceReview!
   voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
   voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
@@ -387,6 +370,19 @@ input PaginationInput {
   after: String
   first: Int
   sort: SortByInput
+}
+
+type PresignUploadPayload {
+  fields: JSON!
+  s3Key: String!
+  url: String!
+}
+
+type PresignUserAvatarInput {
+  fileName: String!
+  fileSize: Int!
+  fileType: String!
+  userId: Int!
 }
 
 type Query {
@@ -453,6 +449,11 @@ input SortByInput {
 enum SortDirection {
   ASCENDING
   DESCENDING
+}
+
+type UpdateUserAvatarInput {
+  s3Key: String!
+  userId: Int!
 }
 
 input UpsertFragranceReviewInput {

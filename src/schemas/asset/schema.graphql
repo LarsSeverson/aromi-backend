@@ -5,7 +5,7 @@ type Asset {
   audit: Audit!
 }
 
-type AssetUploadPayload {
+type PresignUploadPayload {
   url: String!
   fields: JSON!
   s3Key: String!
