@@ -14,7 +14,8 @@ const config: CodegenConfig = {
           JSON: 'Record<string, any>'
         },
         mappers: {
-          FragranceDraft: '../features/fragrances/types#IFragranceDraftSummary'
+          FragranceDraft: '../features/fragranceDrafts/types#IFragranceDraftSummary',
+          FragranceDraftImage: '../features/fragranceDrafts/types#IFragranceDraftImageSummary'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

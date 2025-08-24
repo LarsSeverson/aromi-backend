@@ -103,6 +103,26 @@ input DeleteFragranceDraftInput {
   id: ID!
 }
 
+interface Draft {
+  id: ID!
+  user: User!
+}
+
+input DraftPaginationInput {
+  after: String
+  first: Int
+  sort: DraftSortInput
+}
+
+enum DraftSortBy {
+  RECENT
+}
+
+input DraftSortInput {
+  by: DraftSortBy
+  direction: SortDirection
+}
+
 input FinalizeFragranceDraftImageInput {
   assetId: ID!
   draftId: ID!
@@ -133,12 +153,39 @@ type FragranceDraft {
   concentration: Concentration
   description: String
   id: ID!
-  images: FragranceImageConnection!
+  image: FragranceDraftImage
   name: String
   releaseYear: Int
   status: FragranceStatus
   user: User!
   version: Int!
+}
+
+type FragranceDraftConnection {
+  edges: [FragranceDraftEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceDraftEdge {
+  cursor: String!
+  node: FragranceDraft!
+}
+
+type FragranceDraftImage {
+  draft: FragranceDraft!
+  id: ID!
+  type: String!
+  url: String!
+}
+
+type FragranceDraftImageConnection {
+  edges: [FragranceDraftImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceDraftImageEdge {
+  cursor: String!
+  node: FragranceDraftImage!
 }
 
 type FragranceEdge {
@@ -193,7 +240,7 @@ type Mutation {
   stageFragranceDraftImage(input: StageAssetInput!): PresignedUpload!
   updateFragranceDraft(input: UpdateFragranceDraftInput!): FragranceDraft!
   updateUser(input: UpdateUserInput!): User!
-  updateUserAvatar(input: UpdateUserAvatarInput!): UpdateUserAvatarResult!
+  updateUserAvatar(input: StageAssetInput!): PresignedUpload!
 }
 
 type Note {
@@ -242,6 +289,8 @@ type PresignedUpload {
 
 type Query {
   accords(input: AccordPaginationInput): AccordConnection!
+  fragranceDraft(id: ID!): FragranceDraft!
+  fragranceDrafts(input: DraftPaginationInput): FragranceDraftConnection!
   me: User!
   notes(input: NotePaginationInput): NoteConnection!
   user(id: ID!): User!
@@ -262,7 +311,7 @@ enum SortDirection {
 }
 
 input StageAssetInput {
-  contentSize: String!
+  contentSize: Int!
   contentType: String!
   fileName: String!
   id: ID!
@@ -276,16 +325,6 @@ input UpdateFragranceDraftInput {
   releaseYear: Int
   status: FragranceStatus
   version: Int!
-}
-
-input UpdateUserAvatarInput {
-  contentType: String!
-}
-
-type UpdateUserAvatarResult {
-  avatarId: ID!
-  contentType: String!
-  uploadUrl: String!
 }
 
 input UpdateUserInput {

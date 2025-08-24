@@ -2,7 +2,7 @@ import type { DataSources } from '@src/datasources'
 import { AccordService } from '@src/features/accords/services/AccordService'
 import { AssetService } from '@src/features/assets/services/AssetService'
 import { AuthService } from '@src/features/auth/services/AuthService'
-import { FragranceDraftService } from '@src/features/fragrances/services/FragranceDraftService'
+import { FragranceDraftService } from '@src/features/fragranceDrafts/services/FragranceDraftService'
 import { NoteService } from '@src/features/notes/services/NoteService'
 import { UserService } from '@src/features/users/services/UserService'
 

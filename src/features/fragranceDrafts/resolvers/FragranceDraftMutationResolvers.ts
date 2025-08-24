@@ -1,6 +1,6 @@
 import { type MutationResolvers } from '@src/generated/gql-types'
 import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapCreateFragranceDraftInputToRow, mapFragranceDraftRowToFragranceDraft, mapUpdateFragranceDraftInputToRow } from '../utils/mappers'
+import { mapCreateFragranceDraftInputToRow, mapFragranceDraftRowToFragranceDraft, mapUpdateFragranceDraftInputToRow } from '@src/features/fragranceDrafts/utils/mappers'
 import { throwError } from '@src/common/error'
 
 export class FragranceDraftMutationResolvers extends BaseResolver<MutationResolvers> {

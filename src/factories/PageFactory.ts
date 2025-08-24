@@ -16,17 +16,13 @@ export interface RelayConnection<N> {
   pageInfo: PageInfo
 }
 
-export interface Page<N> {
-  connection: RelayConnection<N>
-}
-
 export class PageFactory<C> {
   private readonly cursorFactory = new CursorFactory()
 
   paginate<N extends BaseNode>(
     rows: N[],
     pagination: PaginationInput<C>
-  ): Page<N> {
+  ): RelayConnection<N> {
     const { first, column, cursor } = pagination
 
     const hasPreviousPage = cursor.isValid
@@ -42,32 +38,27 @@ export class PageFactory<C> {
     const endCursor = edges.at(-1)?.cursor ?? null
 
     return {
-      connection: {
-        edges,
-        pageInfo: {
-          hasPreviousPage,
-          hasNextPage,
-          startCursor,
-          endCursor
-        }
+      edges,
+      pageInfo: {
+        hasPreviousPage,
+        hasNextPage,
+        startCursor,
+        endCursor
       }
     }
   }
 
   transform <N extends BaseNode, O>(
-    page: Page<N>,
+    connection: RelayConnection<N>,
     map: (node: N) => O
-  ): Page<O> {
-    const edges = page
-      .connection
+  ): RelayConnection<O> {
+    const edges = connection
       .edges
       .map(({ node, cursor }) => ({ node: map(node), cursor }))
 
     return {
-      connection: {
-        edges,
-        pageInfo: page.connection.pageInfo
-      }
+      edges,
+      pageInfo: connection.pageInfo
     }
   }
 }

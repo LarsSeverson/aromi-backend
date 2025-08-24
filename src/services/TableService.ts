@@ -23,8 +23,8 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
     this.Table = new Table<T, R>(sources.db, table)
   }
 
-  withConnection (db: DataSources['db']): Table<T, R> {
-    return this.Table.withConnection(db)
+  withConnection (conn: DataSources['db']): Table<T, R> {
+    return this.Table.withConnection(conn)
   }
 
   withTransaction <U>(

@@ -25,7 +25,7 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
         .paginate(rows, pagination)
       )
       .match(
-        ({ connection }) => connection,
+        connection => connection,
         throwError
       )
   }

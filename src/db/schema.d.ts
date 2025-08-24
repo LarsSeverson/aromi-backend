@@ -5,6 +5,8 @@
 
 import type { ColumnType } from "kysely";
 
+export type AssetStatus = "ready" | "staged";
+
 export type AvatarStatus = "FAILED" | "PENDING" | "PROCESSING" | "READY";
 
 export type FragranceTraitEnum = "allure" | "balance" | "complexity" | "gender" | "longevity" | "sillage";
@@ -12,6 +14,8 @@ export type FragranceTraitEnum = "allure" | "balance" | "complexity" | "gender" 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
+
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
 export type NoteLayerEnum = "base" | "middle" | "top";
 
@@ -56,6 +60,18 @@ export interface FragranceCollection {
   name: string;
   updatedAt: Generated<Timestamp>;
   userId: string;
+}
+
+export interface FragranceDraftImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  draftId: string;
+  id: string;
+  name: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
 }
 
 export interface FragranceDraft {
@@ -163,6 +179,7 @@ export interface DB {
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceCollections: FragranceCollection;
+  fragranceDraftImages: FragranceDraftImage;
   fragranceDrafts: FragranceDraft;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;

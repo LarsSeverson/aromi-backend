@@ -1,3 +1,10 @@
+enum AvatarStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
 type User {
   id: ID!
   email: String!
@@ -7,10 +14,9 @@ type User {
   avatarStatus: AvatarStatus!
 }
 
-type UpdateUserAvatarResult {
-  avatarId: ID!
-  uploadUrl: String!
-  contentType: String!
+input UpdateUserInput {
+  id: ID!
+  username: String
 }
 
 extend type Query {
@@ -20,21 +26,5 @@ extend type Query {
 
 extend type Mutation {
   updateUser(input: UpdateUserInput!): User!
-  updateUserAvatar(input: UpdateUserAvatarInput!): UpdateUserAvatarResult!
-}
-
-input UpdateUserInput {
-  id: ID!
-  username: String
-}
-
-input UpdateUserAvatarInput {
-  contentType: String!
-}
-
-enum AvatarStatus {
-  PENDING
-  PROCESSING
-  READY
-  FAILED
+  updateUserAvatar(input: StageAssetInput!): PresignedUpload!
 }

@@ -50,7 +50,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     info
   ) => {
     const { input } = args
-    const { contentType } = input
+    const { contentType, contentSize } = input
     const { me, services } = context
     const { assets, users } = services
 
@@ -65,23 +65,17 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     const { id, key } = genAvatarUploadKey(me.id)
 
     return await users
-      .withTransaction(() => users
-        .updateOne(
-          eb => eb('id', '=', me.id),
-          {
-            avatarStatus: 'PENDING'
-          }
-        )
-        .andThen(() => assets
-          .presignUpload({ key, contentType })
-        )
+      .updateOne(
+        eb => eb('id', '=', me.id),
+        {
+          avatarStatus: 'PENDING'
+        }
+      )
+      .andThen(() => assets
+        .getPresignedUrl({ key, contentType, maxSizeBytes: contentSize })
       )
       .match(
-        uploadUrl => ({
-          avatarId: id,
-          uploadUrl,
-          contentType
-        }),
+        presigned => ({ ...presigned, id }),
         throwError
       )
   }

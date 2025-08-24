@@ -7,6 +7,7 @@ import { Result } from 'neverthrow'
 import { createJwksClient } from './jwks'
 import { type CognitoWrapper, createCognitoWrapper } from './cognito'
 import { createS3Wrapper, type S3Wrapper } from './s3'
+import { createCdnWrapper, type CdnWrapper } from './cdn'
 
 export interface DataSources {
   db: Kysely<DB>
@@ -14,6 +15,7 @@ export interface DataSources {
   jwks: JwksClient
   cognito: CognitoWrapper
   s3: S3Wrapper
+  cdn: CdnWrapper
 }
 
 export const getDataSources = (): Result<DataSources, ApiError> => {
@@ -22,17 +24,20 @@ export const getDataSources = (): Result<DataSources, ApiError> => {
       createDB(),
       createJwksClient(),
       createCognitoWrapper(),
-      createS3Wrapper()
+      createS3Wrapper(),
+      createCdnWrapper()
     ])
     .map(([
       db,
       jwks,
       cognito,
-      s3
+      s3,
+      cdn
     ]) => ({
       db,
       jwks,
       cognito,
-      s3
+      s3,
+      cdn
     }))
 }

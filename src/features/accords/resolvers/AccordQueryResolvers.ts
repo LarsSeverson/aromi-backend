@@ -25,7 +25,7 @@ export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
         .paginate(rows, pagination)
       )
       .match(
-        ({ connection }) => connection,
+        connection => connection,
         throwError
       )
   }

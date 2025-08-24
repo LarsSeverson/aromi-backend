@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { IFragranceDraftSummary } from '../features/fragrances/types';
+import { IFragranceDraftSummary, IFragranceDraftImageSummary } from '../features/fragranceDrafts/types';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -8,6 +8,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -133,6 +134,27 @@ export type DeleteFragranceDraftInput = {
   id: Scalars['ID']['input'];
 };
 
+export type Draft = {
+  id: Scalars['ID']['output'];
+  user: User;
+};
+
+export type DraftPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<DraftSortInput>;
+};
+
+export const DraftSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type DraftSortBy = typeof DraftSortBy[keyof typeof DraftSortBy];
+export type DraftSortInput = {
+  by?: InputMaybe<DraftSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
 export type FinalizeFragranceDraftImageInput = {
   assetId: Scalars['ID']['input'];
   draftId: Scalars['ID']['input'];
@@ -166,12 +188,44 @@ export type FragranceDraft = {
   concentration?: Maybe<Concentration>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  images: FragranceImageConnection;
+  image?: Maybe<FragranceDraftImage>;
   name?: Maybe<Scalars['String']['output']>;
   releaseYear?: Maybe<Scalars['Int']['output']>;
   status?: Maybe<FragranceStatus>;
   user: User;
   version: Scalars['Int']['output'];
+};
+
+export type FragranceDraftConnection = {
+  __typename?: 'FragranceDraftConnection';
+  edges: Array<FragranceDraftEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceDraftEdge = {
+  __typename?: 'FragranceDraftEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceDraft;
+};
+
+export type FragranceDraftImage = {
+  __typename?: 'FragranceDraftImage';
+  draft: FragranceDraft;
+  id: Scalars['ID']['output'];
+  type: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type FragranceDraftImageConnection = {
+  __typename?: 'FragranceDraftImageConnection';
+  edges: Array<FragranceDraftImageEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceDraftImageEdge = {
+  __typename?: 'FragranceDraftImageEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceDraftImage;
 };
 
 export type FragranceEdge = {
@@ -230,7 +284,7 @@ export type Mutation = {
   stageFragranceDraftImage: PresignedUpload;
   updateFragranceDraft: FragranceDraft;
   updateUser: User;
-  updateUserAvatar: UpdateUserAvatarResult;
+  updateUserAvatar: PresignedUpload;
 };
 
 
@@ -300,7 +354,7 @@ export type MutationUpdateUserArgs = {
 
 
 export type MutationUpdateUserAvatarArgs = {
-  input: UpdateUserAvatarInput;
+  input: StageAssetInput;
 };
 
 export type Note = {
@@ -356,6 +410,8 @@ export type PresignedUpload = {
 export type Query = {
   __typename?: 'Query';
   accords: AccordConnection;
+  fragranceDraft: FragranceDraft;
+  fragranceDrafts: FragranceDraftConnection;
   me: User;
   notes: NoteConnection;
   user: User;
@@ -364,6 +420,16 @@ export type Query = {
 
 export type QueryAccordsArgs = {
   input?: InputMaybe<AccordPaginationInput>;
+};
+
+
+export type QueryFragranceDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryFragranceDraftsArgs = {
+  input?: InputMaybe<DraftPaginationInput>;
 };
 
 
@@ -392,7 +458,7 @@ export const SortDirection = {
 
 export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
 export type StageAssetInput = {
-  contentSize: Scalars['String']['input'];
+  contentSize: Scalars['Int']['input'];
   contentType: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
   id: Scalars['ID']['input'];
@@ -406,17 +472,6 @@ export type UpdateFragranceDraftInput = {
   releaseYear?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<FragranceStatus>;
   version: Scalars['Int']['input'];
-};
-
-export type UpdateUserAvatarInput = {
-  contentType: Scalars['String']['input'];
-};
-
-export type UpdateUserAvatarResult = {
-  __typename?: 'UpdateUserAvatarResult';
-  avatarId: Scalars['ID']['output'];
-  contentType: Scalars['String']['output'];
-  uploadUrl: Scalars['String']['output'];
 };
 
 export type UpdateUserInput = {
@@ -502,6 +557,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 ) => TResult | Promise<TResult>;
 
 
+/** Mapping of interface types */
+export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
+  Draft: never;
+}>;
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
@@ -524,11 +583,20 @@ export type ResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteFragranceDraftImageInput: ResolverTypeWrapper<Partial<DeleteFragranceDraftImageInput>>;
   DeleteFragranceDraftInput: ResolverTypeWrapper<Partial<DeleteFragranceDraftInput>>;
+  Draft: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Draft']>;
+  DraftPaginationInput: ResolverTypeWrapper<Partial<DraftPaginationInput>>;
+  DraftSortBy: ResolverTypeWrapper<Partial<DraftSortBy>>;
+  DraftSortInput: ResolverTypeWrapper<Partial<DraftSortInput>>;
   FinalizeFragranceDraftImageInput: ResolverTypeWrapper<Partial<FinalizeFragranceDraftImageInput>>;
   ForgotPasswordInput: ResolverTypeWrapper<Partial<ForgotPasswordInput>>;
   Fragrance: ResolverTypeWrapper<Partial<Fragrance>>;
   FragranceConnection: ResolverTypeWrapper<Partial<FragranceConnection>>;
   FragranceDraft: ResolverTypeWrapper<IFragranceDraftSummary>;
+  FragranceDraftConnection: ResolverTypeWrapper<Partial<Omit<FragranceDraftConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceDraftEdge']> }>>;
+  FragranceDraftEdge: ResolverTypeWrapper<Partial<Omit<FragranceDraftEdge, 'node'> & { node: ResolversTypes['FragranceDraft'] }>>;
+  FragranceDraftImage: ResolverTypeWrapper<IFragranceDraftImageSummary>;
+  FragranceDraftImageConnection: ResolverTypeWrapper<Partial<Omit<FragranceDraftImageConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceDraftImageEdge']> }>>;
+  FragranceDraftImageEdge: ResolverTypeWrapper<Partial<Omit<FragranceDraftImageEdge, 'node'> & { node: ResolversTypes['FragranceDraftImage'] }>>;
   FragranceEdge: ResolverTypeWrapper<Partial<FragranceEdge>>;
   FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
   FragranceImageConnection: ResolverTypeWrapper<Partial<FragranceImageConnection>>;
@@ -554,8 +622,6 @@ export type ResolversTypes = ResolversObject<{
   StageAssetInput: ResolverTypeWrapper<Partial<StageAssetInput>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
   UpdateFragranceDraftInput: ResolverTypeWrapper<Partial<UpdateFragranceDraftInput>>;
-  UpdateUserAvatarInput: ResolverTypeWrapper<Partial<UpdateUserAvatarInput>>;
-  UpdateUserAvatarResult: ResolverTypeWrapper<Partial<UpdateUserAvatarResult>>;
   UpdateUserInput: ResolverTypeWrapper<Partial<UpdateUserInput>>;
   User: ResolverTypeWrapper<Partial<User>>;
 }>;
@@ -578,11 +644,19 @@ export type ResolversParentTypes = ResolversObject<{
   Date: Partial<Scalars['Date']['output']>;
   DeleteFragranceDraftImageInput: Partial<DeleteFragranceDraftImageInput>;
   DeleteFragranceDraftInput: Partial<DeleteFragranceDraftInput>;
+  Draft: ResolversInterfaceTypes<ResolversParentTypes>['Draft'];
+  DraftPaginationInput: Partial<DraftPaginationInput>;
+  DraftSortInput: Partial<DraftSortInput>;
   FinalizeFragranceDraftImageInput: Partial<FinalizeFragranceDraftImageInput>;
   ForgotPasswordInput: Partial<ForgotPasswordInput>;
   Fragrance: Partial<Fragrance>;
   FragranceConnection: Partial<FragranceConnection>;
   FragranceDraft: IFragranceDraftSummary;
+  FragranceDraftConnection: Partial<Omit<FragranceDraftConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceDraftEdge']> }>;
+  FragranceDraftEdge: Partial<Omit<FragranceDraftEdge, 'node'> & { node: ResolversParentTypes['FragranceDraft'] }>;
+  FragranceDraftImage: IFragranceDraftImageSummary;
+  FragranceDraftImageConnection: Partial<Omit<FragranceDraftImageConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceDraftImageEdge']> }>;
+  FragranceDraftImageEdge: Partial<Omit<FragranceDraftImageEdge, 'node'> & { node: ResolversParentTypes['FragranceDraftImage'] }>;
   FragranceEdge: Partial<FragranceEdge>;
   FragranceImage: Partial<FragranceImage>;
   FragranceImageConnection: Partial<FragranceImageConnection>;
@@ -605,8 +679,6 @@ export type ResolversParentTypes = ResolversObject<{
   StageAssetInput: Partial<StageAssetInput>;
   String: Partial<Scalars['String']['output']>;
   UpdateFragranceDraftInput: Partial<UpdateFragranceDraftInput>;
-  UpdateUserAvatarInput: Partial<UpdateUserAvatarInput>;
-  UpdateUserAvatarResult: Partial<UpdateUserAvatarResult>;
   UpdateUserInput: Partial<UpdateUserInput>;
   User: Partial<User>;
 }>;
@@ -663,6 +735,12 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type DraftResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Draft'] = ResolversParentTypes['Draft']> = ResolversObject<{
+  __resolveType: TypeResolveFn<null, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+}>;
+
 export type FragranceResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
   brand?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   concentration?: Resolver<ResolversTypes['Concentration'], ParentType, ContextType>;
@@ -685,12 +763,44 @@ export type FragranceDraftResolvers<ContextType = ApiContext, ParentType extends
   concentration?: Resolver<Maybe<ResolversTypes['Concentration']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  images?: Resolver<ResolversTypes['FragranceImageConnection'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['FragranceDraftImage']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   releaseYear?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['FragranceStatus']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceDraftConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftConnection'] = ResolversParentTypes['FragranceDraftConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceDraftEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceDraftEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftEdge'] = ResolversParentTypes['FragranceDraftEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceDraftImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImage'] = ResolversParentTypes['FragranceDraftImage']> = ResolversObject<{
+  draft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceDraftImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImageConnection'] = ResolversParentTypes['FragranceDraftImageConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceDraftImageEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceDraftImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImageEdge'] = ResolversParentTypes['FragranceDraftImageEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceDraftImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -741,7 +851,7 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   stageFragranceDraftImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageFragranceDraftImageArgs, 'input'>>;
   updateFragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationUpdateFragranceDraftArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
-  updateUserAvatar?: Resolver<ResolversTypes['UpdateUserAvatarResult'], ParentType, ContextType, RequireFields<MutationUpdateUserAvatarArgs, 'input'>>;
+  updateUserAvatar?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationUpdateUserAvatarArgs, 'input'>>;
 }>;
 
 export type NoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
@@ -780,16 +890,11 @@ export type PresignedUploadResolvers<ContextType = ApiContext, ParentType extend
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   accords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, Partial<QueryAccordsArgs>>;
+  fragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<QueryFragranceDraftArgs, 'id'>>;
+  fragranceDrafts?: Resolver<ResolversTypes['FragranceDraftConnection'], ParentType, ContextType, Partial<QueryFragranceDraftsArgs>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-}>;
-
-export type UpdateUserAvatarResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['UpdateUserAvatarResult'] = ResolversParentTypes['UpdateUserAvatarResult']> = ResolversObject<{
-  avatarId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  uploadUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
@@ -810,9 +915,15 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   AuthDeliveryResult?: AuthDeliveryResultResolvers<ContextType>;
   AuthTokenPayload?: AuthTokenPayloadResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  Draft?: DraftResolvers<ContextType>;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceConnection?: FragranceConnectionResolvers<ContextType>;
   FragranceDraft?: FragranceDraftResolvers<ContextType>;
+  FragranceDraftConnection?: FragranceDraftConnectionResolvers<ContextType>;
+  FragranceDraftEdge?: FragranceDraftEdgeResolvers<ContextType>;
+  FragranceDraftImage?: FragranceDraftImageResolvers<ContextType>;
+  FragranceDraftImageConnection?: FragranceDraftImageConnectionResolvers<ContextType>;
+  FragranceDraftImageEdge?: FragranceDraftImageEdgeResolvers<ContextType>;
   FragranceEdge?: FragranceEdgeResolvers<ContextType>;
   FragranceImage?: FragranceImageResolvers<ContextType>;
   FragranceImageConnection?: FragranceImageConnectionResolvers<ContextType>;
@@ -825,7 +936,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   PageInfo?: PageInfoResolvers<ContextType>;
   PresignedUpload?: PresignedUploadResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  UpdateUserAvatarResult?: UpdateUserAvatarResultResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;
 

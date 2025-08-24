@@ -1,0 +1,19 @@
+interface Draft {
+  id: ID!
+  user: User!
+}
+
+enum DraftSortBy {
+  RECENT
+}
+
+input DraftSortInput {
+  direction: SortDirection
+  by: DraftSortBy
+}
+
+input DraftPaginationInput {
+  first: Int
+  after: String
+  sort: DraftSortInput
+}

@@ -3,37 +3,89 @@ import { ApiService } from '@src/services/ApiService'
 import { type PresignUploadParams } from '../types'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
-import { PRESIGNED_EXP } from '../constants'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { PRESIGNED_EXP, SIGNED_CDN_URL_EXP } from '../constants'
+import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { format } from 'url'
+import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
+import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'
 
 export class AssetService extends ApiService {
   s3: DataSources['s3']
+  cdn: DataSources['cdn']
 
   constructor (sources: DataSources) {
     super(sources)
+
     this.s3 = sources.s3
+    this.cdn = sources.cdn
   }
 
-  presignUpload (
+  getPresignedUrl (
     params: PresignUploadParams
-  ): ResultAsync<string, ApiError> {
+  ): ResultAsync<PresignedPost, ApiError> {
     const { s3 } = this
     const { client, bucket } = s3
-    const { key, contentType } = params
+    const { key, contentType, maxSizeBytes, expiresIn = PRESIGNED_EXP } = params
 
     return ResultAsync
       .fromPromise(
-        getSignedUrl(
+        createPresignedPost(
           client,
-          new PutObjectCommand({
+          {
             Bucket: bucket,
             Key: key,
-            ContentType: contentType
-          }),
-          { expiresIn: PRESIGNED_EXP }
+            Expires: expiresIn,
+            Fields: { 'Content-Type': contentType },
+            Conditions: [
+              ['content-length-range', 0, maxSizeBytes],
+              ['eq', '$Content-Type', contentType]
+            ]
+          }
         ),
         error => ApiError.fromS3(error)
       )
+  }
+
+  getCdnUrl (
+    key: string
+  ): string {
+    const { cdn } = this
+    const { domain } = cdn
+
+    return format(`${domain}/${encodeURI(key)}`)
+  }
+
+  getCdnSignedUrl (
+    key: string
+  ): string {
+    const { cdn } = this
+    const { keyPairId, privateKey } = cdn
+
+    const url = this.getCdnUrl(key)
+
+    return getSignedUrl({
+      url,
+      keyPairId,
+      privateKey,
+      dateLessThan: SIGNED_CDN_URL_EXP()
+    })
+  }
+
+  deleteFromS3 (
+    key: string
+  ): ResultAsync<boolean, ApiError> {
+    const { s3 } = this
+    const { client, bucket } = s3
+
+    return ResultAsync
+      .fromPromise(
+        client
+          .send(new DeleteObjectCommand({
+            Bucket: bucket,
+            Key: key
+          })),
+        error => ApiError.fromS3(error)
+      )
+      .map(() => true)
   }
 }

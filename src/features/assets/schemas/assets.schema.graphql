@@ -16,5 +16,5 @@ input StageAssetInput {
   id: ID!
   fileName: String!
   contentType: String!
-  contentSize: String!
+  contentSize: Int!
 }

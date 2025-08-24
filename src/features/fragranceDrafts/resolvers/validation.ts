@@ -49,3 +49,29 @@ export const UpdateFragranceDraftSchema = z
     releaseYear: ValidReleaseYear
   })
   .strip()
+
+export const VALID_FRAGRANCE_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp'
+]
+
+export const MAX_FRAGRANCE_IMAGE_SIZE = 2_000_000 // 2 MB
+
+export const StageFragranceDraftImageSchema = z
+  .object({
+    contentType: z
+      .enum(VALID_FRAGRANCE_IMAGE_TYPES, 'Invalid image type. Allowed types are JPEG, PNG, or WebP.'),
+    contentSize: z
+      .number()
+      .int()
+      .positive()
+      .max(MAX_FRAGRANCE_IMAGE_SIZE, 'File is too large. Max size is 2MB.')
+  })
+  .strip()
+
+export const FinalizeFragranceDraftImageSchema = z
+  .object({
+    version: ValidVersion
+  })
+  .strip()

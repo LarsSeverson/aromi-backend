@@ -20,6 +20,10 @@ export interface Env {
   AWS_SECRET_ACCESS_KEY: string
 
   S3_BUCKET: string
+
+  CDN_DOMAIN: string
+  CDN_KEY_PAIR_ID: string
+  CDN_PRIVATE_KEY: string
 }
 
 declare global {

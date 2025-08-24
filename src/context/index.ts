@@ -3,10 +3,12 @@ import { type DataSources } from '@src/datasources'
 import { type ApiServices } from '@src/services/ApiServices'
 import { getMyContext } from './myContext'
 import { type UserRow } from '@src/features/users/types'
+import { ApiLoaders } from '@src/loaders/ApiLoaders'
 
 export interface ApiContext extends ExpressContextFunctionArgument {
   sources: DataSources
   services: ApiServices
+  loaders: ApiLoaders
   me?: UserRow
 }
 
@@ -20,11 +22,14 @@ export const getContext = async (params: GetContextParams): Promise<ApiContext> 
   const { serverArgs, sources, services } = params
   const { req, res } = serverArgs
 
+  const loaders = new ApiLoaders(services)
+
   const context: ApiContext = {
     req,
     res,
     sources,
-    services
+    services,
+    loaders
   }
 
   const me = await getMyContext(context).unwrapOr(undefined)
