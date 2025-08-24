@@ -1,0 +1,20 @@
+type Asset {
+  id: ID!
+  url: String
+  name: String!
+  size: Int!
+  type: String!
+}
+
+type PresignedUpload {
+  id: ID!
+  url: String!
+  fields: JSON!
+}
+
+input StageAssetInput {
+  id: ID!
+  fileName: String!
+  contentType: String!
+  contentSize: String!
+}

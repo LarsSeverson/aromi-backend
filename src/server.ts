@@ -2,23 +2,22 @@ import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import { readFileSync } from 'fs'
-import { ApiResolvers } from './resolvers/resolvers'
 import depthLimit from 'graphql-depth-limit'
-import { type ApiContext, getContext } from './context'
 import { requiredEnv } from './common/env-util'
-import { ResultAsync } from 'neverthrow'
-import { ApiError, formatApiError } from './common/error'
-import { getDataSources } from './datasources/datasources'
+import { formatApiError } from './common/error'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { ApiServices } from './services/services'
 import { expressMiddleware } from '@as-integrations/express5'
+import { getDataSources } from './datasources'
+import { type ApiContext, getContext } from './context'
+import { ApiServices } from './services/ApiServices'
+import { ApiResolvers } from './resolvers/ApiResolvers'
 
 const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 
-const startSever = async (): Promise<string> => {
+export const startSever = async (): Promise<string> => {
   const hostRes = requiredEnv('SERVER_HOST')
   if (hostRes.isErr()) throw hostRes.error
 
@@ -34,7 +33,6 @@ const startSever = async (): Promise<string> => {
 
   const sources = sourcesRes.value
   const services = new ApiServices(sources)
-  const resolvers = new ApiResolvers()
 
   const app = express()
   const httpServer = http.createServer((req, res) => { void app(req, res) })
@@ -49,7 +47,7 @@ const startSever = async (): Promise<string> => {
 
   const server = new ApolloServer<ApiContext>({
     typeDefs,
-    resolvers: { ...resolvers },
+    resolvers: ApiResolvers,
     introspection: true,
     validationRules: [depthLimit(15)],
     plugins,
@@ -75,15 +73,3 @@ const startSever = async (): Promise<string> => {
     })
   )
 }
-
-const main = (): ResultAsync<string, ApiError> =>
-  ResultAsync.fromPromise(
-    startSever(),
-    e => new ApiError('INTERNAL_ERROR', 'Unable to start server', 500, e)
-  )
-
-void main()
-  .match(
-    (url) => { console.log(`🚀  Server ready at ${url}`) },
-    (err) => { console.error(err) }
-  )

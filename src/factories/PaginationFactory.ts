@@ -1,12 +1,9 @@
-import { type PaginationInput, type SortBy, SortDirection, type VotePaginationInput, type VoteSortBy } from '@src/generated/gql-types'
-import { ASCENDING_ORDER, DESCENDING_ORDER } from '@src/utils/constants'
-import { CursorFactory, type CursorDecoder, type ApiCursor } from './CursorFactory'
+import { ASCENDING_ORDER, DESCENDING_ORDER } from '@src/common/constants'
+import { type CursorDecoder, type ApiCursor, CursorFactory } from './CursorFactory'
+import { SortDirection } from '@src/generated/gql-types'
 
-export type PaginationInputs = PaginationInput | VotePaginationInput
-export type SortBys = SortBy | VoteSortBy
-
-export const DEFAULT_LIMIT = 20
-export const MAX_LIMIT = 40
+export const DEFAULT_LIMIT = 24
+export const MAX_LIMIT = 44
 
 export const PAGINATION_OPERATORS = {
   [SortDirection.Ascending]: '>',
@@ -18,160 +15,77 @@ export const PAGINATION_DIRECTIONS = {
   [SortDirection.Descending]: DESCENDING_ORDER
 } as const
 
-export const PAGINATION_COLUMNS: Record<SortBys, string> = {
-  ID: 'id',
-  UPDATED: 'updatedAt',
-  VOTES: 'voteScore'
-} as const
-
 export type PaginationOperator = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
 
 export type PaginationDirection = typeof PAGINATION_DIRECTIONS[keyof typeof PAGINATION_DIRECTIONS]
 
-export interface NonNullablePaginationInput {
+export interface PaginationInput<C> {
   first: number
-  after: string
-  sort: {
-    direction: SortDirection
-    by: SortBys
-  }
-}
-
-export interface NormalizedSortInput {
-  by: SortBys
-  direction: SortDirection
-}
-
-export interface NormalizedPaginationInput {
-  first: number
-  rawCursor: string
-  sort: NormalizedSortInput
-}
-
-export interface ParsedPaginationInput<C = unknown> {
-  first: number
-  offset?: number
-
   column: string
 
   operator: PaginationOperator
   direction: PaginationDirection
 
   cursor: ApiCursor<C>
-
-  normalized: NormalizedPaginationInput
 }
 
-export class PaginationFactory {
-  private readonly cursorFactory = new CursorFactory()
+export interface SortSpec<C> {
+  column: string
+  direction: SortDirection
+  decoder?: CursorDecoder<C>
+}
 
-  process <C>(
-    input: PaginationInputs | null | undefined,
-    by?: SortBys,
-    value?: unknown
-  ): ParsedPaginationInput<C> {
-    const normalized = this.normalize(input, by)
-    const parsed = this.parse<C>(normalized)
-    this.decode(parsed, value)
+export interface NormalizedInput<C> {
+  first: number
+  after: string
+  sort: SortSpec<C>
+}
 
-    return parsed
+export interface RawArgs<S> {
+  first?: number | null
+  after?: string | null
+  sort?: S | null
+}
+
+export abstract class PaginationFactory<S, C> {
+  protected cursorFactory: CursorFactory = new CursorFactory()
+
+  protected clampFirst (num?: number | null): number {
+    const val = Math.max(1, Math.min(MAX_LIMIT, num ?? DEFAULT_LIMIT))
+    return val
   }
 
-  decode <C>(
-    parsed: ParsedPaginationInput<C>,
-    value?: unknown
-  ): ParsedPaginationInput<C> {
-    const { normalized } = parsed
-    const decoder = this.getDecoder<C>(normalized.sort)
-    const decoded = decoder(value ?? parsed.cursor.value)
-    parsed.cursor.value = decoded
+  protected abstract resolveSort (sort?: S | null): SortSpec<C>
 
-    return parsed
-  }
-
-  parse <C = unknown>(
-    input: NormalizedPaginationInput
-  ): ParsedPaginationInput<C> {
-    const { rawCursor, first, sort } = input
-
-    const cursor = this.cursorFactory.decodeCursor<C>(rawCursor)
-    const offset = this.getOffset(cursor)
-    const column = PAGINATION_COLUMNS[sort.by]
-    const operator = PAGINATION_OPERATORS[sort.direction]
-    const direction = PAGINATION_DIRECTIONS[sort.direction]
-
-    return {
-      first,
-      offset,
-
-      column,
-
-      operator,
-      direction,
-
-      cursor,
-
-      normalized: input
-    }
-  }
-
-  normalize (
-    input: PaginationInputs | null | undefined,
-    by?: SortBys
-  ): NormalizedPaginationInput {
-    const { first, after, sort } = this.getDefaults(input)
-
-    if (by != null) {
-      sort.by = by
-    }
-
-    return { first, rawCursor: after, sort }
-  }
-
-  getDecoder <C>(
-    sort: NormalizedSortInput
-  ): CursorDecoder<C> {
-    const by = sort.by
-    const decoder = CURSOR_DECODERS[by]
-    return decoder as CursorDecoder<C>
-  }
-
-  private getDefaults (
-    input: PaginationInputs | null | undefined
-  ): NonNullablePaginationInput {
-    const first = Math.min(MAX_LIMIT, (input?.first ?? DEFAULT_LIMIT))
-    const after = input?.after ?? ''
-    const direction = input?.sort?.direction ?? 'DESCENDING'
-    const by = input?.sort?.by ?? 'ID'
-
-    const sort = { direction, by }
+  normalize (raw?: RawArgs<S> | null): NormalizedInput<C> {
+    const first = this.clampFirst(raw?.first)
+    const after = raw?.after ?? ''
+    const sort = this.resolveSort(raw?.sort)
 
     return { first, after, sort }
   }
 
-  private getOffset (cursor: ApiCursor<unknown>): number | undefined {
-    if (!cursor.isValid) return
-    if (typeof cursor.value !== 'string') return
+  parse (raw?: RawArgs<S> | null): PaginationInput<C> {
+    const {
+      first,
+      after,
+      sort: {
+        direction,
+        column,
+        decoder
+      }
+    } = this.normalize(raw)
 
-    let offset: number | undefined
-    const [, rawOffset] = cursor.value.split('|')
-    const parsed = Number(rawOffset)
-    if (Number.isInteger(parsed) && parsed >= 0) {
-      offset = parsed
+    const cursor = this
+      .cursorFactory
+      .decodeCursor<C>(after, decoder)
+
+    return {
+      first,
+      column,
+      operator: PAGINATION_OPERATORS[direction],
+      direction: PAGINATION_DIRECTIONS[direction],
+      cursor
     }
-
-    return offset
-  }
-}
-
-export const CURSOR_DECODERS: Record<SortBys, (value: unknown) => unknown> = {
-  ID: function (value: unknown): number {
-    return Number(value)
-  },
-  UPDATED: function (value: unknown): string {
-    return String(value)
-  },
-  VOTES: function (value: unknown): number {
-    return Number(value)
   }
 }

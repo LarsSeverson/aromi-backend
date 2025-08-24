@@ -1,12 +1,12 @@
 export interface ApiCursor<T> {
   value: T
-  lastId: number | undefined | null
+  lastId: string | null
   isValid: boolean
 }
 
 export interface ApiRawCursor {
   value: string
-  lastId: number | undefined | null
+  lastId: string | null
 }
 
 export type CursorDecoder<T> = (decodedValue: unknown) => T
@@ -33,7 +33,7 @@ export class CursorFactory {
       ? decoder(rawValue)
       : rawValue) as T
 
-    const isValid = value != null && lastId != null && !isNaN(lastId)
+    const isValid = value != null && lastId != null
 
     return { value, lastId, isValid }
   }
@@ -49,7 +49,7 @@ export class CursorFactory {
     const lastIdRaw = parts.pop()
     const value = parts.join('|')
 
-    const lastId = lastIdRaw?.trim() === '' ? null : Number(lastIdRaw)
+    const lastId = lastIdRaw?.trim() === '' ? null : lastIdRaw ?? null
 
     return { value, lastId }
   }

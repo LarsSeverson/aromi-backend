@@ -5,48 +5,35 @@
 
 import type { ColumnType } from "kysely";
 
+export type AvatarStatus = "FAILED" | "PENDING" | "PROCESSING" | "READY";
+
 export type FragranceTraitEnum = "allure" | "balance" | "complexity" | "gender" | "longevity" | "sillage";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export type Json = JsonValue;
-
-export type JsonArray = JsonValue[];
-
-export type JsonObject = {
-  [x: string]: JsonValue | undefined;
-};
-
-export type JsonPrimitive = boolean | number | string | null;
-
-export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
-
 export type NoteLayerEnum = "base" | "middle" | "top";
 
-export type Numeric = ColumnType<string, number | string, number | string>;
-
 export type Timestamp = ColumnType<string, string, string>;
-
-export type UploadStatus = "failed" | "pending" | "uploaded";
 
 export interface Accord {
   color: Generated<string>;
   createdAt: Timestamp;
   deletedAt: Timestamp | null;
-  id: Generated<number>;
+  id: Generated<string>;
   name: string;
+  oldId: number;
   updatedAt: Timestamp;
 }
 
 export interface FragranceAccord {
-  accordId: number;
+  accordId: string;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   dislikesCount: Generated<number>;
-  fragranceId: number;
-  id: Generated<number>;
+  fragranceId: string;
+  id: Generated<string>;
   likesCount: Generated<number>;
   updatedAt: Generated<Timestamp>;
   voteScore: Generated<number>;
@@ -55,50 +42,44 @@ export interface FragranceAccord {
 export interface FragranceAccordVote {
   createdAt: Generated<Timestamp | null>;
   deletedAt: Timestamp | null;
-  fragranceAccordId: number;
-  id: Generated<number>;
+  fragranceAccordId: string;
+  id: Generated<string>;
   updatedAt: Generated<Timestamp | null>;
-  userId: number;
+  userId: string;
   vote: number;
-}
-
-export interface FragranceCollectionEvent {
-  collectionId: string;
-  createdAt: Generated<Timestamp | null>;
-  operationType: string | null;
-  payload: Json | null;
-  revisionId: Generated<number>;
-}
-
-export interface FragranceCollectionItem {
-  collectionId: number;
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  fragranceId: number;
-  id: Generated<number>;
-  rank: Numeric;
-  updatedAt: Generated<Timestamp>;
 }
 
 export interface FragranceCollection {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  id: Generated<number>;
+  id: Generated<string>;
   name: string;
   updatedAt: Generated<Timestamp>;
-  userId: number;
+  userId: string;
+}
+
+export interface FragranceDraft {
+  concentration: string | null;
+  createdAt: Generated<Timestamp | null>;
+  fragranceStatus: string | null;
+  id: string;
+  name: string | null;
+  updatedAt: Generated<Timestamp | null>;
+  userId: string;
+  version: Generated<number>;
 }
 
 export interface FragranceImage {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  fragranceId: number;
+  fragranceId: string;
   height: Generated<number>;
-  id: Generated<number>;
+  id: Generated<string>;
+  oldS3Key: string;
   primaryColor: string | null;
   s3Key: string;
-  status: Generated<UploadStatus | null>;
   updatedAt: Generated<Timestamp>;
+  url: string | null;
   width: Generated<number>;
 }
 
@@ -106,11 +87,11 @@ export interface FragranceNote {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   dislikesCount: Generated<number>;
-  fragranceId: number;
-  id: Generated<number>;
+  fragranceId: string;
+  id: Generated<string>;
   layer: NoteLayerEnum;
   likesCount: Generated<number>;
-  noteId: number;
+  noteId: string;
   updatedAt: Generated<Timestamp>;
   voteScore: Generated<number>;
 }
@@ -118,44 +99,10 @@ export interface FragranceNote {
 export interface FragranceNoteVote {
   createdAt: Generated<Timestamp | null>;
   deletedAt: Timestamp | null;
-  fragranceNoteId: number;
-  id: Generated<number>;
+  fragranceNoteId: string;
+  id: Generated<string>;
   updatedAt: Generated<Timestamp | null>;
-  userId: number;
-  vote: number;
-}
-
-export interface FragranceReport {
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  fragranceId: number;
-  id: Generated<number>;
-  report: string;
-  updatedAt: Generated<Timestamp>;
-  userId: number;
-}
-
-export interface FragranceReview {
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  dislikesCount: Generated<number>;
-  fragranceId: number;
-  id: Generated<number>;
-  likesCount: Generated<number>;
-  rating: number;
-  reviewText: string;
-  updatedAt: Generated<Timestamp>;
-  userId: number;
-  voteScore: Generated<number>;
-}
-
-export interface FragranceReviewVote {
-  createdAt: Generated<Timestamp | null>;
-  deletedAt: Timestamp | null;
-  fragranceReviewId: number;
-  id: Generated<number>;
-  updatedAt: Generated<Timestamp | null>;
-  userId: number;
+  userId: string;
   vote: number;
 }
 
@@ -164,9 +111,10 @@ export interface Fragrance {
   createdAt: Timestamp;
   deletedAt: Timestamp | null;
   dislikesCount: number;
-  id: Generated<number>;
+  id: Generated<string>;
   likesCount: number;
   name: string;
+  oldId: number;
   rating: number | null;
   reviewsCount: number;
   updatedAt: Timestamp;
@@ -176,90 +124,51 @@ export interface Fragrance {
 export interface FragranceTrait {
   createdAt: Timestamp;
   deletedAt: Timestamp | null;
-  fragranceId: number;
-  id: Generated<number>;
+  fragranceId: string;
+  id: Generated<string>;
   trait: FragranceTraitEnum;
   updatedAt: Timestamp;
   voteScore: Generated<number>;
 }
 
-export interface FragranceTraitVote {
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  fragranceTraitId: number;
-  id: Generated<number>;
-  updatedAt: Generated<Timestamp>;
-  userId: number;
-  vote: number;
-}
-
-export interface FragranceView {
-  fragranceId: number;
-  id: Generated<number>;
-  userId: number;
-  viewedAt: Generated<Timestamp | null>;
-}
-
-export interface FragranceVote {
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  fragranceId: number;
-  id: Generated<number>;
-  updatedAt: Generated<Timestamp>;
-  userId: number;
-  vote: number;
-}
-
 export interface Note {
-  createdAt: Timestamp;
-  deletedAt: Timestamp | null;
-  id: Generated<number>;
-  name: string;
-  s3Key: string | null;
-  updatedAt: Timestamp;
-}
-
-export interface ReviewReport {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  id: Generated<number>;
-  report: string;
-  reviewId: number;
+  id: Generated<string>;
+  name: string;
+  oldId: number;
+  s3Key: string | null;
+  thumbnailS3Key: string;
+  thumbnailUrl: string;
   updatedAt: Generated<Timestamp>;
-  userId: number;
 }
 
 export interface User {
-  cognitoId: string;
+  avatarError: string | null;
+  avatarS3Key: string | null;
+  avatarStatus: Generated<AvatarStatus>;
+  avatarUpdatedAt: Generated<Timestamp>;
+  avatarUrl: string | null;
+  cognitoSub: string;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   email: string;
-  followerCount: Generated<number>;
-  followingCount: Generated<number>;
-  id: Generated<number>;
+  id: Generated<string>;
   updatedAt: Generated<Timestamp>;
-  username: string | null;
+  username: string;
 }
 
 export interface DB {
   accords: Accord;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
-  fragranceCollectionEvents: FragranceCollectionEvent;
-  fragranceCollectionItems: FragranceCollectionItem;
   fragranceCollections: FragranceCollection;
+  fragranceDrafts: FragranceDraft;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
-  fragranceReports: FragranceReport;
-  fragranceReviews: FragranceReview;
-  fragranceReviewVotes: FragranceReviewVote;
   fragrances: Fragrance;
   fragranceTraits: FragranceTrait;
-  fragranceTraitVotes: FragranceTraitVote;
-  fragranceViews: FragranceView;
-  fragranceVotes: FragranceVote;
   notes: Note;
-  reviewReports: ReviewReport;
   users: User;
 }

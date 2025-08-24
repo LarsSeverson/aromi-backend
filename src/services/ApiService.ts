@@ -1,20 +1,9 @@
-import { type ApiContext } from '@src/context'
-import { type ApiDataSources } from '@src/datasources/datasources'
-
-export interface ApiServiceContext {
-  me?: ApiContext['me']
-}
+import type { DataSources } from '@src/datasources'
 
 export abstract class ApiService {
-  sources: ApiDataSources
-  context: ApiServiceContext = {}
+  sources: DataSources
 
-  constructor (sources: ApiDataSources) {
+  constructor (sources: DataSources) {
     this.sources = sources
-  }
-
-  setContext (context: ApiServiceContext): this {
-    this.context = context
-    return this
   }
 }

@@ -1,0 +1,17 @@
+type FragranceImage {
+  id: ID!
+  url: String!
+  bg: String
+  width: Int!
+  height: Int!
+}
+
+type FragranceImageEdge {
+  node: FragranceImage!
+  cursor: String!
+}
+
+type FragranceImageConnection {
+  edges: [FragranceImageEdge!]!
+  pageInfo: PageInfo!
+}

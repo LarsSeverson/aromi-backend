@@ -1,14 +1,14 @@
-import { type ApiDataSources } from '@src/datasources/datasources'
-import { ApiService } from './ApiService'
-import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn, type OnConflictFn } from '../db/Table'
+import { type ExtendInsertFn, Table, type ExtendSelectFn, type UpdateValuesFn, type OnConflictFn } from './Table'
 import { errAsync, ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/common/error'
+import { ApiError, throwError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/db/schema'
-import { type ParsedPaginationInput } from '@src/factories/PaginationFactory'
+import { ApiService } from './ApiService'
+import { type DataSources } from '@src/datasources'
+import { type PaginationInput } from '@src/factories/PaginationFactory'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
-  pagination?: ParsedPaginationInput<C>
+  pagination?: PaginationInput<C>
   extend?: ExtendSelectFn<T, R>
 }
 
@@ -16,15 +16,39 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   protected readonly Table: Table<T, R>
 
   constructor (
-    sources: ApiDataSources,
+    sources: DataSources,
     table: T
   ) {
     super(sources)
     this.Table = new Table<T, R>(sources.db, table)
   }
 
-  withConnection (db: ApiDataSources['db']): Table<T, R> {
+  withConnection (db: DataSources['db']): Table<T, R> {
     return this.Table.withConnection(db)
+  }
+
+  withTransaction <U>(
+    fn: () => ResultAsync<U, ApiError>
+  ): ResultAsync<U, ApiError> {
+    const db = this.sources.db
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .transaction()
+          .execute(async trx => {
+            this.Table.withConnection(trx)
+            return await fn()
+              .match(
+                v => v,
+                throwError
+              )
+              .finally(() => {
+                this.withConnection(db)
+              })
+          }),
+        error => ApiError.fromDatabase(error)
+      )
   }
 
   create (
@@ -165,7 +189,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   }
 
   paginate <C>(
-    input: ParsedPaginationInput<C>
+    input: PaginationInput<C>
   ): ResultAsync<R[], ApiError> {
     const query = this
       .Table
@@ -178,5 +202,3 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
       )
   }
 }
-
-export interface MyVote { myVote: number | null }

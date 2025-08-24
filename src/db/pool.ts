@@ -21,7 +21,11 @@ export const createPool = (): Result<Pool, ApiError> => {
     user: dbUser.value,
     password: dbPassword.value,
     database: dbName.value,
-    port: Number(dbPort.value)
+    port: Number(dbPort.value),
+    ssl: {
+      // TODO: Remove this in production
+      rejectUnauthorized: false
+    }
   })
 
   return ok(db)

@@ -1,0 +1,38 @@
+type Fragrance {
+  id: ID!
+  name: String!
+  brand: String!
+  description: String!
+  releaseYear: Int!
+  concentration: Concentration!
+  status: FragranceStatus!
+
+  images: FragranceImageConnection!
+}
+
+type FragranceEdge {
+  node: Fragrance!
+  cursor: String!
+}
+
+type FragranceConnection {
+  edges: [FragranceEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum Concentration {
+  PARFUM
+  EDP
+  EDT
+  EDC
+  EAU_FRAICHE
+  OIL
+  BODY_MIST
+  OTHER
+}
+
+enum FragranceStatus {
+  CURRENT
+  DISCONTINUED
+  REFORMULATED
+}

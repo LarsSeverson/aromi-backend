@@ -1,0 +1,59 @@
+type AuthTokenPayload {
+  idToken: String!
+  accessToken: String!
+  expiresIn: Int!
+}
+
+type AuthCodeDeliveryDetails {
+  method: String
+  attribute: String
+  destination: String
+}
+
+type AuthDeliveryResult {
+  isComplete: Boolean!
+  delivery: AuthCodeDeliveryDetails
+}
+
+extend type Mutation {
+  refresh: AuthTokenPayload
+
+  logIn(input: LogInInput!): AuthTokenPayload!
+  logOut: Boolean!
+
+  signUp(input: SignUpInput!): AuthDeliveryResult!
+  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
+
+  forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
+  confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
+}
+
+input LogInInput {
+  email: String!
+  password: String!
+}
+
+input SignUpInput {
+  email: String!
+  password: String!
+}
+
+input ConfirmSignUpInput {
+  email: String!
+  code: String!
+}
+
+input ResendSignUpCodeInput {
+  email: String!
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+input ConfirmForgotPasswordInput {
+  email: String!
+  code: String!
+  password: String!
+}

@@ -30,6 +30,7 @@
     "dist",
   ],
   "include": [
-    "src/**/*.ts"
-, ".kysely-codegenrc.ts"  ]
+    "src/**/*.ts",
+    ".kysely-codegenrc.ts"
+  ]
 }

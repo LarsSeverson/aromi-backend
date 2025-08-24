@@ -1,0 +1,34 @@
+type Accord {
+  id: ID!
+  name: String!
+  color: String!
+}
+
+type AccordEdge {
+  node: Accord!
+  cursor: String!
+}
+
+type AccordConnection {
+  edges: [AccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum AccordSortBy {
+  RECENT
+}
+
+input AccordSortInput {
+  direction: SortDirection
+  by: AccordSortBy
+}
+
+input AccordPaginationInput {
+  first: Int
+  after: String
+  sort: AccordSortInput
+}
+
+extend type Query {
+  accords(input: AccordPaginationInput): AccordConnection!
+}

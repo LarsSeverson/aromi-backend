@@ -1,7 +1,6 @@
 type Accord {
-  audit: Audit!
   color: String!
-  id: Int!
+  id: ID!
   name: String!
 }
 
@@ -15,158 +14,131 @@ type AccordEdge {
   node: Accord!
 }
 
+input AccordPaginationInput {
+  after: String
+  first: Int
+  sort: AccordSortInput
+}
+
+enum AccordSortBy {
+  RECENT
+}
+
+input AccordSortInput {
+  by: AccordSortBy
+  direction: SortDirection
+}
+
 type Asset {
-  alt: String
-  audit: Audit!
-  id: Int!
-  src: String!
+  id: ID!
+  name: String!
+  size: Int!
+  type: String!
+  url: String
 }
 
-enum AssetStatus {
-  FAILED
-  PENDING
-  UPLOADED
-}
-
-type Audit {
-  createdAt: Date!
-  deletedAt: Date
-  updatedAt: Date!
-}
-
-type AuthPayload {
-  accessToken: String!
-  expiresIn: Int!
-  idToken: String!
-}
-
-type CodeDeliveryDetails {
+type AuthCodeDeliveryDetails {
   attribute: String
   destination: String
   method: String
 }
 
-input ControlledPaginationInput {
-  after: String
-  first: Int
-  sort: ControlledSortByInput
+type AuthDeliveryResult {
+  delivery: AuthCodeDeliveryDetails
+  isComplete: Boolean!
 }
 
-input ControlledSortByInput {
-  direction: SortDirection = DESCENDING
+type AuthTokenPayload {
+  accessToken: String!
+  expiresIn: Int!
+  idToken: String!
 }
 
-input CreateFragranceCollectionInput {
-  name: String!
+enum AvatarStatus {
+  FAILED
+  PENDING
+  PROCESSING
+  READY
 }
 
-input CreateFragranceCollectionItemInput {
-  collectionId: Int!
-  fragranceId: Int!
+enum Concentration {
+  BODY_MIST
+  EAU_FRAICHE
+  EDC
+  EDP
+  EDT
+  OIL
+  OTHER
+  PARFUM
 }
 
-input CreateFragranceReportInput {
-  fragranceId: Int!
-  report: String!
+input ConfirmForgotPasswordInput {
+  code: String!
+  email: String!
+  password: String!
 }
 
-input CreateReviewReportInput {
-  report: String!
-  reviewId: Int!
+input ConfirmSignUpInput {
+  code: String!
+  email: String!
+}
+
+input CreateFragranceDraftInput {
+  concentration: Concentration
+  description: String
+  name: String
+  releaseYear: Int
+  status: FragranceStatus
 }
 
 scalar Date
 
-input DeleteFragranceCollectionItemInput {
-  collectionId: Int!
-  fragranceId: Int!
+input DeleteFragranceDraftImageInput {
+  assetId: ID!
+  draftId: ID!
+  version: Int!
 }
 
-input DeleteFragranceReviewInput {
-  reviewId: Int!
+input DeleteFragranceDraftInput {
+  id: ID!
 }
 
-type DeliveryResult {
-  complete: Boolean!
-  delivery: CodeDeliveryDetails
+input FinalizeFragranceDraftImageInput {
+  assetId: ID!
+  draftId: ID!
+  version: Int!
+}
+
+input ForgotPasswordInput {
+  email: String!
 }
 
 type Fragrance {
-  accords(input: VotePaginationInput): FragranceAccordConnection!
-  audit: Audit!
   brand: String!
-  fillerAccords(input: PaginationInput): FragranceAccordConnection!
-  id: Int!
-  images(input: PaginationInput): FragranceImageConnection!
-  myReview: FragranceReview
+  concentration: Concentration!
+  description: String!
+  id: ID!
+  images: FragranceImageConnection!
   name: String!
-  notes: FragranceNotes!
-  rating: Float!
-  reviewDistribution: FragranceReviewDistribution!
-  reviews(input: VotePaginationInput): FragranceReviewConnection!
-  reviewsCount: Int!
-  traits: [FragranceTrait!]!
-  votes: VoteSummary!
-}
-
-type FragranceAccord {
-  accordId: Int!
-  audit: Audit!
-  color: String!
-  id: Int!
-  name: String!
-  votes: VoteSummary!
-}
-
-type FragranceAccordConnection {
-  edges: [FragranceAccordEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceAccordEdge {
-  cursor: String!
-  node: FragranceAccord!
-}
-
-type FragranceCollection {
-  audit: Audit!
-  hasFragrance(fragranceId: Int): Boolean!
-  id: Int!
-  items(input: ControlledPaginationInput): FragranceCollectionItemConnection!
-  name: String!
-  user: User!
-}
-
-type FragranceCollectionConnection {
-  edges: [FragranceCollectionEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceCollectionEdge {
-  cursor: String!
-  node: FragranceCollection!
-}
-
-type FragranceCollectionItem {
-  audit: Audit!
-  fragrance: Fragrance!
-  id: Int!
-  rank: Float!
-}
-
-type FragranceCollectionItemConnection {
-  edges: [FragranceCollectionItemEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceCollectionItemEdge {
-  cursor: String!
-  node: FragranceCollectionItem!
+  releaseYear: Int!
+  status: FragranceStatus!
 }
 
 type FragranceConnection {
   edges: [FragranceEdge!]!
   pageInfo: PageInfo!
+}
+
+type FragranceDraft {
+  concentration: Concentration
+  description: String
+  id: ID!
+  images: FragranceImageConnection!
+  name: String
+  releaseYear: Int
+  status: FragranceStatus
+  user: User!
+  version: Int!
 }
 
 type FragranceEdge {
@@ -175,12 +147,10 @@ type FragranceEdge {
 }
 
 type FragranceImage {
-  alt: String
-  audit: Audit!
   bg: String
   height: Int!
-  id: Int!
-  src: String!
+  id: ID!
+  url: String!
   width: Int!
 }
 
@@ -194,153 +164,42 @@ type FragranceImageEdge {
   node: FragranceImage!
 }
 
-type FragranceNote {
-  audit: Audit!
-  id: Int!
-  layer: NoteLayer!
-  name: String!
-  noteId: Int!
-  thumbnail: String
-  votes: VoteSummary!
-}
-
-type FragranceNoteConnection {
-  edges: [FragranceNoteEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceNoteEdge {
-  cursor: String!
-  node: FragranceNote!
-}
-
-type FragranceNotes {
-  base(input: VotePaginationInput): FragranceNoteConnection!
-  fillerBase(input: PaginationInput): FragranceNoteConnection!
-  fillerMiddle(input: PaginationInput): FragranceNoteConnection!
-  fillerTop(input: PaginationInput): FragranceNoteConnection!
-  middle(input: VotePaginationInput): FragranceNoteConnection!
-  top(input: VotePaginationInput): FragranceNoteConnection!
-}
-
-type FragranceReport {
-  fragrance: Fragrance!
-  id: Int!
-  report: String!
-  user: User!
-}
-
-type FragranceReview {
-  audit: Audit!
-  fragrance: Fragrance!
-  id: Int!
-  rating: Int!
-  text: String!
-  user: User!
-  votes: VoteSummary!
-}
-
-type FragranceReviewConnection {
-  edges: [FragranceReviewEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceReviewDistribution {
-  five: Int!
-  four: Int!
-  one: Int!
-  three: Int!
-  two: Int!
-}
-
-type FragranceReviewEdge {
-  cursor: String!
-  node: FragranceReview!
-}
-
-type FragranceTrait {
-  id: Int!
-  myVote: Float
-  type: FragranceTraitType!
-  voteScore: Float!
-}
-
-enum FragranceTraitType {
-  ALLURE
-  BALANCE
-  COMPLEXITY
-  GENDER
-  LONGEVITY
-  SILLAGE
-}
-
-type FragranceVote {
-  audit: Audit!
-  fragrance: Fragrance!
-  id: Int!
-  user: User!
-  vote: Int!
-}
-
-type FragranceVoteConnection {
-  edges: [FragranceVoteEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceVoteEdge {
-  cursor: String!
-  node: FragranceVote!
-}
-
-type GenericAuthResult {
-  complete: Boolean!
+enum FragranceStatus {
+  CURRENT
+  DISCONTINUED
+  REFORMULATED
 }
 
 scalar JSON
 
-input LogFragranceViewInput {
-  fragranceId: Int!
-}
-
-input MoveFragranceCollectionItemInput {
-  collectionId: Int!
-  insertBefore: Int!
-  rangeLength: Int = 1
-  rangeStart: Int!
+input LogInInput {
+  email: String!
+  password: String!
 }
 
 type Mutation {
-  confirmForgotPassword(confirmationCode: String!, email: String!, newPassword: String!): GenericAuthResult!
-  confirmSignUp(confirmationCode: String!, email: String!): User!
-  createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
-  createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
-  createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
-  createReviewReport(input: CreateReviewReportInput!): ReviewReport!
-  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): [FragranceCollectionItem!]!
-  deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
-  forgotPassword(email: String!): DeliveryResult!
-  logFragranceView(input: LogFragranceViewInput!): Boolean!
-  logIn(email: String!, password: String!): AuthPayload!
+  confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
+  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  createFragranceDraft(input: CreateFragranceDraftInput!): FragranceDraft!
+  deleteFragranceDraft(input: DeleteFragranceDraftInput!): FragranceDraft!
+  deleteFragranceDraftImage(input: DeleteFragranceDraftImageInput!): FragranceDraft!
+  finalizeFragranceDraftImage(input: FinalizeFragranceDraftImageInput!): FragranceDraft!
+  forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
+  logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
-  moveFragranceCollectionItem(input: MoveFragranceCollectionItemInput!): [FragranceCollectionItem!]!
-  presignUserAvatar(input: PresignUserAvatarInput!): PresignUploadPayload!
-  refresh: AuthPayload
-  resendSignUpConfirmationCode(email: String!): DeliveryResult!
-  signUp(email: String!, password: String!): DeliveryResult!
-  updateUserAvatar(input: UpdateUserAvatarInput!): String!
-  upsertFragranceReview(input: UpsertFragranceReviewInput!): FragranceReview!
-  voteOnAccord(input: VoteOnAccordInput!): FragranceAccord!
-  voteOnFragrance(input: VoteOnFragranceInput!): FragranceVote!
-  voteOnNote(input: VoteOnNoteInput!): FragranceNote!
-  voteOnReview(input: VoteOnReviewInput!): FragranceReview!
-  voteOnTrait(input: VoteOnTraitInput!): FragranceTrait!
+  refresh: AuthTokenPayload
+  resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
+  signUp(input: SignUpInput!): AuthDeliveryResult!
+  stageFragranceDraftImage(input: StageAssetInput!): PresignedUpload!
+  updateFragranceDraft(input: UpdateFragranceDraftInput!): FragranceDraft!
+  updateUser(input: UpdateUserInput!): User!
+  updateUserAvatar(input: UpdateUserAvatarInput!): UpdateUserAvatarResult!
 }
 
 type Note {
-  audit: Audit!
-  id: Int!
-  name: String
-  thumbnail: String
+  id: ID!
+  name: String!
+  thumbnailUrl: String!
 }
 
 type NoteConnection {
@@ -353,10 +212,19 @@ type NoteEdge {
   node: Note!
 }
 
-enum NoteLayer {
-  BASE
-  MIDDLE
-  TOP
+input NotePaginationInput {
+  after: String
+  first: Int
+  sort: NoteSortInput
+}
+
+enum NoteSortBy {
+  RECENT
+}
+
+input NoteSortInput {
+  by: NoteSortBy
+  direction: SortDirection
 }
 
 type PageInfo {
@@ -366,84 +234,26 @@ type PageInfo {
   startCursor: String
 }
 
-input PaginationInput {
-  after: String
-  first: Int
-  sort: SortByInput
-}
-
-type PresignUploadPayload {
+type PresignedUpload {
   fields: JSON!
-  s3Key: String!
+  id: ID!
   url: String!
 }
 
-type PresignUserAvatarInput {
-  fileName: String!
-  fileSize: Int!
-  fileType: String!
-  userId: Int!
-}
-
 type Query {
-  accords(input: PaginationInput): AccordConnection!
-  collection(id: Int!): FragranceCollection!
-  fragrance(id: Int!): Fragrance
-  fragrances(input: PaginationInput): FragranceConnection!
-  me: User
-  notes(input: PaginationInput): NoteConnection!
-  searchFillerFragranceNotes(input: SearchFragranceNotesInput): FragranceNoteConnection!
-  searchFragranceAccords(input: SearchInput): FragranceAccordConnection!
-  searchFragranceNotes(input: SearchFragranceNotesInput): FragranceNoteConnection!
-  searchFragrances(input: SearchFragrancesInput): FragranceConnection!
-  user(id: Int!): User
+  accords(input: AccordPaginationInput): AccordConnection!
+  me: User!
+  notes(input: NotePaginationInput): NoteConnection!
+  user(id: ID!): User!
 }
 
-type ReviewReport {
-  id: Int!
-  report: String!
-  review: FragranceReview!
-  user: User!
+input ResendSignUpCodeInput {
+  email: String!
 }
 
-input SearchFragranceNotesInput {
-  layer: NoteLayer
-  pagination: VotePaginationInput
-  query: String
-}
-
-input SearchFragrancesInput {
-  pagination: PaginationInput
-  query: String
-}
-
-input SearchInput {
-  pagination: SearchPaginationInput
-  query: String
-}
-
-input SearchPaginationInput {
-  after: String
-  first: Int
-  sort: SearchSortByInput
-}
-
-enum SearchSortBy {
-  RELEVANCE
-}
-
-input SearchSortByInput {
-  by: SearchSortBy
-}
-
-enum SortBy {
-  ID
-  UPDATED
-}
-
-input SortByInput {
-  by: SortBy
-  direction: SortDirection
+input SignUpInput {
+  email: String!
+  password: String!
 }
 
 enum SortDirection {
@@ -451,77 +261,42 @@ enum SortDirection {
   DESCENDING
 }
 
-type UpdateUserAvatarInput {
-  s3Key: String!
-  userId: Int!
+input StageAssetInput {
+  contentSize: String!
+  contentType: String!
+  fileName: String!
+  id: ID!
 }
 
-input UpsertFragranceReviewInput {
-  fragranceId: Int!
-  rating: Int!
-  review: String!
+input UpdateFragranceDraftInput {
+  concentration: Concentration
+  description: String
+  id: ID!
+  name: String
+  releaseYear: Int
+  status: FragranceStatus
+  version: Int!
+}
+
+input UpdateUserAvatarInput {
+  contentType: String!
+}
+
+type UpdateUserAvatarResult {
+  avatarId: ID!
+  contentType: String!
+  uploadUrl: String!
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
 }
 
 type User {
-  audit: Audit!
-  collections(input: PaginationInput): FragranceCollectionConnection!
+  avatarSrc: String
+  avatarStatus: AvatarStatus!
   email: String!
-  followerCount: Int!
-  followingCount: Int!
-  id: Int!
-  likes(input: PaginationInput): FragranceVoteConnection!
-  reviews(input: PaginationInput): FragranceReviewConnection!
+  id: ID!
   username: String!
-}
-
-input VoteOnAccordInput {
-  accordId: Int!
-  fragranceId: Int!
-  vote: Boolean
-}
-
-input VoteOnFragranceInput {
-  fragranceId: Int!
-  vote: Boolean
-}
-
-input VoteOnNoteInput {
-  fragranceId: Int!
-  layer: NoteLayer!
-  noteId: Int!
-  vote: Boolean
-}
-
-input VoteOnReviewInput {
-  reviewId: Int!
-  vote: Boolean
-}
-
-input VoteOnTraitInput {
-  fragranceTraitId: Int!
-  vote: Float!
-}
-
-input VotePaginationInput {
-  after: String
-  first: Int
-  sort: VoteSortByInput
-}
-
-enum VoteSortBy {
-  ID
-  UPDATED
-  VOTES
-}
-
-input VoteSortByInput {
-  by: VoteSortBy
-  direction: SortDirection
-}
-
-type VoteSummary {
-  dislikesCount: Int!
-  likesCount: Int!
-  myVote: Boolean
-  voteScore: Int!
 }

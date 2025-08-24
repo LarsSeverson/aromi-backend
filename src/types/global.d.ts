@@ -11,23 +11,15 @@ export interface Env {
   DB_NAME: string
   DB_PORT: string
 
+  COGNITO_USER_POOL_ID: string
+  COGNITO_CLIENT_ID: string
+  COGNITO_JWKS_URI: string
+
   AWS_REGION: string
   AWS_ACCESS_KEY_ID: string
   AWS_SECRET_ACCESS_KEY: string
 
   S3_BUCKET: string
-
-  COGNITO_CLIENT_ID: string
-  COGNITO_USER_POOL_ID: string
-
-  JWKS_URI: string
-
-  CLOUDFRONT_DOMAIN: string
-  CLOUDFRONT_KEY_PAIR_ID: string
-  CLOUDFRONT_PRIVATE_KEY: string
-
-  MEILISEARCH_URL: string
-  MEILISEARCH_API_KEY: string
 }
 
 declare global {

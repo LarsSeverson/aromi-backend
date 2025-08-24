@@ -1,0 +1,40 @@
+type User {
+  id: ID!
+  email: String!
+  username: String!
+
+  avatarSrc: String
+  avatarStatus: AvatarStatus!
+}
+
+type UpdateUserAvatarResult {
+  avatarId: ID!
+  uploadUrl: String!
+  contentType: String!
+}
+
+extend type Query {
+  me: User!
+  user(id: ID!): User!
+}
+
+extend type Mutation {
+  updateUser(input: UpdateUserInput!): User!
+  updateUserAvatar(input: UpdateUserAvatarInput!): UpdateUserAvatarResult!
+}
+
+input UpdateUserInput {
+  id: ID!
+  username: String
+}
+
+input UpdateUserAvatarInput {
+  contentType: String!
+}
+
+enum AvatarStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}

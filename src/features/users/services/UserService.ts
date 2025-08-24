@@ -1,0 +1,9 @@
+import { type DataSources } from '@src/datasources'
+import { TableService } from '@src/services/TableService'
+import { type UserRow } from '../types'
+
+export class UserService extends TableService<'users', UserRow> {
+  constructor (sources: DataSources) {
+    super(sources, 'users')
+  }
+}
