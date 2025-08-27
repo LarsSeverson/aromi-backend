@@ -42,31 +42,10 @@ export class FragranceDraftImageMutationResolvers extends BaseResolver<MutationR
         )
         .andThen(() => fragranceDrafts
           .images
-          .softDeleteOne(
-            eb => eb.and([
-              eb('fragranceDraftImages.draftId', '=', id),
-              eb('fragranceDraftImages.status', '=', 'ready')
-            ])
-          )
-        )
-        .orElse(error => {
-          if (error.status === 404) return okAsync(null)
-          return errAsync(error)
-        })
-        .andThen(oldRow => fragranceDrafts
-          .images
           .create(values)
-          .map(newRow => ({ oldRow, newRow }))
         )
       )
-      .andThrough(({ oldRow }) => {
-        if (oldRow == null) return okAsync()
-
-        return assets
-          .deleteFromS3(oldRow.s3Key)
-          .orElse(() => okAsync())
-      })
-      .andThen(({ newRow }) => assets
+      .andThen(newRow => assets
         .getPresignedUrl({ key: newRow.s3Key, contentType, maxSizeBytes: contentSize })
         .map(presigned => ({ newRow, presigned }))
       )
@@ -88,7 +67,7 @@ export class FragranceDraftImageMutationResolvers extends BaseResolver<MutationR
 
     const { draftId, assetId } = input
     const { version } = parseSchema(FinalizeFragranceDraftImageSchema, input)
-    const { fragranceDrafts } = services
+    const { assets, fragranceDrafts } = services
 
     const values = {
       updatedAt: new Date().toISOString()
@@ -107,17 +86,41 @@ export class FragranceDraftImageMutationResolvers extends BaseResolver<MutationR
             version: eb(eb.ref('version'), '+', 1)
           })
         )
+        .andThen(draft => fragranceDrafts
+          .images
+          .softDeleteOne(
+            eb => eb.and([
+              eb('fragranceDraftImages.draftId', '=', draftId),
+              eb('fragranceDraftImages.status', '=', 'ready')
+            ])
+          )
+          .orElse(error => {
+            if (error.status === 404) {
+              return okAsync(null)
+            }
+            return errAsync(error)
+          })
+          .map(oldAsset => ({ oldAsset, draft }))
+        )
         .andThrough(() => fragranceDrafts
           .images
           .updateOne(
             eb => eb.and([
               eb('fragranceDraftImages.draftId', '=', draftId),
-              eb('fragranceDraftImages.id', '=', assetId)
+              eb('fragranceDraftImages.id', '=', assetId),
+              eb('fragranceDraftImages.status', '=', 'staged')
             ]),
             { status: 'ready' }
           )
         )
       )
+      .andThrough(({ oldAsset }) => {
+        if (oldAsset == null) return okAsync()
+        return assets
+          .deleteFromS3(oldAsset.s3Key)
+          .orElse(okAsync)
+      })
+      .map(({ draft }) => draft)
       .match(
         mapFragranceDraftRowToFragranceDraft,
         throwError

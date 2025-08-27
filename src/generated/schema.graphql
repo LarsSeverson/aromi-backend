@@ -157,6 +157,8 @@ type FragranceDraft {
   name: String
   releaseYear: Int
   status: FragranceStatus
+  trait(type: TraitTypeEnum!): FragranceDraftTrait!
+  traits: [FragranceDraftTrait!]!
   user: User!
   version: Int!
 }
@@ -186,6 +188,11 @@ type FragranceDraftImageConnection {
 type FragranceDraftImageEdge {
   cursor: String!
   node: FragranceDraftImage!
+}
+
+type FragranceDraftTrait {
+  selectedOption: TraitOption
+  traitType: TraitTypeEnum!
 }
 
 type FragranceEdge {
@@ -315,6 +322,43 @@ input StageAssetInput {
   contentType: String!
   fileName: String!
   id: ID!
+}
+
+type Trait {
+  myVote: TraitVote
+  options: [TraitOption!]!
+  stats: TraitStats
+  traitType: TraitTypeEnum!
+}
+
+type TraitOption {
+  id: ID!
+  label: String!
+  score: Int!
+}
+
+type TraitStats {
+  averageScore: Float!
+  distribution: [TraitVoteDistribution!]!
+  totalVotes: Int!
+}
+
+enum TraitTypeEnum {
+  APPEAL
+  BALANCE
+  COMPLEXITY
+  GENDER
+  LONGEVITY
+  PROJECTION
+}
+
+type TraitVote {
+  option: TraitOption!
+}
+
+type TraitVoteDistribution {
+  option: TraitOption!
+  votes: Int!
 }
 
 input UpdateFragranceDraftInput {

@@ -1,8 +1,8 @@
 import { type FragranceStatus, type Concentration } from '@src/generated/gql-types'
 
 export const mapGQLConcentrationToDBConcentration = (
-  concentration: Concentration
-): string => {
+  concentration: Concentration | null
+): string | null => {
   return concentration
 }
 

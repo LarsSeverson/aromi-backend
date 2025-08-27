@@ -20,7 +20,10 @@ export class FragranceDraftLoaders extends BaseLoader<FragranceDraftLoadersKey> 
     return new DataLoader<FragranceDraftLoadersKey, FragranceDraftImageRow | null>(async keys => {
       return await images
         .find(
-          eb => eb('fragranceDraftImages.draftId', 'in', keys)
+          eb => eb.and([
+            eb('fragranceDraftImages.status', '=', 'ready'),
+            eb('fragranceDraftImages.draftId', 'in', keys)
+          ])
         )
         .match(
           rows => {

@@ -4,6 +4,7 @@ import { AssetService } from '@src/features/assets/services/AssetService'
 import { AuthService } from '@src/features/auth/services/AuthService'
 import { FragranceDraftService } from '@src/features/fragranceDrafts/services/FragranceDraftService'
 import { NoteService } from '@src/features/notes/services/NoteService'
+import { TraitService } from '@src/features/traits/services/TraitService'
 import { UserService } from '@src/features/users/services/UserService'
 
 export class ApiServices {
@@ -14,6 +15,7 @@ export class ApiServices {
 
   fragranceDrafts: FragranceDraftService
 
+  traits: TraitService
   accords: AccordService
   notes: NoteService
 
@@ -25,6 +27,7 @@ export class ApiServices {
 
     this.fragranceDrafts = new FragranceDraftService(sources)
 
+    this.traits = new TraitService(sources)
     this.accords = new AccordService(sources)
     this.notes = new NoteService(sources)
   }

@@ -1,0 +1,4 @@
+type FragranceDraftTrait {
+  traitType: TraitTypeEnum!
+  selectedOption: TraitOption
+}

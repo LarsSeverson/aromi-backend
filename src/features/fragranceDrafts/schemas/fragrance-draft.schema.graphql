@@ -10,6 +10,9 @@ type FragranceDraft {
 
   image: FragranceDraftImage
 
+  traits: [FragranceDraftTrait!]!
+  trait(type: TraitTypeEnum!): FragranceDraftTrait!
+
   user: User!
 }
 

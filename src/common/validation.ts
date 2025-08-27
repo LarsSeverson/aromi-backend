@@ -22,3 +22,14 @@ export const removeNullish = <T extends Record<string, unknown>>(
         .filter(([, v]) => v != null)
     ) as Partial<T>
 }
+
+export const removeUndefined = <T extends Record<string, unknown>>(
+  input: T
+): Partial<T> => {
+  return Object
+    .fromEntries(
+      Object
+        .entries(input)
+        .filter(([, v]) => v !== undefined)
+    ) as Partial<T>
+}

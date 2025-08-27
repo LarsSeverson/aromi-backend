@@ -1,0 +1,36 @@
+enum TraitTypeEnum {
+  GENDER
+  LONGEVITY
+  PROJECTION
+  COMPLEXITY
+  BALANCE
+  APPEAL
+}
+
+type Trait {
+  traitType: TraitTypeEnum!
+  options: [TraitOption!]!
+  stats: TraitStats
+  myVote: TraitVote
+}
+
+type TraitOption {
+  id: ID!
+  label: String!
+  score: Int!
+}
+
+type TraitStats {
+  averageScore: Float!
+  totalVotes: Int!
+  distribution: [TraitVoteDistribution!]!
+}
+
+type TraitVoteDistribution {
+  option: TraitOption!
+  votes: Int!
+}
+
+type TraitVote {
+  option: TraitOption!
+}

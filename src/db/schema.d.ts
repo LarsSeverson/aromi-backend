@@ -9,8 +9,6 @@ export type AssetStatus = "ready" | "staged";
 
 export type AvatarStatus = "FAILED" | "PENDING" | "PROCESSING" | "READY";
 
-export type FragranceTraitEnum = "allure" | "balance" | "complexity" | "gender" | "longevity" | "sillage";
-
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
@@ -67,7 +65,7 @@ export interface FragranceDraftImage {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   draftId: string;
-  id: string;
+  id: Generated<string>;
   name: string;
   s3Key: string;
   sizeBytes: Int8;
@@ -75,14 +73,24 @@ export interface FragranceDraftImage {
 }
 
 export interface FragranceDraft {
-  concentration: string | null;
-  createdAt: Generated<Timestamp | null>;
-  fragranceStatus: string | null;
-  id: string;
+  concentration: Generated<string | null>;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  description: string | null;
+  fragranceStatus: Generated<string | null>;
+  id: Generated<string>;
   name: string | null;
-  updatedAt: Generated<Timestamp | null>;
+  releaseYear: number | null;
+  updatedAt: Generated<Timestamp>;
   userId: string;
   version: Generated<number>;
+}
+
+export interface FragranceDraftTrait {
+  draftId: string;
+  id: Generated<string>;
+  traitOptionId: string | null;
+  traitTypeId: string;
 }
 
 export interface FragranceImage {
@@ -137,14 +145,14 @@ export interface Fragrance {
   voteScore: Generated<number>;
 }
 
-export interface FragranceTrait {
-  createdAt: Timestamp;
+export interface FragranceTraitVote {
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: string;
   id: Generated<string>;
-  trait: FragranceTraitEnum;
-  updatedAt: Timestamp;
-  voteScore: Generated<number>;
+  traitOptionId: string;
+  traitTypeId: string;
+  userId: string;
 }
 
 export interface Note {
@@ -157,6 +165,18 @@ export interface Note {
   thumbnailS3Key: string;
   thumbnailUrl: string;
   updatedAt: Generated<Timestamp>;
+}
+
+export interface TraitOption {
+  id: Generated<string>;
+  label: string;
+  score: number;
+  traitTypeId: string;
+}
+
+export interface TraitType {
+  id: Generated<string>;
+  name: string;
 }
 
 export interface User {
@@ -181,11 +201,14 @@ export interface DB {
   fragranceCollections: FragranceCollection;
   fragranceDraftImages: FragranceDraftImage;
   fragranceDrafts: FragranceDraft;
+  fragranceDraftTraits: FragranceDraftTrait;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
   fragrances: Fragrance;
-  fragranceTraits: FragranceTrait;
+  fragranceTraitVotes: FragranceTraitVote;
   notes: Note;
+  traitOptions: TraitOption;
+  traitTypes: TraitType;
   users: User;
 }
