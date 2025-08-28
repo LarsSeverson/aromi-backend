@@ -150,6 +150,7 @@ type FragranceConnection {
 }
 
 type FragranceDraft {
+  accords: [Accord!]!
   concentration: Concentration
   description: String
   id: ID!
@@ -243,6 +244,8 @@ type Mutation {
   logOut: Boolean!
   refresh: AuthTokenPayload
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
+  setFragranceDraftAccords(input: SetFragranceDraftAccordsInput!): FragranceDraft!
+  setFragranceDraftTrait(input: SetFragranceDraftTraitInput!): FragranceDraft!
   signUp(input: SignUpInput!): AuthDeliveryResult!
   stageFragranceDraftImage(input: StageAssetInput!): PresignedUpload!
   updateFragranceDraft(input: UpdateFragranceDraftInput!): FragranceDraft!
@@ -305,6 +308,19 @@ type Query {
 
 input ResendSignUpCodeInput {
   email: String!
+}
+
+input SetFragranceDraftAccordsInput {
+  accordIds: [ID!]!
+  draftId: ID!
+  version: Int!
+}
+
+input SetFragranceDraftTraitInput {
+  draftId: ID!
+  score: Int!
+  traitType: TraitTypeEnum!
+  version: Int!
 }
 
 input SignUpInput {

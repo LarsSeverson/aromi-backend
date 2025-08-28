@@ -185,6 +185,7 @@ export type FragranceConnection = {
 
 export type FragranceDraft = {
   __typename?: 'FragranceDraft';
+  accords: Array<Accord>;
   concentration?: Maybe<Concentration>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -293,6 +294,8 @@ export type Mutation = {
   logOut: Scalars['Boolean']['output'];
   refresh?: Maybe<AuthTokenPayload>;
   resendSignUpCode: AuthDeliveryResult;
+  setFragranceDraftAccords: FragranceDraft;
+  setFragranceDraftTrait: FragranceDraft;
   signUp: AuthDeliveryResult;
   stageFragranceDraftImage: PresignedUpload;
   updateFragranceDraft: FragranceDraft;
@@ -343,6 +346,16 @@ export type MutationLogInArgs = {
 
 export type MutationResendSignUpCodeArgs = {
   input: ResendSignUpCodeInput;
+};
+
+
+export type MutationSetFragranceDraftAccordsArgs = {
+  input: SetFragranceDraftAccordsInput;
+};
+
+
+export type MutationSetFragranceDraftTraitArgs = {
+  input: SetFragranceDraftTraitInput;
 };
 
 
@@ -457,6 +470,19 @@ export type QueryUserArgs = {
 
 export type ResendSignUpCodeInput = {
   email: Scalars['String']['input'];
+};
+
+export type SetFragranceDraftAccordsInput = {
+  accordIds: Array<Scalars['ID']['input']>;
+  draftId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type SetFragranceDraftTraitInput = {
+  draftId: Scalars['ID']['input'];
+  score: Scalars['Int']['input'];
+  traitType: TraitTypeEnum;
+  version: Scalars['Int']['input'];
 };
 
 export type SignUpInput = {
@@ -675,6 +701,8 @@ export type ResolversTypes = ResolversObject<{
   PresignedUpload: ResolverTypeWrapper<Partial<PresignedUpload>>;
   Query: ResolverTypeWrapper<{}>;
   ResendSignUpCodeInput: ResolverTypeWrapper<Partial<ResendSignUpCodeInput>>;
+  SetFragranceDraftAccordsInput: ResolverTypeWrapper<Partial<SetFragranceDraftAccordsInput>>;
+  SetFragranceDraftTraitInput: ResolverTypeWrapper<Partial<SetFragranceDraftTraitInput>>;
   SignUpInput: ResolverTypeWrapper<Partial<SignUpInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   StageAssetInput: ResolverTypeWrapper<Partial<StageAssetInput>>;
@@ -741,6 +769,8 @@ export type ResolversParentTypes = ResolversObject<{
   PresignedUpload: Partial<PresignedUpload>;
   Query: {};
   ResendSignUpCodeInput: Partial<ResendSignUpCodeInput>;
+  SetFragranceDraftAccordsInput: Partial<SetFragranceDraftAccordsInput>;
+  SetFragranceDraftTraitInput: Partial<SetFragranceDraftTraitInput>;
   SignUpInput: Partial<SignUpInput>;
   StageAssetInput: Partial<StageAssetInput>;
   String: Partial<Scalars['String']['output']>;
@@ -831,6 +861,7 @@ export type FragranceConnectionResolvers<ContextType = ApiContext, ParentType ex
 }>;
 
 export type FragranceDraftResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraft'] = ResolversParentTypes['FragranceDraft']> = ResolversObject<{
+  accords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
   concentration?: Resolver<Maybe<ResolversTypes['Concentration']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -926,6 +957,8 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthTokenPayload']>, ParentType, ContextType>;
   resendSignUpCode?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpCodeArgs, 'input'>>;
+  setFragranceDraftAccords?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationSetFragranceDraftAccordsArgs, 'input'>>;
+  setFragranceDraftTrait?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationSetFragranceDraftTraitArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   stageFragranceDraftImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageFragranceDraftImageArgs, 'input'>>;
   updateFragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationUpdateFragranceDraftArgs, 'input'>>;

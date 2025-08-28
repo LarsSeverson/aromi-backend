@@ -2,7 +2,7 @@ import { ApiError, throwError } from '@src/common/error'
 import { type FragranceDraftResolvers } from '@src/generated/gql-types'
 import { BaseResolver } from '@src/resolvers/BaseResolver'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
-import { mapFragranceDraftImageRowToFragranceImage } from '../utils/mappers'
+import { mapDraftTraitResultToDraftTrait, mapFragranceDraftImageRowToFragranceImage } from '../utils/mappers'
 import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers'
 
 export class FragranceDraftFieldResolvers extends BaseResolver<FragranceDraftResolvers> {
@@ -83,10 +83,52 @@ export class FragranceDraftFieldResolvers extends BaseResolver<FragranceDraftRes
           )
       })
       .match(
-        option => ({
+        optionRow => ({
           traitType: type,
-          selectedOption: option
+          selectedOption: optionRow
         }),
+        throwError
+      )
+  }
+
+  traits: FragranceDraftResolvers['traits'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { services } = context
+
+    const { fragranceDrafts } = services
+
+    return await fragranceDrafts
+      .traits
+      .getDraftTraits(id)
+      .match(
+        results => results.map(mapDraftTraitResultToDraftTrait),
+        throwError
+      )
+  }
+
+  accords: FragranceDraftResolvers['accords'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { services } = context
+
+    const { fragranceDrafts } = services
+
+    return await fragranceDrafts
+      .accords
+      .findAccords(
+        eb => eb('fragranceDraftAccords.draftId', '=', id)
+      )
+      .match(
+        rows => rows,
         throwError
       )
   }
@@ -94,7 +136,9 @@ export class FragranceDraftFieldResolvers extends BaseResolver<FragranceDraftRes
   getResolvers (): FragranceDraftResolvers {
     return {
       image: this.image,
-      trait: this.trait
+      trait: this.trait,
+      traits: this.traits,
+      accords: this.accords
     }
   }
 }

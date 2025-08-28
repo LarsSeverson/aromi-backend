@@ -6,6 +6,7 @@ import { type DB } from '@src/db/schema'
 import { ApiService } from './ApiService'
 import { type DataSources } from '@src/datasources'
 import { type PaginationInput } from '@src/factories/PaginationFactory'
+import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
   pagination?: PaginationInput<C>
@@ -52,7 +53,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   }
 
   create (
-    values: Partial<R>,
+    values: InsertExpression<DB, T>,
     extend?: ExtendInsertFn<T, R>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
@@ -94,7 +95,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   }
 
   upsert (
-    values: Partial<R>,
+    values: InsertExpression<DB, T>,
     onConflict: OnConflictFn<T>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
@@ -175,7 +176,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
 
   findOrCreate (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: Partial<R>
+    values: InsertExpression<DB, T>
   ): ResultAsync<R, ApiError> {
     return this
       .findOne(where)

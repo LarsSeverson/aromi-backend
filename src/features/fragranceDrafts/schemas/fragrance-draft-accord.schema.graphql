@@ -1,0 +1,9 @@
+input SetFragranceDraftAccordsInput {
+  draftId: ID!
+  version: Int!
+  accordIds: [ID!]!
+}
+
+extend type Mutation {
+  setFragranceDraftAccords(input: SetFragranceDraftAccordsInput!): FragranceDraft!
+}

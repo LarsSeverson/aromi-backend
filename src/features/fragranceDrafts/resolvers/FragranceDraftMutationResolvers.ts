@@ -17,10 +17,8 @@ export class FragranceDraftMutationResolvers extends BaseResolver<MutationResolv
     const { fragranceDrafts } = services
     const values = mapCreateFragranceDraftInputToRow(input)
 
-    values.userId = me.id
-
     return await fragranceDrafts
-      .create(values)
+      .create({ ...values, userId: me.id })
       .match(
         mapFragranceDraftRowToFragranceDraft,
         throwError

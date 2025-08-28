@@ -1,8 +1,9 @@
 import { parseSchema, removeNullish } from '@src/common/validation'
 import { CreateFragranceDraftSchema, UpdateFragranceDraftSchema } from '@src/features/fragranceDrafts/resolvers/validation'
-import type { FragranceDraftImageRow, FragranceDraftRow, IFragranceDraftImageSummary, IFragranceDraftSummary } from '@src/features/fragranceDrafts/types'
-import type { CreateFragranceDraftInput, UpdateFragranceDraftInput } from '@src/generated/gql-types'
+import type { DraftTraitResult, FragranceDraftImageRow, FragranceDraftRow, IFragranceDraftImageSummary, IFragranceDraftSummary } from '@src/features/fragranceDrafts/types'
+import type { CreateFragranceDraftInput, FragranceDraftTrait, UpdateFragranceDraftInput } from '@src/generated/gql-types'
 import { mapGQLStatusToDBStatus, mapGQLConcentrationToDBConcentration, mapDBStatusToGQLStatus, mapDBConcentrationToGQLConcentration } from '../../fragrances/utils/mappers'
+import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers'
 
 export const mapCreateFragranceDraftInputToRow = (
   input: CreateFragranceDraftInput
@@ -64,4 +65,17 @@ export const mapFragranceDraftImageRowToFragranceImage = (
   const { id, contentType } = row
 
   return { id, type: contentType, url: '' }
+}
+
+export const mapDraftTraitResultToDraftTrait = (
+  result: DraftTraitResult
+): FragranceDraftTrait => {
+  const { traitTypeName, optionId, optionLabel, optionScore } = result
+
+  const traitType = DBTraitToGQLTrait[traitTypeName]
+  const selectedOption = (optionId != null && optionLabel != null && optionScore != null)
+    ? { id: optionId, label: optionLabel, score: optionScore }
+    : null
+
+  return { traitType, selectedOption }
 }

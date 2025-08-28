@@ -60,6 +60,14 @@ export interface FragranceCollection {
   userId: string;
 }
 
+export interface FragranceDraftAccord {
+  accordId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  draftId: string;
+  id: Generated<string>;
+}
+
 export interface FragranceDraftImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
@@ -199,6 +207,7 @@ export interface DB {
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceCollections: FragranceCollection;
+  fragranceDraftAccords: FragranceDraftAccord;
   fragranceDraftImages: FragranceDraftImage;
   fragranceDrafts: FragranceDraft;
   fragranceDraftTraits: FragranceDraftTrait;

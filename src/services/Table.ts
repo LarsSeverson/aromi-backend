@@ -74,15 +74,13 @@ export class Table<T extends keyof DB, R> {
   }
 
   create (
-    values: Partial<R>,
+    values: InsertExpression<DB, T>,
     extend?: ExtendInsertFn<T, R>
   ): InsertQueryBuilder<DB, T, R> {
-    const kyValues = values as InsertExpression<DB, T>
-
     const qb = this
       .db
       .insertInto(this.table)
-      .values(kyValues)
+      .values(values)
       .returningAll() as InsertQueryBuilder<DB, T, R>
 
     return extend != null ? extend(qb) : qb
@@ -107,15 +105,13 @@ export class Table<T extends keyof DB, R> {
   }
 
   upsert (
-    values: Partial<R>,
+    values: InsertExpression<DB, T>,
     onConflict: OnConflictFn<T>
   ): InsertQueryBuilder<DB, T, R> {
-    const kyValues = values as InsertExpression<DB, T>
-
     const qb = this
       .db
       .insertInto(this.table)
-      .values(kyValues)
+      .values(values)
       .onConflict(onConflict)
       .returningAll()
 

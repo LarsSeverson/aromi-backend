@@ -1,9 +1,11 @@
 import { AccordQueryResolvers } from '@src/features/accords/resolvers/AccordQueryResolvers'
 import { AuthMutationResolvers } from '@src/features/auth/resolvers/AuthMutationResolvers'
+import { FragranceDraftAccordMutationResolvers } from '@src/features/fragranceDrafts/resolvers/FragranceDraftAccordMutationResolvers'
 import { FragranceDraftFieldResolvers } from '@src/features/fragranceDrafts/resolvers/FragranceDraftFieldResolvers'
 import { FragranceDraftImageMutationResolvers } from '@src/features/fragranceDrafts/resolvers/FragranceDraftImageMutationResolvers'
 import { FragranceDraftMutationResolvers } from '@src/features/fragranceDrafts/resolvers/FragranceDraftMutationResolvers'
 import { FragranceDraftQueryResolvers } from '@src/features/fragranceDrafts/resolvers/FragranceDraftQueryResolvers'
+import { FragranceDraftTraitMutationResolvers } from '@src/features/fragranceDrafts/resolvers/FragraneDraftTraitMutationResolvers'
 import { NoteQueryResolvers } from '@src/features/notes/resolvers/NoteQueryResolvers'
 import { UserMutationResolvers } from '@src/features/users/resolvers/UserMutationResolvers'
 import { UserQueryResolvers } from '@src/features/users/resolvers/UserQueryResolvers'
@@ -16,9 +18,12 @@ const userQueries = new UserQueryResolvers()
 const userMutations = new UserMutationResolvers()
 
 const fragranceDraftQueries = new FragranceDraftQueryResolvers()
+const fragranceDraftFieldResolvers = new FragranceDraftFieldResolvers()
+
 const fragranceDraftMutations = new FragranceDraftMutationResolvers()
 const fragranceDraftImageMutations = new FragranceDraftImageMutationResolvers()
-const fragranceDraftFieldResolvers = new FragranceDraftFieldResolvers()
+const fragranceDraftTraitMutations = new FragranceDraftTraitMutationResolvers()
+const fragranceDraftAccordMutations = new FragranceDraftAccordMutationResolvers()
 
 const accordQueries = new AccordQueryResolvers()
 
@@ -38,8 +43,11 @@ export const ApiResolvers: Resolvers = {
   Mutation: {
     ...authMutations.getResolvers(),
     ...userMutations.getResolvers(),
+
     ...fragranceDraftMutations.getResolvers(),
-    ...fragranceDraftImageMutations.getResolvers()
+    ...fragranceDraftImageMutations.getResolvers(),
+    ...fragranceDraftTraitMutations.getResolvers(),
+    ...fragranceDraftAccordMutations.getResolvers()
   },
 
   FragranceDraft: {

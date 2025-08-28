@@ -27,12 +27,41 @@ export class FragranceDraftTraitService extends TableService<'fragranceDraftTrai
           .leftJoin('traitOptions as to2', 'to2.id', 'fdt.traitOptionId')
           .select([
             'tt.id as traitTypeId',
+            'tt.name as traitTypeName',
             'to2.id as optionId',
             'to2.label as optionLabel',
             'to2.score as optionScore'
           ])
           .where('tt.name', '=', traitType)
           .executeTakeFirst(),
+        error => ApiError.fromDatabase(error)
+      )
+  }
+
+  getDraftTraits (
+    draftId: string
+  ): ResultAsync<DraftTraitResult[], ApiError> {
+    const { db } = this.sources
+
+    return ResultAsync
+      .fromPromise(
+        db
+          .selectFrom('traitTypes as tt')
+          .leftJoin('fragranceDraftTraits as fdt', join =>
+            join
+              .onRef('fdt.traitTypeId', '=', 'tt.id')
+              .on('fdt.draftId', '=', draftId)
+          )
+          .leftJoin('traitOptions as to2', 'to2.id', 'fdt.traitOptionId')
+          .select([
+            'tt.id as traitTypeId',
+            'tt.name as traitTypeName',
+            'to2.id as optionId',
+            'to2.label as optionLabel',
+            'to2.score as optionScore'
+          ])
+          .orderBy('tt.name')
+          .execute(),
         error => ApiError.fromDatabase(error)
       )
   }
