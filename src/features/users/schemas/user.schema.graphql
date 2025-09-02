@@ -12,6 +12,9 @@ type User {
 
   avatarSrc: String
   avatarStatus: AvatarStatus!
+
+  fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
+  brandRequests(input: RequestPaginationInput): BrandRequestConnection!
 }
 
 input UpdateUserInput {

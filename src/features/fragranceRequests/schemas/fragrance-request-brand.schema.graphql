@@ -1,0 +1,11 @@
+input SetFragranceRequestBrandInput {
+  requestId: ID!
+  version: Int!
+  brandId: ID
+}
+
+extend type Mutation {
+  setFragranceRequestBrand(
+    input: SetFragranceRequestBrandInput!
+  ): FragranceRequest!
+}

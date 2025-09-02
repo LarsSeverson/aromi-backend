@@ -1,0 +1,21 @@
+enum RequestStatus {
+  DRAFT
+  PENDING
+  REJECTED
+  ACCEPTED
+}
+
+enum RequestSortBy {
+  RECENT
+}
+
+input RequestSortInput {
+  direction: SortDirection
+  by: RequestSortBy
+}
+
+input RequestPaginationInput {
+  first: Int
+  after: String
+  sort: RequestSortInput
+}

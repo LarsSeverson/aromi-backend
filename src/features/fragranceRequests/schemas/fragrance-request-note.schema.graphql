@@ -1,0 +1,10 @@
+input SetFragranceRequestNotesInput {
+  requestId: ID!
+  version: Int!
+  layer: NoteLayer!
+  noteIds: [ID!]!
+}
+
+extend type Mutation {
+  setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
+}

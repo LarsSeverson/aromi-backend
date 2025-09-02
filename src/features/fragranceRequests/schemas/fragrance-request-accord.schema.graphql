@@ -1,0 +1,11 @@
+input SetFragranceRequestAccordsInput {
+  requestId: ID!
+  version: Int!
+  accordIds: [ID!]!
+}
+
+extend type Mutation {
+  setFragranceRequestAccords(
+    input: SetFragranceRequestAccordsInput!
+  ): FragranceRequest!
+}

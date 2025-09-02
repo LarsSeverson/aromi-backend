@@ -1,5 +1,10 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { IFragranceDraftSummary, IFragranceDraftImageSummary } from '../features/fragranceDrafts/types';
+import { IUserSummary } from '../features/users/types';
+import { IBrandSummary } from '../features/brands/types';
+import { IFragranceRequestSummary } from '../features/fragranceRequests/types';
+import { IBrandRequestSummary } from '../features/brandRequests/types';
+import { IAccordRequestSummary } from '../features/accordRequests/types';
+import { INoteRequestSummary } from '../features/noteRequests/types';
 import { ApiContext } from '@src/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -44,6 +49,50 @@ export type AccordPaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<AccordSortInput>;
+};
+
+export type AccordRequest = {
+  __typename?: 'AccordRequest';
+  color?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<AccordRequestImage>;
+  name?: Maybe<Scalars['String']['output']>;
+  requestStatus: RequestStatus;
+  user: User;
+  version: Scalars['Int']['output'];
+  votes: VoteInfo;
+};
+
+export type AccordRequestConnection = {
+  __typename?: 'AccordRequestConnection';
+  edges: Array<AccordRequestEdge>;
+  pageInfo: PageInfo;
+};
+
+export type AccordRequestEdge = {
+  __typename?: 'AccordRequestEdge';
+  cursor: Scalars['String']['output'];
+  node: AccordRequest;
+};
+
+export type AccordRequestImage = {
+  __typename?: 'AccordRequestImage';
+  id: Scalars['ID']['output'];
+  type: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+export type AccordRequestImageConnection = {
+  __typename?: 'AccordRequestImageConnection';
+  edges: Array<AccordRequestImageEdge>;
+  pageInfo: PageInfo;
+};
+
+export type AccordRequestImageEdge = {
+  __typename?: 'AccordRequestImageEdge';
+  cursor: Scalars['String']['output'];
+  node: AccordRequestImage;
 };
 
 export const AccordSortBy = {
@@ -93,6 +142,57 @@ export const AvatarStatus = {
 } as const;
 
 export type AvatarStatus = typeof AvatarStatus[keyof typeof AvatarStatus];
+export type Brand = {
+  __typename?: 'Brand';
+  id: Scalars['ID']['output'];
+  image: Asset;
+  name: Scalars['String']['output'];
+};
+
+export type BrandRequest = {
+  __typename?: 'BrandRequest';
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<BrandRequestImage>;
+  name?: Maybe<Scalars['String']['output']>;
+  requestStatus: RequestStatus;
+  user: User;
+  version: Scalars['Int']['output'];
+  votes: VoteInfo;
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type BrandRequestConnection = {
+  __typename?: 'BrandRequestConnection';
+  edges: Array<BrandRequestEdge>;
+  pageInfo: PageInfo;
+};
+
+export type BrandRequestEdge = {
+  __typename?: 'BrandRequestEdge';
+  cursor: Scalars['String']['output'];
+  node: BrandRequest;
+};
+
+export type BrandRequestImage = {
+  __typename?: 'BrandRequestImage';
+  id: Scalars['ID']['output'];
+  type: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+export type BrandRequestImageConnection = {
+  __typename?: 'BrandRequestImageConnection';
+  edges: Array<BrandRequestImageEdge>;
+  pageInfo: PageInfo;
+};
+
+export type BrandRequestImageEdge = {
+  __typename?: 'BrandRequestImageEdge';
+  cursor: Scalars['String']['output'];
+  node: BrandRequestImage;
+};
+
 export const Concentration = {
   BodyMist: 'BODY_MIST',
   EauFraiche: 'EAU_FRAICHE',
@@ -116,7 +216,19 @@ export type ConfirmSignUpInput = {
   email: Scalars['String']['input'];
 };
 
-export type CreateFragranceDraftInput = {
+export type CreateAccordRequestInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateBrandRequestInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateFragranceRequestInput = {
   concentration?: InputMaybe<Concentration>;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -124,40 +236,73 @@ export type CreateFragranceDraftInput = {
   status?: InputMaybe<FragranceStatus>;
 };
 
-export type DeleteFragranceDraftImageInput = {
+export type CreateNoteRequestInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DeleteAccordRequestImageInput = {
   assetId: Scalars['ID']['input'];
-  draftId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
   version: Scalars['Int']['input'];
 };
 
-export type DeleteFragranceDraftInput = {
+export type DeleteAccordRequestInput = {
   id: Scalars['ID']['input'];
 };
 
-export type Draft = {
-  id: Scalars['ID']['output'];
-  user: User;
-};
-
-export type DraftPaginationInput = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<DraftSortInput>;
-};
-
-export const DraftSortBy = {
-  Recent: 'RECENT'
-} as const;
-
-export type DraftSortBy = typeof DraftSortBy[keyof typeof DraftSortBy];
-export type DraftSortInput = {
-  by?: InputMaybe<DraftSortBy>;
-  direction?: InputMaybe<SortDirection>;
-};
-
-export type FinalizeFragranceDraftImageInput = {
+export type DeleteBrandRequestImageInput = {
   assetId: Scalars['ID']['input'];
-  draftId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type DeleteBrandRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type DeleteFragranceRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type DeleteFragranceRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type DeleteNoteRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type DeleteNoteRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type FinalizeAccordRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type FinalizeBrandRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type FinalizeFragranceRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type FinalizeNoteRequestImageInput = {
+  assetId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
   version: Scalars['Int']['input'];
 };
 
@@ -181,65 +326,6 @@ export type FragranceConnection = {
   __typename?: 'FragranceConnection';
   edges: Array<FragranceEdge>;
   pageInfo: PageInfo;
-};
-
-export type FragranceDraft = {
-  __typename?: 'FragranceDraft';
-  accords: Array<Accord>;
-  concentration?: Maybe<Concentration>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  image?: Maybe<FragranceDraftImage>;
-  name?: Maybe<Scalars['String']['output']>;
-  releaseYear?: Maybe<Scalars['Int']['output']>;
-  status?: Maybe<FragranceStatus>;
-  trait: FragranceDraftTrait;
-  traits: Array<FragranceDraftTrait>;
-  user: User;
-  version: Scalars['Int']['output'];
-};
-
-
-export type FragranceDraftTraitArgs = {
-  type: TraitTypeEnum;
-};
-
-export type FragranceDraftConnection = {
-  __typename?: 'FragranceDraftConnection';
-  edges: Array<FragranceDraftEdge>;
-  pageInfo: PageInfo;
-};
-
-export type FragranceDraftEdge = {
-  __typename?: 'FragranceDraftEdge';
-  cursor: Scalars['String']['output'];
-  node: FragranceDraft;
-};
-
-export type FragranceDraftImage = {
-  __typename?: 'FragranceDraftImage';
-  draft: FragranceDraft;
-  id: Scalars['ID']['output'];
-  type: Scalars['String']['output'];
-  url: Scalars['String']['output'];
-};
-
-export type FragranceDraftImageConnection = {
-  __typename?: 'FragranceDraftImageConnection';
-  edges: Array<FragranceDraftImageEdge>;
-  pageInfo: PageInfo;
-};
-
-export type FragranceDraftImageEdge = {
-  __typename?: 'FragranceDraftImageEdge';
-  cursor: Scalars['String']['output'];
-  node: FragranceDraftImage;
-};
-
-export type FragranceDraftTrait = {
-  __typename?: 'FragranceDraftTrait';
-  selectedOption?: Maybe<TraitOption>;
-  traitType: TraitTypeEnum;
 };
 
 export type FragranceEdge = {
@@ -269,6 +355,73 @@ export type FragranceImageEdge = {
   node: FragranceImage;
 };
 
+export type FragranceRequest = {
+  __typename?: 'FragranceRequest';
+  accords: Array<Accord>;
+  brand?: Maybe<Brand>;
+  concentration?: Maybe<Concentration>;
+  description?: Maybe<Scalars['String']['output']>;
+  fragranceStatus?: Maybe<FragranceStatus>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<FragranceRequestImage>;
+  name?: Maybe<Scalars['String']['output']>;
+  notes: Array<Note>;
+  releaseYear?: Maybe<Scalars['Int']['output']>;
+  requestStatus: RequestStatus;
+  trait: FragranceRequestTrait;
+  traits: Array<FragranceRequestTrait>;
+  user: User;
+  version: Scalars['Int']['output'];
+  votes: VoteInfo;
+};
+
+
+export type FragranceRequestNotesArgs = {
+  layer: NoteLayer;
+};
+
+
+export type FragranceRequestTraitArgs = {
+  type: TraitTypeEnum;
+};
+
+export type FragranceRequestConnection = {
+  __typename?: 'FragranceRequestConnection';
+  edges: Array<FragranceRequestEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceRequestEdge = {
+  __typename?: 'FragranceRequestEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceRequest;
+};
+
+export type FragranceRequestImage = {
+  __typename?: 'FragranceRequestImage';
+  id: Scalars['ID']['output'];
+  type: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type FragranceRequestImageConnection = {
+  __typename?: 'FragranceRequestImageConnection';
+  edges: Array<FragranceRequestImageEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FragranceRequestImageEdge = {
+  __typename?: 'FragranceRequestImageEdge';
+  cursor: Scalars['String']['output'];
+  node: FragranceRequestImage;
+};
+
+export type FragranceRequestTrait = {
+  __typename?: 'FragranceRequestTrait';
+  selectedOption: TraitOption;
+  traitType: TraitTypeEnum;
+};
+
 export const FragranceStatus = {
   Current: 'CURRENT',
   Discontinued: 'DISCONTINUED',
@@ -285,22 +438,50 @@ export type Mutation = {
   __typename?: 'Mutation';
   confirmForgotPassword: Scalars['Boolean']['output'];
   confirmSignUp: Scalars['Boolean']['output'];
-  createFragranceDraft: FragranceDraft;
-  deleteFragranceDraft: FragranceDraft;
-  deleteFragranceDraftImage: FragranceDraft;
-  finalizeFragranceDraftImage: FragranceDraft;
+  createAccordRequest: AccordRequest;
+  createBrandRequest: BrandRequest;
+  createFragranceRequest: FragranceRequest;
+  createNoteRequest: NoteRequest;
+  deleteAccordRequest: AccordRequest;
+  deleteAccordRequestImage: AccordRequest;
+  deleteBrandRequest: BrandRequest;
+  deleteBrandRequestImage: BrandRequest;
+  deleteFragranceRequest: FragranceRequest;
+  deleteFragranceRequestImage: FragranceRequest;
+  deleteNoteRequest: NoteRequest;
+  deleteNoteRequestImage: NoteRequest;
+  finalizeAccordRequestImage: AccordRequest;
+  finalizeBrandRequestImage: BrandRequest;
+  finalizeFragranceRequestImage: FragranceRequest;
+  finalizeNoteRequestImage: NoteRequest;
   forgotPassword: AuthDeliveryResult;
   logIn: AuthTokenPayload;
   logOut: Scalars['Boolean']['output'];
   refresh?: Maybe<AuthTokenPayload>;
   resendSignUpCode: AuthDeliveryResult;
-  setFragranceDraftAccords: FragranceDraft;
-  setFragranceDraftTrait: FragranceDraft;
+  setFragranceRequestAccords: FragranceRequest;
+  setFragranceRequestBrand: FragranceRequest;
+  setFragranceRequestNotes: FragranceRequest;
+  setFragranceRequestTrait: FragranceRequest;
   signUp: AuthDeliveryResult;
-  stageFragranceDraftImage: PresignedUpload;
-  updateFragranceDraft: FragranceDraft;
+  stageAccordRequestImage: PresignedUpload;
+  stageBrandRequestImage: PresignedUpload;
+  stageFragranceRequestImage: PresignedUpload;
+  stageNoteRequestImage: PresignedUpload;
+  submitAccordRequest: AccordRequest;
+  submitBrandRequest: BrandRequest;
+  submitFragranceRequest: FragranceRequest;
+  submitNoteRequest: NoteRequest;
+  updateAccordRequest: AccordRequest;
+  updateBrandRequest: BrandRequest;
+  updateFragranceRequest: FragranceRequest;
+  updateNoteRequest: NoteRequest;
   updateUser: User;
   updateUserAvatar: PresignedUpload;
+  voteOnAccordRequest: AccordRequest;
+  voteOnBrandRequest: BrandRequest;
+  voteOnFragranceRequest: FragranceRequest;
+  voteOnNoteRequest: NoteRequest;
 };
 
 
@@ -314,23 +495,83 @@ export type MutationConfirmSignUpArgs = {
 };
 
 
-export type MutationCreateFragranceDraftArgs = {
-  input: CreateFragranceDraftInput;
+export type MutationCreateAccordRequestArgs = {
+  input: CreateAccordRequestInput;
 };
 
 
-export type MutationDeleteFragranceDraftArgs = {
-  input: DeleteFragranceDraftInput;
+export type MutationCreateBrandRequestArgs = {
+  input: CreateBrandRequestInput;
 };
 
 
-export type MutationDeleteFragranceDraftImageArgs = {
-  input: DeleteFragranceDraftImageInput;
+export type MutationCreateFragranceRequestArgs = {
+  input: CreateFragranceRequestInput;
 };
 
 
-export type MutationFinalizeFragranceDraftImageArgs = {
-  input: FinalizeFragranceDraftImageInput;
+export type MutationCreateNoteRequestArgs = {
+  input: CreateNoteRequestInput;
+};
+
+
+export type MutationDeleteAccordRequestArgs = {
+  input: DeleteAccordRequestInput;
+};
+
+
+export type MutationDeleteAccordRequestImageArgs = {
+  input: DeleteAccordRequestImageInput;
+};
+
+
+export type MutationDeleteBrandRequestArgs = {
+  input: DeleteBrandRequestInput;
+};
+
+
+export type MutationDeleteBrandRequestImageArgs = {
+  input: DeleteBrandRequestImageInput;
+};
+
+
+export type MutationDeleteFragranceRequestArgs = {
+  input: DeleteFragranceRequestInput;
+};
+
+
+export type MutationDeleteFragranceRequestImageArgs = {
+  input: DeleteFragranceRequestImageInput;
+};
+
+
+export type MutationDeleteNoteRequestArgs = {
+  input: DeleteNoteRequestInput;
+};
+
+
+export type MutationDeleteNoteRequestImageArgs = {
+  input: DeleteNoteRequestImageInput;
+};
+
+
+export type MutationFinalizeAccordRequestImageArgs = {
+  input: FinalizeAccordRequestImageInput;
+};
+
+
+export type MutationFinalizeBrandRequestImageArgs = {
+  input: FinalizeBrandRequestImageInput;
+};
+
+
+export type MutationFinalizeFragranceRequestImageArgs = {
+  input: FinalizeFragranceRequestImageInput;
+};
+
+
+export type MutationFinalizeNoteRequestImageArgs = {
+  input: FinalizeNoteRequestImageInput;
 };
 
 
@@ -349,13 +590,23 @@ export type MutationResendSignUpCodeArgs = {
 };
 
 
-export type MutationSetFragranceDraftAccordsArgs = {
-  input: SetFragranceDraftAccordsInput;
+export type MutationSetFragranceRequestAccordsArgs = {
+  input: SetFragranceRequestAccordsInput;
 };
 
 
-export type MutationSetFragranceDraftTraitArgs = {
-  input: SetFragranceDraftTraitInput;
+export type MutationSetFragranceRequestBrandArgs = {
+  input: SetFragranceRequestBrandInput;
+};
+
+
+export type MutationSetFragranceRequestNotesArgs = {
+  input: SetFragranceRequestNotesInput;
+};
+
+
+export type MutationSetFragranceRequestTraitArgs = {
+  input: SetFragranceRequestTraitInput;
 };
 
 
@@ -364,13 +615,63 @@ export type MutationSignUpArgs = {
 };
 
 
-export type MutationStageFragranceDraftImageArgs = {
+export type MutationStageAccordRequestImageArgs = {
   input: StageAssetInput;
 };
 
 
-export type MutationUpdateFragranceDraftArgs = {
-  input: UpdateFragranceDraftInput;
+export type MutationStageBrandRequestImageArgs = {
+  input: StageAssetInput;
+};
+
+
+export type MutationStageFragranceRequestImageArgs = {
+  input: StageAssetInput;
+};
+
+
+export type MutationStageNoteRequestImageArgs = {
+  input: StageAssetInput;
+};
+
+
+export type MutationSubmitAccordRequestArgs = {
+  input: SubmitAccordRequestInput;
+};
+
+
+export type MutationSubmitBrandRequestArgs = {
+  input: SubmitBrandRequestInput;
+};
+
+
+export type MutationSubmitFragranceRequestArgs = {
+  input: SubmitFragranceRequestInput;
+};
+
+
+export type MutationSubmitNoteRequestArgs = {
+  input: SubmitNoteRequestInput;
+};
+
+
+export type MutationUpdateAccordRequestArgs = {
+  input: UpdateAccordRequestInput;
+};
+
+
+export type MutationUpdateBrandRequestArgs = {
+  input: UpdateBrandRequestInput;
+};
+
+
+export type MutationUpdateFragranceRequestArgs = {
+  input: UpdateFragranceRequestInput;
+};
+
+
+export type MutationUpdateNoteRequestArgs = {
+  input: UpdateNoteRequestInput;
 };
 
 
@@ -381,6 +682,26 @@ export type MutationUpdateUserArgs = {
 
 export type MutationUpdateUserAvatarArgs = {
   input: StageAssetInput;
+};
+
+
+export type MutationVoteOnAccordRequestArgs = {
+  input: VoteOnAccordRequestInput;
+};
+
+
+export type MutationVoteOnBrandRequestArgs = {
+  input: VoteOnBrandRequestInput;
+};
+
+
+export type MutationVoteOnFragranceRequestArgs = {
+  input: VoteOnFragranceRequestInput;
+};
+
+
+export type MutationVoteOnNoteRequestArgs = {
+  input: VoteOnNoteRequestInput;
 };
 
 export type Note = {
@@ -402,10 +723,60 @@ export type NoteEdge = {
   node: Note;
 };
 
+export const NoteLayer = {
+  Base: 'BASE',
+  Middle: 'MIDDLE',
+  Top: 'TOP'
+} as const;
+
+export type NoteLayer = typeof NoteLayer[keyof typeof NoteLayer];
 export type NotePaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<NoteSortInput>;
+};
+
+export type NoteRequest = {
+  __typename?: 'NoteRequest';
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image?: Maybe<NoteRequestImage>;
+  name?: Maybe<Scalars['String']['output']>;
+  requestStatus: RequestStatus;
+  user: User;
+  version: Scalars['Int']['output'];
+  votes: VoteInfo;
+};
+
+export type NoteRequestConnection = {
+  __typename?: 'NoteRequestConnection';
+  edges: Array<NoteRequestEdge>;
+  pageInfo: PageInfo;
+};
+
+export type NoteRequestEdge = {
+  __typename?: 'NoteRequestEdge';
+  cursor: Scalars['String']['output'];
+  node: NoteRequest;
+};
+
+export type NoteRequestImage = {
+  __typename?: 'NoteRequestImage';
+  id: Scalars['ID']['output'];
+  type: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+export type NoteRequestImageConnection = {
+  __typename?: 'NoteRequestImageConnection';
+  edges: Array<NoteRequestImageEdge>;
+  pageInfo: PageInfo;
+};
+
+export type NoteRequestImageEdge = {
+  __typename?: 'NoteRequestImageEdge';
+  cursor: Scalars['String']['output'];
+  node: NoteRequestImage;
 };
 
 export const NoteSortBy = {
@@ -435,12 +806,28 @@ export type PresignedUpload = {
 
 export type Query = {
   __typename?: 'Query';
+  accordRequest: AccordRequest;
+  accordRequests: AccordRequestConnection;
   accords: AccordConnection;
-  fragranceDraft: FragranceDraft;
-  fragranceDrafts: FragranceDraftConnection;
+  brandRequest: BrandRequest;
+  brandRequests: BrandRequestConnection;
+  fragranceRequest: FragranceRequest;
+  fragranceRequests: FragranceRequestConnection;
   me: User;
+  noteRequest: NoteRequest;
+  noteRequests: NoteRequestConnection;
   notes: NoteConnection;
   user: User;
+};
+
+
+export type QueryAccordRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryAccordRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
 };
 
 
@@ -449,13 +836,33 @@ export type QueryAccordsArgs = {
 };
 
 
-export type QueryFragranceDraftArgs = {
+export type QueryBrandRequestArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type QueryFragranceDraftsArgs = {
-  input?: InputMaybe<DraftPaginationInput>;
+export type QueryBrandRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
+};
+
+
+export type QueryFragranceRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryFragranceRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
+};
+
+
+export type QueryNoteRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryNoteRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
 };
 
 
@@ -468,18 +875,55 @@ export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
 
+export type RequestPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<RequestSortInput>;
+};
+
+export const RequestSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type RequestSortBy = typeof RequestSortBy[keyof typeof RequestSortBy];
+export type RequestSortInput = {
+  by?: InputMaybe<RequestSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
+export const RequestStatus = {
+  Accepted: 'ACCEPTED',
+  Draft: 'DRAFT',
+  Pending: 'PENDING',
+  Rejected: 'REJECTED'
+} as const;
+
+export type RequestStatus = typeof RequestStatus[keyof typeof RequestStatus];
 export type ResendSignUpCodeInput = {
   email: Scalars['String']['input'];
 };
 
-export type SetFragranceDraftAccordsInput = {
+export type SetFragranceRequestAccordsInput = {
   accordIds: Array<Scalars['ID']['input']>;
-  draftId: Scalars['ID']['input'];
+  requestId: Scalars['ID']['input'];
   version: Scalars['Int']['input'];
 };
 
-export type SetFragranceDraftTraitInput = {
-  draftId: Scalars['ID']['input'];
+export type SetFragranceRequestBrandInput = {
+  brandId?: InputMaybe<Scalars['ID']['input']>;
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type SetFragranceRequestNotesInput = {
+  layer: NoteLayer;
+  noteIds: Array<Scalars['ID']['input']>;
+  requestId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
+};
+
+export type SetFragranceRequestTraitInput = {
+  requestId: Scalars['ID']['input'];
   score: Scalars['Int']['input'];
   traitType: TraitTypeEnum;
   version: Scalars['Int']['input'];
@@ -500,6 +944,22 @@ export type StageAssetInput = {
   contentSize: Scalars['Int']['input'];
   contentType: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+export type SubmitAccordRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type SubmitBrandRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type SubmitFragranceRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type SubmitNoteRequestInput = {
   id: Scalars['ID']['input'];
 };
 
@@ -546,13 +1006,37 @@ export type TraitVoteDistribution = {
   votes: Scalars['Int']['output'];
 };
 
-export type UpdateFragranceDraftInput = {
+export type UpdateAccordRequestInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  version: Scalars['Int']['input'];
+};
+
+export type UpdateBrandRequestInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  version: Scalars['Int']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateFragranceRequestInput = {
   concentration?: InputMaybe<Concentration>;
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   releaseYear?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<FragranceStatus>;
+  version: Scalars['Int']['input'];
+};
+
+export type UpdateNoteRequestInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   version: Scalars['Int']['input'];
 };
 
@@ -565,9 +1049,49 @@ export type User = {
   __typename?: 'User';
   avatarSrc?: Maybe<Scalars['String']['output']>;
   avatarStatus: AvatarStatus;
+  brandRequests: BrandRequestConnection;
   email: Scalars['String']['output'];
+  fragranceRequests: FragranceRequestConnection;
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
+};
+
+
+export type UserBrandRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
+};
+
+
+export type UserFragranceRequestsArgs = {
+  input?: InputMaybe<RequestPaginationInput>;
+};
+
+export type VoteInfo = {
+  __typename?: 'VoteInfo';
+  downvotes: Scalars['Int']['output'];
+  myVote?: Maybe<Scalars['Int']['output']>;
+  score: Scalars['Int']['output'];
+  upvotes: Scalars['Int']['output'];
+};
+
+export type VoteOnAccordRequestInput = {
+  requestId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
+};
+
+export type VoteOnBrandRequestInput = {
+  requestId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
+};
+
+export type VoteOnFragranceRequestInput = {
+  requestId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
+};
+
+export type VoteOnNoteRequestInput = {
+  requestId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -639,10 +1163,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 ) => TResult | Promise<TResult>;
 
 
-/** Mapping of interface types */
-export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
-  Draft: never;
-}>;
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
@@ -650,6 +1170,12 @@ export type ResolversTypes = ResolversObject<{
   AccordConnection: ResolverTypeWrapper<Partial<AccordConnection>>;
   AccordEdge: ResolverTypeWrapper<Partial<AccordEdge>>;
   AccordPaginationInput: ResolverTypeWrapper<Partial<AccordPaginationInput>>;
+  AccordRequest: ResolverTypeWrapper<IAccordRequestSummary>;
+  AccordRequestConnection: ResolverTypeWrapper<Partial<Omit<AccordRequestConnection, 'edges'> & { edges: Array<ResolversTypes['AccordRequestEdge']> }>>;
+  AccordRequestEdge: ResolverTypeWrapper<Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversTypes['AccordRequest'] }>>;
+  AccordRequestImage: ResolverTypeWrapper<Partial<AccordRequestImage>>;
+  AccordRequestImageConnection: ResolverTypeWrapper<Partial<AccordRequestImageConnection>>;
+  AccordRequestImageEdge: ResolverTypeWrapper<Partial<AccordRequestImageEdge>>;
   AccordSortBy: ResolverTypeWrapper<Partial<AccordSortBy>>;
   AccordSortInput: ResolverTypeWrapper<Partial<AccordSortInput>>;
   Asset: ResolverTypeWrapper<Partial<Asset>>;
@@ -658,33 +1184,48 @@ export type ResolversTypes = ResolversObject<{
   AuthTokenPayload: ResolverTypeWrapper<Partial<AuthTokenPayload>>;
   AvatarStatus: ResolverTypeWrapper<Partial<AvatarStatus>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
+  Brand: ResolverTypeWrapper<IBrandSummary>;
+  BrandRequest: ResolverTypeWrapper<IBrandRequestSummary>;
+  BrandRequestConnection: ResolverTypeWrapper<Partial<Omit<BrandRequestConnection, 'edges'> & { edges: Array<ResolversTypes['BrandRequestEdge']> }>>;
+  BrandRequestEdge: ResolverTypeWrapper<Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversTypes['BrandRequest'] }>>;
+  BrandRequestImage: ResolverTypeWrapper<Partial<BrandRequestImage>>;
+  BrandRequestImageConnection: ResolverTypeWrapper<Partial<BrandRequestImageConnection>>;
+  BrandRequestImageEdge: ResolverTypeWrapper<Partial<BrandRequestImageEdge>>;
   Concentration: ResolverTypeWrapper<Partial<Concentration>>;
   ConfirmForgotPasswordInput: ResolverTypeWrapper<Partial<ConfirmForgotPasswordInput>>;
   ConfirmSignUpInput: ResolverTypeWrapper<Partial<ConfirmSignUpInput>>;
-  CreateFragranceDraftInput: ResolverTypeWrapper<Partial<CreateFragranceDraftInput>>;
+  CreateAccordRequestInput: ResolverTypeWrapper<Partial<CreateAccordRequestInput>>;
+  CreateBrandRequestInput: ResolverTypeWrapper<Partial<CreateBrandRequestInput>>;
+  CreateFragranceRequestInput: ResolverTypeWrapper<Partial<CreateFragranceRequestInput>>;
+  CreateNoteRequestInput: ResolverTypeWrapper<Partial<CreateNoteRequestInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
-  DeleteFragranceDraftImageInput: ResolverTypeWrapper<Partial<DeleteFragranceDraftImageInput>>;
-  DeleteFragranceDraftInput: ResolverTypeWrapper<Partial<DeleteFragranceDraftInput>>;
-  Draft: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Draft']>;
-  DraftPaginationInput: ResolverTypeWrapper<Partial<DraftPaginationInput>>;
-  DraftSortBy: ResolverTypeWrapper<Partial<DraftSortBy>>;
-  DraftSortInput: ResolverTypeWrapper<Partial<DraftSortInput>>;
-  FinalizeFragranceDraftImageInput: ResolverTypeWrapper<Partial<FinalizeFragranceDraftImageInput>>;
+  DeleteAccordRequestImageInput: ResolverTypeWrapper<Partial<DeleteAccordRequestImageInput>>;
+  DeleteAccordRequestInput: ResolverTypeWrapper<Partial<DeleteAccordRequestInput>>;
+  DeleteBrandRequestImageInput: ResolverTypeWrapper<Partial<DeleteBrandRequestImageInput>>;
+  DeleteBrandRequestInput: ResolverTypeWrapper<Partial<DeleteBrandRequestInput>>;
+  DeleteFragranceRequestImageInput: ResolverTypeWrapper<Partial<DeleteFragranceRequestImageInput>>;
+  DeleteFragranceRequestInput: ResolverTypeWrapper<Partial<DeleteFragranceRequestInput>>;
+  DeleteNoteRequestImageInput: ResolverTypeWrapper<Partial<DeleteNoteRequestImageInput>>;
+  DeleteNoteRequestInput: ResolverTypeWrapper<Partial<DeleteNoteRequestInput>>;
+  FinalizeAccordRequestImageInput: ResolverTypeWrapper<Partial<FinalizeAccordRequestImageInput>>;
+  FinalizeBrandRequestImageInput: ResolverTypeWrapper<Partial<FinalizeBrandRequestImageInput>>;
+  FinalizeFragranceRequestImageInput: ResolverTypeWrapper<Partial<FinalizeFragranceRequestImageInput>>;
+  FinalizeNoteRequestImageInput: ResolverTypeWrapper<Partial<FinalizeNoteRequestImageInput>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
   ForgotPasswordInput: ResolverTypeWrapper<Partial<ForgotPasswordInput>>;
   Fragrance: ResolverTypeWrapper<Partial<Fragrance>>;
   FragranceConnection: ResolverTypeWrapper<Partial<FragranceConnection>>;
-  FragranceDraft: ResolverTypeWrapper<IFragranceDraftSummary>;
-  FragranceDraftConnection: ResolverTypeWrapper<Partial<Omit<FragranceDraftConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceDraftEdge']> }>>;
-  FragranceDraftEdge: ResolverTypeWrapper<Partial<Omit<FragranceDraftEdge, 'node'> & { node: ResolversTypes['FragranceDraft'] }>>;
-  FragranceDraftImage: ResolverTypeWrapper<IFragranceDraftImageSummary>;
-  FragranceDraftImageConnection: ResolverTypeWrapper<Partial<Omit<FragranceDraftImageConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceDraftImageEdge']> }>>;
-  FragranceDraftImageEdge: ResolverTypeWrapper<Partial<Omit<FragranceDraftImageEdge, 'node'> & { node: ResolversTypes['FragranceDraftImage'] }>>;
-  FragranceDraftTrait: ResolverTypeWrapper<Partial<FragranceDraftTrait>>;
   FragranceEdge: ResolverTypeWrapper<Partial<FragranceEdge>>;
   FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
   FragranceImageConnection: ResolverTypeWrapper<Partial<FragranceImageConnection>>;
   FragranceImageEdge: ResolverTypeWrapper<Partial<FragranceImageEdge>>;
+  FragranceRequest: ResolverTypeWrapper<IFragranceRequestSummary>;
+  FragranceRequestConnection: ResolverTypeWrapper<Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceRequestEdge']> }>>;
+  FragranceRequestEdge: ResolverTypeWrapper<Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversTypes['FragranceRequest'] }>>;
+  FragranceRequestImage: ResolverTypeWrapper<Partial<FragranceRequestImage>>;
+  FragranceRequestImageConnection: ResolverTypeWrapper<Partial<FragranceRequestImageConnection>>;
+  FragranceRequestImageEdge: ResolverTypeWrapper<Partial<FragranceRequestImageEdge>>;
+  FragranceRequestTrait: ResolverTypeWrapper<Partial<FragranceRequestTrait>>;
   FragranceStatus: ResolverTypeWrapper<Partial<FragranceStatus>>;
   ID: ResolverTypeWrapper<Partial<Scalars['ID']['output']>>;
   Int: ResolverTypeWrapper<Partial<Scalars['Int']['output']>>;
@@ -694,28 +1235,53 @@ export type ResolversTypes = ResolversObject<{
   Note: ResolverTypeWrapper<Partial<Note>>;
   NoteConnection: ResolverTypeWrapper<Partial<NoteConnection>>;
   NoteEdge: ResolverTypeWrapper<Partial<NoteEdge>>;
+  NoteLayer: ResolverTypeWrapper<Partial<NoteLayer>>;
   NotePaginationInput: ResolverTypeWrapper<Partial<NotePaginationInput>>;
+  NoteRequest: ResolverTypeWrapper<INoteRequestSummary>;
+  NoteRequestConnection: ResolverTypeWrapper<Partial<Omit<NoteRequestConnection, 'edges'> & { edges: Array<ResolversTypes['NoteRequestEdge']> }>>;
+  NoteRequestEdge: ResolverTypeWrapper<Partial<Omit<NoteRequestEdge, 'node'> & { node: ResolversTypes['NoteRequest'] }>>;
+  NoteRequestImage: ResolverTypeWrapper<Partial<NoteRequestImage>>;
+  NoteRequestImageConnection: ResolverTypeWrapper<Partial<NoteRequestImageConnection>>;
+  NoteRequestImageEdge: ResolverTypeWrapper<Partial<NoteRequestImageEdge>>;
   NoteSortBy: ResolverTypeWrapper<Partial<NoteSortBy>>;
   NoteSortInput: ResolverTypeWrapper<Partial<NoteSortInput>>;
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
   PresignedUpload: ResolverTypeWrapper<Partial<PresignedUpload>>;
   Query: ResolverTypeWrapper<{}>;
+  RequestPaginationInput: ResolverTypeWrapper<Partial<RequestPaginationInput>>;
+  RequestSortBy: ResolverTypeWrapper<Partial<RequestSortBy>>;
+  RequestSortInput: ResolverTypeWrapper<Partial<RequestSortInput>>;
+  RequestStatus: ResolverTypeWrapper<Partial<RequestStatus>>;
   ResendSignUpCodeInput: ResolverTypeWrapper<Partial<ResendSignUpCodeInput>>;
-  SetFragranceDraftAccordsInput: ResolverTypeWrapper<Partial<SetFragranceDraftAccordsInput>>;
-  SetFragranceDraftTraitInput: ResolverTypeWrapper<Partial<SetFragranceDraftTraitInput>>;
+  SetFragranceRequestAccordsInput: ResolverTypeWrapper<Partial<SetFragranceRequestAccordsInput>>;
+  SetFragranceRequestBrandInput: ResolverTypeWrapper<Partial<SetFragranceRequestBrandInput>>;
+  SetFragranceRequestNotesInput: ResolverTypeWrapper<Partial<SetFragranceRequestNotesInput>>;
+  SetFragranceRequestTraitInput: ResolverTypeWrapper<Partial<SetFragranceRequestTraitInput>>;
   SignUpInput: ResolverTypeWrapper<Partial<SignUpInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   StageAssetInput: ResolverTypeWrapper<Partial<StageAssetInput>>;
   String: ResolverTypeWrapper<Partial<Scalars['String']['output']>>;
+  SubmitAccordRequestInput: ResolverTypeWrapper<Partial<SubmitAccordRequestInput>>;
+  SubmitBrandRequestInput: ResolverTypeWrapper<Partial<SubmitBrandRequestInput>>;
+  SubmitFragranceRequestInput: ResolverTypeWrapper<Partial<SubmitFragranceRequestInput>>;
+  SubmitNoteRequestInput: ResolverTypeWrapper<Partial<SubmitNoteRequestInput>>;
   Trait: ResolverTypeWrapper<Partial<Trait>>;
   TraitOption: ResolverTypeWrapper<Partial<TraitOption>>;
   TraitStats: ResolverTypeWrapper<Partial<TraitStats>>;
   TraitTypeEnum: ResolverTypeWrapper<Partial<TraitTypeEnum>>;
   TraitVote: ResolverTypeWrapper<Partial<TraitVote>>;
   TraitVoteDistribution: ResolverTypeWrapper<Partial<TraitVoteDistribution>>;
-  UpdateFragranceDraftInput: ResolverTypeWrapper<Partial<UpdateFragranceDraftInput>>;
+  UpdateAccordRequestInput: ResolverTypeWrapper<Partial<UpdateAccordRequestInput>>;
+  UpdateBrandRequestInput: ResolverTypeWrapper<Partial<UpdateBrandRequestInput>>;
+  UpdateFragranceRequestInput: ResolverTypeWrapper<Partial<UpdateFragranceRequestInput>>;
+  UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
   UpdateUserInput: ResolverTypeWrapper<Partial<UpdateUserInput>>;
-  User: ResolverTypeWrapper<Partial<User>>;
+  User: ResolverTypeWrapper<IUserSummary>;
+  VoteInfo: ResolverTypeWrapper<Partial<VoteInfo>>;
+  VoteOnAccordRequestInput: ResolverTypeWrapper<Partial<VoteOnAccordRequestInput>>;
+  VoteOnBrandRequestInput: ResolverTypeWrapper<Partial<VoteOnBrandRequestInput>>;
+  VoteOnFragranceRequestInput: ResolverTypeWrapper<Partial<VoteOnFragranceRequestInput>>;
+  VoteOnNoteRequestInput: ResolverTypeWrapper<Partial<VoteOnNoteRequestInput>>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -724,37 +1290,59 @@ export type ResolversParentTypes = ResolversObject<{
   AccordConnection: Partial<AccordConnection>;
   AccordEdge: Partial<AccordEdge>;
   AccordPaginationInput: Partial<AccordPaginationInput>;
+  AccordRequest: IAccordRequestSummary;
+  AccordRequestConnection: Partial<Omit<AccordRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['AccordRequestEdge']> }>;
+  AccordRequestEdge: Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversParentTypes['AccordRequest'] }>;
+  AccordRequestImage: Partial<AccordRequestImage>;
+  AccordRequestImageConnection: Partial<AccordRequestImageConnection>;
+  AccordRequestImageEdge: Partial<AccordRequestImageEdge>;
   AccordSortInput: Partial<AccordSortInput>;
   Asset: Partial<Asset>;
   AuthCodeDeliveryDetails: Partial<AuthCodeDeliveryDetails>;
   AuthDeliveryResult: Partial<AuthDeliveryResult>;
   AuthTokenPayload: Partial<AuthTokenPayload>;
   Boolean: Partial<Scalars['Boolean']['output']>;
+  Brand: IBrandSummary;
+  BrandRequest: IBrandRequestSummary;
+  BrandRequestConnection: Partial<Omit<BrandRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['BrandRequestEdge']> }>;
+  BrandRequestEdge: Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversParentTypes['BrandRequest'] }>;
+  BrandRequestImage: Partial<BrandRequestImage>;
+  BrandRequestImageConnection: Partial<BrandRequestImageConnection>;
+  BrandRequestImageEdge: Partial<BrandRequestImageEdge>;
   ConfirmForgotPasswordInput: Partial<ConfirmForgotPasswordInput>;
   ConfirmSignUpInput: Partial<ConfirmSignUpInput>;
-  CreateFragranceDraftInput: Partial<CreateFragranceDraftInput>;
+  CreateAccordRequestInput: Partial<CreateAccordRequestInput>;
+  CreateBrandRequestInput: Partial<CreateBrandRequestInput>;
+  CreateFragranceRequestInput: Partial<CreateFragranceRequestInput>;
+  CreateNoteRequestInput: Partial<CreateNoteRequestInput>;
   Date: Partial<Scalars['Date']['output']>;
-  DeleteFragranceDraftImageInput: Partial<DeleteFragranceDraftImageInput>;
-  DeleteFragranceDraftInput: Partial<DeleteFragranceDraftInput>;
-  Draft: ResolversInterfaceTypes<ResolversParentTypes>['Draft'];
-  DraftPaginationInput: Partial<DraftPaginationInput>;
-  DraftSortInput: Partial<DraftSortInput>;
-  FinalizeFragranceDraftImageInput: Partial<FinalizeFragranceDraftImageInput>;
+  DeleteAccordRequestImageInput: Partial<DeleteAccordRequestImageInput>;
+  DeleteAccordRequestInput: Partial<DeleteAccordRequestInput>;
+  DeleteBrandRequestImageInput: Partial<DeleteBrandRequestImageInput>;
+  DeleteBrandRequestInput: Partial<DeleteBrandRequestInput>;
+  DeleteFragranceRequestImageInput: Partial<DeleteFragranceRequestImageInput>;
+  DeleteFragranceRequestInput: Partial<DeleteFragranceRequestInput>;
+  DeleteNoteRequestImageInput: Partial<DeleteNoteRequestImageInput>;
+  DeleteNoteRequestInput: Partial<DeleteNoteRequestInput>;
+  FinalizeAccordRequestImageInput: Partial<FinalizeAccordRequestImageInput>;
+  FinalizeBrandRequestImageInput: Partial<FinalizeBrandRequestImageInput>;
+  FinalizeFragranceRequestImageInput: Partial<FinalizeFragranceRequestImageInput>;
+  FinalizeNoteRequestImageInput: Partial<FinalizeNoteRequestImageInput>;
   Float: Partial<Scalars['Float']['output']>;
   ForgotPasswordInput: Partial<ForgotPasswordInput>;
   Fragrance: Partial<Fragrance>;
   FragranceConnection: Partial<FragranceConnection>;
-  FragranceDraft: IFragranceDraftSummary;
-  FragranceDraftConnection: Partial<Omit<FragranceDraftConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceDraftEdge']> }>;
-  FragranceDraftEdge: Partial<Omit<FragranceDraftEdge, 'node'> & { node: ResolversParentTypes['FragranceDraft'] }>;
-  FragranceDraftImage: IFragranceDraftImageSummary;
-  FragranceDraftImageConnection: Partial<Omit<FragranceDraftImageConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceDraftImageEdge']> }>;
-  FragranceDraftImageEdge: Partial<Omit<FragranceDraftImageEdge, 'node'> & { node: ResolversParentTypes['FragranceDraftImage'] }>;
-  FragranceDraftTrait: Partial<FragranceDraftTrait>;
   FragranceEdge: Partial<FragranceEdge>;
   FragranceImage: Partial<FragranceImage>;
   FragranceImageConnection: Partial<FragranceImageConnection>;
   FragranceImageEdge: Partial<FragranceImageEdge>;
+  FragranceRequest: IFragranceRequestSummary;
+  FragranceRequestConnection: Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceRequestEdge']> }>;
+  FragranceRequestEdge: Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversParentTypes['FragranceRequest'] }>;
+  FragranceRequestImage: Partial<FragranceRequestImage>;
+  FragranceRequestImageConnection: Partial<FragranceRequestImageConnection>;
+  FragranceRequestImageEdge: Partial<FragranceRequestImageEdge>;
+  FragranceRequestTrait: Partial<FragranceRequestTrait>;
   ID: Partial<Scalars['ID']['output']>;
   Int: Partial<Scalars['Int']['output']>;
   JSON: Partial<Scalars['JSON']['output']>;
@@ -764,24 +1352,46 @@ export type ResolversParentTypes = ResolversObject<{
   NoteConnection: Partial<NoteConnection>;
   NoteEdge: Partial<NoteEdge>;
   NotePaginationInput: Partial<NotePaginationInput>;
+  NoteRequest: INoteRequestSummary;
+  NoteRequestConnection: Partial<Omit<NoteRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['NoteRequestEdge']> }>;
+  NoteRequestEdge: Partial<Omit<NoteRequestEdge, 'node'> & { node: ResolversParentTypes['NoteRequest'] }>;
+  NoteRequestImage: Partial<NoteRequestImage>;
+  NoteRequestImageConnection: Partial<NoteRequestImageConnection>;
+  NoteRequestImageEdge: Partial<NoteRequestImageEdge>;
   NoteSortInput: Partial<NoteSortInput>;
   PageInfo: Partial<PageInfo>;
   PresignedUpload: Partial<PresignedUpload>;
   Query: {};
+  RequestPaginationInput: Partial<RequestPaginationInput>;
+  RequestSortInput: Partial<RequestSortInput>;
   ResendSignUpCodeInput: Partial<ResendSignUpCodeInput>;
-  SetFragranceDraftAccordsInput: Partial<SetFragranceDraftAccordsInput>;
-  SetFragranceDraftTraitInput: Partial<SetFragranceDraftTraitInput>;
+  SetFragranceRequestAccordsInput: Partial<SetFragranceRequestAccordsInput>;
+  SetFragranceRequestBrandInput: Partial<SetFragranceRequestBrandInput>;
+  SetFragranceRequestNotesInput: Partial<SetFragranceRequestNotesInput>;
+  SetFragranceRequestTraitInput: Partial<SetFragranceRequestTraitInput>;
   SignUpInput: Partial<SignUpInput>;
   StageAssetInput: Partial<StageAssetInput>;
   String: Partial<Scalars['String']['output']>;
+  SubmitAccordRequestInput: Partial<SubmitAccordRequestInput>;
+  SubmitBrandRequestInput: Partial<SubmitBrandRequestInput>;
+  SubmitFragranceRequestInput: Partial<SubmitFragranceRequestInput>;
+  SubmitNoteRequestInput: Partial<SubmitNoteRequestInput>;
   Trait: Partial<Trait>;
   TraitOption: Partial<TraitOption>;
   TraitStats: Partial<TraitStats>;
   TraitVote: Partial<TraitVote>;
   TraitVoteDistribution: Partial<TraitVoteDistribution>;
-  UpdateFragranceDraftInput: Partial<UpdateFragranceDraftInput>;
+  UpdateAccordRequestInput: Partial<UpdateAccordRequestInput>;
+  UpdateBrandRequestInput: Partial<UpdateBrandRequestInput>;
+  UpdateFragranceRequestInput: Partial<UpdateFragranceRequestInput>;
+  UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
   UpdateUserInput: Partial<UpdateUserInput>;
-  User: Partial<User>;
+  User: IUserSummary;
+  VoteInfo: Partial<VoteInfo>;
+  VoteOnAccordRequestInput: Partial<VoteOnAccordRequestInput>;
+  VoteOnBrandRequestInput: Partial<VoteOnBrandRequestInput>;
+  VoteOnFragranceRequestInput: Partial<VoteOnFragranceRequestInput>;
+  VoteOnNoteRequestInput: Partial<VoteOnNoteRequestInput>;
 }>;
 
 export type AccordResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Accord'] = ResolversParentTypes['Accord']> = ResolversObject<{
@@ -800,6 +1410,50 @@ export type AccordConnectionResolvers<ContextType = ApiContext, ParentType exten
 export type AccordEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordEdge'] = ResolversParentTypes['AccordEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Accord'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequest'] = ResolversParentTypes['AccordRequest']> = ResolversObject<{
+  color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['AccordRequestImage']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  requestStatus?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestConnection'] = ResolversParentTypes['AccordRequestConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['AccordRequestEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestEdge'] = ResolversParentTypes['AccordRequestEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImage'] = ResolversParentTypes['AccordRequestImage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImageConnection'] = ResolversParentTypes['AccordRequestImageConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['AccordRequestImageEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AccordRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImageEdge'] = ResolversParentTypes['AccordRequestImageEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['AccordRequestImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -832,15 +1486,60 @@ export type AuthTokenPayloadResolvers<ContextType = ApiContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type BrandResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequest'] = ResolversParentTypes['BrandRequest']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['BrandRequestImage']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  requestStatus?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestConnection'] = ResolversParentTypes['BrandRequestConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['BrandRequestEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestEdge'] = ResolversParentTypes['BrandRequestEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImage'] = ResolversParentTypes['BrandRequestImage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImageConnection'] = ResolversParentTypes['BrandRequestImageConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['BrandRequestImageEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImageEdge'] = ResolversParentTypes['BrandRequestImageEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['BrandRequestImage'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
-
-export type DraftResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Draft'] = ResolversParentTypes['Draft']> = ResolversObject<{
-  __resolveType: TypeResolveFn<null, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-}>;
 
 export type FragranceResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
   brand?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -857,60 +1556,6 @@ export type FragranceResolvers<ContextType = ApiContext, ParentType extends Reso
 export type FragranceConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceConnection'] = ResolversParentTypes['FragranceConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraft'] = ResolversParentTypes['FragranceDraft']> = ResolversObject<{
-  accords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
-  concentration?: Resolver<Maybe<ResolversTypes['Concentration']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  image?: Resolver<Maybe<ResolversTypes['FragranceDraftImage']>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  releaseYear?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['FragranceStatus']>, ParentType, ContextType>;
-  trait?: Resolver<ResolversTypes['FragranceDraftTrait'], ParentType, ContextType, RequireFields<FragranceDraftTraitArgs, 'type'>>;
-  traits?: Resolver<Array<ResolversTypes['FragranceDraftTrait']>, ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftConnection'] = ResolversParentTypes['FragranceDraftConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['FragranceDraftEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftEdge'] = ResolversParentTypes['FragranceDraftEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImage'] = ResolversParentTypes['FragranceDraftImage']> = ResolversObject<{
-  draft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImageConnection'] = ResolversParentTypes['FragranceDraftImageConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['FragranceDraftImageEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftImageEdge'] = ResolversParentTypes['FragranceDraftImageEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['FragranceDraftImage'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type FragranceDraftTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceDraftTrait'] = ResolversParentTypes['FragranceDraftTrait']> = ResolversObject<{
-  selectedOption?: Resolver<Maybe<ResolversTypes['TraitOption']>, ParentType, ContextType>;
-  traitType?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -941,6 +1586,63 @@ export type FragranceImageEdgeResolvers<ContextType = ApiContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FragranceRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequest'] = ResolversParentTypes['FragranceRequest']> = ResolversObject<{
+  accords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
+  brand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType>;
+  concentration?: Resolver<Maybe<ResolversTypes['Concentration']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fragranceStatus?: Resolver<Maybe<ResolversTypes['FragranceStatus']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['FragranceRequestImage']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  notes?: Resolver<Array<ResolversTypes['Note']>, ParentType, ContextType, RequireFields<FragranceRequestNotesArgs, 'layer'>>;
+  releaseYear?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  requestStatus?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  trait?: Resolver<ResolversTypes['FragranceRequestTrait'], ParentType, ContextType, RequireFields<FragranceRequestTraitArgs, 'type'>>;
+  traits?: Resolver<Array<ResolversTypes['FragranceRequestTrait']>, ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestConnection'] = ResolversParentTypes['FragranceRequestConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceRequestEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestEdge'] = ResolversParentTypes['FragranceRequestEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImage'] = ResolversParentTypes['FragranceRequestImage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImageConnection'] = ResolversParentTypes['FragranceRequestImageConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['FragranceRequestImageEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImageEdge'] = ResolversParentTypes['FragranceRequestImageEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['FragranceRequestImage'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FragranceRequestTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestTrait'] = ResolversParentTypes['FragranceRequestTrait']> = ResolversObject<{
+  selectedOption?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
+  traitType?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
@@ -948,22 +1650,50 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'input'>>;
-  createFragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationCreateFragranceDraftArgs, 'input'>>;
-  deleteFragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationDeleteFragranceDraftArgs, 'input'>>;
-  deleteFragranceDraftImage?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationDeleteFragranceDraftImageArgs, 'input'>>;
-  finalizeFragranceDraftImage?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationFinalizeFragranceDraftImageArgs, 'input'>>;
+  createAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationCreateAccordRequestArgs, 'input'>>;
+  createBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationCreateBrandRequestArgs, 'input'>>;
+  createFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationCreateFragranceRequestArgs, 'input'>>;
+  createNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationCreateNoteRequestArgs, 'input'>>;
+  deleteAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestArgs, 'input'>>;
+  deleteAccordRequestImage?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestImageArgs, 'input'>>;
+  deleteBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationDeleteBrandRequestArgs, 'input'>>;
+  deleteBrandRequestImage?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationDeleteBrandRequestImageArgs, 'input'>>;
+  deleteFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationDeleteFragranceRequestArgs, 'input'>>;
+  deleteFragranceRequestImage?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationDeleteFragranceRequestImageArgs, 'input'>>;
+  deleteNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestArgs, 'input'>>;
+  deleteNoteRequestImage?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestImageArgs, 'input'>>;
+  finalizeAccordRequestImage?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationFinalizeAccordRequestImageArgs, 'input'>>;
+  finalizeBrandRequestImage?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationFinalizeBrandRequestImageArgs, 'input'>>;
+  finalizeFragranceRequestImage?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationFinalizeFragranceRequestImageArgs, 'input'>>;
+  finalizeNoteRequestImage?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationFinalizeNoteRequestImageArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthTokenPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthTokenPayload']>, ParentType, ContextType>;
   resendSignUpCode?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpCodeArgs, 'input'>>;
-  setFragranceDraftAccords?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationSetFragranceDraftAccordsArgs, 'input'>>;
-  setFragranceDraftTrait?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationSetFragranceDraftTraitArgs, 'input'>>;
+  setFragranceRequestAccords?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestAccordsArgs, 'input'>>;
+  setFragranceRequestBrand?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestBrandArgs, 'input'>>;
+  setFragranceRequestNotes?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestNotesArgs, 'input'>>;
+  setFragranceRequestTrait?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestTraitArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
-  stageFragranceDraftImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageFragranceDraftImageArgs, 'input'>>;
-  updateFragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<MutationUpdateFragranceDraftArgs, 'input'>>;
+  stageAccordRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageAccordRequestImageArgs, 'input'>>;
+  stageBrandRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageBrandRequestImageArgs, 'input'>>;
+  stageFragranceRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageFragranceRequestImageArgs, 'input'>>;
+  stageNoteRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageNoteRequestImageArgs, 'input'>>;
+  submitAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationSubmitAccordRequestArgs, 'input'>>;
+  submitBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationSubmitBrandRequestArgs, 'input'>>;
+  submitFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSubmitFragranceRequestArgs, 'input'>>;
+  submitNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationSubmitNoteRequestArgs, 'input'>>;
+  updateAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationUpdateAccordRequestArgs, 'input'>>;
+  updateBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationUpdateBrandRequestArgs, 'input'>>;
+  updateFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationUpdateFragranceRequestArgs, 'input'>>;
+  updateNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationUpdateNoteRequestArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserAvatar?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationUpdateUserAvatarArgs, 'input'>>;
+  voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;
+  voteOnBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationVoteOnBrandRequestArgs, 'input'>>;
+  voteOnFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceRequestArgs, 'input'>>;
+  voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
 }>;
 
 export type NoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
@@ -985,6 +1715,49 @@ export type NoteEdgeResolvers<ContextType = ApiContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type NoteRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequest'] = ResolversParentTypes['NoteRequest']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['NoteRequestImage']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  requestStatus?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestConnection'] = ResolversParentTypes['NoteRequestConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['NoteRequestEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestEdge'] = ResolversParentTypes['NoteRequestEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImage'] = ResolversParentTypes['NoteRequestImage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImageConnection'] = ResolversParentTypes['NoteRequestImageConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['NoteRequestImageEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NoteRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImageEdge'] = ResolversParentTypes['NoteRequestImageEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['NoteRequestImage'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PageInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1001,10 +1774,16 @@ export type PresignedUploadResolvers<ContextType = ApiContext, ParentType extend
 }>;
 
 export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  accordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<QueryAccordRequestArgs, 'id'>>;
+  accordRequests?: Resolver<ResolversTypes['AccordRequestConnection'], ParentType, ContextType, Partial<QueryAccordRequestsArgs>>;
   accords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, Partial<QueryAccordsArgs>>;
-  fragranceDraft?: Resolver<ResolversTypes['FragranceDraft'], ParentType, ContextType, RequireFields<QueryFragranceDraftArgs, 'id'>>;
-  fragranceDrafts?: Resolver<ResolversTypes['FragranceDraftConnection'], ParentType, ContextType, Partial<QueryFragranceDraftsArgs>>;
+  brandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<QueryBrandRequestArgs, 'id'>>;
+  brandRequests?: Resolver<ResolversTypes['BrandRequestConnection'], ParentType, ContextType, Partial<QueryBrandRequestsArgs>>;
+  fragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<QueryFragranceRequestArgs, 'id'>>;
+  fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<QueryFragranceRequestsArgs>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  noteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
+  noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
@@ -1045,9 +1824,19 @@ export type TraitVoteDistributionResolvers<ContextType = ApiContext, ParentType 
 export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   avatarSrc?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   avatarStatus?: Resolver<ResolversTypes['AvatarStatus'], ParentType, ContextType>;
+  brandRequests?: Resolver<ResolversTypes['BrandRequestConnection'], ParentType, ContextType, Partial<UserBrandRequestsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<UserFragranceRequestsArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type VoteInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VoteInfo'] = ResolversParentTypes['VoteInfo']> = ResolversObject<{
+  downvotes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  myVote?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  upvotes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1055,30 +1844,48 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   Accord?: AccordResolvers<ContextType>;
   AccordConnection?: AccordConnectionResolvers<ContextType>;
   AccordEdge?: AccordEdgeResolvers<ContextType>;
+  AccordRequest?: AccordRequestResolvers<ContextType>;
+  AccordRequestConnection?: AccordRequestConnectionResolvers<ContextType>;
+  AccordRequestEdge?: AccordRequestEdgeResolvers<ContextType>;
+  AccordRequestImage?: AccordRequestImageResolvers<ContextType>;
+  AccordRequestImageConnection?: AccordRequestImageConnectionResolvers<ContextType>;
+  AccordRequestImageEdge?: AccordRequestImageEdgeResolvers<ContextType>;
   Asset?: AssetResolvers<ContextType>;
   AuthCodeDeliveryDetails?: AuthCodeDeliveryDetailsResolvers<ContextType>;
   AuthDeliveryResult?: AuthDeliveryResultResolvers<ContextType>;
   AuthTokenPayload?: AuthTokenPayloadResolvers<ContextType>;
+  Brand?: BrandResolvers<ContextType>;
+  BrandRequest?: BrandRequestResolvers<ContextType>;
+  BrandRequestConnection?: BrandRequestConnectionResolvers<ContextType>;
+  BrandRequestEdge?: BrandRequestEdgeResolvers<ContextType>;
+  BrandRequestImage?: BrandRequestImageResolvers<ContextType>;
+  BrandRequestImageConnection?: BrandRequestImageConnectionResolvers<ContextType>;
+  BrandRequestImageEdge?: BrandRequestImageEdgeResolvers<ContextType>;
   Date?: GraphQLScalarType;
-  Draft?: DraftResolvers<ContextType>;
   Fragrance?: FragranceResolvers<ContextType>;
   FragranceConnection?: FragranceConnectionResolvers<ContextType>;
-  FragranceDraft?: FragranceDraftResolvers<ContextType>;
-  FragranceDraftConnection?: FragranceDraftConnectionResolvers<ContextType>;
-  FragranceDraftEdge?: FragranceDraftEdgeResolvers<ContextType>;
-  FragranceDraftImage?: FragranceDraftImageResolvers<ContextType>;
-  FragranceDraftImageConnection?: FragranceDraftImageConnectionResolvers<ContextType>;
-  FragranceDraftImageEdge?: FragranceDraftImageEdgeResolvers<ContextType>;
-  FragranceDraftTrait?: FragranceDraftTraitResolvers<ContextType>;
   FragranceEdge?: FragranceEdgeResolvers<ContextType>;
   FragranceImage?: FragranceImageResolvers<ContextType>;
   FragranceImageConnection?: FragranceImageConnectionResolvers<ContextType>;
   FragranceImageEdge?: FragranceImageEdgeResolvers<ContextType>;
+  FragranceRequest?: FragranceRequestResolvers<ContextType>;
+  FragranceRequestConnection?: FragranceRequestConnectionResolvers<ContextType>;
+  FragranceRequestEdge?: FragranceRequestEdgeResolvers<ContextType>;
+  FragranceRequestImage?: FragranceRequestImageResolvers<ContextType>;
+  FragranceRequestImageConnection?: FragranceRequestImageConnectionResolvers<ContextType>;
+  FragranceRequestImageEdge?: FragranceRequestImageEdgeResolvers<ContextType>;
+  FragranceRequestTrait?: FragranceRequestTraitResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Note?: NoteResolvers<ContextType>;
   NoteConnection?: NoteConnectionResolvers<ContextType>;
   NoteEdge?: NoteEdgeResolvers<ContextType>;
+  NoteRequest?: NoteRequestResolvers<ContextType>;
+  NoteRequestConnection?: NoteRequestConnectionResolvers<ContextType>;
+  NoteRequestEdge?: NoteRequestEdgeResolvers<ContextType>;
+  NoteRequestImage?: NoteRequestImageResolvers<ContextType>;
+  NoteRequestImageConnection?: NoteRequestImageConnectionResolvers<ContextType>;
+  NoteRequestImageEdge?: NoteRequestImageEdgeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   PresignedUpload?: PresignedUploadResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
@@ -1088,5 +1895,6 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   TraitVote?: TraitVoteResolvers<ContextType>;
   TraitVoteDistribution?: TraitVoteDistributionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  VoteInfo?: VoteInfoResolvers<ContextType>;
 }>;
 

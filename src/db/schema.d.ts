@@ -17,7 +17,41 @@ export type Int8 = ColumnType<string, bigint | number | string, bigint | number 
 
 export type NoteLayerEnum = "base" | "middle" | "top";
 
+export type RequestStatus = "ACCEPTED" | "DENIED" | "DRAFT" | "PENDING" | "PUBLISHED";
+
 export type Timestamp = ColumnType<string, string, string>;
+
+export interface AccordRequestImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  name: string;
+  requestId: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
+}
+
+export interface AccordRequest {
+  color: string | null;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  description: string | null;
+  id: Generated<string>;
+  name: string | null;
+  requestStatus: Generated<RequestStatus>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  version: Generated<number>;
+}
+
+export interface AccordRequestVote {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  requestId: string;
+  userId: string;
+  vote: number;
+}
 
 export interface Accord {
   color: Generated<string>;
@@ -27,6 +61,54 @@ export interface Accord {
   name: string;
   oldId: number;
   updatedAt: Timestamp;
+}
+
+export interface BrandImage {
+  brandId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  s3Key: string;
+  type: string;
+}
+
+export interface BrandRequestImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  name: string;
+  requestId: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
+}
+
+export interface BrandRequest {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  description: string | null;
+  id: Generated<string>;
+  name: string | null;
+  requestStatus: Generated<RequestStatus>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  version: Generated<number>;
+  website: string | null;
+}
+
+export interface BrandRequestVote {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  requestId: string;
+  userId: string;
+  vote: number;
+}
+
+export interface Brand {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  name: string;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface FragranceAccord {
@@ -58,47 +140,6 @@ export interface FragranceCollection {
   name: string;
   updatedAt: Generated<Timestamp>;
   userId: string;
-}
-
-export interface FragranceDraftAccord {
-  accordId: string;
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  draftId: string;
-  id: Generated<string>;
-}
-
-export interface FragranceDraftImage {
-  contentType: string;
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  draftId: string;
-  id: Generated<string>;
-  name: string;
-  s3Key: string;
-  sizeBytes: Int8;
-  status: Generated<AssetStatus>;
-}
-
-export interface FragranceDraft {
-  concentration: Generated<string | null>;
-  createdAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
-  description: string | null;
-  fragranceStatus: Generated<string | null>;
-  id: Generated<string>;
-  name: string | null;
-  releaseYear: number | null;
-  updatedAt: Generated<Timestamp>;
-  userId: string;
-  version: Generated<number>;
-}
-
-export interface FragranceDraftTrait {
-  draftId: string;
-  id: Generated<string>;
-  traitOptionId: string | null;
-  traitTypeId: string;
 }
 
 export interface FragranceImage {
@@ -138,8 +179,69 @@ export interface FragranceNoteVote {
   vote: number;
 }
 
+export interface FragranceRequestAccord {
+  accordId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  requestId: string;
+}
+
+export interface FragranceRequestImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  name: string;
+  requestId: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
+}
+
+export interface FragranceRequestNote {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  layer: NoteLayerEnum | null;
+  noteId: string;
+  requestId: string;
+}
+
+export interface FragranceRequest {
+  brandId: string | null;
+  concentration: Generated<string | null>;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  description: string | null;
+  fragranceStatus: Generated<string | null>;
+  id: Generated<string>;
+  name: string | null;
+  releaseYear: number | null;
+  requestStatus: Generated<RequestStatus>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  version: Generated<number>;
+}
+
+export interface FragranceRequestTrait {
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  requestId: string;
+  traitOptionId: string | null;
+  traitTypeId: string;
+}
+
+export interface FragranceRequestVote {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  requestId: string;
+  userId: string;
+  vote: number;
+}
+
 export interface Fragrance {
-  brand: string;
+  brandId: string | null;
   createdAt: Timestamp;
   deletedAt: Timestamp | null;
   dislikesCount: number;
@@ -161,6 +263,36 @@ export interface FragranceTraitVote {
   traitOptionId: string;
   traitTypeId: string;
   userId: string;
+}
+
+export interface NoteRequestImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  name: string;
+  requestId: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
+}
+
+export interface NoteRequest {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  name: string | null;
+  requestStatus: Generated<RequestStatus>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  version: Generated<number>;
+}
+
+export interface NoteRequestVote {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  requestId: string;
+  userId: string;
+  vote: number;
 }
 
 export interface Note {
@@ -203,19 +335,32 @@ export interface User {
 }
 
 export interface DB {
+  accordRequestImages: AccordRequestImage;
+  accordRequests: AccordRequest;
+  accordRequestVotes: AccordRequestVote;
   accords: Accord;
+  brandImages: BrandImage;
+  brandRequestImages: BrandRequestImage;
+  brandRequests: BrandRequest;
+  brandRequestVotes: BrandRequestVote;
+  brands: Brand;
   fragranceAccords: FragranceAccord;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceCollections: FragranceCollection;
-  fragranceDraftAccords: FragranceDraftAccord;
-  fragranceDraftImages: FragranceDraftImage;
-  fragranceDrafts: FragranceDraft;
-  fragranceDraftTraits: FragranceDraftTrait;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteVotes: FragranceNoteVote;
+  fragranceRequestAccords: FragranceRequestAccord;
+  fragranceRequestImages: FragranceRequestImage;
+  fragranceRequestNotes: FragranceRequestNote;
+  fragranceRequests: FragranceRequest;
+  fragranceRequestTraits: FragranceRequestTrait;
+  fragranceRequestVotes: FragranceRequestVote;
   fragrances: Fragrance;
   fragranceTraitVotes: FragranceTraitVote;
+  noteRequestImages: NoteRequestImage;
+  noteRequests: NoteRequest;
+  noteRequestVotes: NoteRequestVote;
   notes: Note;
   traitOptions: TraitOption;
   traitTypes: TraitType;

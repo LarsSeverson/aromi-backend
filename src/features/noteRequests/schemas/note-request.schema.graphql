@@ -1,0 +1,59 @@
+type NoteRequest {
+  id: ID!
+  version: Int!
+  requestStatus: RequestStatus!
+
+  name: String
+  description: String
+
+  image: NoteRequestImage
+
+  votes: VoteInfo!
+
+  user: User!
+}
+
+type NoteRequestEdge {
+  node: NoteRequest!
+  cursor: String!
+}
+
+type NoteRequestConnection {
+  edges: [NoteRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+input CreateNoteRequestInput {
+  name: String
+  description: String
+  color: String
+}
+
+input UpdateNoteRequestInput {
+  id: ID!
+  version: Int!
+  name: String
+  description: String
+  color: String
+}
+
+input DeleteNoteRequestInput {
+  id: ID!
+}
+
+input SubmitNoteRequestInput {
+  id: ID!
+}
+
+extend type Query {
+  noteRequest(id: ID!): NoteRequest!
+  noteRequests(input: RequestPaginationInput): NoteRequestConnection!
+}
+
+extend type Mutation {
+  createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
+  updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
+  deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
+
+  submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
+}

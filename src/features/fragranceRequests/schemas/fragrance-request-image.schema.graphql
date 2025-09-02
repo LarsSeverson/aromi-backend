@@ -1,0 +1,38 @@
+type FragranceRequestImage {
+  id: ID!
+
+  url: String!
+  type: String!
+}
+
+type FragranceRequestImageEdge {
+  node: FragranceRequestImage!
+  cursor: String!
+}
+
+type FragranceRequestImageConnection {
+  edges: [FragranceRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+input FinalizeFragranceRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+input DeleteFragranceRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+extend type Mutation {
+  stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
+  finalizeFragranceRequestImage(
+    input: FinalizeFragranceRequestImageInput!
+  ): FragranceRequest!
+  deleteFragranceRequestImage(
+    input: DeleteFragranceRequestImageInput!
+  ): FragranceRequest!
+}

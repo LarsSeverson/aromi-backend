@@ -1,0 +1,7 @@
+type VoteInfo {
+  upvotes: Int!
+  downvotes: Int!
+  score: Int!
+
+  myVote: Int
+}

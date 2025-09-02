@@ -1,0 +1,36 @@
+type BrandRequestImage {
+  id: ID!
+
+  url: String
+  type: String!
+}
+
+type BrandRequestImageEdge {
+  node: BrandRequestImage!
+  cursor: String!
+}
+
+type BrandRequestImageConnection {
+  edges: [BrandRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+input FinalizeBrandRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+input DeleteBrandRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+extend type Mutation {
+  stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
+  finalizeBrandRequestImage(
+    input: FinalizeBrandRequestImageInput!
+  ): BrandRequest!
+  deleteBrandRequestImage(input: DeleteBrandRequestImageInput!): BrandRequest!
+}

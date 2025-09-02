@@ -1,0 +1,38 @@
+type AccordRequestImage {
+  id: ID!
+
+  url: String
+  type: String!
+}
+
+type AccordRequestImageEdge {
+  node: AccordRequestImage!
+  cursor: String!
+}
+
+type AccordRequestImageConnection {
+  edges: [AccordRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+input FinalizeAccordRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+input DeleteAccordRequestImageInput {
+  requestId: ID!
+  assetId: ID!
+  version: Int!
+}
+
+extend type Mutation {
+  stageAccordRequestImage(input: StageAssetInput!): PresignedUpload!
+  finalizeAccordRequestImage(
+    input: FinalizeAccordRequestImageInput!
+  ): AccordRequest!
+  deleteAccordRequestImage(
+    input: DeleteAccordRequestImageInput!
+  ): AccordRequest!
+}

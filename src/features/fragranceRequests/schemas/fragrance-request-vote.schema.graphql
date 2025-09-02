@@ -1,0 +1,8 @@
+input VoteOnFragranceRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
+}

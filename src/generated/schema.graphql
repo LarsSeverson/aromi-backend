@@ -20,6 +20,44 @@ input AccordPaginationInput {
   sort: AccordSortInput
 }
 
+type AccordRequest {
+  color: String
+  description: String
+  id: ID!
+  image: AccordRequestImage
+  name: String
+  requestStatus: RequestStatus!
+  user: User!
+  version: Int!
+  votes: VoteInfo!
+}
+
+type AccordRequestConnection {
+  edges: [AccordRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AccordRequestEdge {
+  cursor: String!
+  node: AccordRequest!
+}
+
+type AccordRequestImage {
+  id: ID!
+  type: String!
+  url: String
+}
+
+type AccordRequestImageConnection {
+  edges: [AccordRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AccordRequestImageEdge {
+  cursor: String!
+  node: AccordRequestImage!
+}
+
 enum AccordSortBy {
   RECENT
 }
@@ -61,6 +99,50 @@ enum AvatarStatus {
   READY
 }
 
+type Brand {
+  id: ID!
+  image: Asset!
+  name: String!
+}
+
+type BrandRequest {
+  description: String
+  id: ID!
+  image: BrandRequestImage
+  name: String
+  requestStatus: RequestStatus!
+  user: User!
+  version: Int!
+  votes: VoteInfo!
+  website: String
+}
+
+type BrandRequestConnection {
+  edges: [BrandRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BrandRequestEdge {
+  cursor: String!
+  node: BrandRequest!
+}
+
+type BrandRequestImage {
+  id: ID!
+  type: String!
+  url: String
+}
+
+type BrandRequestImageConnection {
+  edges: [BrandRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BrandRequestImageEdge {
+  cursor: String!
+  node: BrandRequestImage!
+}
+
 enum Concentration {
   BODY_MIST
   EAU_FRAICHE
@@ -83,7 +165,19 @@ input ConfirmSignUpInput {
   email: String!
 }
 
-input CreateFragranceDraftInput {
+input CreateAccordRequestInput {
+  color: String
+  description: String
+  name: String
+}
+
+input CreateBrandRequestInput {
+  description: String
+  name: String
+  website: String
+}
+
+input CreateFragranceRequestInput {
   concentration: Concentration
   description: String
   name: String
@@ -91,41 +185,75 @@ input CreateFragranceDraftInput {
   status: FragranceStatus
 }
 
+input CreateNoteRequestInput {
+  color: String
+  description: String
+  name: String
+}
+
 scalar Date
 
-input DeleteFragranceDraftImageInput {
+input DeleteAccordRequestImageInput {
   assetId: ID!
-  draftId: ID!
+  requestId: ID!
   version: Int!
 }
 
-input DeleteFragranceDraftInput {
+input DeleteAccordRequestInput {
   id: ID!
 }
 
-interface Draft {
-  id: ID!
-  user: User!
-}
-
-input DraftPaginationInput {
-  after: String
-  first: Int
-  sort: DraftSortInput
-}
-
-enum DraftSortBy {
-  RECENT
-}
-
-input DraftSortInput {
-  by: DraftSortBy
-  direction: SortDirection
-}
-
-input FinalizeFragranceDraftImageInput {
+input DeleteBrandRequestImageInput {
   assetId: ID!
-  draftId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input DeleteBrandRequestInput {
+  id: ID!
+}
+
+input DeleteFragranceRequestImageInput {
+  assetId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input DeleteFragranceRequestInput {
+  id: ID!
+}
+
+input DeleteNoteRequestImageInput {
+  assetId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input DeleteNoteRequestInput {
+  id: ID!
+}
+
+input FinalizeAccordRequestImageInput {
+  assetId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input FinalizeBrandRequestImageInput {
+  assetId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input FinalizeFragranceRequestImageInput {
+  assetId: ID!
+  requestId: ID!
+  version: Int!
+}
+
+input FinalizeNoteRequestImageInput {
+  assetId: ID!
+  requestId: ID!
   version: Int!
 }
 
@@ -147,53 +275,6 @@ type Fragrance {
 type FragranceConnection {
   edges: [FragranceEdge!]!
   pageInfo: PageInfo!
-}
-
-type FragranceDraft {
-  accords: [Accord!]!
-  concentration: Concentration
-  description: String
-  id: ID!
-  image: FragranceDraftImage
-  name: String
-  releaseYear: Int
-  status: FragranceStatus
-  trait(type: TraitTypeEnum!): FragranceDraftTrait!
-  traits: [FragranceDraftTrait!]!
-  user: User!
-  version: Int!
-}
-
-type FragranceDraftConnection {
-  edges: [FragranceDraftEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceDraftEdge {
-  cursor: String!
-  node: FragranceDraft!
-}
-
-type FragranceDraftImage {
-  draft: FragranceDraft!
-  id: ID!
-  type: String!
-  url: String!
-}
-
-type FragranceDraftImageConnection {
-  edges: [FragranceDraftImageEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceDraftImageEdge {
-  cursor: String!
-  node: FragranceDraftImage!
-}
-
-type FragranceDraftTrait {
-  selectedOption: TraitOption
-  traitType: TraitTypeEnum!
 }
 
 type FragranceEdge {
@@ -219,6 +300,56 @@ type FragranceImageEdge {
   node: FragranceImage!
 }
 
+type FragranceRequest {
+  accords: [Accord!]!
+  brand: Brand
+  concentration: Concentration
+  description: String
+  fragranceStatus: FragranceStatus
+  id: ID!
+  image: FragranceRequestImage
+  name: String
+  notes(layer: NoteLayer!): [Note!]!
+  releaseYear: Int
+  requestStatus: RequestStatus!
+  trait(type: TraitTypeEnum!): FragranceRequestTrait!
+  traits: [FragranceRequestTrait!]!
+  user: User!
+  version: Int!
+  votes: VoteInfo!
+}
+
+type FragranceRequestConnection {
+  edges: [FragranceRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceRequestEdge {
+  cursor: String!
+  node: FragranceRequest!
+}
+
+type FragranceRequestImage {
+  id: ID!
+  type: String!
+  url: String!
+}
+
+type FragranceRequestImageConnection {
+  edges: [FragranceRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceRequestImageEdge {
+  cursor: String!
+  node: FragranceRequestImage!
+}
+
+type FragranceRequestTrait {
+  selectedOption: TraitOption!
+  traitType: TraitTypeEnum!
+}
+
 enum FragranceStatus {
   CURRENT
   DISCONTINUED
@@ -235,22 +366,50 @@ input LogInInput {
 type Mutation {
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
   confirmSignUp(input: ConfirmSignUpInput!): Boolean!
-  createFragranceDraft(input: CreateFragranceDraftInput!): FragranceDraft!
-  deleteFragranceDraft(input: DeleteFragranceDraftInput!): FragranceDraft!
-  deleteFragranceDraftImage(input: DeleteFragranceDraftImageInput!): FragranceDraft!
-  finalizeFragranceDraftImage(input: FinalizeFragranceDraftImageInput!): FragranceDraft!
+  createAccordRequest(input: CreateAccordRequestInput!): AccordRequest!
+  createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
+  createFragranceRequest(input: CreateFragranceRequestInput!): FragranceRequest!
+  createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
+  deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
+  deleteAccordRequestImage(input: DeleteAccordRequestImageInput!): AccordRequest!
+  deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
+  deleteBrandRequestImage(input: DeleteBrandRequestImageInput!): BrandRequest!
+  deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
+  deleteFragranceRequestImage(input: DeleteFragranceRequestImageInput!): FragranceRequest!
+  deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
+  deleteNoteRequestImage(input: DeleteNoteRequestImageInput!): NoteRequest!
+  finalizeAccordRequestImage(input: FinalizeAccordRequestImageInput!): AccordRequest!
+  finalizeBrandRequestImage(input: FinalizeBrandRequestImageInput!): BrandRequest!
+  finalizeFragranceRequestImage(input: FinalizeFragranceRequestImageInput!): FragranceRequest!
+  finalizeNoteRequestImage(input: FinalizeNoteRequestImageInput!): NoteRequest!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
   refresh: AuthTokenPayload
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
-  setFragranceDraftAccords(input: SetFragranceDraftAccordsInput!): FragranceDraft!
-  setFragranceDraftTrait(input: SetFragranceDraftTraitInput!): FragranceDraft!
+  setFragranceRequestAccords(input: SetFragranceRequestAccordsInput!): FragranceRequest!
+  setFragranceRequestBrand(input: SetFragranceRequestBrandInput!): FragranceRequest!
+  setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
+  setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
   signUp(input: SignUpInput!): AuthDeliveryResult!
-  stageFragranceDraftImage(input: StageAssetInput!): PresignedUpload!
-  updateFragranceDraft(input: UpdateFragranceDraftInput!): FragranceDraft!
+  stageAccordRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageNoteRequestImage(input: StageAssetInput!): PresignedUpload!
+  submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
+  submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
+  submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
+  submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
+  updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
+  updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
+  updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
+  updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
   updateUser(input: UpdateUserInput!): User!
   updateUserAvatar(input: StageAssetInput!): PresignedUpload!
+  voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
+  voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
+  voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
+  voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
 }
 
 type Note {
@@ -269,10 +428,53 @@ type NoteEdge {
   node: Note!
 }
 
+enum NoteLayer {
+  BASE
+  MIDDLE
+  TOP
+}
+
 input NotePaginationInput {
   after: String
   first: Int
   sort: NoteSortInput
+}
+
+type NoteRequest {
+  description: String
+  id: ID!
+  image: NoteRequestImage
+  name: String
+  requestStatus: RequestStatus!
+  user: User!
+  version: Int!
+  votes: VoteInfo!
+}
+
+type NoteRequestConnection {
+  edges: [NoteRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+type NoteRequestEdge {
+  cursor: String!
+  node: NoteRequest!
+}
+
+type NoteRequestImage {
+  id: ID!
+  type: String!
+  url: String
+}
+
+type NoteRequestImageConnection {
+  edges: [NoteRequestImageEdge!]!
+  pageInfo: PageInfo!
+}
+
+type NoteRequestImageEdge {
+  cursor: String!
+  node: NoteRequestImage!
 }
 
 enum NoteSortBy {
@@ -298,26 +500,67 @@ type PresignedUpload {
 }
 
 type Query {
+  accordRequest(id: ID!): AccordRequest!
+  accordRequests(input: RequestPaginationInput): AccordRequestConnection!
   accords(input: AccordPaginationInput): AccordConnection!
-  fragranceDraft(id: ID!): FragranceDraft!
-  fragranceDrafts(input: DraftPaginationInput): FragranceDraftConnection!
+  brandRequest(id: ID!): BrandRequest!
+  brandRequests(input: RequestPaginationInput): BrandRequestConnection!
+  fragranceRequest(id: ID!): FragranceRequest!
+  fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   me: User!
+  noteRequest(id: ID!): NoteRequest!
+  noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
   user(id: ID!): User!
+}
+
+input RequestPaginationInput {
+  after: String
+  first: Int
+  sort: RequestSortInput
+}
+
+enum RequestSortBy {
+  RECENT
+}
+
+input RequestSortInput {
+  by: RequestSortBy
+  direction: SortDirection
+}
+
+enum RequestStatus {
+  ACCEPTED
+  DRAFT
+  PENDING
+  REJECTED
 }
 
 input ResendSignUpCodeInput {
   email: String!
 }
 
-input SetFragranceDraftAccordsInput {
+input SetFragranceRequestAccordsInput {
   accordIds: [ID!]!
-  draftId: ID!
+  requestId: ID!
   version: Int!
 }
 
-input SetFragranceDraftTraitInput {
-  draftId: ID!
+input SetFragranceRequestBrandInput {
+  brandId: ID
+  requestId: ID!
+  version: Int!
+}
+
+input SetFragranceRequestNotesInput {
+  layer: NoteLayer!
+  noteIds: [ID!]!
+  requestId: ID!
+  version: Int!
+}
+
+input SetFragranceRequestTraitInput {
+  requestId: ID!
   score: Int!
   traitType: TraitTypeEnum!
   version: Int!
@@ -337,6 +580,22 @@ input StageAssetInput {
   contentSize: Int!
   contentType: String!
   fileName: String!
+  id: ID!
+}
+
+input SubmitAccordRequestInput {
+  id: ID!
+}
+
+input SubmitBrandRequestInput {
+  id: ID!
+}
+
+input SubmitFragranceRequestInput {
+  id: ID!
+}
+
+input SubmitNoteRequestInput {
   id: ID!
 }
 
@@ -377,13 +636,37 @@ type TraitVoteDistribution {
   votes: Int!
 }
 
-input UpdateFragranceDraftInput {
+input UpdateAccordRequestInput {
+  color: String
+  description: String
+  id: ID!
+  name: String
+  version: Int!
+}
+
+input UpdateBrandRequestInput {
+  description: String
+  id: ID!
+  name: String
+  version: Int!
+  website: String
+}
+
+input UpdateFragranceRequestInput {
   concentration: Concentration
   description: String
   id: ID!
   name: String
   releaseYear: Int
   status: FragranceStatus
+  version: Int!
+}
+
+input UpdateNoteRequestInput {
+  color: String
+  description: String
+  id: ID!
+  name: String
   version: Int!
 }
 
@@ -395,7 +678,36 @@ input UpdateUserInput {
 type User {
   avatarSrc: String
   avatarStatus: AvatarStatus!
+  brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   email: String!
+  fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
   username: String!
+}
+
+type VoteInfo {
+  downvotes: Int!
+  myVote: Int
+  score: Int!
+  upvotes: Int!
+}
+
+input VoteOnAccordRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+input VoteOnBrandRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+input VoteOnFragranceRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+input VoteOnNoteRequestInput {
+  requestId: ID!
+  vote: Int!
 }

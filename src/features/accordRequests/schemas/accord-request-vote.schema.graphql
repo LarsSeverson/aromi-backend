@@ -1,0 +1,8 @@
+input VoteOnAccordRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
+}

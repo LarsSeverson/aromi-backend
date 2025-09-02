@@ -4,4 +4,5 @@ import { type Selectable } from 'kysely'
 
 export type UserRow = Selectable<DB['users']>
 
-export interface IUserSummary extends User {}
+export interface IUserSummary extends
+  Omit<User, 'brandRequests' | 'fragranceRequests'> {}

@@ -1,0 +1,8 @@
+input VoteOnBrandRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
+}

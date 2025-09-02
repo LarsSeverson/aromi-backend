@@ -1,0 +1,8 @@
+input VoteOnNoteRequestInput {
+  requestId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
+}
