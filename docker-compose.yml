@@ -1,0 +1,27 @@
+services:
+  redis:
+    image: redis:8
+    container_name: aromi-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: aromi-redisinsight
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: aromi-search
+    ports:
+      - "7700:7700"
+    env_file:
+      - .env
+    volumes:
+      - meili-data:/meili_data
+
+volumes:
+  meili-data:

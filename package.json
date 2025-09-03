@@ -14,8 +14,8 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix 'src/**/*.ts'",
-    "gen:gql": "graphql-codegen --config src/common/scripts/codegen.ts",
-    "gen:db": "kysely-codegen && tsx src/common/scripts/fix-schema-db.ts"
+    "gen:gql": "graphql-codegen --config src/scripts/codegen.ts",
+    "gen:db": "kysely-codegen && tsx src/scripts/fix-schema-db.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
@@ -69,7 +69,7 @@
   "kysely-codegen": {
     "dialect": "postgres",
     "url": "env(DB_URL)",
-    "outFile": "./src/db/schema.d.ts",
+    "outFile": "./src/generated/db-schema.d.ts",
     "camelCase": true,
     "defaultSchemas": [
       "public"

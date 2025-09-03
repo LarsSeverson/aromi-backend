@@ -4,5 +4,5 @@ export interface VoteInfoRow {
   upvotes: number
   downvotes: number
   score: number
-  myVote: number | null
+  userVote: number | null
 }

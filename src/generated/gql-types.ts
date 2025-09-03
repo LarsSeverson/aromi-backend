@@ -1,11 +1,11 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { IUserSummary } from '../features/users/types';
-import { IBrandSummary } from '../features/brands/types';
-import { IFragranceRequestSummary } from '../features/fragranceRequests/types';
-import { IBrandRequestSummary } from '../features/brandRequests/types';
-import { IAccordRequestSummary } from '../features/accordRequests/types';
-import { INoteRequestSummary } from '../features/noteRequests/types';
-import { ApiContext } from '@src/context';
+import { IUserSummary } from '../server/features/users/types';
+import { IBrandSummary } from '../server/features/brands/types';
+import { IFragranceRequestSummary } from '../server/features/fragranceRequests/types';
+import { IBrandRequestSummary } from '../server/features/brandRequests/types';
+import { IAccordRequestSummary } from '../server/features/accordRequests/types';
+import { INoteRequestSummary } from '../server/features/noteRequests/types';
+import { ApiContext } from '@src/server/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -817,6 +817,7 @@ export type Query = {
   noteRequest: NoteRequest;
   noteRequests: NoteRequestConnection;
   notes: NoteConnection;
+  searchAccords: AccordConnection;
   user: User;
 };
 
@@ -871,6 +872,11 @@ export type QueryNotesArgs = {
 };
 
 
+export type QuerySearchAccordsArgs = {
+  input: SearchAccordsInput;
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
@@ -901,6 +907,27 @@ export const RequestStatus = {
 export type RequestStatus = typeof RequestStatus[keyof typeof RequestStatus];
 export type ResendSignUpCodeInput = {
   email: Scalars['String']['input'];
+};
+
+export type SearchAccordsInput = {
+  pagination?: InputMaybe<SearchPaginationInput>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SearchPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<SearchSortInput>;
+};
+
+export const SearchSortBy = {
+  Relevance: 'RELEVANCE'
+} as const;
+
+export type SearchSortBy = typeof SearchSortBy[keyof typeof SearchSortBy];
+export type SearchSortInput = {
+  by?: InputMaybe<SearchSortBy>;
+  direction?: InputMaybe<SortDirection>;
 };
 
 export type SetFragranceRequestAccordsInput = {
@@ -1253,6 +1280,10 @@ export type ResolversTypes = ResolversObject<{
   RequestSortInput: ResolverTypeWrapper<Partial<RequestSortInput>>;
   RequestStatus: ResolverTypeWrapper<Partial<RequestStatus>>;
   ResendSignUpCodeInput: ResolverTypeWrapper<Partial<ResendSignUpCodeInput>>;
+  SearchAccordsInput: ResolverTypeWrapper<Partial<SearchAccordsInput>>;
+  SearchPaginationInput: ResolverTypeWrapper<Partial<SearchPaginationInput>>;
+  SearchSortBy: ResolverTypeWrapper<Partial<SearchSortBy>>;
+  SearchSortInput: ResolverTypeWrapper<Partial<SearchSortInput>>;
   SetFragranceRequestAccordsInput: ResolverTypeWrapper<Partial<SetFragranceRequestAccordsInput>>;
   SetFragranceRequestBrandInput: ResolverTypeWrapper<Partial<SetFragranceRequestBrandInput>>;
   SetFragranceRequestNotesInput: ResolverTypeWrapper<Partial<SetFragranceRequestNotesInput>>;
@@ -1365,6 +1396,9 @@ export type ResolversParentTypes = ResolversObject<{
   RequestPaginationInput: Partial<RequestPaginationInput>;
   RequestSortInput: Partial<RequestSortInput>;
   ResendSignUpCodeInput: Partial<ResendSignUpCodeInput>;
+  SearchAccordsInput: Partial<SearchAccordsInput>;
+  SearchPaginationInput: Partial<SearchPaginationInput>;
+  SearchSortInput: Partial<SearchSortInput>;
   SetFragranceRequestAccordsInput: Partial<SetFragranceRequestAccordsInput>;
   SetFragranceRequestBrandInput: Partial<SetFragranceRequestBrandInput>;
   SetFragranceRequestNotesInput: Partial<SetFragranceRequestNotesInput>;
@@ -1785,6 +1819,7 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   noteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
+  searchAccords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, RequireFields<QuerySearchAccordsArgs, 'input'>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 

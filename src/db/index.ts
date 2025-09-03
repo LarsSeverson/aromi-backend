@@ -2,7 +2,7 @@ import { type ApiError } from '@src/common/error'
 import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely'
 import { type Result } from 'neverthrow'
 import { types } from 'pg'
-import { type DB } from './schema'
+import { type DB } from '../generated/db-schema'
 import { createPool } from './pool'
 
 types.setTypeParser(1114, str => str)

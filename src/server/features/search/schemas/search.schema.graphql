@@ -1,0 +1,14 @@
+enum SearchSortBy {
+  RELEVANCE
+}
+
+input SearchSortInput {
+  direction: SortDirection
+  by: SearchSortBy
+}
+
+input SearchPaginationInput {
+  first: Int
+  after: String
+  sort: SearchSortInput
+}
