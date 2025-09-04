@@ -149,6 +149,24 @@ export type Brand = {
   name: Scalars['String']['output'];
 };
 
+export type BrandConnection = {
+  __typename?: 'BrandConnection';
+  edges: Array<BrandEdge>;
+  pageInfo: PageInfo;
+};
+
+export type BrandEdge = {
+  __typename?: 'BrandEdge';
+  cursor: Scalars['String']['output'];
+  node: Brand;
+};
+
+export type BrandPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<BrandSortInput>;
+};
+
 export type BrandRequest = {
   __typename?: 'BrandRequest';
   description?: Maybe<Scalars['String']['output']>;
@@ -191,6 +209,16 @@ export type BrandRequestImageEdge = {
   __typename?: 'BrandRequestImageEdge';
   cursor: Scalars['String']['output'];
   node: BrandRequestImage;
+};
+
+export const BrandSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type BrandSortBy = typeof BrandSortBy[keyof typeof BrandSortBy];
+export type BrandSortInput = {
+  by?: InputMaybe<BrandSortBy>;
+  direction?: InputMaybe<SortDirection>;
 };
 
 export const Concentration = {
@@ -811,13 +839,16 @@ export type Query = {
   accords: AccordConnection;
   brandRequest: BrandRequest;
   brandRequests: BrandRequestConnection;
+  brands: BrandConnection;
   fragranceRequest: FragranceRequest;
   fragranceRequests: FragranceRequestConnection;
   me: User;
   noteRequest: NoteRequest;
   noteRequests: NoteRequestConnection;
   notes: NoteConnection;
-  searchAccords: AccordConnection;
+  searchAccords: Array<Accord>;
+  searchBrands: Array<Brand>;
+  searchNotes: Array<Note>;
   user: User;
 };
 
@@ -847,6 +878,11 @@ export type QueryBrandRequestsArgs = {
 };
 
 
+export type QueryBrandsArgs = {
+  input?: InputMaybe<BrandPaginationInput>;
+};
+
+
 export type QueryFragranceRequestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -873,7 +909,17 @@ export type QueryNotesArgs = {
 
 
 export type QuerySearchAccordsArgs = {
-  input: SearchAccordsInput;
+  input?: InputMaybe<SearchAccordsInput>;
+};
+
+
+export type QuerySearchBrandsArgs = {
+  input?: InputMaybe<SearchBrandsInput>;
+};
+
+
+export type QuerySearchNotesArgs = {
+  input?: InputMaybe<SearchNotesInput>;
 };
 
 
@@ -914,9 +960,19 @@ export type SearchAccordsInput = {
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SearchBrandsInput = {
+  pagination?: InputMaybe<SearchPaginationInput>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SearchNotesInput = {
+  pagination?: InputMaybe<SearchPaginationInput>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SearchPaginationInput = {
-  after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<SearchSortInput>;
 };
 
@@ -1212,12 +1268,17 @@ export type ResolversTypes = ResolversObject<{
   AvatarStatus: ResolverTypeWrapper<Partial<AvatarStatus>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']['output']>>;
   Brand: ResolverTypeWrapper<IBrandSummary>;
+  BrandConnection: ResolverTypeWrapper<Partial<Omit<BrandConnection, 'edges'> & { edges: Array<ResolversTypes['BrandEdge']> }>>;
+  BrandEdge: ResolverTypeWrapper<Partial<Omit<BrandEdge, 'node'> & { node: ResolversTypes['Brand'] }>>;
+  BrandPaginationInput: ResolverTypeWrapper<Partial<BrandPaginationInput>>;
   BrandRequest: ResolverTypeWrapper<IBrandRequestSummary>;
   BrandRequestConnection: ResolverTypeWrapper<Partial<Omit<BrandRequestConnection, 'edges'> & { edges: Array<ResolversTypes['BrandRequestEdge']> }>>;
   BrandRequestEdge: ResolverTypeWrapper<Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversTypes['BrandRequest'] }>>;
   BrandRequestImage: ResolverTypeWrapper<Partial<BrandRequestImage>>;
   BrandRequestImageConnection: ResolverTypeWrapper<Partial<BrandRequestImageConnection>>;
   BrandRequestImageEdge: ResolverTypeWrapper<Partial<BrandRequestImageEdge>>;
+  BrandSortBy: ResolverTypeWrapper<Partial<BrandSortBy>>;
+  BrandSortInput: ResolverTypeWrapper<Partial<BrandSortInput>>;
   Concentration: ResolverTypeWrapper<Partial<Concentration>>;
   ConfirmForgotPasswordInput: ResolverTypeWrapper<Partial<ConfirmForgotPasswordInput>>;
   ConfirmSignUpInput: ResolverTypeWrapper<Partial<ConfirmSignUpInput>>;
@@ -1281,6 +1342,8 @@ export type ResolversTypes = ResolversObject<{
   RequestStatus: ResolverTypeWrapper<Partial<RequestStatus>>;
   ResendSignUpCodeInput: ResolverTypeWrapper<Partial<ResendSignUpCodeInput>>;
   SearchAccordsInput: ResolverTypeWrapper<Partial<SearchAccordsInput>>;
+  SearchBrandsInput: ResolverTypeWrapper<Partial<SearchBrandsInput>>;
+  SearchNotesInput: ResolverTypeWrapper<Partial<SearchNotesInput>>;
   SearchPaginationInput: ResolverTypeWrapper<Partial<SearchPaginationInput>>;
   SearchSortBy: ResolverTypeWrapper<Partial<SearchSortBy>>;
   SearchSortInput: ResolverTypeWrapper<Partial<SearchSortInput>>;
@@ -1334,12 +1397,16 @@ export type ResolversParentTypes = ResolversObject<{
   AuthTokenPayload: Partial<AuthTokenPayload>;
   Boolean: Partial<Scalars['Boolean']['output']>;
   Brand: IBrandSummary;
+  BrandConnection: Partial<Omit<BrandConnection, 'edges'> & { edges: Array<ResolversParentTypes['BrandEdge']> }>;
+  BrandEdge: Partial<Omit<BrandEdge, 'node'> & { node: ResolversParentTypes['Brand'] }>;
+  BrandPaginationInput: Partial<BrandPaginationInput>;
   BrandRequest: IBrandRequestSummary;
   BrandRequestConnection: Partial<Omit<BrandRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['BrandRequestEdge']> }>;
   BrandRequestEdge: Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversParentTypes['BrandRequest'] }>;
   BrandRequestImage: Partial<BrandRequestImage>;
   BrandRequestImageConnection: Partial<BrandRequestImageConnection>;
   BrandRequestImageEdge: Partial<BrandRequestImageEdge>;
+  BrandSortInput: Partial<BrandSortInput>;
   ConfirmForgotPasswordInput: Partial<ConfirmForgotPasswordInput>;
   ConfirmSignUpInput: Partial<ConfirmSignUpInput>;
   CreateAccordRequestInput: Partial<CreateAccordRequestInput>;
@@ -1397,6 +1464,8 @@ export type ResolversParentTypes = ResolversObject<{
   RequestSortInput: Partial<RequestSortInput>;
   ResendSignUpCodeInput: Partial<ResendSignUpCodeInput>;
   SearchAccordsInput: Partial<SearchAccordsInput>;
+  SearchBrandsInput: Partial<SearchBrandsInput>;
+  SearchNotesInput: Partial<SearchNotesInput>;
   SearchPaginationInput: Partial<SearchPaginationInput>;
   SearchSortInput: Partial<SearchSortInput>;
   SetFragranceRequestAccordsInput: Partial<SetFragranceRequestAccordsInput>;
@@ -1524,6 +1593,18 @@ export type BrandResolvers<ContextType = ApiContext, ParentType extends Resolver
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandConnection'] = ResolversParentTypes['BrandConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['BrandEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BrandEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandEdge'] = ResolversParentTypes['BrandEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1813,13 +1894,16 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   accords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, Partial<QueryAccordsArgs>>;
   brandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<QueryBrandRequestArgs, 'id'>>;
   brandRequests?: Resolver<ResolversTypes['BrandRequestConnection'], ParentType, ContextType, Partial<QueryBrandRequestsArgs>>;
+  brands?: Resolver<ResolversTypes['BrandConnection'], ParentType, ContextType, Partial<QueryBrandsArgs>>;
   fragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<QueryFragranceRequestArgs, 'id'>>;
   fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<QueryFragranceRequestsArgs>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   noteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
-  searchAccords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, RequireFields<QuerySearchAccordsArgs, 'input'>>;
+  searchAccords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
+  searchBrands?: Resolver<Array<ResolversTypes['Brand']>, ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;
+  searchNotes?: Resolver<Array<ResolversTypes['Note']>, ParentType, ContextType, Partial<QuerySearchNotesArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 
@@ -1890,6 +1974,8 @@ export type Resolvers<ContextType = ApiContext> = ResolversObject<{
   AuthDeliveryResult?: AuthDeliveryResultResolvers<ContextType>;
   AuthTokenPayload?: AuthTokenPayloadResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;
+  BrandConnection?: BrandConnectionResolvers<ContextType>;
+  BrandEdge?: BrandEdgeResolvers<ContextType>;
   BrandRequest?: BrandRequestResolvers<ContextType>;
   BrandRequestConnection?: BrandRequestConnectionResolvers<ContextType>;
   BrandRequestEdge?: BrandRequestEdgeResolvers<ContextType>;

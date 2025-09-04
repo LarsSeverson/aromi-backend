@@ -1,4 +1,4 @@
-import type { DataSources } from '@src/server/datasources'
+import type { DataSources } from '@src/datasources'
 
 export abstract class ApiService {
   sources: DataSources

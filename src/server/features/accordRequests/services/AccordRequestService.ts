@@ -1,6 +1,6 @@
 import { TableService } from '@src/server/services/TableService'
 import { type AccordRequestRow } from '../types'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { AccordRequestImageService } from './AccordRequestImageService'
 import { type Table } from '@src/server/services/Table'
 import { AccordRequestVoteService } from './AccordRequestVoteService'

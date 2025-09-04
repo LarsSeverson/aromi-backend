@@ -1,10 +1,10 @@
 import { TableService } from '@src/server/services/TableService'
 import { type FragranceRequestNoteRow } from '../types'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/generated/db-schema'
 import { ResultAsync } from 'neverthrow'
-import { type NoteRow } from '@src/server/features/notes/types'
+import { type NoteRow } from '@src/db/types'
 import { ApiError } from '@src/common/error'
 
 export class FragranceRequestNoteService extends TableService<'fragranceRequestNotes', FragranceRequestNoteRow> {

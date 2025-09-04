@@ -1,15 +1,11 @@
-import { SortDirection, type SearchSortInput } from '@src/generated/gql-types'
-import { PaginationFactory, type SortSpec } from '@src/server/factories/PaginationFactory'
+import { type SearchSortInput, SortDirection } from '@src/generated/gql-types'
+import { OffsetPaginationFactory, type OffsetSortSpec } from '@src/server/factories/OffsetPaginationFactory'
 
-export class SearchPaginationFactory extends PaginationFactory<SearchSortInput, number> {
-  protected resolveSort (sort?: SearchSortInput | null | undefined): SortSpec<number> {
-    switch (sort?.by) {
-      default:
-        return {
-          column: '_score',
-          direction: SortDirection.Descending,
-          decoder: v => Number(v)
-        }
+export class SearchPaginationFactory extends OffsetPaginationFactory<SearchSortInput> {
+  protected resolveSort (sort?: SearchSortInput | null | undefined): OffsetSortSpec {
+    return {
+      column: undefined,
+      direction: sort?.direction ?? SortDirection.Descending
     }
   }
 }

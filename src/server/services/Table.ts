@@ -3,8 +3,8 @@ import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type S
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 import { type UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser'
 import { type DBAny } from '@src/types/util'
-import { type DataSources } from '@src/server/datasources'
-import { type PaginationInput } from '@src/server/factories/PaginationFactory'
+import { type DataSources } from '@src/datasources'
+import { type CursorPaginationInput } from '@src/server/factories/CursorPaginationFactory'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: string, deletedAt: Date | null }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -139,7 +139,7 @@ export class Table<T extends keyof DB, R> {
   }
 
   paginatedQuery <C>(
-    input: PaginationInput<C>,
+    input: CursorPaginationInput<C>,
     qb: SelectQueryBuilder<DB, T, R> = this.baseQuery
   ): SelectQueryBuilder<DB, T, R> {
     const alias = this.alias ?? this.table

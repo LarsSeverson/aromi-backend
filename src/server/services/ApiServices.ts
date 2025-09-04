@@ -1,4 +1,5 @@
-import type { DataSources } from '@src/server/datasources'
+import type { DataSources } from '@src/datasources'
+import { SearchServices } from '@src/search/services/SearchServices'
 import { AccordRequestService } from '@src/server/features/accordRequests/services/AccordRequestService'
 import { AccordService } from '@src/server/features/accords/services/AccordService'
 import { AssetService } from '@src/server/features/assets/services/AssetService'
@@ -27,6 +28,8 @@ export class ApiServices {
   accords: AccordService
   notes: NoteService
 
+  search: SearchServices
+
   constructor (sources: DataSources) {
     this.auth = new AuthService(sources)
     this.assets = new AssetService(sources)
@@ -42,5 +45,7 @@ export class ApiServices {
     this.traits = new TraitService(sources)
     this.accords = new AccordService(sources)
     this.notes = new NoteService(sources)
+
+    this.search = new SearchServices(sources)
   }
 }

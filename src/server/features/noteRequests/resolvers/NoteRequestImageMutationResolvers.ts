@@ -4,7 +4,7 @@ import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { throwError } from '@src/common/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { FinalizeNoteRequestImageSchema, StageNoteRequestImageSchema } from '../utils/validation'
-import { genNoteRequestsKey } from '@src/server/datasources/s3/utils'
+import { genNoteRequestsKey } from '@src/datasources/s3/utils'
 import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
 
 export class NoteRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {

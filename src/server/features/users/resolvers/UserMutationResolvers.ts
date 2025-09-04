@@ -4,7 +4,7 @@ import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapUserRowToUserSummary } from '../utils/mappers'
 import { parseSchema } from '@src/server/utils/validation'
 import { UpdateUserSchema } from './validation'
-import { genAvatarUploadKey } from '@src/server/datasources/s3/utils'
+import { genAvatarUploadKey } from '@src/datasources/s3/utils'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (

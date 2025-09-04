@@ -105,6 +105,22 @@ type Brand {
   name: String!
 }
 
+type BrandConnection {
+  edges: [BrandEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BrandEdge {
+  cursor: String!
+  node: Brand!
+}
+
+input BrandPaginationInput {
+  after: String
+  first: Int
+  sort: BrandSortInput
+}
+
 type BrandRequest {
   description: String
   id: ID!
@@ -141,6 +157,15 @@ type BrandRequestImageConnection {
 type BrandRequestImageEdge {
   cursor: String!
   node: BrandRequestImage!
+}
+
+enum BrandSortBy {
+  RECENT
+}
+
+input BrandSortInput {
+  by: BrandSortBy
+  direction: SortDirection
 }
 
 enum Concentration {
@@ -505,13 +530,16 @@ type Query {
   accords(input: AccordPaginationInput): AccordConnection!
   brandRequest(id: ID!): BrandRequest!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
+  brands(input: BrandPaginationInput): BrandConnection!
   fragranceRequest(id: ID!): FragranceRequest!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   me: User!
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
-  searchAccords(input: SearchAccordsInput!): AccordConnection!
+  searchAccords(input: SearchAccordsInput): [Accord!]!
+  searchBrands(input: SearchBrandsInput): [Brand!]!
+  searchNotes(input: SearchNotesInput): [Note!]!
   user(id: ID!): User!
 }
 
@@ -546,9 +574,19 @@ input SearchAccordsInput {
   term: String
 }
 
+input SearchBrandsInput {
+  pagination: SearchPaginationInput
+  term: String
+}
+
+input SearchNotesInput {
+  pagination: SearchPaginationInput
+  term: String
+}
+
 input SearchPaginationInput {
-  after: String
   first: Int
+  offset: Int
   sort: SearchSortInput
 }
 

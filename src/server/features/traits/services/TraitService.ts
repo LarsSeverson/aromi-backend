@@ -1,4 +1,4 @@
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { ApiService } from '@src/server/services/ApiService'
 import { TraitTypeService } from './TraitTypeService'
 import { TraitOptionService } from './TraitOptionService'

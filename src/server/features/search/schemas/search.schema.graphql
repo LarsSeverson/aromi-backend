@@ -9,6 +9,6 @@ input SearchSortInput {
 
 input SearchPaginationInput {
   first: Int
-  after: String
+  offset: Int
   sort: SearchSortInput
 }

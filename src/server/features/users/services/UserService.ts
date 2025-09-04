@@ -1,4 +1,4 @@
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { TableService } from '@src/server/services/TableService'
 import { type UserRow } from '../types'
 

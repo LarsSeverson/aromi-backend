@@ -3,3 +3,32 @@ type Brand {
   name: String!
   image: Asset!
 }
+
+type BrandEdge {
+  node: Brand!
+  cursor: String!
+}
+
+type BrandConnection {
+  edges: [BrandEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum BrandSortBy {
+  RECENT
+}
+
+input BrandSortInput {
+  direction: SortDirection
+  by: BrandSortBy
+}
+
+input BrandPaginationInput {
+  first: Int
+  after: String
+  sort: BrandSortInput
+}
+
+extend type Query {
+  brands(input: BrandPaginationInput): BrandConnection!
+}

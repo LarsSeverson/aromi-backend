@@ -1,27 +1,13 @@
-import { ASCENDING_ORDER, DESCENDING_ORDER } from '@src/common/constants'
+import { PAGINATION_DIRECTIONS, PAGINATION_OPERATORS, type PaginationDirection, type PaginationOperator } from '@src/types/util'
 import { type CursorDecoder, type ApiCursor, CursorFactory } from './CursorFactory'
-import { SortDirection } from '@src/generated/gql-types'
+import { type SortDirection } from '@src/generated/gql-types'
 
 export const DEFAULT_LIMIT = 24
 export const MAX_LIMIT = 44
 
-export const PAGINATION_OPERATORS = {
-  [SortDirection.Ascending]: '>',
-  [SortDirection.Descending]: '<'
-} as const
-
-export const PAGINATION_DIRECTIONS = {
-  [SortDirection.Ascending]: ASCENDING_ORDER,
-  [SortDirection.Descending]: DESCENDING_ORDER
-} as const
-
-export type PaginationOperator = typeof PAGINATION_OPERATORS[keyof typeof PAGINATION_OPERATORS]
-
-export type PaginationDirection = typeof PAGINATION_DIRECTIONS[keyof typeof PAGINATION_DIRECTIONS]
-
-export interface PaginationInput<C> {
+export interface CursorPaginationInput<C> {
   first: number
-  column?: string
+  column: string
 
   operator: PaginationOperator
   direction: PaginationDirection
@@ -29,25 +15,25 @@ export interface PaginationInput<C> {
   cursor: ApiCursor<C>
 }
 
-export interface SortSpec<C> {
-  column?: string
+export interface CursorSortSpec<C> {
+  column: string
   direction: SortDirection
   decoder?: CursorDecoder<C>
 }
 
-export interface NormalizedInput<C> {
+export interface NormalizedCursorInput<C> {
   first: number
   after: string
-  sort: SortSpec<C>
+  sort: CursorSortSpec<C>
 }
 
-export interface RawArgs<S> {
+export interface RawCursorPaginationArgs<S> {
   first?: number | null
   after?: string | null
   sort?: S | null
 }
 
-export abstract class PaginationFactory<S, C> {
+export abstract class CursorPaginationFactory<S, C> {
   protected cursorFactory: CursorFactory = new CursorFactory()
 
   protected clampFirst (num?: number | null): number {
@@ -55,9 +41,9 @@ export abstract class PaginationFactory<S, C> {
     return val
   }
 
-  protected abstract resolveSort (sort?: S | null): SortSpec<C>
+  protected abstract resolveSort (sort?: S | null): CursorSortSpec<C>
 
-  normalize (raw?: RawArgs<S> | null): NormalizedInput<C> {
+  normalize (raw?: RawCursorPaginationArgs<S> | null): NormalizedCursorInput<C> {
     const first = this.clampFirst(raw?.first)
     const after = raw?.after ?? ''
     const sort = this.resolveSort(raw?.sort)
@@ -65,7 +51,7 @@ export abstract class PaginationFactory<S, C> {
     return { first, after, sort }
   }
 
-  parse (raw?: RawArgs<S> | null): PaginationInput<C> {
+  parse (raw?: RawCursorPaginationArgs<S> | null): CursorPaginationInput<C> {
     const {
       first,
       after,

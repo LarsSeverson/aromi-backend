@@ -1,6 +1,6 @@
 import { TableService } from '@src/server/services/TableService'
 import { type FragranceRequestTraitRow } from '../types'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'

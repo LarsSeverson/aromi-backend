@@ -18,6 +18,7 @@ import { UserMutationResolvers } from '@src/server/features/users/resolvers/User
 import { UserQueryResolvers } from '@src/server/features/users/resolvers/UserQueryResolvers'
 import { type Resolvers } from '@src/generated/gql-types'
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
+import { BrandQueryResolvers } from '../features/brands/resolvers/BrandQueryResolvers'
 
 const authMutations = new AuthMutationResolvers()
 
@@ -41,6 +42,8 @@ const noteRequestQueries = new NoteRequestQueryResolvers()
 const noteRequestFieldResolvers = new NoteRequestFieldResolvers()
 const noteRequestMutations = new NoteRequestMutationResolvers()
 
+const brandQueries = new BrandQueryResolvers()
+
 const accordQueries = new AccordQueryResolvers()
 
 const noteQueries = new NoteQueryResolvers()
@@ -51,6 +54,8 @@ export const ApiResolvers: Resolvers = {
 
   Query: {
     ...userQueries.getResolvers(),
+
+    ...brandQueries.getResolvers(),
 
     ...accordQueries.getResolvers(),
 

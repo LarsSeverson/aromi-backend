@@ -4,6 +4,7 @@ import { type Result } from 'neverthrow'
 import { types } from 'pg'
 import { type DB } from '../generated/db-schema'
 import { createPool } from './pool'
+export * from './types'
 
 types.setTypeParser(1114, str => str)
 types.setTypeParser(1184, str => str)

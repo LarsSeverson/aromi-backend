@@ -1,8 +1,8 @@
-import { PaginationFactory, type SortSpec } from '@src/server/factories/PaginationFactory'
+import { CursorPaginationFactory, type CursorSortSpec } from '@src/server/factories/CursorPaginationFactory'
 import { SortDirection, type NoteSortInput } from '@src/generated/gql-types'
 
-export class NotePaginationFactory extends PaginationFactory<NoteSortInput, string> {
-  protected resolveSort (sort?: NoteSortInput | null | undefined): SortSpec<string> {
+export class NotePaginationFactory extends CursorPaginationFactory<NoteSortInput, string> {
+  protected resolveSort (sort?: NoteSortInput | null | undefined): CursorSortSpec<string> {
     switch (sort?.by) {
       default:
         return {

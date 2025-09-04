@@ -4,12 +4,12 @@ import { ApiError, throwError } from '@src/common/error'
 import { type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/generated/db-schema'
 import { ApiService } from './ApiService'
-import { type DataSources } from '@src/server/datasources'
-import { type PaginationInput } from '@src/server/factories/PaginationFactory'
+import { type DataSources } from '@src/datasources'
+import { type CursorPaginationInput } from '@src/server/factories/CursorPaginationFactory'
 import { type InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
-  pagination?: PaginationInput<C>
+  pagination?: CursorPaginationInput<C>
   extend?: ExtendSelectFn<T, R>
 }
 
@@ -190,7 +190,7 @@ export abstract class TableService<T extends keyof DB, R> extends ApiService {
   }
 
   paginate <C>(
-    input: PaginationInput<C>
+    input: CursorPaginationInput<C>
   ): ResultAsync<R[], ApiError> {
     const query = this
       .Table

@@ -4,5 +4,5 @@ input SearchAccordsInput {
 }
 
 extend type Query {
-  searchAccords(input: SearchAccordsInput!): AccordConnection!
+  searchAccords(input: SearchAccordsInput): [Accord!]!
 }

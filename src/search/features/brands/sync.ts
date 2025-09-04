@@ -1,0 +1,28 @@
+import { ApiError } from '@src/common/error'
+import { type DataSources } from '@src/datasources'
+import { ResultAsync } from 'neverthrow'
+
+export const syncBrands = (
+  meili: DataSources['meili'],
+  db: DataSources['db']
+): ResultAsync<undefined, ApiError> => {
+  return ResultAsync
+    .fromPromise(
+      db
+        .selectFrom('brands')
+        .selectAll()
+        .where('deletedAt', 'is', null)
+        .execute(),
+      error => ApiError.fromDatabase(error)
+    )
+    .andThen(brands => ResultAsync
+      .fromPromise(
+        meili
+          .client
+          .index('brands')
+          .addDocuments(brands),
+        error => ApiError.fromMeili(error)
+      )
+    )
+    .map(() => undefined)
+}

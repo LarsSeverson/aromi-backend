@@ -1,5 +1,5 @@
 import { type PageInfo } from '@src/generated/gql-types'
-import { type PaginationInput } from './PaginationFactory'
+import { type CursorPaginationInput } from './CursorPaginationFactory'
 import { CursorFactory } from './CursorFactory'
 
 export interface BaseNode {
@@ -21,7 +21,7 @@ export class PageFactory<C> {
 
   paginate<N extends BaseNode>(
     rows: N[],
-    pagination: PaginationInput<C>
+    pagination: CursorPaginationInput<C>
   ): RelayConnection<N> {
     const { first, column, cursor } = pagination
 

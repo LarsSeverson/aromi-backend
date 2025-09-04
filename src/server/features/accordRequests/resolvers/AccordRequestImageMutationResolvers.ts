@@ -4,7 +4,7 @@ import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { throwError } from '@src/common/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { FinalizeAccordRequestImageSchema, StageAccordRequestImageSchema } from '../utils/validation'
-import { genAccordRequestsKey } from '@src/server/datasources/s3/utils'
+import { genAccordRequestsKey } from '@src/datasources/s3/utils'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
 
 export class AccordRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {

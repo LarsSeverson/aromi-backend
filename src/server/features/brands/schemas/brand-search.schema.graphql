@@ -1,0 +1,8 @@
+input SearchBrandsInput {
+  term: String
+  pagination: SearchPaginationInput
+}
+
+extend type Query {
+  searchBrands(input: SearchBrandsInput): [Brand!]!
+}

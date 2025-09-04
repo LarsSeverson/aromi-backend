@@ -11,6 +11,14 @@ export interface Env {
   DB_NAME: string
   DB_PORT: string
 
+  REDIS_HOST: string
+  REDIS_PORT: string
+  REDIS_URL: string
+
+  MEILI_HOST: string
+  MEILI_MASTER_KEY: string
+  MEILI_ENV: string
+
   COGNITO_USER_POOL_ID: string
   COGNITO_CLIENT_ID: string
   COGNITO_JWKS_URI: string

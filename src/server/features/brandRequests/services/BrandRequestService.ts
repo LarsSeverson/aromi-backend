@@ -1,6 +1,6 @@
 import { TableService } from '@src/server/services/TableService'
 import { type BrandRequestRow } from '../types'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { BrandRequestImageService } from './BrandRequestImageService'
 import { type Table } from '@src/server/services/Table'
 import { BrandRequestVoteService } from './BrandRequestVoteService'

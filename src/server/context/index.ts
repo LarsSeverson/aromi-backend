@@ -1,5 +1,5 @@
 import { type ExpressContextFunctionArgument } from '@as-integrations/express5'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { type ApiServices } from '@src/server/services/ApiServices'
 import { getMyContext } from './myContext'
 import { type UserRow } from '@src/server/features/users/types'

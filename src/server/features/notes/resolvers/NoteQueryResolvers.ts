@@ -2,9 +2,11 @@ import { type QueryResolvers } from '@src/generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory'
 import { throwError } from '@src/common/error'
+import { SearchPaginationFactory } from '../../search/factories/SearchPaginationFactory'
 
 export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly pagination = new NotePaginationFactory()
+  private readonly searchPagination = new SearchPaginationFactory()
 
   notes: QueryResolvers['notes'] = async (
     _,
@@ -30,9 +32,36 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
       )
   }
 
+  searchNotes: QueryResolvers['searchNotes'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+
+    const { term, pagination } = input ?? {}
+    const offsetPagination = this.searchPagination.parse(pagination)
+
+    const { search } = services
+
+    return await search
+      .notes
+      .search({
+        term,
+        pagination: offsetPagination
+      })
+      .match(
+        ({ hits }) => hits,
+        throwError
+      )
+  }
+
   getResolvers (): QueryResolvers {
     return {
-      notes: this.notes
+      notes: this.notes,
+      searchNotes: this.searchNotes
     }
   }
 }

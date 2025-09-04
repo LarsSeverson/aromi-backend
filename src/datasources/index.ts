@@ -8,6 +8,7 @@ import { createJwksClient } from './jwks'
 import { type CognitoWrapper, createCognitoWrapper } from './cognito'
 import { createS3Wrapper, type S3Wrapper } from './s3'
 import { createCdnWrapper, type CdnWrapper } from './cdn'
+import { createMeiliSearchWrapper, type MeiliSearchWrapper } from './meilisearch'
 
 export interface DataSources {
   db: Kysely<DB>
@@ -16,6 +17,7 @@ export interface DataSources {
   cognito: CognitoWrapper
   s3: S3Wrapper
   cdn: CdnWrapper
+  meili: MeiliSearchWrapper
 }
 
 export const getDataSources = (): Result<DataSources, ApiError> => {
@@ -25,19 +27,22 @@ export const getDataSources = (): Result<DataSources, ApiError> => {
       createJwksClient(),
       createCognitoWrapper(),
       createS3Wrapper(),
-      createCdnWrapper()
+      createCdnWrapper(),
+      createMeiliSearchWrapper()
     ])
     .map(([
       db,
       jwks,
       cognito,
       s3,
-      cdn
+      cdn,
+      meili
     ]) => ({
       db,
       jwks,
       cognito,
       s3,
-      cdn
+      cdn,
+      meili
     }))
 }

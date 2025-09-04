@@ -1,4 +1,4 @@
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { ApiService } from '@src/server/services/ApiService'
 import { type PresignUploadParams } from '../types'
 import { ResultAsync } from 'neverthrow'

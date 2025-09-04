@@ -37,6 +37,13 @@ export class ApiError extends GraphQLError {
     return new ApiError('S3_SERVICE_ERROR', 'Something went wrong. Please try again later', 500, error)
   }
 
+  static fromMeili (error: unknown): ApiError {
+    const typed = error as Error
+    const mapping = MEILI_ERROR_TO_API_ERROR[typed.name]
+    if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
+    return new ApiError('SEARCH_SERVICE_ERROR', 'Something went wrong with search. Please try again later', 500, error)
+  }
+
   serialize (): GraphQLFormattedError {
     const { message, extensions } = this
 
@@ -86,6 +93,13 @@ export const S3_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   EntityTooLarge: new ApiError('S3_FILE_TOO_LARGE', 'The uploaded file is too large', 413),
   SlowDown: new ApiError('S3_TOO_MANY_REQUESTS', 'Too many requests to S3, please slow down', 429),
   NotFound: new ApiError('S3_NO_OBJECT', 'The requested asset does not exist', 404)
+} as const
+
+export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
+  MeiliSearchCommunicationError: new ApiError('SEARCH_COMMUNICATION_ERROR', 'Could not reach search service', 503),
+  MeiliSearchApiError: new ApiError('SEARCH_API_ERROR', 'Search service returned an error', 502),
+  MeiliSearchError: new ApiError('SEARCH_ERROR', 'Unexpected search service error', 500),
+  TimeoutError: new ApiError('SEARCH_TIMEOUT', 'Search request timed out', 504)
 } as const
 
 export const throwError = (error: unknown): never => {

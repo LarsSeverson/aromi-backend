@@ -1,5 +1,5 @@
 import { TableService } from '@src/server/services/TableService'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { type Kysely, type SelectQueryBuilder, type ExpressionOrFactory, type SqlBool } from 'kysely'
 import { type DB } from '@src/generated/db-schema'
 import { ResultAsync } from 'neverthrow'

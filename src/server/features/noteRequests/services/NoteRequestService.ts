@@ -1,6 +1,6 @@
 import { TableService } from '@src/server/services/TableService'
 import { type NoteRequestRow } from '../types'
-import { type DataSources } from '@src/server/datasources'
+import { type DataSources } from '@src/datasources'
 import { NoteRequestImageService } from './NoteRequestImageService'
 import { type Table } from '@src/server/services/Table'
 import { NoteRequestVoteService } from './NoteRequestVoteService'
