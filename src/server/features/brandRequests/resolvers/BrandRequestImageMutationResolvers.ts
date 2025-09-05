@@ -1,9 +1,9 @@
 import { parseSchema } from '@src/server/utils/validation'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { FinalizeBrandRequestImageSchema, StageBrandRequestImageSchema } from '../utils/validation'
 import { genBrandRequestsKey } from '@src/datasources/s3/utils'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers'
 
@@ -33,7 +33,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
     }
 
     return await brandRequests
-      .withTransaction(() => brandRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', id),
@@ -41,7 +41,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
             eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
           ])
         )
-        .andThen(() => brandRequests
+        .andThen(() => trxService
           .images
           .create(values)
         )
@@ -75,7 +75,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
     }
 
     return await brandRequests
-      .withTransaction(() => brandRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('brandRequests.id', '=', requestId),
@@ -88,7 +88,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThen(request => brandRequests
+        .andThen(request => trxService
           .images
           .softDeleteOne(
             eb => eb.and([
@@ -104,7 +104,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
           })
           .map(oldAsset => ({ oldAsset, request }))
         )
-        .andThrough(() => brandRequests
+        .andThrough(() => trxService
           .images
           .updateOne(
             eb => eb.and([

@@ -1,5 +1,5 @@
 import { CursorPaginationFactory, type CursorSortSpec } from '@src/server/factories/CursorPaginationFactory'
-import { SortDirection, type RequestSortInput } from '@src/generated/gql-types'
+import { SortDirection, type RequestSortInput } from '@generated/gql-types'
 
 export class RequestPaginationFactory extends CursorPaginationFactory<RequestSortInput, string> {
   protected resolveSort (sort?: RequestSortInput | null | undefined): CursorSortSpec<string> {

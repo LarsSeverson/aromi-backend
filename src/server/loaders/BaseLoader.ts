@@ -1,11 +1,11 @@
-import { type ApiServices } from '@src/server/services/ApiServices'
+import { type ServerServices } from '@src/server/services/ServerServices'
 import type DataLoader from 'dataloader'
 
 export abstract class BaseLoader<K> {
   protected readonly cache = new Map<string, DataLoader<K, unknown>>()
-  protected readonly services: ApiServices
+  protected readonly services: ServerServices
 
-  constructor (services: ApiServices) {
+  constructor (services: ServerServices) {
     this.services = services
   }
 

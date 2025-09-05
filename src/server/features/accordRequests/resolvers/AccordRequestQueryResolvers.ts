@@ -1,6 +1,6 @@
-import { ApiError, throwError } from '@src/common/error'
+import { ApiError, throwError } from '@src/utils/error'
 import { RequestPaginationFactory } from '@src/server/features/requests/factories/RequestPaginationFactory'
-import { type QueryResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
 import { errAsync, okAsync } from 'neverthrow'

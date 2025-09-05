@@ -1,5 +1,5 @@
-import { throwError } from '@src/common/error'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { throwError } from '@src/utils/error'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers'
 
@@ -18,14 +18,14 @@ export class BrandRequestVoteMutationResolvers extends BaseResolver<MutationReso
     const { brandRequests } = services
 
     return await brandRequests
-      .withTransaction(() => brandRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', requestId),
             eb('requestStatus', '=', 'PENDING')
           ])
         )
-        .andThrough(() => brandRequests
+        .andThrough(() => trxService
           .votes
           .upsert(
             { userId: me.id, requestId, vote },

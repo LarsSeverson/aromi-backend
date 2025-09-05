@@ -1,6 +1,6 @@
 import { ResultAsync } from 'neverthrow'
 import { startSever } from './server'
-import { ApiError } from '../common/error'
+import { ApiError } from '../utils/error'
 
 const main = (): ResultAsync<string, ApiError> => {
   return ResultAsync

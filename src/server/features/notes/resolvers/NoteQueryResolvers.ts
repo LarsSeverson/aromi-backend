@@ -1,7 +1,7 @@
-import { type QueryResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { SearchPaginationFactory } from '../../search/factories/SearchPaginationFactory'
 
 export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {

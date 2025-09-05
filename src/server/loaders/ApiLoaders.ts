@@ -2,7 +2,7 @@ import { AccordRequestLoaders } from '@src/server/features/accordRequests/loader
 import { BrandRequestLoaders } from '@src/server/features/brandRequests/loaders/BrandRequestLoaders'
 import { FragranceRequestLoaders } from '@src/server/features/fragranceRequests/loaders/FragranceRequestLoaders'
 import { NoteRequestLoaders } from '@src/server/features/noteRequests/loaders/NoteRequestLoaders'
-import { type ApiServices } from '@src/server/services/ApiServices'
+import { type ServerServices } from '@src/server/services/ServerServices'
 
 export class ApiLoaders {
   fragranceRequests: FragranceRequestLoaders
@@ -10,7 +10,7 @@ export class ApiLoaders {
   accordRequests: AccordRequestLoaders
   noteRequests: NoteRequestLoaders
 
-  constructor (services: ApiServices) {
+  constructor (services: ServerServices) {
     this.fragranceRequests = new FragranceRequestLoaders(services)
     this.brandRequests = new BrandRequestLoaders(services)
     this.accordRequests = new AccordRequestLoaders(services)

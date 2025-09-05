@@ -1,13 +1,13 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema: ['src/**/*.graphql', '!src/generated/**'],
+  schema: ['src/server/**/*.graphql'],
   generates: {
     'src/generated/gql-types.ts': {
       config: {
         useIndexSignature: true,
         enumsAsConst: true,
-        contextType: '@src/server/context#ApiContext',
+        contextType: '@src/server/context#ServerContext',
         defaultMapper: 'Partial<{T}>',
         scalars: {
           Date: 'Date',

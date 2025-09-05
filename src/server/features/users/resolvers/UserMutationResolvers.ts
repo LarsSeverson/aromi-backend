@@ -1,10 +1,10 @@
-import { ApiError, throwError } from '@src/common/error'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { ApiError, throwError } from '@src/utils/error'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapUserRowToUserSummary } from '../utils/mappers'
 import { parseSchema } from '@src/server/utils/validation'
 import { UpdateUserSchema } from './validation'
 import { genAvatarUploadKey } from '@src/datasources/s3/utils'
+import { type MutationResolvers } from '@generated/gql-types'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (

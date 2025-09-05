@@ -1,8 +1,8 @@
 import { GQLTraitToDBTrait } from '@src/server/features/traits/utils/mappers'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 
 export class FragranceRequestTraitMutationResolvers extends BaseResolver<MutationResolvers> {
   setFragranceRequestTrait: MutationResolvers['setFragranceRequestTrait'] = async (
@@ -24,7 +24,7 @@ export class FragranceRequestTraitMutationResolvers extends BaseResolver<Mutatio
     }
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('id', '=', requestId),
@@ -37,7 +37,7 @@ export class FragranceRequestTraitMutationResolvers extends BaseResolver<Mutatio
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThrough(() => fragranceRequests
+        .andThrough(() => trxService
           .traits
           .upsert(
             eb => ({

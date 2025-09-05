@@ -1,6 +1,6 @@
-import { type ApiError } from '@src/common/error'
-import { createDB } from '@src/db'
-import { type DB } from '@src/generated/db-schema'
+import { type ApiError } from '@src/utils/error'
+import { createDB } from './db'
+import { type DB } from '@generated/db-schema'
 import { type JwksClient } from 'jwks-rsa'
 import { type Kysely } from 'kysely'
 import { Result } from 'neverthrow'
@@ -9,6 +9,7 @@ import { type CognitoWrapper, createCognitoWrapper } from './cognito'
 import { createS3Wrapper, type S3Wrapper } from './s3'
 import { createCdnWrapper, type CdnWrapper } from './cdn'
 import { createMeiliSearchWrapper, type MeiliSearchWrapper } from './meilisearch'
+import { createRedisWrapper, type RedisWrapper } from './redis'
 
 export interface DataSources {
   db: Kysely<DB>
@@ -18,9 +19,10 @@ export interface DataSources {
   s3: S3Wrapper
   cdn: CdnWrapper
   meili: MeiliSearchWrapper
+  redis: RedisWrapper
 }
 
-export const getDataSources = (): Result<DataSources, ApiError> => {
+export const createDataSources = (): Result<DataSources, ApiError> => {
   return Result
     .combine([
       createDB(),
@@ -28,7 +30,8 @@ export const getDataSources = (): Result<DataSources, ApiError> => {
       createCognitoWrapper(),
       createS3Wrapper(),
       createCdnWrapper(),
-      createMeiliSearchWrapper()
+      createMeiliSearchWrapper(),
+      createRedisWrapper()
     ])
     .map(([
       db,
@@ -36,13 +39,15 @@ export const getDataSources = (): Result<DataSources, ApiError> => {
       cognito,
       s3,
       cdn,
-      meili
+      meili,
+      redis
     ]) => ({
       db,
       jwks,
       cognito,
       s3,
       cdn,
-      meili
+      meili,
+      redis
     }))
 }

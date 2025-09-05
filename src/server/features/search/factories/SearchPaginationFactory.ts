@@ -1,4 +1,4 @@
-import { type SearchSortInput, SortDirection } from '@src/generated/gql-types'
+import { type SearchSortInput, SortDirection } from '@generated/gql-types'
 import { OffsetPaginationFactory, type OffsetSortSpec } from '@src/server/factories/OffsetPaginationFactory'
 
 export class SearchPaginationFactory extends OffsetPaginationFactory<SearchSortInput> {

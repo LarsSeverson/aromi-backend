@@ -1,8 +1,8 @@
 import { RequestPaginationFactory } from '@src/server/features/requests/factories/RequestPaginationFactory'
-import { type QueryResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { ApiError, throwError } from '@src/common/error'
+import { ApiError, throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 
 export class FragranceRequestQueryResolvers extends BaseResolver<QueryResolvers> {

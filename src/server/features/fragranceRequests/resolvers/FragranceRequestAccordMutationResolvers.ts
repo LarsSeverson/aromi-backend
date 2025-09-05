@@ -1,8 +1,8 @@
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { okAsync } from 'neverthrow'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 
 export class FragranceRequestAccordMutationResolvers extends BaseResolver<MutationResolvers> {
   setFragranceRequestAccords: MutationResolvers['setFragranceRequestAccords'] = async (
@@ -23,7 +23,7 @@ export class FragranceRequestAccordMutationResolvers extends BaseResolver<Mutati
     }
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('id', '=', requestId),
@@ -36,7 +36,7 @@ export class FragranceRequestAccordMutationResolvers extends BaseResolver<Mutati
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThrough(() => fragranceRequests
+        .andThrough(() => trxService
           .accords
           .softDelete(
             eb => eb('requestId', '=', requestId)
@@ -51,7 +51,7 @@ export class FragranceRequestAccordMutationResolvers extends BaseResolver<Mutati
               accordId
             }))
 
-            return fragranceRequests
+            return trxService
               .accords
               .upsert(
                 insertValues,

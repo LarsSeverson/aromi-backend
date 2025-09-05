@@ -1,7 +1,7 @@
 import { parseSchema } from '@src/server/utils/validation'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { FinalizeAccordRequestImageSchema, StageAccordRequestImageSchema } from '../utils/validation'
 import { genAccordRequestsKey } from '@src/datasources/s3/utils'
@@ -33,7 +33,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
     }
 
     return await accordRequests
-      .withTransaction(() => accordRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', id),
@@ -41,13 +41,17 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
             eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
           ])
         )
-        .andThen(() => accordRequests
+        .andThen(() => trxService
           .images
           .create(values)
         )
       )
       .andThen(newRow => assets
-        .getPresignedUrl({ key: newRow.s3Key, contentType, maxSizeBytes: contentSize })
+        .getPresignedUrl({
+          key: newRow.s3Key,
+          contentType,
+          maxSizeBytes: contentSize
+        })
         .map(presigned => ({ newRow, presigned }))
       )
       .match(
@@ -75,7 +79,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
     }
 
     return await accordRequests
-      .withTransaction(() => accordRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('accordRequests.id', '=', requestId),
@@ -88,7 +92,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThen(request => accordRequests
+        .andThen(request => trxService
           .images
           .softDeleteOne(
             eb => eb.and([
@@ -104,7 +108,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
           })
           .map(oldAsset => ({ oldAsset, request }))
         )
-        .andThrough(() => accordRequests
+        .andThrough(() => trxService
           .images
           .updateOne(
             eb => eb.and([

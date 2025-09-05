@@ -1,10 +1,4 @@
-import { type DB } from '@src/generated/db-schema'
-import { type NoteRequest } from '@src/generated/gql-types'
-import { type Selectable } from 'kysely'
-
-export type NoteRequestRow = Selectable<DB['noteRequests']>
-export type NoteRequestImageRow = Selectable<DB['noteRequestImages']>
-export type NoteRequestVoteRow = Selectable<DB['noteRequestVotes']>
+import { type NoteRequest } from '@generated/gql-types'
 
 export interface INoteRequestSummary extends Omit<NoteRequest, 'image' | 'user' | 'votes'> {}
 

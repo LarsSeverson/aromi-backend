@@ -1,4 +1,4 @@
-import { type PageInfo } from '@src/generated/gql-types'
+import { type PageInfo } from '@generated/gql-types'
 import { type CursorPaginationInput } from './CursorPaginationFactory'
 import { CursorFactory } from './CursorFactory'
 

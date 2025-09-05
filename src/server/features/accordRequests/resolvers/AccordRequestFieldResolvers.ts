@@ -1,5 +1,5 @@
-import { ApiError, throwError } from '@src/common/error'
-import { type AccordRequestResolvers } from '@src/generated/gql-types'
+import { ApiError, throwError } from '@src/utils/error'
+import { type AccordRequestResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { ResultAsync } from 'neverthrow'
 import { mapAccordRequestImageRowToAccordImage } from '../utils/mappers'

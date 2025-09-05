@@ -1,8 +1,8 @@
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { okAsync } from 'neverthrow'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/server/features/fragrances/utils/mappers'
 
 export class FragranceRequestNoteMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -26,7 +26,7 @@ export class FragranceRequestNoteMutationResolvers extends BaseResolver<Mutation
     }
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('id', '=', requestId),
@@ -39,7 +39,7 @@ export class FragranceRequestNoteMutationResolvers extends BaseResolver<Mutation
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThrough(() => fragranceRequests
+        .andThrough(() => trxService
           .notes
           .softDelete(
             eb => eb.and([
@@ -58,7 +58,7 @@ export class FragranceRequestNoteMutationResolvers extends BaseResolver<Mutation
               layer: dbLayer
             }))
 
-            return fragranceRequests
+            return trxService
               .notes
               .upsert(
                 insertValues,

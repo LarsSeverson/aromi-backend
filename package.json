@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec \"yarn run start\"",
     "start": "yarn run build && node dist/server/main.js",
-    "build": "tsc && tsc-alias && copyfiles -u 2 src/generated/schema.graphql dist/generated",
+    "build": "tsc && tsc-alias && copyfiles src/generated/schema.graphql dist/generated",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -28,6 +28,7 @@
     "@aws-sdk/cloudfront-signer": "^3.813.0",
     "@aws-sdk/s3-presigned-post": "^3.873.0",
     "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "bullmq": "^5.58.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dataloader": "^2.2.3",
@@ -36,6 +37,7 @@
     "graphql": "^16.10.0",
     "graphql-depth-limit": "^1.1.0",
     "graphql-scalars": "^1.24.1",
+    "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "kysely": "^0.28.2",
@@ -74,7 +76,7 @@
   "kysely-codegen": {
     "dialect": "postgres",
     "url": "env(DB_URL)",
-    "outFile": "./src/generated/db-schema.d.ts",
+    "outFile": "./generated/db-schema.d.ts",
     "camelCase": true,
     "defaultSchemas": [
       "public"

@@ -23,5 +23,29 @@ services:
     volumes:
       - meili-data:/meili_data
 
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: aromi-server
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - meilisearch
+
+  test-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: aromi-test-worker
+    command: ["node", "dist/features/workers/main.js"]
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
 volumes:
   meili-data:

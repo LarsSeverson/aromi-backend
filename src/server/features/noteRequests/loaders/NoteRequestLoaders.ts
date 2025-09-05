@@ -1,8 +1,8 @@
 import { BaseLoader } from '@src/server/loaders/BaseLoader'
-import { type NoteRequestImageRow, type NoteRequestLoadersKey } from '../types'
+import { type NoteRequestLoadersKey } from '../types'
+import { type NoteRequestImageRow, type VoteInfoRow } from '@src/db'
 import DataLoader from 'dataloader'
-import { throwError } from '@src/common/error'
-import { type VoteInfoRow } from '@src/types/db-types'
+import { throwError } from '@src/utils/error'
 
 export class NoteRequestLoaders extends BaseLoader<NoteRequestLoadersKey> {
   getImageLoader (): DataLoader<NoteRequestLoadersKey, NoteRequestImageRow | null> {

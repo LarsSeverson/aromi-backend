@@ -1,6 +1,6 @@
-import { type QueryResolvers } from '@src/generated/gql-types'
+import { type QueryResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { SearchPaginationFactory } from '../../search/factories/SearchPaginationFactory'
 import { BrandPaginationFactory } from '../factories/BrandPaginationFactory'
 

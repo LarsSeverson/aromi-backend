@@ -1,9 +1,10 @@
 import { parseSchema, removeNullish } from '@src/server/utils/validation'
 import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from '@src/server/features/fragranceRequests/utils/validation'
-import type { FragranceRequestImageRow, FragranceRequestRow, IFragranceRequestSummary } from '@src/server/features/fragranceRequests/types'
+import type { IFragranceRequestSummary } from '@src/server/features/fragranceRequests/types'
+import type { FragranceRequestImageRow, FragranceRequestRow } from '@src/db/features/fragranceRequests/types'
 import { mapGQLStatusToDBStatus, mapGQLConcentrationToDBConcentration, mapDBStatusToGQLStatus, mapDBConcentrationToGQLConcentration } from '../../fragrances/utils/mappers'
-import { type RequestStatus, type UpdateFragranceRequestInput, type CreateFragranceRequestInput, type FragranceRequestTrait, type TraitTypeEnum, type FragranceRequestImage } from '@src/generated/gql-types'
-import { type CombinedTraitRow } from '@src/server/features/traits/types'
+import { type RequestStatus, type UpdateFragranceRequestInput, type CreateFragranceRequestInput, type FragranceRequestTrait, type TraitTypeEnum, type FragranceRequestImage } from '@generated/gql-types'
+import { type CombinedTraitRow } from '@src/db/features/traits/types'
 
 export const mapCreateFragranceRequestInputToRow = (
   input: CreateFragranceRequestInput

@@ -1,9 +1,9 @@
 import { parseSchema } from '@src/server/utils/validation'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation'
 import { genFragranceRequestsKey } from '@src/datasources/s3/utils'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
 
@@ -33,7 +33,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
     }
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', id),
@@ -41,7 +41,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
             eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
           ])
         )
-        .andThen(() => fragranceRequests
+        .andThen(() => trxService
           .images
           .create(values)
         )
@@ -75,7 +75,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
     }
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .updateOne(
           eb => eb.and([
             eb('fragranceRequests.id', '=', requestId),
@@ -88,7 +88,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
             version: eb(eb.ref('version'), '+', 1)
           })
         )
-        .andThen(request => fragranceRequests
+        .andThen(request => trxService
           .images
           .softDeleteOne(
             eb => eb.and([
@@ -104,7 +104,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
           })
           .map(oldAsset => ({ oldAsset, request }))
         )
-        .andThrough(() => fragranceRequests
+        .andThrough(() => trxService
           .images
           .updateOne(
             eb => eb.and([

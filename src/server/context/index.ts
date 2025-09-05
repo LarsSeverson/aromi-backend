@@ -1,13 +1,13 @@
 import { type ExpressContextFunctionArgument } from '@as-integrations/express5'
 import { type DataSources } from '@src/datasources'
-import { type ApiServices } from '@src/server/services/ApiServices'
+import { type ServerServices } from '@src/server/services/ServerServices'
 import { getMyContext } from './myContext'
-import { type UserRow } from '@src/server/features/users/types'
+import { type UserRow } from '@src/db/features/users/types'
 import { ApiLoaders } from '@src/server/loaders/ApiLoaders'
 
-export interface ApiContext extends ExpressContextFunctionArgument {
+export interface ServerContext extends ExpressContextFunctionArgument {
   sources: DataSources
-  services: ApiServices
+  services: ServerServices
   loaders: ApiLoaders
   me?: UserRow
 }
@@ -15,16 +15,16 @@ export interface ApiContext extends ExpressContextFunctionArgument {
 export interface GetContextParams {
   serverArgs: ExpressContextFunctionArgument
   sources: DataSources
-  services: ApiServices
+  services: ServerServices
 }
 
-export const getContext = async (params: GetContextParams): Promise<ApiContext> => {
+export const getContext = async (params: GetContextParams): Promise<ServerContext> => {
   const { serverArgs, sources, services } = params
   const { req, res } = serverArgs
 
   const loaders = new ApiLoaders(services)
 
-  const context: ApiContext = {
+  const context: ServerContext = {
     req,
     res,
     sources,

@@ -16,6 +16,24 @@
     "paths": {
       "@src/*": [
         "src/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@server/*": [
+        "src/server/*"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@generated/*": [
+        "src/generated/*"
+      ],
+      "@types/*": [
+        "types/*"
       ]
     },
     "esModuleInterop": true,

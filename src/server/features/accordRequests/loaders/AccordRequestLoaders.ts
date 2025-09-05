@@ -1,8 +1,8 @@
 import { BaseLoader } from '@src/server/loaders/BaseLoader'
-import { type AccordRequestImageRow, type AccordRequestLoadersKey } from '../types'
+import { type AccordRequestLoadersKey } from '../types'
+import { type AccordRequestImageRow, type VoteInfoRow } from '@src/db'
 import DataLoader from 'dataloader'
-import { throwError } from '@src/common/error'
-import { type VoteInfoRow } from '@src/types/db-types'
+import { throwError } from '@src/utils/error'
 
 export class AccordRequestLoaders extends BaseLoader<AccordRequestLoadersKey> {
   getImageLoader (): DataLoader<AccordRequestLoadersKey, AccordRequestImageRow | null> {

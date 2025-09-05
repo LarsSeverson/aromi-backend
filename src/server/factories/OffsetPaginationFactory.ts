@@ -1,4 +1,4 @@
-import { type SortDirection } from '@src/generated/gql-types'
+import { type SortDirection } from '@generated/gql-types'
 
 export const DEFAULT_LIMIT = 24
 export const MAX_LIMIT = 44

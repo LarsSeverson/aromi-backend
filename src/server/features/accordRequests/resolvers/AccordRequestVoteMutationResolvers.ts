@@ -1,7 +1,7 @@
-import { throwError } from '@src/common/error'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { throwError } from '@src/utils/error'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
+import { type MutationResolvers } from '@generated/gql-types'
 
 export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnAccordRequest: MutationResolvers['voteOnAccordRequest'] = async (
@@ -18,14 +18,14 @@ export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationRes
     const { accordRequests } = services
 
     return await accordRequests
-      .withTransaction(() => accordRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', requestId),
             eb('requestStatus', '=', 'PENDING')
           ])
         )
-        .andThrough(() => accordRequests
+        .andThrough(() => trxService
           .votes
           .upsert(
             { userId: me.id, requestId, vote },

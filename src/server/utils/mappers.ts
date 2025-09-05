@@ -1,5 +1,5 @@
-import { type VoteInfo } from '@src/generated/gql-types'
-import { type VoteInfoRow } from '@src/types/db-types'
+import { type VoteInfo } from '@generated/gql-types'
+import { type VoteInfoRow } from '@src/db'
 
 export const mapVoteInfoRowToVoteInfo = (row: VoteInfoRow): VoteInfo => ({
   upvotes: row.upvotes,

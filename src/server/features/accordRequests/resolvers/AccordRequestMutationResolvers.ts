@@ -1,8 +1,8 @@
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers'
 import { mapAccordRequestRowToAccordRequestSummary, mapCreateAccordRequestInputToRow, mapUpdateAccordRequestInputToRow } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers'
 
 export class AccordRequestMutationResolvers extends BaseResolver<MutationResolvers> {

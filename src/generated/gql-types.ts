@@ -5,7 +5,7 @@ import { IFragranceRequestSummary } from '../server/features/fragranceRequests/t
 import { IBrandRequestSummary } from '../server/features/brandRequests/types';
 import { IAccordRequestSummary } from '../server/features/accordRequests/types';
 import { INoteRequestSummary } from '../server/features/noteRequests/types';
-import { ApiContext } from '@src/server/context';
+import { ServerContext } from '@src/server/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -1497,26 +1497,26 @@ export type ResolversParentTypes = ResolversObject<{
   VoteOnNoteRequestInput: Partial<VoteOnNoteRequestInput>;
 }>;
 
-export type AccordResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Accord'] = ResolversParentTypes['Accord']> = ResolversObject<{
+export type AccordResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Accord'] = ResolversParentTypes['Accord']> = ResolversObject<{
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordConnection'] = ResolversParentTypes['AccordConnection']> = ResolversObject<{
+export type AccordConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordConnection'] = ResolversParentTypes['AccordConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['AccordEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordEdge'] = ResolversParentTypes['AccordEdge']> = ResolversObject<{
+export type AccordEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordEdge'] = ResolversParentTypes['AccordEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Accord'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequest'] = ResolversParentTypes['AccordRequest']> = ResolversObject<{
+export type AccordRequestResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequest'] = ResolversParentTypes['AccordRequest']> = ResolversObject<{
   color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1529,38 +1529,38 @@ export type AccordRequestResolvers<ContextType = ApiContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestConnection'] = ResolversParentTypes['AccordRequestConnection']> = ResolversObject<{
+export type AccordRequestConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestConnection'] = ResolversParentTypes['AccordRequestConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['AccordRequestEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestEdge'] = ResolversParentTypes['AccordRequestEdge']> = ResolversObject<{
+export type AccordRequestEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestEdge'] = ResolversParentTypes['AccordRequestEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImage'] = ResolversParentTypes['AccordRequestImage']> = ResolversObject<{
+export type AccordRequestImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImage'] = ResolversParentTypes['AccordRequestImage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImageConnection'] = ResolversParentTypes['AccordRequestImageConnection']> = ResolversObject<{
+export type AccordRequestImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImageConnection'] = ResolversParentTypes['AccordRequestImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['AccordRequestImageEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AccordRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AccordRequestImageEdge'] = ResolversParentTypes['AccordRequestImageEdge']> = ResolversObject<{
+export type AccordRequestImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImageEdge'] = ResolversParentTypes['AccordRequestImageEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['AccordRequestImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AssetResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
+export type AssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1569,46 +1569,46 @@ export type AssetResolvers<ContextType = ApiContext, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AuthCodeDeliveryDetailsResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AuthCodeDeliveryDetails'] = ResolversParentTypes['AuthCodeDeliveryDetails']> = ResolversObject<{
+export type AuthCodeDeliveryDetailsResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AuthCodeDeliveryDetails'] = ResolversParentTypes['AuthCodeDeliveryDetails']> = ResolversObject<{
   attribute?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   destination?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   method?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AuthDeliveryResultResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AuthDeliveryResult'] = ResolversParentTypes['AuthDeliveryResult']> = ResolversObject<{
+export type AuthDeliveryResultResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AuthDeliveryResult'] = ResolversParentTypes['AuthDeliveryResult']> = ResolversObject<{
   delivery?: Resolver<Maybe<ResolversTypes['AuthCodeDeliveryDetails']>, ParentType, ContextType>;
   isComplete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AuthTokenPayloadResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['AuthTokenPayload'] = ResolversParentTypes['AuthTokenPayload']> = ResolversObject<{
+export type AuthTokenPayloadResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AuthTokenPayload'] = ResolversParentTypes['AuthTokenPayload']> = ResolversObject<{
   accessToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   expiresIn?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   idToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = ResolversObject<{
+export type BrandResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandConnection'] = ResolversParentTypes['BrandConnection']> = ResolversObject<{
+export type BrandConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandConnection'] = ResolversParentTypes['BrandConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['BrandEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandEdge'] = ResolversParentTypes['BrandEdge']> = ResolversObject<{
+export type BrandEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandEdge'] = ResolversParentTypes['BrandEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequest'] = ResolversParentTypes['BrandRequest']> = ResolversObject<{
+export type BrandRequestResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequest'] = ResolversParentTypes['BrandRequest']> = ResolversObject<{
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['BrandRequestImage']>, ParentType, ContextType>;
@@ -1621,32 +1621,32 @@ export type BrandRequestResolvers<ContextType = ApiContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestConnection'] = ResolversParentTypes['BrandRequestConnection']> = ResolversObject<{
+export type BrandRequestConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequestConnection'] = ResolversParentTypes['BrandRequestConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['BrandRequestEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestEdge'] = ResolversParentTypes['BrandRequestEdge']> = ResolversObject<{
+export type BrandRequestEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequestEdge'] = ResolversParentTypes['BrandRequestEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImage'] = ResolversParentTypes['BrandRequestImage']> = ResolversObject<{
+export type BrandRequestImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequestImage'] = ResolversParentTypes['BrandRequestImage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImageConnection'] = ResolversParentTypes['BrandRequestImageConnection']> = ResolversObject<{
+export type BrandRequestImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequestImageConnection'] = ResolversParentTypes['BrandRequestImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['BrandRequestImageEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BrandRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['BrandRequestImageEdge'] = ResolversParentTypes['BrandRequestImageEdge']> = ResolversObject<{
+export type BrandRequestImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['BrandRequestImageEdge'] = ResolversParentTypes['BrandRequestImageEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['BrandRequestImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1656,7 +1656,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
-export type FragranceResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
+export type FragranceResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
   brand?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   concentration?: Resolver<ResolversTypes['Concentration'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1668,19 +1668,19 @@ export type FragranceResolvers<ContextType = ApiContext, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceConnection'] = ResolversParentTypes['FragranceConnection']> = ResolversObject<{
+export type FragranceConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceConnection'] = ResolversParentTypes['FragranceConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceEdge'] = ResolversParentTypes['FragranceEdge']> = ResolversObject<{
+export type FragranceEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceEdge'] = ResolversParentTypes['FragranceEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
+export type FragranceImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceImage'] = ResolversParentTypes['FragranceImage']> = ResolversObject<{
   bg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1689,19 +1689,19 @@ export type FragranceImageResolvers<ContextType = ApiContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceImageConnection'] = ResolversParentTypes['FragranceImageConnection']> = ResolversObject<{
+export type FragranceImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceImageConnection'] = ResolversParentTypes['FragranceImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceImageEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceImageEdge'] = ResolversParentTypes['FragranceImageEdge']> = ResolversObject<{
+export type FragranceImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceImageEdge'] = ResolversParentTypes['FragranceImageEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['FragranceImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequest'] = ResolversParentTypes['FragranceRequest']> = ResolversObject<{
+export type FragranceRequestResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequest'] = ResolversParentTypes['FragranceRequest']> = ResolversObject<{
   accords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
   brand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType>;
   concentration?: Resolver<Maybe<ResolversTypes['Concentration']>, ParentType, ContextType>;
@@ -1721,38 +1721,38 @@ export type FragranceRequestResolvers<ContextType = ApiContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestConnection'] = ResolversParentTypes['FragranceRequestConnection']> = ResolversObject<{
+export type FragranceRequestConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestConnection'] = ResolversParentTypes['FragranceRequestConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceRequestEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestEdge'] = ResolversParentTypes['FragranceRequestEdge']> = ResolversObject<{
+export type FragranceRequestEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestEdge'] = ResolversParentTypes['FragranceRequestEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImage'] = ResolversParentTypes['FragranceRequestImage']> = ResolversObject<{
+export type FragranceRequestImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestImage'] = ResolversParentTypes['FragranceRequestImage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImageConnection'] = ResolversParentTypes['FragranceRequestImageConnection']> = ResolversObject<{
+export type FragranceRequestImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestImageConnection'] = ResolversParentTypes['FragranceRequestImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['FragranceRequestImageEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestImageEdge'] = ResolversParentTypes['FragranceRequestImageEdge']> = ResolversObject<{
+export type FragranceRequestImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestImageEdge'] = ResolversParentTypes['FragranceRequestImageEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['FragranceRequestImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FragranceRequestTraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['FragranceRequestTrait'] = ResolversParentTypes['FragranceRequestTrait']> = ResolversObject<{
+export type FragranceRequestTraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestTrait'] = ResolversParentTypes['FragranceRequestTrait']> = ResolversObject<{
   selectedOption?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
   traitType?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1762,7 +1762,7 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
-export type MutationResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+export type MutationResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'input'>>;
   createAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationCreateAccordRequestArgs, 'input'>>;
@@ -1811,26 +1811,26 @@ export type MutationResolvers<ContextType = ApiContext, ParentType extends Resol
   voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
 }>;
 
-export type NoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
+export type NoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   thumbnailUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteConnection'] = ResolversParentTypes['NoteConnection']> = ResolversObject<{
+export type NoteConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteConnection'] = ResolversParentTypes['NoteConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['NoteEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteEdge'] = ResolversParentTypes['NoteEdge']> = ResolversObject<{
+export type NoteEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteEdge'] = ResolversParentTypes['NoteEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Note'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequest'] = ResolversParentTypes['NoteRequest']> = ResolversObject<{
+export type NoteRequestResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequest'] = ResolversParentTypes['NoteRequest']> = ResolversObject<{
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['NoteRequestImage']>, ParentType, ContextType>;
@@ -1842,38 +1842,38 @@ export type NoteRequestResolvers<ContextType = ApiContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestConnection'] = ResolversParentTypes['NoteRequestConnection']> = ResolversObject<{
+export type NoteRequestConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequestConnection'] = ResolversParentTypes['NoteRequestConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['NoteRequestEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestEdge'] = ResolversParentTypes['NoteRequestEdge']> = ResolversObject<{
+export type NoteRequestEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequestEdge'] = ResolversParentTypes['NoteRequestEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestImageResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImage'] = ResolversParentTypes['NoteRequestImage']> = ResolversObject<{
+export type NoteRequestImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequestImage'] = ResolversParentTypes['NoteRequestImage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestImageConnectionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImageConnection'] = ResolversParentTypes['NoteRequestImageConnection']> = ResolversObject<{
+export type NoteRequestImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequestImageConnection'] = ResolversParentTypes['NoteRequestImageConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['NoteRequestImageEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type NoteRequestImageEdgeResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['NoteRequestImageEdge'] = ResolversParentTypes['NoteRequestImageEdge']> = ResolversObject<{
+export type NoteRequestImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteRequestImageEdge'] = ResolversParentTypes['NoteRequestImageEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['NoteRequestImage'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PageInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
+export type PageInfoResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1881,14 +1881,14 @@ export type PageInfoResolvers<ContextType = ApiContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PresignedUploadResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['PresignedUpload'] = ResolversParentTypes['PresignedUpload']> = ResolversObject<{
+export type PresignedUploadResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PresignedUpload'] = ResolversParentTypes['PresignedUpload']> = ResolversObject<{
   fields?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+export type QueryResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   accordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<QueryAccordRequestArgs, 'id'>>;
   accordRequests?: Resolver<ResolversTypes['AccordRequestConnection'], ParentType, ContextType, Partial<QueryAccordRequestsArgs>>;
   accords?: Resolver<ResolversTypes['AccordConnection'], ParentType, ContextType, Partial<QueryAccordsArgs>>;
@@ -1907,7 +1907,7 @@ export type QueryResolvers<ContextType = ApiContext, ParentType extends Resolver
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
 
-export type TraitResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['Trait'] = ResolversParentTypes['Trait']> = ResolversObject<{
+export type TraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Trait'] = ResolversParentTypes['Trait']> = ResolversObject<{
   myVote?: Resolver<Maybe<ResolversTypes['TraitVote']>, ParentType, ContextType>;
   options?: Resolver<Array<ResolversTypes['TraitOption']>, ParentType, ContextType>;
   stats?: Resolver<Maybe<ResolversTypes['TraitStats']>, ParentType, ContextType>;
@@ -1915,32 +1915,32 @@ export type TraitResolvers<ContextType = ApiContext, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TraitOptionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['TraitOption'] = ResolversParentTypes['TraitOption']> = ResolversObject<{
+export type TraitOptionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitOption'] = ResolversParentTypes['TraitOption']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TraitStatsResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['TraitStats'] = ResolversParentTypes['TraitStats']> = ResolversObject<{
+export type TraitStatsResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitStats'] = ResolversParentTypes['TraitStats']> = ResolversObject<{
   averageScore?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   distribution?: Resolver<Array<ResolversTypes['TraitVoteDistribution']>, ParentType, ContextType>;
   totalVotes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TraitVoteResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['TraitVote'] = ResolversParentTypes['TraitVote']> = ResolversObject<{
+export type TraitVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitVote'] = ResolversParentTypes['TraitVote']> = ResolversObject<{
   option?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TraitVoteDistributionResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['TraitVoteDistribution'] = ResolversParentTypes['TraitVoteDistribution']> = ResolversObject<{
+export type TraitVoteDistributionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitVoteDistribution'] = ResolversParentTypes['TraitVoteDistribution']> = ResolversObject<{
   option?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+export type UserResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   avatarSrc?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   avatarStatus?: Resolver<ResolversTypes['AvatarStatus'], ParentType, ContextType>;
   brandRequests?: Resolver<ResolversTypes['BrandRequestConnection'], ParentType, ContextType, Partial<UserBrandRequestsArgs>>;
@@ -1951,7 +1951,7 @@ export type UserResolvers<ContextType = ApiContext, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type VoteInfoResolvers<ContextType = ApiContext, ParentType extends ResolversParentTypes['VoteInfo'] = ResolversParentTypes['VoteInfo']> = ResolversObject<{
+export type VoteInfoResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['VoteInfo'] = ResolversParentTypes['VoteInfo']> = ResolversObject<{
   downvotes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1959,7 +1959,7 @@ export type VoteInfoResolvers<ContextType = ApiContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = ApiContext> = ResolversObject<{
+export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   Accord?: AccordResolvers<ContextType>;
   AccordConnection?: AccordConnectionResolvers<ContextType>;
   AccordEdge?: AccordEdgeResolvers<ContextType>;

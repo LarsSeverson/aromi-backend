@@ -1,13 +1,12 @@
 import { parseSchema } from '@src/server/utils/validation'
-import { type AuthDeliveryResult, type AuthTokenPayload, type MutationResolvers } from '@src/generated/gql-types'
-import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from './validation'
-import { ApiError, throwError } from '@src/common/error'
-import { type AuthDeliveryResultSummary, type RawAuthTokenPayload } from '../types'
-import { IS_APP_PRODUCTION } from '@src/common/constants'
-import { REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH } from '../constants'
+import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation'
+import { ApiError, throwError } from '@src/utils/error'
+import { IS_APP_PRODUCTION } from '@src/utils/constants'
 import { type Response } from 'express'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { generateFromEmail } from 'unique-username-generator'
+import { type AuthDeliveryResult, type AuthTokenPayload, type MutationResolvers } from '@generated/gql-types'
+import { type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, type AuthDeliveryResultSummary } from '@src/features/auth'
 
 export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   refresh: MutationResolvers['refresh'] = async (

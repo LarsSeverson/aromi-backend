@@ -1,5 +1,5 @@
-import { ApiError, throwError } from '@src/common/error'
-import { type NoteRequestResolvers } from '@src/generated/gql-types'
+import { ApiError, throwError } from '@src/utils/error'
+import { type NoteRequestResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { ResultAsync } from 'neverthrow'
 import { mapNoteRequestImageRowToNoteImage } from '../utils/mappers'

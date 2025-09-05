@@ -1,7 +1,7 @@
-import { ApiError, throwError } from '@src/common/error'
-import { type QueryResolvers } from '@src/generated/gql-types'
+import { ApiError, throwError } from '@src/utils/error'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapUserRowToUserSummary } from '../utils/mappers'
+import { type QueryResolvers } from '@generated/gql-types'
 
 export class UserQueryResolvers extends BaseResolver<QueryResolvers> {
   me: QueryResolvers['me'] = (

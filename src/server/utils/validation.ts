@@ -1,6 +1,6 @@
 import type z from 'zod'
 import { type ZodType } from 'zod'
-import { ApiError } from '../../common/error'
+import { ApiError } from '../../utils/error'
 
 export const parseSchema = <T extends ZodType>(
   schema: T,

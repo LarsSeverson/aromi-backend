@@ -1,9 +1,9 @@
 import { type ResultAsync } from 'neverthrow'
-import { type ApiContext } from '.'
-import { type ApiError } from '@src/common/error'
-import { type UserRow } from '@src/server/features/users/types'
+import { type ServerContext } from '.'
+import { type ApiError } from '@src/utils/error'
+import { type UserRow } from '@src/db/features/users/types'
 
-export const getMyContext = (context: ApiContext): ResultAsync<UserRow, ApiError> => {
+export const getMyContext = (context: ServerContext): ResultAsync<UserRow, ApiError> => {
   const { req, services } = context
 
   const { authorization } = req.headers

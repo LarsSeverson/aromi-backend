@@ -1,5 +1,5 @@
-import { requiredEnv } from '@src/common/env-util'
-import { ApiError } from '@src/common/error'
+import { requiredEnv } from '@src/utils/env-util'
+import { ApiError } from '@src/utils/error'
 import { JwksClient } from 'jwks-rsa'
 import { ok, err, type Result } from 'neverthrow'
 

@@ -1,5 +1,6 @@
-import { type RequestStatus, type CreateNoteRequestInput, type UpdateNoteRequestInput, type NoteRequestImage } from '@src/generated/gql-types'
-import { type NoteRequestRow, type NoteRequestImageRow, type INoteRequestSummary } from '../types'
+import { type RequestStatus, type CreateNoteRequestInput, type UpdateNoteRequestInput, type NoteRequestImage } from '@generated/gql-types'
+import { type INoteRequestSummary } from '../types'
+import { type NoteRequestRow, type NoteRequestImageRow } from '@src/db'
 import { parseSchema, removeNullish } from '@src/server/utils/validation'
 import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation'
 

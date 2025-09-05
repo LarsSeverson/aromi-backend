@@ -1,7 +1,7 @@
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 
 export class FragranceRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnFragranceRequest: MutationResolvers['voteOnFragranceRequest'] = async (
@@ -18,14 +18,14 @@ export class FragranceRequestVoteMutationResolvers extends BaseResolver<Mutation
     const { fragranceRequests } = services
 
     return await fragranceRequests
-      .withTransaction(() => fragranceRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', requestId),
             eb('requestStatus', '=', 'PENDING')
           ])
         )
-        .andThrough(() => fragranceRequests
+        .andThrough(() => trxService
           .votes
           .upsert(
             { userId: me.id, requestId, vote },

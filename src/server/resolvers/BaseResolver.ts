@@ -1,8 +1,8 @@
-import { ApiError } from '@src/common/error'
-import { type ApiContext } from '@src/server/context'
+import { ApiError } from '@src/utils/error'
+import { type ServerContext } from '@src/server/context'
 import { CursorFactory } from '@src/server/factories/CursorFactory'
 import { PageFactory } from '@src/server/factories/PageFactory'
-import { type UserRow } from '@src/server/features/users/types'
+import { type UserRow } from '@src/db/features/users/types'
 
 export abstract class BaseResolver<T> {
   protected readonly pageFactory = new PageFactory()
@@ -11,7 +11,7 @@ export abstract class BaseResolver<T> {
   abstract getResolvers (): T
 
   protected checkAuthenticated (
-    context: ApiContext,
+    context: ServerContext,
     message?: string
   ): UserRow {
     if (context.me == null) {

@@ -16,7 +16,7 @@ import { NoteQueryResolvers } from '@src/server/features/notes/resolvers/NoteQue
 import { UserFieldResolvers } from '@src/server/features/users/resolvers/UserFieldResolvers'
 import { UserMutationResolvers } from '@src/server/features/users/resolvers/UserMutationResolvers'
 import { UserQueryResolvers } from '@src/server/features/users/resolvers/UserQueryResolvers'
-import { type Resolvers } from '@src/generated/gql-types'
+import { type Resolvers } from '@generated/gql-types'
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
 import { BrandQueryResolvers } from '../features/brands/resolvers/BrandQueryResolvers'
 

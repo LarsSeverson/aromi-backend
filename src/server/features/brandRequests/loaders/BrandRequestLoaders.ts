@@ -1,8 +1,8 @@
 import { BaseLoader } from '@src/server/loaders/BaseLoader'
-import { type BrandRequestLoadersKey, type BrandRequestImageRow } from '../types'
+import { type BrandRequestLoadersKey } from '../types'
+import { type BrandRequestImageRow, type VoteInfoRow } from '@src/db'
 import DataLoader from 'dataloader'
-import { throwError } from '@src/common/error'
-import { type VoteInfoRow } from '@src/types/db-types'
+import { throwError } from '@src/utils/error'
 
 export class BrandRequestLoaders extends BaseLoader<BrandRequestLoadersKey> {
   getImageLoader (): DataLoader<BrandRequestLoadersKey, BrandRequestImageRow | null> {

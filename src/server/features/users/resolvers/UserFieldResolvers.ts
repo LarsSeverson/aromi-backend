@@ -1,9 +1,9 @@
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 import { mapBrandRequestRowToBrandRequestSummary } from '@src/server/features/brandRequests/utils/mappers'
 import { mapFragranceRequestRowToFragranceRequest } from '@src/server/features/fragranceRequests/utils/mappers'
 import { RequestPaginationFactory } from '@src/server/features/requests/factories/RequestPaginationFactory'
-import { type UserResolvers } from '@src/generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
+import { type UserResolvers } from '@generated/gql-types'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()

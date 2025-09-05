@@ -1,5 +1,5 @@
-import { type NoteLayerEnum } from '@src/generated/db-schema'
-import { type FragranceStatus, type Concentration, type NoteLayer } from '@src/generated/gql-types'
+import { type NoteLayerEnum } from '@generated/db-schema'
+import { type FragranceStatus, type Concentration, type NoteLayer } from '@generated/gql-types'
 
 export const mapGQLConcentrationToDBConcentration = (
   concentration: Concentration | null

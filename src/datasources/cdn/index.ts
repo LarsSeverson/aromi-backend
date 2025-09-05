@@ -1,5 +1,5 @@
-import { requiredEnv } from '@src/common/env-util'
-import { type ApiError } from '@src/common/error'
+import { requiredEnv } from '@src/utils/env-util'
+import { type ApiError } from '@src/utils/error'
 import { Result } from 'neverthrow'
 
 export interface CdnWrapper {

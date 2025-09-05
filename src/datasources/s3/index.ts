@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3'
-import { requiredEnv } from '@src/common/env-util'
-import { type ApiError } from '@src/common/error'
+import { requiredEnv } from '@src/utils/env-util'
+import { type ApiError } from '@src/utils/error'
 import { Result } from 'neverthrow'
 
 export interface S3Wrapper {

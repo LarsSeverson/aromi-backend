@@ -1,5 +1,5 @@
-import { ApiError, throwError } from '@src/common/error'
-import { type BrandRequestResolvers } from '@src/generated/gql-types'
+import { ApiError, throwError } from '@src/utils/error'
+import { type BrandRequestResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { ResultAsync } from 'neverthrow'
 import { mapBrandRequestImageRowToBrandImage } from '../utils/mappers'

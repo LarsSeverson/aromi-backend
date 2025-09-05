@@ -1,7 +1,7 @@
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
-import { throwError } from '@src/common/error'
+import { throwError } from '@src/utils/error'
 
 export class FragranceRequestBrandMutationResolvers extends BaseResolver<MutationResolvers> {
   setFragranceRequestBrand: MutationResolvers['setFragranceRequestBrand'] = async (

@@ -1,8 +1,9 @@
 import { BaseLoader } from '@src/server/loaders/BaseLoader'
-import { type FragranceRequestLoadersKey, type FragranceRequestImageRow } from '../types'
+import { type FragranceRequestLoadersKey } from '../types'
+import { type FragranceRequestImageRow } from '@src/db/features/fragranceRequests/types'
 import DataLoader from 'dataloader'
-import { throwError } from '@src/common/error'
-import { type VoteInfoRow } from '@src/types/db-types'
+import { throwError } from '@src/utils/error'
+import { type VoteInfoRow } from '@src/db/types'
 
 export class FragranceRequestLoaders extends BaseLoader<FragranceRequestLoadersKey> {
   getImageLoader (): DataLoader<FragranceRequestLoadersKey, FragranceRequestImageRow | null> {

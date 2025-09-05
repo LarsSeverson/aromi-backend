@@ -1,5 +1,6 @@
-import { type UpdateBrandRequestInput, type CreateBrandRequestInput, type RequestStatus, type BrandRequestImage } from '@src/generated/gql-types'
-import { type IBrandRequestSummary, type BrandRequestRow, type BrandRequestImageRow } from '../types'
+import { type UpdateBrandRequestInput, type CreateBrandRequestInput, type RequestStatus, type BrandRequestImage } from '@generated/gql-types'
+import { type IBrandRequestSummary } from '../types'
+import { type BrandRequestRow, type BrandRequestImageRow } from '@src/db'
 import { parseSchema, removeNullish } from '@src/server/utils/validation'
 import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation'
 

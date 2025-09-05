@@ -1,10 +1,10 @@
-import { ApiError, throwError } from '@src/common/error'
+import { ApiError, throwError } from '@src/utils/error'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { ResultAsync } from 'neverthrow'
 import { mapCombinedTraitRowToRequestTrait, mapFragranceRequesttImageRowToFragranceImage } from '../utils/mappers'
 import { GQLTraitToDBTrait } from '@src/server/features/traits/utils/mappers'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/server/features/fragrances/utils/mappers'
-import { type FragranceRequestResolvers } from '@src/generated/gql-types'
+import { type FragranceRequestResolvers } from '@generated/gql-types'
 import { mapVoteInfoRowToVoteInfo } from '@src/server/utils/mappers'
 
 export class FragranceRequestFieldResolvers extends BaseResolver<FragranceRequestResolvers> {

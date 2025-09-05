@@ -1,4 +1,4 @@
-import { ApiError } from '@src/common/error'
+import { ApiError } from '@src/utils/error'
 import { type JwtHeader, type JwtPayload, verify } from 'jsonwebtoken'
 import { type JwksClient } from 'jwks-rsa'
 import { ResultAsync } from 'neverthrow'

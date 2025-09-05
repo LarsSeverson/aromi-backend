@@ -1,5 +1,5 @@
-import { throwError } from '@src/common/error'
-import { type MutationResolvers } from '@src/generated/gql-types'
+import { throwError } from '@src/utils/error'
+import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
 
@@ -18,14 +18,14 @@ export class NoteRequestVoteMutationResolvers extends BaseResolver<MutationResol
     const { noteRequests } = services
 
     return await noteRequests
-      .withTransaction(() => noteRequests
+      .withTransaction(trxService => trxService
         .findOne(
           eb => eb.and([
             eb('id', '=', requestId),
             eb('requestStatus', '=', 'PENDING')
           ])
         )
-        .andThrough(() => noteRequests
+        .andThrough(() => trxService
           .votes
           .upsert(
             { userId: me.id, requestId, vote },

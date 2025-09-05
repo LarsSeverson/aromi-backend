@@ -1,4 +1,5 @@
-import { type IUserSummary, type UserRow } from '../types'
+import { type IUserSummary } from '../types'
+import { type UserRow } from '@src/db'
 
 export const mapUserRowToUserSummary = (row: UserRow): IUserSummary => {
   return {

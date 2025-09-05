@@ -1,5 +1,6 @@
-import { type UpdateAccordRequestInput, type CreateAccordRequestInput, type AccordRequestImage, type RequestStatus } from '@src/generated/gql-types'
-import { type AccordRequestRow, type AccordRequestImageRow, type IAccordRequestSummary } from '../types'
+import { type UpdateAccordRequestInput, type CreateAccordRequestInput, type AccordRequestImage, type RequestStatus } from '@generated/gql-types'
+import { type IAccordRequestSummary } from '../types'
+import { type AccordRequestRow, type AccordRequestImageRow } from '@src/db/features/accordRequests/types'
 import { parseSchema, removeNullish } from '@src/server/utils/validation'
 import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation'
 

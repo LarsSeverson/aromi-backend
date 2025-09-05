@@ -3,17 +3,17 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import { readFileSync } from 'fs'
 import depthLimit from 'graphql-depth-limit'
-import { requiredEnv } from '../common/env-util'
-import { formatApiError } from '../common/error'
+import { requiredEnv } from '../utils/env-util'
+import { formatApiError } from '../utils/error'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { expressMiddleware } from '@as-integrations/express5'
-import { getDataSources } from '../datasources'
-import { type ApiContext, getContext } from './context'
-import { ApiServices } from './services/ApiServices'
+import { type ServerContext, getContext } from './context'
+import { ServerServices } from './services/ServerServices'
 import { ApiResolvers } from './resolvers/ApiResolvers'
+import { createDataSources } from '@src/datasources'
 
 const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 
@@ -24,7 +24,7 @@ export const startSever = async (): Promise<string> => {
   const portRes = requiredEnv('SERVER_PORT')
   if (portRes.isErr()) throw portRes.error
 
-  const sourcesRes = getDataSources()
+  const sourcesRes = createDataSources()
   if (sourcesRes.isErr()) throw sourcesRes.error
 
   const host = hostRes.value
@@ -32,7 +32,7 @@ export const startSever = async (): Promise<string> => {
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
 
   const sources = sourcesRes.value
-  const services = new ApiServices(sources)
+  const services = new ServerServices(sources)
 
   const app = express()
   const httpServer = http.createServer((req, res) => { void app(req, res) })
@@ -45,7 +45,7 @@ export const startSever = async (): Promise<string> => {
     }))
   }
 
-  const server = new ApolloServer<ApiContext>({
+  const server = new ApolloServer<ServerContext>({
     typeDefs,
     resolvers: ApiResolvers,
     introspection: true,

@@ -1,6 +1,6 @@
-import { PAGINATION_DIRECTIONS, PAGINATION_OPERATORS, type PaginationDirection, type PaginationOperator } from '@src/types/util'
+import { PAGINATION_DIRECTIONS, PAGINATION_OPERATORS, type PaginationDirection, type PaginationOperator } from '@src/utils/util-types'
 import { type CursorDecoder, type ApiCursor, CursorFactory } from './CursorFactory'
-import { type SortDirection } from '@src/generated/gql-types'
+import { type SortDirection } from '@generated/gql-types'
 
 export const DEFAULT_LIMIT = 24
 export const MAX_LIMIT = 44
