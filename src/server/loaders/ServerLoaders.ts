@@ -4,7 +4,7 @@ import { FragranceRequestLoaders } from '@src/server/features/fragranceRequests/
 import { NoteRequestLoaders } from '@src/server/features/noteRequests/loaders/NoteRequestLoaders'
 import { type ServerServices } from '@src/server/services/ServerServices'
 
-export class ApiLoaders {
+export class ServerLoaders {
   fragranceRequests: FragranceRequestLoaders
   brandRequests: BrandRequestLoaders
   accordRequests: AccordRequestLoaders

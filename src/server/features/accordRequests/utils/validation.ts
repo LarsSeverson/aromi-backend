@@ -4,7 +4,7 @@ import z from 'zod'
 export const CreateAccordRequestSchema = z
   .object({
     name: ValidAccordName.nullish(),
-    description: ValidAccordDescription.nullish(),
+    description: ValidAccordDescription,
     color: ValidAccordColor.nullish()
   })
   .strip()
@@ -13,7 +13,7 @@ export const UpdateAccordRequestSchema = z
   .object({
     version: ValidVersion,
     name: ValidAccordName.nullish(),
-    description: ValidAccordDescription.nullish(),
+    description: ValidAccordDescription,
     color: ValidAccordColor.nullish()
   })
   .strip()

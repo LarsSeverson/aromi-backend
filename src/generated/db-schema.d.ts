@@ -76,10 +76,12 @@ export interface Accord {
 
 export interface BrandImage {
   brandId: string;
+  contentType: string;
   createdAt: Generated<Timestamp>;
   id: Generated<string>;
+  name: string;
   s3Key: string;
-  type: string;
+  sizeBytes: Int8;
 }
 
 export interface BrandRequestImage {
@@ -276,6 +278,16 @@ export interface FragranceTraitVote {
   userId: string;
 }
 
+export interface NoteImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  name: string;
+  noteId: string;
+  s3Key: string;
+  sizeBytes: Int8;
+}
+
 export interface NoteRequestImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
@@ -309,12 +321,13 @@ export interface NoteRequestVote {
 export interface Note {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
+  description: string | null;
   id: Generated<string>;
   name: string;
-  oldId: number;
+  oldId: number | null;
   s3Key: string | null;
-  thumbnailS3Key: string;
-  thumbnailUrl: string;
+  thumbnailS3Key: string | null;
+  thumbnailUrl: string | null;
   updatedAt: Generated<Timestamp>;
 }
 
@@ -370,6 +383,7 @@ export interface DB {
   fragranceRequestVotes: FragranceRequestVote;
   fragrances: Fragrance;
   fragranceTraitVotes: FragranceTraitVote;
+  noteImages: NoteImage;
   noteRequestImages: NoteRequestImage;
   noteRequests: NoteRequest;
   noteRequestVotes: NoteRequestVote;

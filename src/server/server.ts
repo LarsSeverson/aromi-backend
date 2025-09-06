@@ -14,6 +14,7 @@ import { type ServerContext, getContext } from './context'
 import { ServerServices } from './services/ServerServices'
 import { ApiResolvers } from './resolvers/ApiResolvers'
 import { createDataSources } from '@src/datasources'
+import { ServerQueues } from './queues/ServerQueues'
 
 const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
 
@@ -33,6 +34,7 @@ export const startSever = async (): Promise<string> => {
 
   const sources = sourcesRes.value
   const services = new ServerServices(sources)
+  const queues = new ServerQueues(sources)
 
   const app = express()
   const httpServer = http.createServer((req, res) => { void app(req, res) })
@@ -63,7 +65,8 @@ export const startSever = async (): Promise<string> => {
     .use(
       '/graphql',
       expressMiddleware(server, {
-        context: async (serverArgs) => await getContext({ serverArgs, sources, services })
+        context: async (serverArgs) =>
+          await getContext({ serverArgs, sources, services, queues })
       })
     )
 

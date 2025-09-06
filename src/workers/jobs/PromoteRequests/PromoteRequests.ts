@@ -4,24 +4,32 @@ import { WorkerJob } from '../WorkerJob'
 import { type WorkerContext } from '../../context'
 import { VOTE_COUNT_THRESHOLD } from './types'
 import { AccordPromoter } from './AccordPromoter'
+import { BrandPromoter } from './BrandPromoter'
+import { NotePromoter } from './NotePromoter'
 
 export class PromoteRequests extends WorkerJob {
+  brands: BrandPromoter
   accords: AccordPromoter
+  notes: NotePromoter
 
   constructor (context: WorkerContext) {
     super(context, 'promote_requests')
 
+    this.brands = new BrandPromoter(context)
     this.accords = new AccordPromoter(context)
+    this.notes = new NotePromoter(context)
   }
 
   handle (): ResultAsync<this, ApiError> {
     return ResultAsync
-      .combine([
-        this.promoteFragrances(),
-        this.promoteBrands(),
-        this.promoteAccords(),
-        this.promoteNotes()
-      ])
+      .fromSafePromise(
+        Promise.all([
+          this.promoteFragrances(),
+          this.promoteBrands(),
+          this.promoteAccords(),
+          this.promoteNotes()
+        ])
+      )
       .map(() => this)
   }
 
@@ -50,6 +58,7 @@ export class PromoteRequests extends WorkerJob {
           '>=',
           VOTE_COUNT_THRESHOLD
           )
+          .where('fragranceRequests.requestStatus', '=', 'PENDING')
           .execute(),
         error => ApiError.fromDatabase(error)
       )
@@ -84,12 +93,17 @@ export class PromoteRequests extends WorkerJob {
           '>=',
           VOTE_COUNT_THRESHOLD
           )
+          .where('brandRequests.requestStatus', '=', 'PENDING')
           .execute(),
         error => ApiError.fromDatabase(error)
       )
-      .andTee(() => {
-        // call lambda
-      })
+      .andThen(rows => ResultAsync
+        .fromSafePromise(
+          this
+            .brands
+            .promote(rows)
+        )
+      )
       .map(() => this)
   }
 
@@ -157,12 +171,17 @@ export class PromoteRequests extends WorkerJob {
           '>=',
           VOTE_COUNT_THRESHOLD
           )
+          .where('noteRequests.requestStatus', '=', 'PENDING')
           .execute(),
         error => ApiError.fromDatabase(error)
       )
-      .andTee(() => {
-        // call lambda
-      })
+      .andThen(rows => ResultAsync
+        .fromSafePromise(
+          this
+            .notes
+            .promote(rows)
+        )
+      )
       .map(() => this)
   }
 }

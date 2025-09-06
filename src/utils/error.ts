@@ -46,6 +46,20 @@ export class ApiError extends GraphQLError {
     return new ApiError('SEARCH_SERVICE_ERROR', 'Something went wrong with search. Please try again later', 500, error)
   }
 
+  static fromMQ (error: unknown): ApiError {
+    const typed = error as Error
+    const mapping = MQ_ERROR_TO_API_ERROR[typed.name]
+    if (mapping != null) {
+      return new ApiError(mapping.code, mapping.message, mapping.status, error)
+    }
+    return new ApiError(
+      'QUEUE_SERVICE_ERROR',
+      'Something went wrong with the queue. Please try again later',
+      500,
+      error
+    )
+  }
+
   static fromZod <T>(error: z.ZodError<T>): ApiError {
     return new ApiError('INVALID_INPUT', error.issues.at(0)?.message ?? 'Invalid input', 400, error)
   }
@@ -106,6 +120,13 @@ export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
   MeiliSearchApiError: new ApiError('SEARCH_API_ERROR', 'Search service returned an error', 502),
   MeiliSearchError: new ApiError('SEARCH_ERROR', 'Unexpected search service error', 500),
   TimeoutError: new ApiError('SEARCH_TIMEOUT', 'Search request timed out', 504)
+} as const
+
+export const MQ_ERROR_TO_API_ERROR: Record<string, ApiError> = {
+  QueueClosedError: new ApiError('QUEUE_CLOSED', 'The queue is closed', 500),
+  ConnectionError: new ApiError('QUEUE_CONNECTION_ERROR', 'Could not connect to queue service', 503),
+  TimeoutError: new ApiError('QUEUE_TIMEOUT', 'Queue request timed out', 504),
+  UnknownCommandError: new ApiError('QUEUE_UNKNOWN_COMMAND', 'Invalid queue command issued', 500)
 } as const
 
 export const throwError = (error: unknown): never => {

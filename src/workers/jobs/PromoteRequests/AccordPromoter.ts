@@ -64,8 +64,7 @@ export class AccordPromoter extends BasePromoter<AccordRequestRow, AccordRow> {
             contentType,
             sizeBytes
           })
-      }
-      )
+      })
   }
 
   private getImage (row: AccordRequestRow): ResultAsync<AccordRequestImageRow, ApiError> {
@@ -89,7 +88,10 @@ export class AccordPromoter extends BasePromoter<AccordRequestRow, AccordRow> {
     return accordRequests
       .updateOne(
         eb => eb('id', '=', row.id),
-        { requestStatus: 'FAILED' }
+        {
+          requestStatus: 'FAILED',
+          updatedAt: new Date().toISOString()
+        }
       )
       .andThen(() => errAsync(error))
   }
