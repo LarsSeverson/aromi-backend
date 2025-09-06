@@ -1,11 +1,11 @@
-import { parseSchema } from '@src/server/utils/validation'
+import { parseSchema } from '@src/utils/validation'
 import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { FinalizeNoteRequestImageSchema, StageNoteRequestImageSchema } from '../utils/validation'
-import { genNoteRequestsKey } from '@src/datasources/s3/utils'
 import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
+import { genImageKey } from '@src/datasources/s3'
 
 export class NoteRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageNoteRequestImage: MutationResolvers['stageNoteRequestImage'] = async (
@@ -22,7 +22,7 @@ export class NoteRequestImageMutationResolvers extends BaseResolver<MutationReso
     const { contentType, contentSize } = parseSchema(StageNoteRequestImageSchema, input)
     const { assets, noteRequests } = services
 
-    const { key } = genNoteRequestsKey(id, fileName)
+    const { key } = genImageKey('notes', fileName)
 
     const values = {
       requestId: id,

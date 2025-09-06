@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
 import path from 'path'
+import { type S3Entity } from './types'
 
 export interface UtilKeyReturn {
   id: string
@@ -26,54 +27,15 @@ export const genAvatarUploadKey = (userId: string): { id: string, key: string } 
   }
 }
 
-const FRAGRANCE_REQUESTS = 'fragrance-requests'
+export const IMAGES = 'images'
 
-export const genFragranceRequestsKey = (
-  requestId: string,
+export const genImageKey = (
+  entity: S3Entity,
   fileName: string
 ): UtilKeyReturn => {
   const { id, name } = withIdFileName(fileName)
   return {
     id,
-    key: `${FRAGRANCE_REQUESTS}/${requestId}/${name}`
-  }
-}
-
-export const BRAND_REQUESTS = 'brand-requests'
-
-export const genBrandRequestsKey = (
-  requestId: string,
-  fileName: string
-): UtilKeyReturn => {
-  const { id, name } = withIdFileName(fileName)
-  return {
-    id,
-    key: `${BRAND_REQUESTS}/${requestId}/${name}`
-  }
-}
-
-export const ACCORD_REQUESTS = 'accord-requests'
-
-export const genAccordRequestsKey = (
-  requestId: string,
-  fileName: string
-): UtilKeyReturn => {
-  const { id, name } = withIdFileName(fileName)
-  return {
-    id,
-    key: `${ACCORD_REQUESTS}/${requestId}/${name}`
-  }
-}
-
-export const NOTE_REQUESTS = 'note-requests'
-
-export const genNoteRequestsKey = (
-  requestId: string,
-  fileName: string
-): UtilKeyReturn => {
-  const { id, name } = withIdFileName(fileName)
-  return {
-    id,
-    key: `${NOTE_REQUESTS}/${requestId}/${name}`
+    key: `${IMAGES}/${entity}/${name}`
   }
 }

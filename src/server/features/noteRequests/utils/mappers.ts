@@ -1,7 +1,7 @@
 import { type RequestStatus, type CreateNoteRequestInput, type UpdateNoteRequestInput, type NoteRequestImage } from '@generated/gql-types'
 import { type INoteRequestSummary } from '../types'
 import { type NoteRequestRow, type NoteRequestImageRow } from '@src/db'
-import { parseSchema, removeNullish } from '@src/server/utils/validation'
+import { parseSchema, removeNullish } from '@src/utils/validation'
 import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation'
 
 export const mapCreateNoteRequestInputToRow = (

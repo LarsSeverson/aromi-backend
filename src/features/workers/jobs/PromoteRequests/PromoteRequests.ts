@@ -3,10 +3,15 @@ import { ResultAsync } from 'neverthrow'
 import { WorkerJob } from '../WorkerJob'
 import { type WorkerContext } from '../../context'
 import { VOTE_COUNT_THRESHOLD } from './types'
+import { AccordPromoter } from './AccordPromoter'
 
 export class PromoteRequests extends WorkerJob {
+  accords: AccordPromoter
+
   constructor (context: WorkerContext) {
     super(context, 'promote_requests')
+
+    this.accords = new AccordPromoter(context)
   }
 
   handle (): ResultAsync<this, ApiError> {
@@ -113,12 +118,17 @@ export class PromoteRequests extends WorkerJob {
           '>=',
           VOTE_COUNT_THRESHOLD
           )
+          .where('accordRequests.requestStatus', '=', 'PENDING')
           .execute(),
         error => ApiError.fromDatabase(error)
       )
-      .andTee(() => {
-        // call lambda
-      })
+      .andThen(rows => ResultAsync
+        .fromSafePromise(
+          this
+            .accords
+            .promote(rows)
+        )
+      )
       .map(() => this)
   }
 

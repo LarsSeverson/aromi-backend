@@ -1,6 +1,8 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors'
 import { GraphQLError, type GraphQLFormattedError } from 'graphql'
 import { NoResultError } from 'kysely'
+import { type Result } from 'neverthrow'
+import type z from 'zod'
 
 export class ApiError extends GraphQLError {
   readonly code: string
@@ -42,6 +44,10 @@ export class ApiError extends GraphQLError {
     const mapping = MEILI_ERROR_TO_API_ERROR[typed.name]
     if (mapping != null) return new ApiError(mapping.code, mapping.message, mapping.status, error)
     return new ApiError('SEARCH_SERVICE_ERROR', 'Something went wrong with search. Please try again later', 500, error)
+  }
+
+  static fromZod <T>(error: z.ZodError<T>): ApiError {
+    return new ApiError('INVALID_INPUT', error.issues.at(0)?.message ?? 'Invalid input', 400, error)
   }
 
   serialize (): GraphQLFormattedError {
@@ -104,4 +110,16 @@ export const MEILI_ERROR_TO_API_ERROR: Record<string, ApiError> = {
 
 export const throwError = (error: unknown): never => {
   throw error
+}
+
+export const partitionResults = <T, E> (results: Array<Result<T, E>>): [T[], E[]] => {
+  const oks = results
+    .filter(r => r.isOk())
+    .map(r => r.value)
+
+  const errs = results
+    .filter(r => r.isErr())
+    .map(r => r.error)
+
+  return [oks, errs]
 }

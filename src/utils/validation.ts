@@ -1,13 +1,13 @@
 import type z from 'zod'
 import { type ZodType } from 'zod'
-import { ApiError } from '../../utils/error'
+import { ApiError } from './error'
 
 export const parseSchema = <T extends ZodType>(
   schema: T,
   args: z.input<T>
 ): z.output<T> => {
   const parsed = schema.safeParse(args)
-  if (!parsed.success) throw new ApiError('INVALID_INPUT', parsed.error.issues[0].message, 400)
+  if (!parsed.success) throw ApiError.fromZod(parsed.error)
 
   return parsed.data
 }

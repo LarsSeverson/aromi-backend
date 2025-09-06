@@ -1,11 +1,11 @@
-import { parseSchema } from '@src/server/utils/validation'
+import { parseSchema } from '@src/utils/validation'
 import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { FinalizeBrandRequestImageSchema, StageBrandRequestImageSchema } from '../utils/validation'
-import { genBrandRequestsKey } from '@src/datasources/s3/utils'
 import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers'
+import { genImageKey } from '@src/datasources/s3'
 
 export class BrandRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageBrandRequestImage: MutationResolvers['stageBrandRequestImage'] = async (
@@ -22,7 +22,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
     const { contentType, contentSize } = parseSchema(StageBrandRequestImageSchema, input)
     const { assets, brandRequests } = services
 
-    const { key } = genBrandRequestsKey(id, fileName)
+    const { key } = genImageKey('brands', fileName)
 
     const values = {
       requestId: id,

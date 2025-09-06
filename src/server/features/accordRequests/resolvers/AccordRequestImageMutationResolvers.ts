@@ -1,10 +1,10 @@
-import { parseSchema } from '@src/server/utils/validation'
+import { parseSchema } from '@src/utils/validation'
 import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { FinalizeAccordRequestImageSchema, StageAccordRequestImageSchema } from '../utils/validation'
-import { genAccordRequestsKey } from '@src/datasources/s3/utils'
+import { genImageKey } from '@src/datasources/s3'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
 
 export class AccordRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -22,7 +22,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
     const { contentType, contentSize } = parseSchema(StageAccordRequestImageSchema, input)
     const { assets, accordRequests } = services
 
-    const { key } = genAccordRequestsKey(id, fileName)
+    const { key } = genImageKey('accords', id)
 
     const values = {
       requestId: id,

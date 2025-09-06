@@ -76,7 +76,7 @@
   "kysely-codegen": {
     "dialect": "postgres",
     "url": "env(DB_URL)",
-    "outFile": "./generated/db-schema.d.ts",
+    "outFile": "./src/generated/db-schema.d.ts",
     "camelCase": true,
     "defaultSchemas": [
       "public"

@@ -1,4 +1,4 @@
-import { parseSchema } from '@src/server/utils/validation'
+import { parseSchema } from '@src/utils/validation'
 import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation'
 import { ApiError, throwError } from '@src/utils/error'
 import { IS_APP_PRODUCTION } from '@src/utils/constants'

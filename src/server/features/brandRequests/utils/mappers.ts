@@ -1,7 +1,7 @@
 import { type UpdateBrandRequestInput, type CreateBrandRequestInput, type RequestStatus, type BrandRequestImage } from '@generated/gql-types'
 import { type IBrandRequestSummary } from '../types'
 import { type BrandRequestRow, type BrandRequestImageRow } from '@src/db'
-import { parseSchema, removeNullish } from '@src/server/utils/validation'
+import { parseSchema, removeNullish } from '@src/utils/validation'
 import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation'
 
 export const mapCreateBrandRequestInputToRow = (

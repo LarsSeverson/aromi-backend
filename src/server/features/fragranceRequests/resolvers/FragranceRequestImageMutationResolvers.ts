@@ -1,11 +1,11 @@
-import { parseSchema } from '@src/server/utils/validation'
+import { parseSchema } from '@src/utils/validation'
 import { type MutationResolvers } from '@generated/gql-types'
 import { BaseResolver } from '@src/server/resolvers/BaseResolver'
 import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation'
-import { genFragranceRequestsKey } from '@src/datasources/s3/utils'
 import { throwError } from '@src/utils/error'
 import { errAsync, okAsync } from 'neverthrow'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
+import { genImageKey } from '@src/datasources/s3'
 
 export class FragranceRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageFragranceRequestImage: MutationResolvers['stageFragranceRequestImage'] = async (
@@ -22,7 +22,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
     const { contentType, contentSize } = parseSchema(StageFragranceRequestImageSchema, input)
     const { assets, fragranceRequests } = services
 
-    const { key } = genFragranceRequestsKey(id, fileName)
+    const { key } = genImageKey('fragrances', fileName)
 
     const values = {
       requestId: id,

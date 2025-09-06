@@ -1,7 +1,7 @@
 import { type DataSources } from '@src/datasources'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/utils/error'
-import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { format } from 'url'
 import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
 import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'
@@ -65,6 +65,26 @@ export class AssetService {
       privateKey,
       dateLessThan: SIGNED_CDN_URL_EXP()
     })
+  }
+
+  copyInS3 (
+    sourceKey: string,
+    destinationKey: string
+  ): ResultAsync<string, ApiError> {
+    const { s3 } = this
+    const { client, bucket } = s3
+
+    return ResultAsync
+      .fromPromise(
+        client
+          .send(new CopyObjectCommand({
+            Bucket: bucket,
+            CopySource: `${bucket}/${sourceKey}`,
+            Key: destinationKey
+          })),
+        error => ApiError.fromS3(error)
+      )
+      .map(() => destinationKey)
   }
 
   deleteFromS3 (

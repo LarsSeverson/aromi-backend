@@ -1,4 +1,4 @@
-import { parseSchema, removeNullish } from '@src/server/utils/validation'
+import { parseSchema, removeNullish } from '@src/utils/validation'
 import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from '@src/server/features/fragranceRequests/utils/validation'
 import type { IFragranceRequestSummary } from '@src/server/features/fragranceRequests/types'
 import type { FragranceRequestImageRow, FragranceRequestRow } from '@src/db/features/fragranceRequests/types'

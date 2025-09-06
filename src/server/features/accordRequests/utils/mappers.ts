@@ -1,7 +1,7 @@
 import { type UpdateAccordRequestInput, type CreateAccordRequestInput, type AccordRequestImage, type RequestStatus } from '@generated/gql-types'
 import { type IAccordRequestSummary } from '../types'
 import { type AccordRequestRow, type AccordRequestImageRow } from '@src/db/features/accordRequests/types'
-import { parseSchema, removeNullish } from '@src/server/utils/validation'
+import { parseSchema, removeNullish } from '@src/utils/validation'
 import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation'
 
 export const mapCreateAccordRequestInputToRow = (

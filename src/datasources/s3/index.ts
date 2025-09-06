@@ -3,6 +3,9 @@ import { requiredEnv } from '@src/utils/env-util'
 import { type ApiError } from '@src/utils/error'
 import { Result } from 'neverthrow'
 
+export * from './types'
+export * from './utils'
+
 export interface S3Wrapper {
   client: S3Client
   bucket: string
