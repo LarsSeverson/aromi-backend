@@ -1,0 +1,33 @@
+type Note {
+  id: ID!
+  name: String!
+}
+
+type NoteEdge {
+  node: Note!
+  cursor: String!
+}
+
+type NoteConnection {
+  edges: [NoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum NoteSortBy {
+  RECENT
+}
+
+input NoteSortInput {
+  direction: SortDirection
+  by: NoteSortBy
+}
+
+input NotePaginationInput {
+  first: Int
+  after: String
+  sort: NoteSortInput
+}
+
+extend type Query {
+  notes(input: NotePaginationInput): NoteConnection!
+}

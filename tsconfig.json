@@ -1,54 +1,8 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "CommonJS",
-    "outDir": "dist",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "allowJs": true,
-    "removeComments": true,
-    "strict": true,
-    "noImplicitAny": false,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@src/*": [
-        "src/*"
-      ],
-      "@features/*": [
-        "src/features/*"
-      ],
-      "@services/*": [
-        "src/services/*"
-      ],
-      "@server/*": [
-        "src/server/*"
-      ],
-      "@common/*": [
-        "src/common/*"
-      ],
-      "@generated/*": [
-        "src/generated/*"
-      ],
-      "@types/*": [
-        "types/*"
-      ]
-    },
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true
-  },
-  "exclude": [
-    "node_modules",
-    "dist",
-  ],
-  "include": [
-    "src/**/*.ts",
-    ".kysely-codegenrc.ts"
+  "files": [],
+  "references": [
+    { "path": "shared" },
+    { "path": "server" },
+    { "path": "workers" }
   ]
 }

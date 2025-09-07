@@ -10,13 +10,17 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": [
+      "./server/tsconfig.json",
+      "./workers/tsconfig.json",
+      "./shared/tsconfig.json"
+    ],
+    "tsconfigRootDir": "."
   },
   "ignorePatterns": [
-    "dist/**",
-    "node_modules/**",
-    ".serverless/**",
-    "src/generated/**",
-    "src/db/schema.d.ts"
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/gql-types.ts",
+    "**/dv-schema.d.ts"
   ]
 }

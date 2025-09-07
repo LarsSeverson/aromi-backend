@@ -1,0 +1,278 @@
+import { type PromotionJobPayload, type PROMOTION_JOB_NAMES } from '@src/features/queue'
+import { BasePromoter } from './BasePromoter'
+import { type FragranceAccordRow, type FragranceTraitRow, type FragranceImageRow, type FragranceRequestRow, type FragranceRow, type FragranceNoteRow } from '@src/db'
+import { type Job } from 'bullmq'
+import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow'
+import { ApiError } from '@src/utils/error'
+import type z from 'zod'
+import { ValidFragrance } from '@src/db/features/fragrances/validation'
+import sharp from 'sharp'
+import { Vibrant } from 'node-vibrant/node'
+
+type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
+
+export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey], FragranceRow> {
+  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, ApiError> {
+    const row = job.data
+
+    return this
+      .withTransaction(trxPromoter => trxPromoter
+        .promoteFragrance(row)
+        .andThen(fragrance => ResultAsync
+          .combine([
+            this.promoteImage(row, fragrance),
+            this.promoteAccords(row, fragrance),
+            this.promoteNotes(row, fragrance),
+            this.promoteTraits(row, fragrance)
+          ])
+          .map(([image, accords, notes, traits]) => [fragrance, image, accords, notes, traits] as const)
+        )
+        .orTee(error => this.markFailed(row, error))
+      )
+      .andThrough(([, image]) => this
+        .processImage(image)
+        .orElse(() => okAsync(image))
+      )
+      .map(([fragrance]) => fragrance)
+  }
+
+  private promoteFragrance (
+    row: FragranceRequestRow
+  ): ResultAsync<FragranceRow, ApiError> {
+    const validRow = this.validateRow(row)
+    if (validRow.isErr()) return errAsync(validRow.error)
+
+    const { services } = this.context
+    const { fragrances } = services
+
+    return fragrances.createOne(validRow.value)
+  }
+
+  private promoteImage (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ): ResultAsync<FragranceImageRow, ApiError> {
+    const { services } = this.context
+    const { fragrances, fragranceRequests } = services
+
+    const { id: fragranceId } = fragrance
+
+    return fragranceRequests
+      .images
+      .findOne(
+        eb => eb.and([
+          eb('requestId', '=', request.id),
+          eb('status', '=', 'ready')
+        ])
+      )
+      .andThen(image => {
+        const { s3Key, name, contentType, sizeBytes } = image
+
+        return fragrances
+          .images
+          .createOne({
+            fragranceId,
+            s3Key,
+            name,
+            contentType,
+            sizeBytes
+          })
+      })
+  }
+
+  private promoteAccords (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ): ResultAsync<FragranceAccordRow[], ApiError> {
+    const { services } = this.context
+    const { fragrances, fragranceRequests } = services
+
+    const { id: fragranceId } = fragrance
+
+    return fragranceRequests
+      .accords
+      .find(
+        eb => eb('requestId', '=', request.id)
+      )
+      .andThen(accords => {
+        if (accords.length === 0) {
+          return okAsync([])
+        }
+
+        const values = accords
+          .map(({ accordId }) => ({ fragranceId, accordId }))
+
+        return fragrances
+          .accords
+          .create(values)
+      })
+  }
+
+  private promoteNotes (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ): ResultAsync<FragranceNoteRow[], ApiError> {
+    const { services } = this.context
+    const { fragrances, fragranceRequests } = services
+
+    const { id: fragranceId } = fragrance
+
+    return fragranceRequests
+      .notes
+      .find(
+        eb => eb('requestId', '=', request.id)
+      )
+      .andThen(notes => {
+        if (notes.length === 0) {
+          return okAsync([])
+        }
+
+        const values = notes
+          .map(({ noteId, layer }) => ({ fragranceId, noteId, layer }))
+
+        return fragrances
+          .notes
+          .create(values)
+      })
+  }
+
+  private promoteTraits (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ): ResultAsync<FragranceTraitRow[], ApiError> {
+    const { services } = this.context
+    const { fragrances, fragranceRequests } = services
+
+    const { userId } = request
+    const { id: fragranceId } = fragrance
+
+    return fragranceRequests
+      .traits
+      .find(
+        eb => eb('requestId', '=', request.id)
+      )
+      .andThen(traits => {
+        if (traits.length === 0) {
+          return okAsync([])
+        }
+
+        const values = traits
+          .map(({ traitTypeId }) => ({ fragranceId, traitTypeId }))
+
+        return fragrances
+          .traits
+          .create(values)
+          .andThrough(fTraits => {
+            const values = traits
+              .map(trait => {
+                const fTrait = fTraits.find(ft => ft.traitTypeId === trait.traitTypeId)
+                if (fTrait == null || trait.traitOptionId == null) return null
+
+                return {
+                  userId,
+                  fragranceTraitId: fTrait.id,
+                  traitOptionId: trait.traitOptionId
+                }
+              })
+              .filter(v => v != null)
+
+            if (values.length === 0) {
+              return okAsync([])
+            }
+
+            return fragrances
+              .traits
+              .votes
+              .create(values)
+          })
+      })
+  }
+
+  private processImage (
+    imageRow: FragranceImageRow
+  ): ResultAsync<FragranceImageRow, ApiError> {
+    const { services } = this.context
+    const { assets, fragrances } = services
+
+    return assets
+      .getFromS3(imageRow.s3Key)
+      .andThen(buffer => ResultAsync
+        .combine([
+          this.getMetadata(buffer).orElse(() => okAsync(null)),
+          this.getPrimaryColor(buffer).orElse(() => okAsync(null))
+        ])
+        .andThen(([metadata, primaryColor]) => {
+          const { width = 0, height = 0 } = metadata ?? {}
+          const bg = primaryColor ?? '#FFFFFF'
+
+          return okAsync({ width, height, primaryColor: bg })
+        })
+      )
+      .andThen(({ width, height, primaryColor }) => fragrances
+        .images
+        .updateOne(
+          eb => eb('id', '=', imageRow.id),
+          {
+            width,
+            height,
+            primaryColor,
+            updatedAt: new Date().toISOString()
+          }
+        )
+      )
+  }
+
+  private validateRow (row: FragranceRequestRow): Result<z.output<typeof ValidFragrance>, ApiError> {
+    const { data, success, error } = ValidFragrance.safeParse(row)
+    if (!success) {
+      return err(ApiError.fromZod(error))
+    }
+
+    return ok(data)
+  }
+
+  private markFailed (row: FragranceRequestRow, error: ApiError): ResultAsync<never, ApiError> {
+    const { services } = this.context
+    const { fragranceRequests } = services
+
+    return fragranceRequests
+      .updateOne(
+        eb => eb('id', '=', row.id),
+        {
+          requestStatus: 'FAILED',
+          updatedAt: new Date().toISOString()
+        }
+      )
+      .andThen(() => errAsync(error))
+  }
+
+  private getMetadata (
+    imageBuffer: Buffer
+  ): ResultAsync<sharp.Metadata, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        sharp(imageBuffer)
+          .metadata(),
+        error => ApiError.fromSharp(error)
+      )
+  }
+
+  private getPrimaryColor (
+    imageBuffer: Buffer
+  ): ResultAsync<string, ApiError> {
+    return ResultAsync
+      .fromPromise(
+        Vibrant
+          .from(imageBuffer)
+          .getPalette(),
+        error => ApiError.fromVibrant(error)
+      )
+      .andThen(palette => {
+        const hex = palette.Vibrant?.hex
+        if (hex == null) {
+          return errAsync(new ApiError('NoVibrantColor', 'Could not determine vibrant color from image', 500))
+        }
+        return okAsync(hex)
+      })
+  }
+}

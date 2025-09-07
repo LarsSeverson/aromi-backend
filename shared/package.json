@@ -1,0 +1,81 @@
+{
+  "type": "commonjs",
+  "name": "@aromi/shared",
+  "version": "1.0.0",
+  "author": "Lars Severson",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "gen:db": "kysely-codegen && tsx src/scripts/fix-schema-db.ts"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "@as-integrations/express5": "^1.1.2",
+    "@aws-sdk/client-cognito-identity-provider": "^3.797.0",
+    "@aws-sdk/client-s3": "^3.758.0",
+    "@aws-sdk/cloudfront-signer": "^3.813.0",
+    "@aws-sdk/s3-presigned-post": "^3.873.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "bullmq": "^5.58.5",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dataloader": "^2.2.3",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "graphql": "^16.10.0",
+    "graphql-depth-limit": "^1.1.0",
+    "graphql-scalars": "^1.24.1",
+    "ioredis": "^5.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "kysely": "^0.28.2",
+    "meilisearch": "^0.52.0",
+    "nanoid": "^5.1.5",
+    "neverthrow": "^8.2.0",
+    "node-vibrant": "^4.0.3",
+    "pg": "^8.13.3",
+    "sharp": "^0.34.3",
+    "unique-username-generator": "^1.4.0",
+    "zod": "^4.0.10"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-resolvers": "^4.5.0",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.19",
+    "@types/graphql-depth-limit": "^1.1.6",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/pg": "^8.11.11",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "copyfiles": "^2.4.1",
+    "dotenv-cli": "^10.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^16.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "kysely-codegen": "^0.18.5",
+    "nodemon": "^3.1.10",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  },
+  "exports": {
+    "./*": "./dist/*"
+  },
+  "kysely-codegen": {
+    "dialect": "postgres",
+    "url": "env(DB_URL)",
+    "envFile": "../.env",
+    "outFile": "./src/db/db-schema.d.ts",
+    "camelCase": true,
+    "defaultSchemas": [
+      "public"
+    ],
+    "singularize": true,
+    "dateParser": "string"
+  }
+}
