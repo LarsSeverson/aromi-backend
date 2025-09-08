@@ -1,15 +1,21 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "CommonJS",
+    "target": "es2024",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "removeComments": true,
     "noImplicitAny": false,
-    "importHelpers": true
+    "importHelpers": true,
+    "baseUrl": ".",
+    "paths": {
+      "@aromi/shared/*": [
+        "packages/shared/src/*"
+      ]
+    },
   }
 }

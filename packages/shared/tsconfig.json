@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": "./",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@generated/*": [
+        "src/generated/*"
+      ]
+    }
+  },
+  "include": [
+    "src",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

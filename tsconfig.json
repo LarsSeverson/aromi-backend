@@ -1,8 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "shared" },
-    { "path": "server" },
-    { "path": "workers" }
+    { "path": "packages/shared" },
+    { "path": "packages/server" },
+    { "path": "packages/workers" }
   ]
 }
