@@ -1,8 +1,8 @@
-import { type DB } from '@src/db/index.js'
-import { type ExpressionOrFactory, type InsertQueryBuilder, type SqlBool, type SelectQueryBuilder, type Selectable, type ReferenceExpression, type TableExpressionOrList, type UpdateQueryBuilder, type OnConflictBuilder, type OnConflictUpdateBuilder, type OnConflictDatabase, type OnConflictTables, type Insertable, type Updateable } from 'kysely'
-import { type DBAny } from '@src/utils/util-types.js'
-import { type DataSources } from '@src/datasources/index.js'
-import { type CursorPaginationInput } from '../types.js'
+import type { DB } from '@src/db/index.js'
+import type { ExpressionOrFactory, InsertQueryBuilder, SqlBool, SelectQueryBuilder, Selectable, ReferenceExpression, TableExpressionOrList, UpdateQueryBuilder, OnConflictBuilder, OnConflictUpdateBuilder, OnConflictDatabase, OnConflictTables, UpdateObject, ExpressionBuilder, InsertObject } from 'kysely'
+import type { DBAny } from '@src/utils/util-types.js'
+import type { DataSources } from '@src/datasources/index.js'
+import type { CursorPaginationInput } from '../types.js'
 
 export type Row<T extends keyof DB> = Selectable<DB[T]> & { id: string, deletedAt: Date | null }
 export type WhereArgs<TB extends keyof DB, R> = Parameters<SelectQueryBuilder<DB, TB, R>['where']>
@@ -65,7 +65,7 @@ export class Table<T extends keyof DB, R> {
   }
 
   create (
-    values: Insertable<DB[T]> | Array<Insertable<DB[T]>>,
+    values: InsertObject<DB, T> | Array<InsertObject<DB, T>>,
     extend?: ExtendInsertFn<T, R>
   ): InsertQueryBuilder<DB, T, R> {
     const qb = this
@@ -79,7 +79,7 @@ export class Table<T extends keyof DB, R> {
 
   update (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: Updateable<DB[T]>
+    values: UpdateObject<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObject<DB, T>)
   ): UpdateQueryBuilder<DB, T, T, R> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const qb = this
@@ -96,7 +96,7 @@ export class Table<T extends keyof DB, R> {
   }
 
   upsert (
-    values: Insertable<DB[T]> | Array<Insertable<DB[T]>>,
+    values: InsertObject<DB, T> | Array<InsertObject<DB, T>> | ((eb: ExpressionBuilder<DB, T>) => InsertObject<DB, T>),
     onConflict: OnConflictFn<T>
   ): InsertQueryBuilder<DB, T, R> {
     const qb = this
@@ -149,9 +149,7 @@ export class Table<T extends keyof DB, R> {
                 eb(parsedColumn, '=', cursor.value),
                 eb(idColumn, operator, cursor.lastId)
               ])
-            ])
-          )
-      )
+            ])))
       .orderBy(parsedColumn, direction)
       .orderBy(idColumn, direction)
       .limit(first + 1)
@@ -163,7 +161,7 @@ export class Table<T extends keyof DB, R> {
     return this
       .update(
         where,
-        { deletedAt: new Date() } as unknown as Updateable<DB[T]>
+        { deletedAt: new Date() } as unknown as UpdateObject<DB, T>
       )
   }
 

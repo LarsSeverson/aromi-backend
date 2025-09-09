@@ -1,36 +1,32 @@
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
-import { readFileSync } from 'fs'
-import depthLimit from 'graphql-depth-limit'
+import { readFileSync } from 'node:fs'
 import express from 'express'
-import http from 'http'
+import http from 'node:http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { expressMiddleware } from '@as-integrations/express5'
-import { type ServerContext, getContext } from './context'
-import { ServerServices } from './services/ServerServices'
-import { ApiResolvers } from './resolvers/ApiResolvers'
-import { ServerQueues } from './queues/ServerQueues'
-import { datasources, utils } from '@aromi/shared'
+import { DataSources, formatApiError, requiredEnv } from '@aromi/shared'
+import { ServerServices } from './services/ServerServices.js'
+import { ServerQueues } from './queues/ServerQueues.js'
+import { getContext, type ServerContext } from './context/index.js'
+import { ApiResolvers } from './resolvers/ApiResolvers.js'
 
-const typeDefs = readFileSync('src/generated/schema.graphql', { encoding: 'utf-8' })
+const typeDefs = readFileSync('src/graphql/schema.graphql', { encoding: 'utf-8' })
 
 export const startServer = async (): Promise<string> => {
-  const hostRes = utils.requiredEnv('SERVER_HOST')
+  const hostRes = requiredEnv('SERVER_HOST')
   if (hostRes.isErr()) throw hostRes.error
 
-  const portRes = utils.requiredEnv('SERVER_PORT')
+  const portRes = requiredEnv('SERVER_PORT')
   if (portRes.isErr()) throw portRes.error
-
-  const sourcesRes = datasources.createDataSources()
-  if (sourcesRes.isErr()) throw sourcesRes.error
 
   const host = hostRes.value
   const port = Number(portRes.value)
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
 
-  const sources = sourcesRes.value
+  const sources = new DataSources()
   const services = new ServerServices(sources)
   const queues = new ServerQueues(sources)
 
@@ -49,9 +45,9 @@ export const startServer = async (): Promise<string> => {
     typeDefs,
     resolvers: ApiResolvers,
     introspection: true,
-    validationRules: [depthLimit(15)],
+    validationRules: [],
     plugins,
-    formatError: utils.formatApiError
+    formatError: formatApiError
   })
 
   await server.start()

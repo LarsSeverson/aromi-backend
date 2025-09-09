@@ -1,5 +1,5 @@
-import { type DB } from '@src/db/index.js'
-import { type Selectable } from 'kysely'
+import type { DB } from '@src/db/index.js'
+import type { Selectable } from 'kysely'
 
 export type FragranceRow = Selectable<DB['fragrances']>
 export type FragranceImageRow = Selectable<DB['fragranceImages']>

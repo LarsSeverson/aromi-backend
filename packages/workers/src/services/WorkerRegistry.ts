@@ -1,4 +1,5 @@
-import { type JobHandler } from '../jobs/JobHandler'
+import type { JobPayload, JobPayloadKey } from '@aromi/shared'
+import type { JobHandler } from '../jobs/JobHandler.js'
 
 export class WorkerRegistry<J extends JobPayloadKey, M extends JobPayload<J>> {
   private readonly handlers = new Map<J, JobHandler<M[J]>>()

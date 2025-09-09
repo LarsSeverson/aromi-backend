@@ -1,4 +1,4 @@
-import { type ApiError } from '@src/utils/error.js'
+import type { ApiError } from '@src/utils/error.js'
 import { Result, ResultAsync } from 'neverthrow'
 import { syncAccords } from './features/accords/sync.js'
 import { syncBrands } from './features/brands/sync.js'
@@ -16,8 +16,7 @@ export const syncSearch = (): ResultAsync<undefined, ApiError> => {
         syncBrands(meili, db),
         syncAccords(meili, db),
         syncNotes(meili, db)
-      ])
-    )
+      ]))
     .map(() => undefined)
 }
 

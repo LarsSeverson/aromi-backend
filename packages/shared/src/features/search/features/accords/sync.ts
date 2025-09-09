@@ -1,5 +1,5 @@
 import { ApiError } from '@src/utils/error.js'
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
 
 export const syncAccords = (
@@ -22,7 +22,6 @@ export const syncAccords = (
           .index('accords')
           .addDocuments(accords),
         error => ApiError.fromMeili(error)
-      )
-    )
+      ))
     .map(() => undefined)
 }

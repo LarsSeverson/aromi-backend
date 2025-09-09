@@ -1,3 +1,3 @@
-import { type Brand } from '@src/graphql/gql-types'
+import type { Brand } from '@src/graphql/gql-types.js'
 
 export interface IBrandSummary extends Omit<Brand, 'image'> {}

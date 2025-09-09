@@ -16,6 +16,7 @@ export default [
       '**/node_modules/**',
       '**/.git/**',
       '**/*.config.js',
+      "**/gql-types.ts"
     ]
   },
 
@@ -40,6 +41,9 @@ export default [
     rules: {
       'eslint-comments/require-description': 'off',
       'arrow-body-style': 'off',
+      'promise/avoid-new': 'off',
+      'no-console': 'off',
+      'max-nested-callbacks': ['error', { max: 5 }],
 
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/prefer-destructuring': 'off',
@@ -50,6 +54,10 @@ export default [
       '@typescript-eslint/explicit-member-accessibility': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/class-methods-use-this': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/init-declarations': 'off',
+      '@typescript-eslint/no-unnecessary-type-parameters': 'off',
 
       // Core stylistic formatting
       '@stylistic/indent': ['error', 2],
@@ -69,11 +77,10 @@ export default [
       '@stylistic/keyword-spacing': ['error', { before: true, after: true }],
       '@stylistic/space-before-blocks': ['error', 'always'],
       '@stylistic/arrow-spacing': ['error', { before: true, after: true }],
-      '@stylistic/function-paren-newline': ['error', 'consistent'],
+      '@stylistic/function-paren-newline': 'off',
       '@stylistic/no-multi-spaces': 'error',
       '@stylistic/no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
       '@stylistic/no-trailing-spaces': 'error',
-
 
       // Alignment and readability
       '@stylistic/object-curly-spacing': ['error', 'always'],
@@ -88,5 +95,9 @@ export default [
 
   {
     files: ['packages/server/**/*.ts']
+  },
+
+  {
+    files: ['packages/workers/**/*.ts']
   }
 ]

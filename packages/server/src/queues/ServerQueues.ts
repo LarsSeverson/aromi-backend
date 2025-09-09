@@ -1,4 +1,4 @@
-import { type DataSources } from '@aromi/shared'
+import type { DataSources } from '@aromi/shared'
 import { PromotionQueueService } from '@aromi/shared'
 
 export class ServerQueues {

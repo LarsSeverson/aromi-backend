@@ -1,8 +1,8 @@
-import { type QueryResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { AccordPaginationFactory } from '../factories/AccordPaginationFactory'
+import type { QueryResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError } from '@aromi/shared'
-import { SearchPaginationFactory } from '../../search/factories/SearchPaginationFactory'
+import { AccordPaginationFactory } from '../factories/AccordPaginationFactory.js'
+import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 
 export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly pagination = new AccordPaginationFactory()

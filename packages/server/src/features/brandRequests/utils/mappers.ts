@@ -1,8 +1,8 @@
-import { type UpdateBrandRequestInput, type CreateBrandRequestInput, type RequestStatus, type BrandRequestImage } from '@src/graphql/gql-types'
-import { type IBrandRequestSummary } from '../types'
-import { type BrandRequestRow, type BrandRequestImageRow } from '@aromi/shared'
+import type { UpdateBrandRequestInput, CreateBrandRequestInput, RequestStatus, BrandRequestImage } from '@src/graphql/gql-types.js'
+import type { IBrandRequestSummary } from '../types.js'
+import type { BrandRequestRow, BrandRequestImageRow } from '@aromi/shared'
 import { parseSchema, removeNullish } from '@aromi/shared'
-import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation'
+import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation.js'
 
 export const mapCreateBrandRequestInputToRow = (
   input: CreateBrandRequestInput

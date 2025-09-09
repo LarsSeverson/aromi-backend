@@ -1,4 +1,4 @@
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { TraitTypeService } from './TraitTypeService.js'
 import { TraitOptionService } from './TraitOptionService.js'
 import { TraitVoteService } from './TraitVoteService.js'

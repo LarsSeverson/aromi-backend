@@ -1,10 +1,8 @@
-import { type AccordRequestImageRow, ValidAccord, type AccordRequestRow, type AccordRow, type AccordImageRow } from '@src/db'
-import { ApiError } from '@src/utils/error'
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
-import { BasePromoter } from './BasePromoter'
 import type z from 'zod'
-import { type PromotionJobPayload, type PROMOTION_JOB_NAMES } from '@src/features/queue'
-import { type Job } from 'bullmq'
+import type { Job } from 'bullmq'
+import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, ApiError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidAccord } from '@aromi/shared'
+import { BasePromoter } from './BasePromoter.js'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
 
@@ -15,8 +13,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
     return this
       .withTransaction(trxPromoter => trxPromoter
         .promoteAccord(row)
-        .orTee(error => this.markFailed(row, error))
-      )
+        .orTee(error => this.markFailed(row, error)))
   }
 
   private promoteAccord (row: AccordRequestRow): ResultAsync<AccordRow, ApiError> {
@@ -29,8 +26,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
     return accords
       .createOne(validRow.value)
       .andThrough(accord => this
-        .promoteImage(row, accord)
-      )
+        .promoteImage(row, accord))
   }
 
   private promoteImage (

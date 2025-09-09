@@ -1,4 +1,4 @@
-import { type ServerServices } from '@src/services/ServerServices'
+import type { ServerServices } from '@src/services/ServerServices.js'
 import type DataLoader from 'dataloader'
 
 export abstract class BaseLoader<K> {

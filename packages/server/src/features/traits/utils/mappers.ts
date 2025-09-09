@@ -1,4 +1,4 @@
-import { TraitTypeEnum } from '@src/graphql/gql-types'
+import { TraitTypeEnum } from '@src/graphql/gql-types.js'
 
 export const GQLTraitToDBTrait: Record<TraitTypeEnum, string> = {
   APPEAL: 'Appeal',

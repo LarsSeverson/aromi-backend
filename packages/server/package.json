@@ -1,0 +1,39 @@
+{
+  "type": "module",
+  "name": "@aromi/server",
+  "version": "1.0.0",
+  "author": "Lars Severson",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec \"yarn run start\"",
+    "start": "yarn run build && node dist/main.js",
+    "build": "tsc --build && tsc-alias -p tsconfig.json && copyfiles -u 2 src/graphql/schema.graphql dist/graphql",
+    "gen:gql": "graphql-codegen --config src/scripts/codegen.ts"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "@aromi/shared": "*",
+    "@as-integrations/express5": "^1.1.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "5",
+    "graphql": "^16.11.0",
+    "graphql-scalars": "^1.24.2",
+    "unique-username-generator": "^1.5.1"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/typescript": "^5.0.0",
+    "@graphql-codegen/typescript-resolvers": "^5.0.0",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "copyfiles": "^2.4.1",
+    "dotenv-cli": "^10.0.0",
+    "nodemon": "^3.1.10",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}

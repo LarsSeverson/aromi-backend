@@ -1,10 +1,10 @@
-import { type ExtendInsertFn, Table, type ExtendSelectFn, type OnConflictFn } from './Table'
+import { type ExtendInsertFn, Table, type ExtendSelectFn, type OnConflictFn } from './Table.js'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { ApiError, throwError } from '@src/utils/error.js'
-import { type Insertable, type Updateable, type ExpressionOrFactory, type SqlBool } from 'kysely'
-import { type DataSources } from '@src/datasources/index.js'
-import { type DB } from '@src/db/index.js'
-import { type CursorPaginationInput } from '../types.js'
+import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject } from 'kysely'
+import type { DataSources } from '@src/datasources/index.js'
+import type { DB } from '@src/db/index.js'
+import type { CursorPaginationInput } from '../types.js'
 
 export interface QueryOptions<T extends keyof DB, R, C> {
   pagination?: CursorPaginationInput<C>
@@ -70,7 +70,7 @@ export abstract class TableService<T extends keyof DB, R> {
   }
 
   createOne (
-    values: Insertable<DB[T]>,
+    values: InsertObject<DB, T>,
     extend?: ExtendInsertFn<T, R>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
@@ -84,7 +84,7 @@ export abstract class TableService<T extends keyof DB, R> {
   }
 
   create (
-    values: Insertable<DB[T]> | Array<Insertable<DB[T]>>,
+    values: InsertObject<DB, T> | Array<InsertObject<DB, T>>,
     extend?: ExtendInsertFn<T, R>
   ): ResultAsync<R[], ApiError> {
     return ResultAsync
@@ -99,7 +99,7 @@ export abstract class TableService<T extends keyof DB, R> {
 
   update (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: Updateable<DB[T]>
+    values: UpdateObject<DB, T>
   ): ResultAsync<R[], ApiError> {
     return ResultAsync
       .fromPromise(
@@ -113,7 +113,7 @@ export abstract class TableService<T extends keyof DB, R> {
 
   updateOne (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: Updateable<DB[T]>
+    values: UpdateObject<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObject<DB, T>)
   ): ResultAsync<R, ApiError> {
     return ResultAsync
       .fromPromise(
@@ -126,7 +126,7 @@ export abstract class TableService<T extends keyof DB, R> {
   }
 
   upsert (
-    values: Insertable<DB[T]>,
+    values: InsertObject<DB, T> | Array<InsertObject<DB, T>> | ((eb: ExpressionBuilder<DB, T>) => InsertObject<DB, T>),
     onConflict: OnConflictFn<T>
   ): ResultAsync<R, ApiError> {
     return ResultAsync
@@ -207,7 +207,7 @@ export abstract class TableService<T extends keyof DB, R> {
 
   findOrCreate (
     where: ExpressionOrFactory<DB, T, SqlBool>,
-    values: Insertable<DB[T]>
+    values: InsertObject<DB, T>
   ): ResultAsync<R, ApiError> {
     return this
       .findOne(where)
@@ -236,6 +236,7 @@ export abstract class TableService<T extends keyof DB, R> {
 
   private createTrxService (trx: DataSources['db']): this {
     const Ctor = this.constructor as new (sources: DataSources, table: T) => this
-    return new Ctor({ ...this.sources, db: trx }, this.Table.tableName)
+    const sources = this.sources.with({ db: trx })
+    return new Ctor(sources, this.Table.tableName)
   }
 }

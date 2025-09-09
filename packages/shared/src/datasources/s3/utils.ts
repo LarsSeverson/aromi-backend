@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid'
-import path from 'path'
-import { type S3Entity } from './types.js'
+import path from 'node:path'
+import type { S3Entity } from './types.js'
 
 export interface UtilKeyReturn {
   id: string

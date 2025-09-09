@@ -1,2 +1,2 @@
 export * from './types.js'
-export * from './services/promotion'
+export * from './services/promotion/index.js'

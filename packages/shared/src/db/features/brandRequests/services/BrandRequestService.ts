@@ -1,5 +1,5 @@
-import { type DataSources } from '@src/datasources/index.js'
-import { type BrandRequestRow } from '@src/db/index.js'
+import type { DataSources } from '@src/datasources/index.js'
+import type { BrandRequestRow } from '@src/db/index.js'
 import { BrandRequestImageService } from './BrandRequestImageService.js'
 import { BrandRequestVoteService } from './BrandRequestVoteService.js'
 import { TableService } from '@src/db/services/TableService.js'

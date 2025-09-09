@@ -1,8 +1,8 @@
-import { type RequestStatus, type CreateNoteRequestInput, type UpdateNoteRequestInput, type NoteRequestImage } from '@src/graphql/gql-types'
-import { type INoteRequestSummary } from '../types'
-import { type NoteRequestRow, type NoteRequestImageRow } from '@aromi/shared'
+import type { RequestStatus, CreateNoteRequestInput, UpdateNoteRequestInput, NoteRequestImage } from '@src/graphql/gql-types.js'
+import type { INoteRequestSummary } from '../types.js'
+import type { NoteRequestRow, NoteRequestImageRow } from '@aromi/shared'
 import { parseSchema, removeNullish } from '@aromi/shared'
-import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation'
+import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation.js'
 
 export const mapCreateNoteRequestInputToRow = (
   input: CreateNoteRequestInput

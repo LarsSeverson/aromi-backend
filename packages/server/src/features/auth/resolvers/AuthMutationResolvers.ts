@@ -1,9 +1,9 @@
-import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation'
-import { type Response } from 'express'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation.js'
+import type { Response } from 'express'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { generateFromEmail } from 'unique-username-generator'
-import { type AuthDeliveryResult, type AuthTokenPayload, type MutationResolvers } from '@src/graphql/gql-types'
-import { type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseSchema, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
+import type { AuthDeliveryResult, AuthTokenPayload, MutationResolvers } from '@src/graphql/gql-types.js'
+import { ApiError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseSchema, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
 
 export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   refresh: MutationResolvers['refresh'] = async (

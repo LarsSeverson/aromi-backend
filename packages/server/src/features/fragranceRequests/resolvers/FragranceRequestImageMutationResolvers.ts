@@ -1,9 +1,9 @@
 import { parseSchema, throwError, genImageKey } from '@aromi/shared'
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation.js'
 import { errAsync, okAsync } from 'neverthrow'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
+import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
 
 export class FragranceRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageFragranceRequestImage: MutationResolvers['stageFragranceRequestImage'] = async (

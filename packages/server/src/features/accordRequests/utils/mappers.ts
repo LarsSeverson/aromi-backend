@@ -1,7 +1,7 @@
-import { type UpdateAccordRequestInput, type CreateAccordRequestInput, type AccordRequestImage, type RequestStatus } from '@src/graphql/gql-types'
-import { type IAccordRequestSummary } from '../types'
+import type { UpdateAccordRequestInput, CreateAccordRequestInput, AccordRequestImage, RequestStatus } from '@src/graphql/gql-types.js'
+import type { IAccordRequestSummary } from '../types.js'
 import { type AccordRequestRow, type AccordRequestImageRow, parseSchema, removeNullish } from '@aromi/shared'
-import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation'
+import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation.js'
 
 export const mapCreateAccordRequestInputToRow = (
   input: CreateAccordRequestInput

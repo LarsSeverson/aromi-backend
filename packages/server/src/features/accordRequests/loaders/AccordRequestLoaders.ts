@@ -1,5 +1,5 @@
-import { BaseLoader } from '@src/loaders/BaseLoader'
-import { type AccordRequestLoadersKey } from '../types'
+import { BaseLoader } from '@src/loaders/BaseLoader.js'
+import type { AccordRequestLoadersKey } from '../types.js'
 import { throwError, type AccordRequestImageRow, type VoteInfoRow } from '@aromi/shared'
 import DataLoader from 'dataloader'
 

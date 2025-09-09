@@ -1,8 +1,7 @@
-import { type Job } from 'bullmq'
-import { JobContext } from './JobContext'
-import { type ResultAsync } from 'neverthrow'
-import { type ApiError } from '@src/utils/error'
-import { type DataSources } from 'shared/src/datasources'
+import type { ApiError, DataSources } from '@aromi/shared'
+import { JobContext } from './JobContext.js'
+import type { Job } from 'bullmq'
+import type { ResultAsync } from 'neverthrow'
 
 export abstract class JobHandler<T> {
   protected readonly context: JobContext

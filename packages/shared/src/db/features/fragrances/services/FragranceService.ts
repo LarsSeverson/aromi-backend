@@ -1,6 +1,6 @@
 import { TableService } from '@src/db/services/TableService.js'
-import { type FragranceRow } from '../types.js'
-import { type DataSources } from '@src/datasources/index.js'
+import type { FragranceRow } from '../types.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { FragranceImageService } from './FragranceImageService.js'
 import { FragranceTraitService } from './FragranceTraitService.js'
 import { FragranceAccordService } from './FragranceAccordService.js'

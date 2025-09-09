@@ -1,5 +1,5 @@
-import { type NoteLayerEnum, type FragranceStatus as DBFragranceStatus, type FragranceConcentration } from '@aromi/shared'
-import { type FragranceStatus, type Concentration, type NoteLayer } from '@src/graphql/gql-types'
+import type { NoteLayerEnum, FragranceStatus as DBFragranceStatus, FragranceConcentration } from '@aromi/shared'
+import type { FragranceStatus, Concentration, NoteLayer } from '@src/graphql/gql-types.js'
 
 export const mapGQLConcentrationToDBConcentration = (
   concentration: Concentration | null

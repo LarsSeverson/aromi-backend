@@ -1,9 +1,9 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { type AccordRequestResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { AccordRequestResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
-import { mapAccordRequestImageRowToAccordImage } from '../utils/mappers'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers'
+import { mapAccordRequestImageRowToAccordImage } from '../utils/mappers.js'
+import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
 
 export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResolvers> {
   image: AccordRequestResolvers['image'] = async (

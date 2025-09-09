@@ -1,9 +1,9 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapNoteRequestRowToNoteRequestSummary, mapCreateNoteRequestInputToRow, mapUpdateNoteRequestInputToRow } from '../utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapNoteRequestRowToNoteRequestSummary, mapCreateNoteRequestInputToRow, mapUpdateNoteRequestInputToRow } from '../utils/mappers.js'
 import { throwError } from '@aromi/shared'
-import { NoteRequestImageMutationResolvers } from './NoteRequestImageMutationResolvers'
-import { NoteRequestVoteMutationResolvers } from './NoteRequestVoteMutationResolvers'
+import { NoteRequestImageMutationResolvers } from './NoteRequestImageMutationResolvers.js'
+import { NoteRequestVoteMutationResolvers } from './NoteRequestVoteMutationResolvers.js'
 
 export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly images = new NoteRequestImageMutationResolvers()

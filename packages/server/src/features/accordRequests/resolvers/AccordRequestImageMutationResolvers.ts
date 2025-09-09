@@ -1,9 +1,9 @@
 import { parseSchema, throwError, genImageKey } from '@aromi/shared'
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { errAsync, okAsync } from 'neverthrow'
-import { FinalizeAccordRequestImageSchema, StageAccordRequestImageSchema } from '../utils/validation'
-import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
+import { FinalizeAccordRequestImageSchema, StageAccordRequestImageSchema } from '../utils/validation.js'
+import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers.js'
 
 export class AccordRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageAccordRequestImage: MutationResolvers['stageAccordRequestImage'] = async (

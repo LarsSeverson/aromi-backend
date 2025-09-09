@@ -1,10 +1,9 @@
-import { type DataSources } from '@src/datasources/index.js'
-import { type Kysely, type SelectQueryBuilder, type ExpressionOrFactory, type SqlBool } from 'kysely'
+import type { DataSources } from '@src/datasources/index.js'
+import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/utils/error.js'
-import { type AccordRequestVoteRow } from '../types.js'
-import { type DB } from '@src/db/index.js'
-import { type VoteInfoRow } from '@src/db/index.js'
+import type { AccordRequestVoteRow } from '../types.js'
+import type { DB, VoteInfoRow } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
 
 export class AccordRequestVoteService extends TableService<'accordRequestVotes', AccordRequestVoteRow> {
@@ -60,11 +59,17 @@ export class AccordRequestVoteService extends TableService<'accordRequestVotes',
           .as('targetId'),
         eb
           .fn
-          .sum<number>(eb.case().when('vote', '=', 1).then(1).else(0).end())
+          .sum<number>(eb.case().when('vote', '=', 1)
+            .then(1)
+            .else(0)
+            .end())
           .as('upvotes'),
         eb
           .fn
-          .sum<number>(eb.case().when('vote', '=', -1).then(1).else(0).end())
+          .sum<number>(eb.case().when('vote', '=', -1)
+            .then(1)
+            .else(0)
+            .end())
           .as('downvotes'),
         eb
           .fn
@@ -73,7 +78,10 @@ export class AccordRequestVoteService extends TableService<'accordRequestVotes',
         userId != null
           ? eb
             .fn
-            .max(eb.case().when('userId', '=', userId).then(eb.ref('vote')).else(0).end())
+            .max(eb.case().when('userId', '=', userId)
+              .then(eb.ref('vote'))
+              .else(0)
+              .end())
             .as('userVote')
           : eb
             .val(null)

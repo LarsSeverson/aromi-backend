@@ -1,9 +1,9 @@
-import { type ExpressContextFunctionArgument } from '@as-integrations/express5'
-import { getMyContext } from './myContext'
-import { ServerLoaders } from '@src/loaders/ServerLoaders'
-import { type ServerQueues } from '../queues/ServerQueues'
-import { type UserRow, type DataSources } from '@aromi/shared'
-import { type ServerServices } from '@src/services/ServerServices'
+import type { ExpressContextFunctionArgument } from '@as-integrations/express5'
+import { getMyContext } from './myContext.js'
+import { ServerLoaders } from '@src/loaders/ServerLoaders.js'
+import type { ServerQueues } from '../queues/ServerQueues.js'
+import type { UserRow, DataSources } from '@aromi/shared'
+import type { ServerServices } from '@src/services/ServerServices.js'
 
 export interface ServerContext extends ExpressContextFunctionArgument {
   me?: UserRow

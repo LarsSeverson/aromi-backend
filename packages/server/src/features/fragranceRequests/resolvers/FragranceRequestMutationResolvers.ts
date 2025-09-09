@@ -1,13 +1,13 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapCreateFragranceRequestInputToRow, mapFragranceRequestRowToFragranceRequest, mapUpdateFragranceRequestInputToRow } from '@src/features/fragranceRequests/utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError } from '@aromi/shared'
-import { FragranceRequestBrandMutationResolvers } from './FragranceRequestBrandMutationResolvers'
-import { FragranceRequestImageMutationResolvers } from './FragranceRequestImageMutationResolvers'
-import { FragranceRequestTraitMutationResolvers } from './FragranceRequestTraitMutationResolvers'
-import { FragranceRequestAccordMutationResolvers } from './FragranceRequestAccordMutationResolvers'
-import { FragranceRequestNoteMutationResolvers } from './FragranceRequestNoteMutationResolvers'
-import { FragranceRequestVoteMutationResolvers } from './FragranceRequestVoteMutationResolvers'
+import { FragranceRequestBrandMutationResolvers } from './FragranceRequestBrandMutationResolvers.js'
+import { FragranceRequestImageMutationResolvers } from './FragranceRequestImageMutationResolvers.js'
+import { FragranceRequestTraitMutationResolvers } from './FragranceRequestTraitMutationResolvers.js'
+import { FragranceRequestAccordMutationResolvers } from './FragranceRequestAccordMutationResolvers.js'
+import { FragranceRequestNoteMutationResolvers } from './FragranceRequestNoteMutationResolvers.js'
+import { FragranceRequestVoteMutationResolvers } from './FragranceRequestVoteMutationResolvers.js'
+import { mapCreateFragranceRequestInputToRow, mapFragranceRequestRowToFragranceRequest, mapUpdateFragranceRequestInputToRow } from '../utils/mappers.js'
 
 export class FragranceRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly brands = new FragranceRequestBrandMutationResolvers()

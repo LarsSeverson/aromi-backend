@@ -1,12 +1,12 @@
 import { ResultAsync } from 'neverthrow'
-import { startServer } from './server'
-import { utils } from '@aromi/shared'
+import { startServer } from './server.js'
+import { ApiError } from '@aromi/shared'
 
-const main = (): ResultAsync<string, utils.ApiError> => {
+const main = (): ResultAsync<string, ApiError> => {
   return ResultAsync
     .fromPromise(
       startServer(),
-      error => new utils.ApiError('INTERNAL_ERROR', 'Unable to start server', 500, error)
+      error => new ApiError('INTERNAL_ERROR', 'Unable to start server', 500, error)
     )
 }
 

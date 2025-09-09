@@ -7,24 +7,24 @@ const config: CodegenConfig = {
       config: {
         useIndexSignature: true,
         enumsAsConst: true,
-        contextType: '@src/context#ServerContext',
+        contextType: '@src/context/index.js#ServerContext',
         defaultMapper: 'Partial<{T}>',
         scalars: {
           Date: 'Date',
           JSON: 'Record<string, any>'
         },
         mappers: {
-          User: '../features/users/types#IUserSummary',
+          User: '../features/users/types.js#IUserSummary',
 
-          Brand: '../features/brands/types#IBrandSummary',
+          Brand: '../features/brands/types.js#IBrandSummary',
 
-          FragranceRequest: '../features/fragranceRequests/types#IFragranceRequestSummary',
+          FragranceRequest: '../features/fragranceRequests/types.js#IFragranceRequestSummary',
 
-          BrandRequest: '../features/brandRequests/types#IBrandRequestSummary',
+          BrandRequest: '../features/brandRequests/types.js#IBrandRequestSummary',
 
-          AccordRequest: '../features/accordRequests/types#IAccordRequestSummary',
+          AccordRequest: '../features/accordRequests/types.js#IAccordRequestSummary',
 
-          NoteRequest: '../features/noteRequests/types#INoteRequestSummary'
+          NoteRequest: '../features/noteRequests/types.js#INoteRequestSummary'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

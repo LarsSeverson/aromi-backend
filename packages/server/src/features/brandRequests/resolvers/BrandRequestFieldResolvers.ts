@@ -1,9 +1,9 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { type BrandRequestResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { BrandRequestResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
-import { mapBrandRequestImageRowToBrandImage } from '../utils/mappers'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers'
+import { mapBrandRequestImageRowToBrandImage } from '../utils/mappers.js'
+import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
 
 export class BrandRequestFieldResolvers extends BaseResolver<BrandRequestResolvers> {
   image: BrandRequestResolvers['image'] = async (

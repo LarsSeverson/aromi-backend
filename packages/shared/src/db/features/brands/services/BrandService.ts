@@ -1,7 +1,7 @@
-import { type BrandRow } from '@src/db/features/brands/types'
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { TableService } from '@src/db/services/TableService.js'
 import { BrandImageService } from './BrandImageService.js'
+import type { BrandRow } from '../types.js'
 
 export class BrandService extends TableService<'brands', BrandRow> {
   images: BrandImageService

@@ -1,9 +1,9 @@
 import { throwError } from '@aromi/shared'
-import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brandRequests/utils/mappers'
-import { mapFragranceRequestRowToFragranceRequest } from '@src/features/fragranceRequests/utils/mappers'
-import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { type UserResolvers } from '@src/graphql/gql-types'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import type { UserResolvers } from '@src/graphql/gql-types.js'
+import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
+import { mapFragranceRequestRowToFragranceRequest } from '@src/features/fragranceRequests/utils/mappers.js'
+import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brandRequests/utils/mappers.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()

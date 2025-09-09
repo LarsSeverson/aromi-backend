@@ -1,9 +1,9 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory'
-import { type QueryResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
+import type { QueryResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers.js'
 import { errAsync, okAsync } from 'neverthrow'
+import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
 
 export class NoteRequestQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly pagination = new RequestPaginationFactory()

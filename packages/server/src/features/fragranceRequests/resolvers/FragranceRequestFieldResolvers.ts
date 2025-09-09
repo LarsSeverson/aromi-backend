@@ -1,11 +1,11 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
-import { mapCombinedTraitRowToRequestTrait, mapFragranceRequesttImageRowToFragranceImage } from '../utils/mappers'
-import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers'
-import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers'
-import { type FragranceRequestResolvers } from '@src/graphql/gql-types'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers'
+import { mapCombinedTraitRowToRequestTrait, mapFragranceRequesttImageRowToFragranceImage } from '../utils/mappers.js'
+import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers.js'
+import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
+import type { FragranceRequestResolvers } from '@src/graphql/gql-types.js'
+import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
 
 export class FragranceRequestFieldResolvers extends BaseResolver<FragranceRequestResolvers> {
   brand: FragranceRequestResolvers['brand'] = async (

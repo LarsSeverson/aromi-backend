@@ -1,5 +1,4 @@
-import { ValidVersion } from '@aromi/shared'
-import { ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear } from '@aromi/shared'
+import { ValidVersion, ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateFragranceRequestSchema = z

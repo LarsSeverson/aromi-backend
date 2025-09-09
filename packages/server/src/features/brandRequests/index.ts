@@ -1,0 +1,5 @@
+export * from './resolvers/BrandRequestFieldResolvers.js'
+export * from './resolvers/BrandRequestImageMutationResolvers.js'
+export * from './resolvers/BrandRequestMutationResolvers.js'
+export * from './resolvers/BrandRequestQueryResolvers.js'
+export * from './resolvers/BrandRequestVoteMutationResolvers.js'

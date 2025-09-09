@@ -1,9 +1,9 @@
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { type Job, Queue } from 'bullmq'
-import { type JobPayload, type EnqueueParams, type QueueName, type JobPayloadKey } from '../types.js'
+import type { JobPayload, EnqueueParams, QueueName, JobPayloadKey } from '../types.js'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/utils/error.js'
-import { MQueueBatch } from './MQueueBatch'
+import { MQueueBatch } from './MQueueBatch.js'
 
 export abstract class MQueueService<
   J extends JobPayloadKey,

@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 
 const schemaPath = './src/db/db-schema.d.ts'
 const schema = fs.readFileSync(schemaPath, 'utf8')

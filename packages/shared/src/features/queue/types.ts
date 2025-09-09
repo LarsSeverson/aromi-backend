@@ -4,9 +4,7 @@ export const QUEUE_NAMES = {
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES]
 
-export type JobPayload<J extends string, P = Record<string, unknown>> = {
-  [K in J]: P
-}
+export type JobPayload<J extends string, P = Record<string, unknown>> = Record<J, P>
 
 export type JobPayloadKey = keyof JobPayload<string>
 

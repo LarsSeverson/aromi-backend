@@ -1,7 +1,4 @@
-import { type DataSources } from 'shared/src/datasources'
-import { AccordRequestService, AccordService, BrandRequestService, BrandService, FragranceRequestService, NoteRequestService, NoteService } from '@src/db'
-import { FragranceService } from '@src/db/features/fragrances/services/FragranceService'
-import { AssetService } from '@src/features/assets'
+import { AccordRequestService, AccordService, AssetService, BrandRequestService, BrandService, type DataSources, FragranceRequestService, FragranceService, NoteRequestService, NoteService } from '@aromi/shared'
 
 export class JobServices {
   assets: AssetService

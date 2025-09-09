@@ -1,4 +1,4 @@
-import { type NoteRequestRow, type AccordRequestRow, type BrandRequestRow, type FragranceRequestRow } from '@src/db/index.js'
+import type { AccordRequestRow, BrandRequestRow, FragranceRequestRow, NoteRequestRow } from '@src/db/index.js'
 
 export const PROMOTION_JOB_NAMES = {
   PROMOTE_FRAGRANCE: 'promote-fragrance',

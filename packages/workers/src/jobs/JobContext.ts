@@ -1,7 +1,6 @@
-import { type DataSources } from 'shared/src/datasources'
-import { JobServices } from './JobServices'
+import { ApiError, type DataSources, throwError } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
-import { ApiError, throwError } from '@src/utils/error'
+import { JobServices } from './JobServices.js'
 
 export class JobContext {
   readonly sources: DataSources
@@ -35,7 +34,7 @@ export class JobContext {
 
   private createTrxContext (trx: DataSources['db']): this {
     const Ctor = this.constructor as new (sources: DataSources) => this
-    const sources = { ...this.sources, db: trx }
+    const sources = this.sources.with({ db: trx })
     return new Ctor(sources)
   }
 }

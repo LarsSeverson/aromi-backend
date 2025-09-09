@@ -1,4 +1,4 @@
-import { DB } from '@src/db/db-schema.js'
+import type { DB } from '@src/db/db-schema.js'
 import type { Selectable } from 'kysely'
 
 export type AccordRequestRow = Selectable<DB['accordRequests']>

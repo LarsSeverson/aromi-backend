@@ -1,7 +1,7 @@
-export * from './types'
+export * from './types.js'
 
-export * from './jobs/NotePromoter'
-export * from './jobs/AccordPromoter'
-export * from './jobs/BrandPromoter'
+export * from './jobs/NotePromoter.js'
+export * from './jobs/AccordPromoter.js'
+export * from './jobs/BrandPromoter.js'
 
-export * from './services/PromotionService'
+export * from './services/PromotionService.js'

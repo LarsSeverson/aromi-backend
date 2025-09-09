@@ -1,7 +1,7 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapUserRowToUserSummary } from '../utils/mappers'
-import { type QueryResolvers } from '@src/graphql/gql-types'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapUserRowToUserSummary } from '../utils/mappers.js'
+import type { QueryResolvers } from '@src/graphql/gql-types.js'
 
 export class UserQueryResolvers extends BaseResolver<QueryResolvers> {
   me: QueryResolvers['me'] = (

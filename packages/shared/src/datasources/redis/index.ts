@@ -1,5 +1,5 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import { ApiError } from '@src/utils/error.js'
+import type { ApiError } from '@src/utils/error.js'
 import { Redis } from 'ioredis'
 import { Result } from 'neverthrow'
 
@@ -19,7 +19,8 @@ export const createRedisWrapper = (): Result<RedisWrapper, ApiError> => {
     ]) => {
       const client = new Redis({
         host,
-        port: Number(port)
+        port: Number(port),
+        maxRetriesPerRequest: null
       })
 
       return { client }

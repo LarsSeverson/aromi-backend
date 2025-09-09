@@ -1,6 +1,6 @@
-import { BaseLoader } from '@src/loaders/BaseLoader'
-import { type NoteRequestLoadersKey } from '../types'
-import { type NoteRequestImageRow, type VoteInfoRow } from '@aromi/shared'
+import { BaseLoader } from '@src/loaders/BaseLoader.js'
+import type { NoteRequestLoadersKey } from '../types.js'
+import type { NoteRequestImageRow, VoteInfoRow } from '@aromi/shared'
 import DataLoader from 'dataloader'
 import { throwError } from '@aromi/shared'
 

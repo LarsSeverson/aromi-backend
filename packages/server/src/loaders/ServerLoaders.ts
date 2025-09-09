@@ -1,8 +1,8 @@
-import { AccordRequestLoaders } from '@src/features/accordRequests/loaders/AccordRequestLoaders'
-import { BrandRequestLoaders } from '@src/features/brandRequests/loaders/BrandRequestLoaders'
-import { FragranceRequestLoaders } from '@src/features/fragranceRequests/loaders/FragranceRequestLoaders'
-import { NoteRequestLoaders } from '@src/features/noteRequests/loaders/NoteRequestLoaders'
-import { type ServerServices } from '@src/services/ServerServices'
+import { AccordRequestLoaders } from '@src/features/accordRequests/loaders/AccordRequestLoaders.js'
+import { BrandRequestLoaders } from '@src/features/brandRequests/loaders/BrandRequestLoaders.js'
+import { FragranceRequestLoaders } from '@src/features/fragranceRequests/loaders/FragranceRequestLoaders.js'
+import { NoteRequestLoaders } from '@src/features/noteRequests/loaders/NoteRequestLoaders.js'
+import type { ServerServices } from '@src/services/ServerServices.js'
 
 export class ServerLoaders {
   fragranceRequests: FragranceRequestLoaders

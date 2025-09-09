@@ -1,8 +1,8 @@
 import { ResultAsync } from 'neverthrow'
-import { type JobPayloadKey, type EnqueueParams, type JobPayload } from '../types.js'
-import { type MQueueService } from './MQueueService.js'
-import { type Job } from 'bullmq'
-import { type ApiError } from '@src/utils/error.js'
+import type { JobPayloadKey, EnqueueParams, JobPayload } from '../types.js'
+import type { MQueueService } from './MQueueService.js'
+import type { Job } from 'bullmq'
+import type { ApiError } from '@src/utils/error.js'
 
 export class MQueueBatch<
   J extends JobPayloadKey,

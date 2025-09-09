@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3'
 import { requiredEnv } from '@src/utils/env-util.js'
-import { ApiError } from '@src/utils/error.js'
+import type { ApiError } from '@src/utils/error.js'
 import { Result } from 'neverthrow'
 
 export * from './types.js'

@@ -1,8 +1,8 @@
-import { type DataSources } from '@src/datasources/index.js'
-import { type Index } from 'meilisearch'
+import type { DataSources } from '@src/datasources/index.js'
+import type { Index } from 'meilisearch'
 import { ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/utils/error.js'
-import { type SearchParams, type SearchResult, type BaseSearchIndex, type IndexName } from '../types.js'
+import type { SearchParams, SearchResult, BaseSearchIndex, IndexName } from '../types.js'
 
 export abstract class SearchService<T extends BaseSearchIndex> {
   meili: DataSources['meili']
@@ -44,8 +44,7 @@ export abstract class SearchService<T extends BaseSearchIndex> {
           hits: result.hits,
           offset,
           first
-        })
-      )
+        }))
   }
 
   addDocuments (documents: T[]): ResultAsync<this, ApiError> {

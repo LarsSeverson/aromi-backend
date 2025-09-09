@@ -1,14 +1,16 @@
-import { PROMOTION_JOB_NAMES, QUEUE_NAMES, type PromotionJobPayload } from '@src/features/queue'
-import { BrandPromoter } from '../jobs/BrandPromoter'
-import { AccordPromoter } from '../jobs/AccordPromoter'
-import { NotePromoter } from '../jobs/NotePromoter'
-import { type DataSources } from 'shared/src/datasources'
-import { WorkerService } from '@src/services/WorkerService'
-import { FragrancePromoter } from '../jobs/FragrancePromoter'
+import { PROMOTION_JOB_NAMES, type PromotionJobPayload, QUEUE_NAMES } from '@aromi/shared'
+import { WorkerService } from '@src/services/WorkerService.js'
+import { FragrancePromoter } from '../jobs/FragrancePromoter.js'
+import { BrandPromoter } from '../jobs/BrandPromoter.js'
+import { AccordPromoter } from '../jobs/AccordPromoter.js'
+import { NotePromoter } from '../jobs/NotePromoter.js'
+import type { WorkerContext } from '@src/context/WorkerContext.js'
 
 export class PromotionService extends WorkerService<keyof PromotionJobPayload, PromotionJobPayload> {
-  constructor (sources: DataSources) {
-    super(QUEUE_NAMES.PROMOTION)
+  constructor (context: WorkerContext) {
+    super(QUEUE_NAMES.PROMOTION, context)
+
+    const { sources } = context
 
     this
       .register(

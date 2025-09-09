@@ -1,6 +1,6 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
 import { throwError } from '@aromi/shared'
 
 export class FragranceRequestBrandMutationResolvers extends BaseResolver<MutationResolvers> {

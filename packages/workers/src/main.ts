@@ -1,13 +1,11 @@
-import { WorkerServices } from './services/WorkerServices'
+import { WorkerServices } from './services/WorkerServices.js'
+import { WorkerContext } from './context/WorkerContext.js'
 
 const main = (): void => {
-  const sourcesRes = createDataSources()
-  if (sourcesRes.isErr()) {
-    throw sourcesRes.error
-  }
+  const context = new WorkerContext()
+  const workers = new WorkerServices(context)
 
-  const sources = sourcesRes.value
-  const workers = new WorkerServices(sources)
+  console.log('Workers are running...', workers)
 }
 
 main()

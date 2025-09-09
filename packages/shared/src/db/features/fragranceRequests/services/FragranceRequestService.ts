@@ -1,5 +1,5 @@
-import { type DataSources } from '@src/datasources/index.js'
-import { type FragranceRequestRow } from '@src/db/index.js'
+import type { DataSources } from '@src/datasources/index.js'
+import type { FragranceRequestRow } from '@src/db/index.js'
 import { FragranceRequestImageService } from './FragranceRequestImageService.js'
 import { FragranceRequestAccordService } from './FragranceRequestAccordService.js'
 import { FragranceRequestNoteService } from './FragranceRequestNoteService.js'

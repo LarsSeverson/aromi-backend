@@ -1,1 +1,1 @@
-export * from './promotion'
+export * from './promotion/index.js'

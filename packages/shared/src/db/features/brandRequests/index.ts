@@ -1,4 +1,4 @@
-export * from './types.js'
+export type * from './types.js'
 
 export * from './services/BrandRequestService.js'
 export * from './services/BrandRequestImageService.js'

@@ -1,30 +1,25 @@
-import { AccordRequestFieldResolvers } from '@src/features/accordRequests/resolvers/AccordRequestFieldResolvers'
-import { AccordRequestMutationResolvers } from '@src/features/accordRequests/resolvers/AccordRequestMutationResolvers'
-import { AccordRequestQueryResolvers } from '@src/features/accordRequests/resolvers/AccordRequestQueryResolvers'
-import { AccordQueryResolvers } from '@src/features/accords/resolvers/AccordQueryResolvers'
-import { AuthMutationResolvers } from '@src/features/auth/resolvers/AuthMutationResolvers'
-import { BrandRequestFieldResolvers } from '@src/features/brandRequests/resolvers/BrandRequestFieldResolvers'
-import { BrandRequestMutationResolvers } from '@src/features/brandRequests/resolvers/BrandRequestMutationResolvers'
-import { BrandRequestQueryResolvers } from '@src/features/brandRequests/resolvers/BrandRequestQueryResolvers'
-import { FragranceRequestFieldResolvers } from '@src/features/fragranceRequests/resolvers/FragranceRequestFieldResolvers'
-import { FragranceRequestMutationResolvers } from '@src/features/fragranceRequests/resolvers/FragranceRequestMutationResolvers'
-import { FragranceRequestQueryResolvers } from '@src/features/fragranceRequests/resolvers/FragranceRequestQueryResolvers'
-import { NoteRequestFieldResolvers } from '@src/features/noteRequests/resolvers/NoteRequestFieldResolvers'
-import { NoteRequestMutationResolvers } from '@src/features/noteRequests/resolvers/NoteRequestMutationResolvers'
-import { NoteRequestQueryResolvers } from '@src/features/noteRequests/resolvers/NoteRequestQueryResolvers'
-import { NoteQueryResolvers } from '@src/features/notes/resolvers/NoteQueryResolvers'
-import { UserFieldResolvers } from '@src/features/users/resolvers/UserFieldResolvers'
-import { UserMutationResolvers } from '@src/features/users/resolvers/UserMutationResolvers'
-import { UserQueryResolvers } from '@src/features/users/resolvers/UserQueryResolvers'
-import { type Resolvers } from '@src/graphql/gql-types'
+import type { Resolvers } from '@src/graphql/gql-types.js'
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
-import { BrandQueryResolvers } from '../features/brands/resolvers/BrandQueryResolvers'
+
+import { AuthMutationResolvers } from '@src/features/auth/index.js'
+import { UserFieldResolvers, UserMutationResolvers, UserQueryResolvers } from '@src/features/users/index.js'
+import { BrandQueryResolvers } from '@src/features/brands/index.js'
+import { AccordQueryResolvers } from '@src/features/accords/index.js'
+import { NoteQueryResolvers } from '@src/features/notes/index.js'
+import { FragranceRequestFieldResolvers, FragranceRequestMutationResolvers, FragranceRequestQueryResolvers } from '@src/features/fragranceRequests/index.js'
+import { BrandRequestFieldResolvers, BrandRequestMutationResolvers, BrandRequestQueryResolvers } from '@src/features/brandRequests/index.js'
+import { AccordRequestFieldResolvers, AccordRequestMutationResolvers, AccordRequestQueryResolvers } from '@src/features/accordRequests/index.js'
+import { NoteRequestFieldResolvers, NoteRequestMutationResolvers, NoteRequestQueryResolvers } from '@src/features/noteRequests/index.js'
 
 const authMutations = new AuthMutationResolvers()
 
 const userQueries = new UserQueryResolvers()
 const userFieldQueries = new UserFieldResolvers()
 const userMutations = new UserMutationResolvers()
+
+const brandQueries = new BrandQueryResolvers()
+const accordQueries = new AccordQueryResolvers()
+const noteQueries = new NoteQueryResolvers()
 
 const fragranceRequestQueries = new FragranceRequestQueryResolvers()
 const fragranceRequestFieldResolvers = new FragranceRequestFieldResolvers()
@@ -41,12 +36,6 @@ const accordRequestMutations = new AccordRequestMutationResolvers()
 const noteRequestQueries = new NoteRequestQueryResolvers()
 const noteRequestFieldResolvers = new NoteRequestFieldResolvers()
 const noteRequestMutations = new NoteRequestMutationResolvers()
-
-const brandQueries = new BrandQueryResolvers()
-
-const accordQueries = new AccordQueryResolvers()
-
-const noteQueries = new NoteQueryResolvers()
 
 export const ApiResolvers: Resolvers = {
   Date: GraphQLDateTime,

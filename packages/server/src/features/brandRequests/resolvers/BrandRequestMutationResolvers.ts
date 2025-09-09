@@ -1,10 +1,10 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapBrandRequestRowToBrandRequestSummary, mapCreateBrandRequestInputToRow } from '../utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapBrandRequestRowToBrandRequestSummary, mapCreateBrandRequestInputToRow } from '../utils/mappers.js'
 import { throwError } from '@aromi/shared'
-import { mapUpdateFragranceRequestInputToRow } from '@src/features/fragranceRequests/utils/mappers'
-import { BrandRequestImageMutationResolvers } from './BrandRequestImageMutationResolvers'
-import { BrandRequestVoteMutationResolvers } from './BrandRequestVoteMutationResolvers'
+import { BrandRequestImageMutationResolvers } from './BrandRequestImageMutationResolvers.js'
+import { BrandRequestVoteMutationResolvers } from './BrandRequestVoteMutationResolvers.js'
+import { mapUpdateFragranceRequestInputToRow } from '@src/features/fragranceRequests/utils/mappers.js'
 
 export class BrandRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly images = new BrandRequestImageMutationResolvers()

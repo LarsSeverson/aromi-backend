@@ -1,9 +1,9 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { okAsync } from 'neverthrow'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
+import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
 import { throwError } from '@aromi/shared'
-import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers'
+import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
 
 export class FragranceRequestNoteMutationResolvers extends BaseResolver<MutationResolvers> {
   setFragrancRequestNotes: MutationResolvers['setFragranceRequestNotes'] = async (

@@ -1,21 +1,29 @@
-import { type JobPayloadKey, type JobPayload, type QueueName } from '@src/features/queue'
+import { ApiError, throwError, type JobPayload, type JobPayloadKey, type QueueName } from '@aromi/shared'
 import { type Job, Worker } from 'bullmq'
-import { WorkerRegistry } from './WorkerRegistry'
-import { ApiError, throwError } from '@src/utils/error'
-import { type JobHandler } from '../jobs/JobHandler'
+import { WorkerRegistry } from './WorkerRegistry.js'
+import type { JobHandler } from '@src/jobs/JobHandler.js'
+import type { WorkerContext } from '@src/context/WorkerContext.js'
 
 export abstract class WorkerService<J extends JobPayloadKey, M extends JobPayload<J>> {
+  private readonly context: WorkerContext
   private readonly queueName: QueueName
   private readonly worker: Worker
 
   private readonly registry = new WorkerRegistry<J, M>()
 
-  constructor (queueName: QueueName) {
+  constructor (
+    queueName: QueueName,
+    context: WorkerContext
+  ) {
+    this.context = context
     this.queueName = queueName
+
+    const connection = this.context.sources.redis.client
 
     this.worker = new Worker(
       this.queueName,
-      this.processJob.bind(this)
+      this.processJob.bind(this),
+      { connection }
     )
 
     this.worker

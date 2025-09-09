@@ -1,6 +1,6 @@
-import { type PageInfo } from '@src/graphql/gql-types'
-import { CursorFactory } from './CursorFactory'
-import { type db } from '@aromi/shared'
+import type { PageInfo } from '@src/graphql/gql-types.js'
+import { CursorFactory } from './CursorFactory.js'
+import type { db } from '@aromi/shared'
 
 export interface BaseNode {
   id: string

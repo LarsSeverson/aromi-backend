@@ -1,5 +1,5 @@
-import { BaseLoader } from '@src/loaders/BaseLoader'
-import { type FragranceRequestLoadersKey } from '../types'
+import { BaseLoader } from '@src/loaders/BaseLoader.js'
+import type { FragranceRequestLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
 import { type db, utils } from '@aromi/shared'
 

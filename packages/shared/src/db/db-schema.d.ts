@@ -3,27 +3,27 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType } from "kysely";
+import type { ColumnType } from 'kysely'
 
-export type AssetStatus = "ready" | "staged";
+export type AssetStatus = 'ready' | 'staged'
 
-export type AvatarStatus = "FAILED" | "PENDING" | "PROCESSING" | "READY";
+export type AvatarStatus = 'FAILED' | 'PENDING' | 'PROCESSING' | 'READY'
 
-export type FragranceConcentration = "BODY_MIST" | "EAU_FRAICHE" | "EDC" | "EDP" | "EDT" | "OIL" | "OTHER" | "PARFUM";
+export type FragranceConcentration = 'BODY_MIST' | 'EAU_FRAICHE' | 'EDC' | 'EDP' | 'EDT' | 'OIL' | 'OTHER' | 'PARFUM'
 
-export type FragranceStatus = "CURRENT" | "DISCONTINUED" | "REFORMULATED";
+export type FragranceStatus = 'CURRENT' | 'DISCONTINUED' | 'REFORMULATED'
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+  : ColumnType<T, T | undefined, T>
 
-export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>
 
-export type NoteLayerEnum = "base" | "middle" | "top";
+export type NoteLayerEnum = 'base' | 'middle' | 'top'
 
-export type RequestStatus = "ACCEPTED" | "DENIED" | "DRAFT" | "FAILED" | "PENDING" | "PUBLISHED";
+export type RequestStatus = 'ACCEPTED' | 'DENIED' | 'DRAFT' | 'FAILED' | 'PENDING' | 'PUBLISHED'
 
-export type Timestamp = ColumnType<string, string, string>;
+export type Timestamp = ColumnType<string, string, string>
 
 export interface AccordImage {
   accordId: string;

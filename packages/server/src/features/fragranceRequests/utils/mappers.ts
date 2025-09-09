@@ -1,9 +1,9 @@
 import { parseSchema, removeNullish } from '@aromi/shared'
-import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from '@src/features/fragranceRequests/utils/validation'
-import type { IFragranceRequestSummary } from '@src/features/fragranceRequests/types'
-import type { FragranceRequestImageRow, FragranceRequestRow, type CombinedTraitRow } from '@aromi/shared'
-import { mapGQLStatusToDBStatus, mapGQLConcentrationToDBConcentration, mapDBStatusToGQLStatus, mapDBConcentrationToGQLConcentration } from '../../fragrances/utils/mappers'
-import { type RequestStatus, type UpdateFragranceRequestInput, type CreateFragranceRequestInput, type FragranceRequestTrait, type TraitTypeEnum, type FragranceRequestImage } from '@src/graphql/gql-types'
+import type { FragranceRequestImageRow, FragranceRequestRow, CombinedTraitRow } from '@aromi/shared'
+import type { RequestStatus, UpdateFragranceRequestInput, CreateFragranceRequestInput, FragranceRequestTrait, TraitTypeEnum, FragranceRequestImage } from '@src/graphql/gql-types.js'
+import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from './validation.js'
+import { mapDBConcentrationToGQLConcentration, mapDBStatusToGQLStatus, mapGQLConcentrationToDBConcentration, mapGQLStatusToDBStatus } from '@src/features/fragrances/utils/mappers.js'
+import type { IFragranceRequestSummary } from '../types.js'
 
 export const mapCreateFragranceRequestInputToRow = (
   input: CreateFragranceRequestInput

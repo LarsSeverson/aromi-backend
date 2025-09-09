@@ -1,14 +1,12 @@
 import { err, errAsync, ok, okAsync, type Result, ResultAsync } from 'neverthrow'
 import { ApiError } from '@src/utils/error.js'
-import { type DataSources } from '@src/datasources/index.js'
-import { type JwtPayload } from 'jsonwebtoken'
-import { type UserRow } from '@src/db/features/users/types'
+import type { DataSources } from '@src/datasources/index.js'
+import type { JwtPayload } from 'jsonwebtoken'
 import { AdminGetUserCommand, type AdminGetUserCommandOutput, type AuthenticationResultType, type CodeDeliveryDetailsType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider'
-import { type LogInParams, type AuthDeliveryResultSummary, type RawAuthTokenPayload, type SignUpParams, type ConfirmSignUpParams, type ResendSignUpCodeParams, type ForgotPasswordParams, type ConfirmForgotPasswordParams } from '../types.js'
-import { NOW } from '@src/utils/constants'
-import { REFRESH_TOKEN_MAX_AGE } from '@src/features/auth/types'
-import { UserService } from '@src/db/index.js'
-import { decodeToken } from '@src/datasources/index.js/jwks/token'
+import { type LogInParams, type AuthDeliveryResultSummary, type RawAuthTokenPayload, type SignUpParams, type ConfirmSignUpParams, type ResendSignUpCodeParams, type ForgotPasswordParams, type ConfirmForgotPasswordParams, REFRESH_TOKEN_MAX_AGE } from '../types.js'
+import { type UserRow, UserService } from '@src/db/index.js'
+import { NOW } from '@src/utils/constants.js'
+import { decodeToken } from '@src/datasources/jwks/token.js'
 
 export class AuthService {
   cognito: DataSources['cognito']
@@ -43,8 +41,7 @@ export class AuthService {
         .users
         .findOne(
           eb => eb('users.cognitoSub', '=', sub)
-        )
-      )
+        ))
   }
 
   refresh (
@@ -65,8 +62,7 @@ export class AuthService {
         error => ApiError.fromCognito(error)
       )
       .andThen(cognitoPayload => this
-        .parseTokenPayload(cognitoPayload.AuthenticationResult, oldToken)
-      )
+        .parseTokenPayload(cognitoPayload.AuthenticationResult, oldToken))
   }
 
   logIn (
@@ -96,8 +92,7 @@ export class AuthService {
         }
       })
       .andThen(cognitoPayload => this
-        .parseTokenPayload(cognitoPayload.AuthenticationResult)
-      )
+        .parseTokenPayload(cognitoPayload.AuthenticationResult))
   }
 
   logOut (
@@ -142,8 +137,7 @@ export class AuthService {
         error => ApiError.fromCognito(error)
       )
       .map(cognitoPayload => this
-        .parseDeliveryPayload(cognitoPayload?.CodeDeliveryDetails, cognitoPayload?.UserConfirmed)
-      )
+        .parseDeliveryPayload(cognitoPayload?.CodeDeliveryDetails, cognitoPayload?.UserConfirmed))
   }
 
   confirmSignUp (
@@ -165,11 +159,9 @@ export class AuthService {
         error => ApiError.fromCognito(error)
       )
       .andThen(() => this
-        .getCogUser(email)
-      )
+        .getCogUser(email))
       .andThen(cognitoPayload => this
-        .getCogUserSub(cognitoPayload)
-      )
+        .getCogUserSub(cognitoPayload))
       .map(sub => ({ sub }))
   }
 
@@ -191,8 +183,7 @@ export class AuthService {
         error => ApiError.fromCognito(error)
       )
       .map(cognitoPayload => this
-        .parseDeliveryPayload(cognitoPayload.CodeDeliveryDetails)
-      )
+        .parseDeliveryPayload(cognitoPayload.CodeDeliveryDetails))
   }
 
   forgotPassword (
@@ -213,8 +204,7 @@ export class AuthService {
         error => ApiError.fromCognito(error)
       )
       .map(cognitoPayload => this
-        .parseDeliveryPayload(cognitoPayload.CodeDeliveryDetails)
-      )
+        .parseDeliveryPayload(cognitoPayload.CodeDeliveryDetails))
   }
 
   confirmForgotPassword (
@@ -308,7 +298,7 @@ export class AuthService {
 
   private parseTokenPayload (
     payload: AuthenticationResultType | undefined,
-    oldRefreshToken?: string | undefined
+    oldRefreshToken?: string
   ): Result<RawAuthTokenPayload, ApiError> {
     const refreshToken = oldRefreshToken ?? payload?.RefreshToken
     const {
@@ -340,7 +330,7 @@ export class AuthService {
 
   private parseDeliveryPayload (
     deliveryDetails: CodeDeliveryDetailsType | undefined,
-    isUserConfirmed?: boolean | undefined
+    isUserConfirmed?: boolean
   ): AuthDeliveryResultSummary {
     const {
       AttributeName: attribute,

@@ -1,5 +1,5 @@
-import { type AccordRequestRow } from '../types.js'
-import { type DataSources } from '@src/datasources/index.js'
+import type { AccordRequestRow } from '../types.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { AccordRequestImageService } from './AccordRequestImageService.js'
 import { AccordRequestVoteService } from './AccordRequestVoteService.js'
 import { TableService } from '@src/db/services/TableService.js'

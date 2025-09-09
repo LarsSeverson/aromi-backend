@@ -1,7 +1,7 @@
 import { throwError } from '@aromi/shared'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers'
-import { type MutationResolvers } from '@src/graphql/gql-types'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers.js'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
 
 export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnAccordRequest: MutationResolvers['voteOnAccordRequest'] = async (

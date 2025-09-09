@@ -1,8 +1,8 @@
-import { type Job } from 'bullmq'
-import { type ResultAsync } from 'neverthrow'
-import { type ApiError } from '@src/utils/error'
-import { type JobContext } from '@src/jobs/JobContext'
-import { JobHandler } from '@src/jobs'
+import type { ApiError } from '@aromi/shared'
+import type { JobContext } from '@src/jobs/JobContext.js'
+import { JobHandler } from '@src/jobs/JobHandler.js'
+import type { Job } from 'bullmq'
+import type { ResultAsync } from 'neverthrow'
 
 export abstract class BasePromoter<I, O> extends JobHandler<I> {
   abstract promote (job: Job<I>): ResultAsync<O, ApiError>

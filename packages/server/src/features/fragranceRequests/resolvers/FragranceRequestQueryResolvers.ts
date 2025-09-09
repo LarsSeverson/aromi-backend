@@ -1,7 +1,7 @@
-import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory'
-import { type QueryResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers'
+import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
+import type { QueryResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
 import { ApiError, throwError } from '@aromi/shared'
 import { errAsync, okAsync } from 'neverthrow'
 

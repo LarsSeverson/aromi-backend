@@ -1,4 +1,4 @@
-import { DB } from '@src/db/db-schema.js'
+import type { DB } from '@src/db/db-schema.js'
 import { requiredEnv } from '@src/utils/env-util.js'
 import { ApiError } from '@src/utils/error.js'
 import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'

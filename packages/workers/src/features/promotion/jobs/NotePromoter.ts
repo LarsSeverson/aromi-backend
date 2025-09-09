@@ -1,10 +1,8 @@
-import { type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type NoteImageRow, ValidNote } from '@src/db'
-import { ApiError } from '@src/utils/error'
+import { ApiError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidNote } from '@aromi/shared'
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
-import { BasePromoter } from './BasePromoter'
 import type z from 'zod'
-import { type PROMOTION_JOB_NAMES, type PromotionJobPayload } from '@src/features/queue'
-import { type Job } from 'bullmq'
+import { BasePromoter } from './BasePromoter.js'
+import type { Job } from 'bullmq'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_NOTE
 

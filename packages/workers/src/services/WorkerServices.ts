@@ -1,10 +1,10 @@
-import { type DataSources } from 'shared/src/datasources'
-import { PromotionService } from '../features'
+import type { WorkerContext } from '@src/context/WorkerContext.js'
+import { PromotionService } from '@src/features/promotion/services/PromotionService.js'
 
 export class WorkerServices {
   promotions: PromotionService
 
-  constructor (sources: DataSources) {
-    this.promotions = new PromotionService(sources)
+  constructor (context: WorkerContext) {
+    this.promotions = new PromotionService(context)
   }
 }

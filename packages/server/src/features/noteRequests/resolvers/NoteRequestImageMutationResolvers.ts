@@ -1,11 +1,9 @@
-import { parseSchema } from '@aromi/shared'
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { throwError } from '@aromi/shared'
+import { parseSchema, throwError, genImageKey } from '@aromi/shared'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { errAsync, okAsync } from 'neverthrow'
-import { FinalizeNoteRequestImageSchema, StageNoteRequestImageSchema } from '../utils/validation'
-import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
-import { genImageKey } from '@aromi/shared'
+import { FinalizeNoteRequestImageSchema, StageNoteRequestImageSchema } from '../utils/validation.js'
+import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers.js'
 
 export class NoteRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageNoteRequestImage: MutationResolvers['stageNoteRequestImage'] = async (

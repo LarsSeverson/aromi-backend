@@ -1,5 +1,5 @@
 import { ApiError } from '@src/utils/error.js'
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
 import { INDEX_NAMES } from '../../types.js'
 
@@ -23,7 +23,6 @@ export const initNotesIndex = (
             sortableAttributes: ['createdAt', 'updatedAt']
           }),
         error => ApiError.fromMeili(error)
-      )
-    )
+      ))
     .map(() => undefined)
 }

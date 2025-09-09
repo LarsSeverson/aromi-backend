@@ -1,10 +1,8 @@
-import { type BrandRequestImageRow, ValidBrand, type BrandRequestRow, type BrandRow, type BrandImageRow } from '@src/db'
-import { BasePromoter } from './BasePromoter'
+import { ApiError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidBrand } from '@aromi/shared'
 import { err, errAsync, ok, type ResultAsync, type Result } from 'neverthrow'
 import type z from 'zod'
-import { ApiError } from '@src/utils/error'
-import { type PromotionJobPayload, type PROMOTION_JOB_NAMES } from '@src/features/queue'
-import { type Job } from 'bullmq'
+import { BasePromoter } from './BasePromoter.js'
+import type { Job } from 'bullmq'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_BRAND
 

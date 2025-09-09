@@ -1,8 +1,8 @@
-import { CursorPaginationFactory, type CursorSortSpec } from '@src/factories/CursorPaginationFactory'
-import { SortDirection, type RequestSortInput } from '@src/graphql/gql-types'
+import { CursorPaginationFactory, type CursorSortSpec } from '@src/factories/CursorPaginationFactory.js'
+import { SortDirection, type RequestSortInput } from '@src/graphql/gql-types.js'
 
 export class RequestPaginationFactory extends CursorPaginationFactory<RequestSortInput, string> {
-  protected resolveSort (sort?: RequestSortInput | null | undefined): CursorSortSpec<string> {
+  protected resolveSort (sort?: RequestSortInput | null): CursorSortSpec<string> {
     switch (sort?.by) {
       default:
         return {

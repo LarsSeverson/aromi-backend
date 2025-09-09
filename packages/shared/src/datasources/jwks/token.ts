@@ -1,7 +1,9 @@
 import { ApiError } from '@src/utils/error.js'
-import { type JwtHeader, type JwtPayload, verify } from 'jsonwebtoken'
-import { type JwksClient } from 'jwks-rsa'
+import json, { type JwtPayload, type JwtHeader } from 'jsonwebtoken'
+import type { JwksClient } from 'jwks-rsa'
 import { ResultAsync } from 'neverthrow'
+
+const { verify } = json
 
 const getKey = (
   header: JwtHeader,
@@ -26,10 +28,10 @@ const getKey = (
     })
 
   return ResultAsync
-  .fromPromise(
-    getKeyPromise(),
-    (e) => e as ApiError
-  )
+    .fromPromise(
+      getKeyPromise(),
+      (e) => e as ApiError
+    )
 }
 
 export const decodeToken = (
@@ -42,8 +44,7 @@ export const decodeToken = (
     try {
       const headerSegment = token.split('.')[0]
       const headerJson = Buffer.from(headerSegment, 'base64url').toString('utf8')
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      header = JSON.parse(headerJson)
+      header = JSON.parse(headerJson) as JwtHeader
     } catch (err) {
       throw new ApiError('AUTH_ERROR', 'Malformed token header', 401, err)
     }

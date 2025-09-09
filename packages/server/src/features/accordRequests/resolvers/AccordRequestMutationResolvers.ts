@@ -1,9 +1,9 @@
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers'
-import { mapAccordRequestRowToAccordRequestSummary, mapCreateAccordRequestInputToRow, mapUpdateAccordRequestInputToRow } from '../utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapAccordRequestRowToAccordRequestSummary, mapCreateAccordRequestInputToRow, mapUpdateAccordRequestInputToRow } from '../utils/mappers.js'
 import { throwError } from '@aromi/shared'
-import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers'
+import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers.js'
+import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers.js'
 
 export class AccordRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly images = new AccordRequestImageMutationResolvers()

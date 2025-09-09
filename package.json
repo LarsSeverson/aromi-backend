@@ -11,17 +11,25 @@
   ],
   "scripts": {
     "start": "yarn run start:server",
-    "start:server": "yarn workspace @aromi/server start",
-    "start:workers": "yarn workspace @aromi/workers start",
-    "dev": "yarn run dev:server",
-    "dev:server": "yarn workspace @aromi/server dev",
-    "dev:workers": "yarn workspace @aromi/workers dev",
+    "start:server": "yarn run build:shared && yarn workspace @aromi/server start",
+    "start:workers": "yarn run build:shared && yarn workspace @aromi/workers start",
+    "dev": "yarn run build:shared && yarn run dev:server",
+    "dev:server": "yarn run build:shared && yarn workspace @aromi/server dev",
+    "dev:workers": "yarn run build:shared && yarn workspace @aromi/workers dev",
     "build": "yarn workspaces run build",
     "build:server": "yarn workspace @aromi/server build",
     "build:workers": "yarn workspace @aromi/workers build",
     "build:shared": "yarn workspace @aromi/shared build",
     "gen:gql": "yarn workspace @aromi/server gen:gql",
-    "gen:db": "yarn workspace @aromi/shared gen:db"
+    "gen:db": "yarn workspace @aromi/shared gen:db",
+    "lint": "eslint 'packages/*/src/**/*.ts'",
+    "lint:fix": "eslint 'packages/*/src/**/*.ts' --fix",
+    "lint:server": "eslint 'packages/server/src/**/*.ts'",
+    "lint:server:fix": "eslint 'packages/server/src/**/*.ts' --fix",
+    "lint:workers": "eslint 'packages/workers/src/**/*.ts'",
+    "lint:workers:fix": "eslint 'packages/workers/src/**/*.ts' --fix",
+    "lint:shared": "eslint 'packages/shared/src/**/*.ts'",
+    "lint:shared:fix": "eslint 'packages/shared/src/**/*.ts' --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
@@ -30,7 +38,6 @@
     "@typescript-eslint/parser": "^8.42.0",
     "eslint": "^9.35.0",
     "eslint-config-love": "^122.0.0",
-    "eslint-plugin-prettier": "^5.5.4",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0"
   }

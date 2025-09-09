@@ -1,6 +1,6 @@
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
 import { requiredEnv } from '@src/utils/env-util.js'
-import { type ApiError } from '@src/utils/error.js'
+import type { ApiError } from '@src/utils/error.js'
 import { Result } from 'neverthrow'
 
 export interface CognitoWrapper {

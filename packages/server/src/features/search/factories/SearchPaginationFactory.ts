@@ -1,8 +1,8 @@
-import { type SearchSortInput, SortDirection } from '@src/graphql/gql-types'
-import { OffsetPaginationFactory, type OffsetSortSpec } from '@src/factories/OffsetPaginationFactory'
+import { type SearchSortInput, SortDirection } from '@src/graphql/gql-types.js'
+import { OffsetPaginationFactory, type OffsetSortSpec } from '@src/factories/OffsetPaginationFactory.js'
 
 export class SearchPaginationFactory extends OffsetPaginationFactory<SearchSortInput> {
-  protected resolveSort (sort?: SearchSortInput | null | undefined): OffsetSortSpec {
+  protected resolveSort (sort?: SearchSortInput | null): OffsetSortSpec {
     return {
       column: undefined,
       direction: sort?.direction ?? SortDirection.Descending

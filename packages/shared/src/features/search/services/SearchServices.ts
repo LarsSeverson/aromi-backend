@@ -1,4 +1,4 @@
-import { type DataSources } from '@src/datasources/index.js'
+import type { DataSources } from '@src/datasources/index.js'
 import { AccordSearchService } from '../features/accords/services/AccordSearchService.js'
 import { NoteSearchService } from '../features/notes/services/NoteSearchService.js'
 import { BrandSearchService } from '../features/brands/services/BrandSearchService.js'

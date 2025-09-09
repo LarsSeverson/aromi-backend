@@ -1,13 +1,10 @@
-import { type PromotionJobPayload, type PROMOTION_JOB_NAMES } from '@src/features/queue'
-import { BasePromoter } from './BasePromoter'
-import { type FragranceAccordRow, type FragranceTraitRow, type FragranceImageRow, type FragranceRequestRow, type FragranceRow, type FragranceNoteRow } from '@src/db'
-import { type Job } from 'bullmq'
 import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow'
-import { ApiError } from '@src/utils/error'
 import type z from 'zod'
-import { ValidFragrance } from '@src/db/features/fragrances/validation'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
+import { ApiError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidFragrance } from '@aromi/shared'
+import { BasePromoter } from './BasePromoter.js'
+import type { Job } from 'bullmq'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
@@ -153,39 +150,40 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       )
       .andThen(traits => {
         if (traits.length === 0) {
-          return okAsync([])
+          return okAsync({ traits: [], fTraits: [] })
         }
 
-        const values = traits
-          .map(({ traitTypeId }) => ({ fragranceId, traitTypeId }))
+        const values = traits.map(({ traitTypeId }) => ({ fragranceId, traitTypeId }))
 
         return fragrances
           .traits
           .create(values)
-          .andThrough(fTraits => {
-            const values = traits
-              .map(trait => {
-                const fTrait = fTraits.find(ft => ft.traitTypeId === trait.traitTypeId)
-                if (fTrait == null || trait.traitOptionId == null) return null
-
-                return {
-                  userId,
-                  fragranceTraitId: fTrait.id,
-                  traitOptionId: trait.traitOptionId
-                }
-              })
-              .filter(v => v != null)
-
-            if (values.length === 0) {
-              return okAsync([])
-            }
-
-            return fragrances
-              .traits
-              .votes
-              .create(values)
-          })
+          .map(fTraits => ({ traits, fTraits }))
       })
+      .andThrough(({ traits, fTraits }) => {
+        const values = traits
+          .map(trait => {
+            const fTrait = fTraits.find(ft => ft.traitTypeId === trait.traitTypeId)
+            if (fTrait == null || trait.traitOptionId == null) return null
+
+            return {
+              userId,
+              fragranceTraitId: fTrait.id,
+              traitOptionId: trait.traitOptionId
+            }
+          })
+          .filter(v => v != null)
+
+        if (values.length === 0) {
+          return okAsync([])
+        }
+
+        return fragrances
+          .traits
+          .votes
+          .create(values)
+      })
+      .map(({ fTraits }) => fTraits)
   }
 
   private processImage (

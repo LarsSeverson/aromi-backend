@@ -1,5 +1,5 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import { ApiError } from '@src/utils/error.js'
+import type { ApiError } from '@src/utils/error.js'
 import { MeiliSearch } from 'meilisearch'
 import { Result } from 'neverthrow'
 

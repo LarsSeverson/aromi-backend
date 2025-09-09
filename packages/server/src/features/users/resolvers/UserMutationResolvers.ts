@@ -1,7 +1,7 @@
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapUserRowToUserSummary } from '../utils/mappers'
-import { UpdateUserSchema } from './validation'
-import { type MutationResolvers } from '@src/graphql/gql-types'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapUserRowToUserSummary } from '../utils/mappers.js'
+import { UpdateUserSchema } from './validation.js'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { ApiError, genAvatarUploadKey, parseSchema, throwError } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -60,7 +60,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       )
     }
 
-    const { id, key } = genAvatarUploadKey(me.id, contentType)
+    const { id, key } = genAvatarUploadKey(me.id)
 
     return await users
       .updateOne(

@@ -1,7 +1,7 @@
 import { throwError } from '@aromi/shared'
-import { type MutationResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
-import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers.js'
 
 export class NoteRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnNoteRequest: MutationResolvers['voteOnNoteRequest'] = async (

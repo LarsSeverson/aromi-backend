@@ -14,7 +14,7 @@ export const createJwksClient = (): Result<JwksClient, ApiError> => {
     jwksUri: jwksUri.value,
     cache: true,
     cacheMaxEntries: 5,
-    cacheMaxAge: 600_000,
+    cacheMaxAge: 600_000
   })
 
   return ok(jwksClient)

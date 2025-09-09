@@ -1,9 +1,9 @@
 import { ApiError, throwError } from '@aromi/shared'
-import { type NoteRequestResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { NoteRequestResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
-import { mapNoteRequestImageRowToNoteImage } from '../utils/mappers'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers'
+import { mapNoteRequestImageRowToNoteImage } from '../utils/mappers.js'
+import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
 
 export class NoteRequestFieldResolvers extends BaseResolver<NoteRequestResolvers> {
   image: NoteRequestResolvers['image'] = async (

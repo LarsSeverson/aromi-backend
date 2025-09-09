@@ -1,8 +1,8 @@
-import { type QueryResolvers } from '@src/graphql/gql-types'
-import { BaseResolver } from '@src/resolvers/BaseResolver'
+import type { QueryResolvers } from '@src/graphql/gql-types.js'
+import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError } from '@aromi/shared'
-import { SearchPaginationFactory } from '../../search/factories/SearchPaginationFactory'
-import { BrandPaginationFactory } from '../factories/BrandPaginationFactory'
+import { BrandPaginationFactory } from '../factories/BrandPaginationFactory.js'
+import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 
 export class BrandQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly pagination = new BrandPaginationFactory()
