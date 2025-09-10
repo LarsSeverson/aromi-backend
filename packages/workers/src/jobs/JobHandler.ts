@@ -1,4 +1,4 @@
-import type { ApiError, DataSources } from '@aromi/shared'
+import type { BackendError, DataSources } from '@aromi/shared'
 import { JobContext } from './JobContext.js'
 import type { Job } from 'bullmq'
 import type { ResultAsync } from 'neverthrow'
@@ -10,5 +10,5 @@ export abstract class JobHandler<T> {
     this.context = new JobContext(sources)
   }
 
-  abstract handle (job: Job<T>): ResultAsync<unknown, ApiError>
+  abstract handle (job: Job<T>): ResultAsync<unknown, BackendError>
 }

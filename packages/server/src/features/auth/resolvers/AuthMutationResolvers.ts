@@ -3,7 +3,7 @@ import type { Response } from 'express'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { generateFromEmail } from 'unique-username-generator'
 import type { AuthDeliveryResult, AuthTokenPayload, MutationResolvers } from '@src/graphql/gql-types.js'
-import { ApiError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseSchema, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
+import { BackendError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseSchema, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
 
 export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   refresh: MutationResolvers['refresh'] = async (
@@ -59,7 +59,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
     const refreshToken = req.cookies.refreshToken as (string | undefined)
 
     if (refreshToken == null) {
-      throw new ApiError(
+      throw new BackendError(
         'NOT_AUTHORIZED',
         'You need to log in or sign up before logging out',
         401

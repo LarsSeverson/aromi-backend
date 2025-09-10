@@ -1,4 +1,4 @@
-import { ApiError, throwError } from '@aromi/shared'
+import { BackendError, throwError } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
@@ -13,7 +13,7 @@ export class UserQueryResolvers extends BaseResolver<QueryResolvers> {
     const { me } = context
 
     if (me == null) {
-      throw new ApiError(
+      throw new BackendError(
         'NOT_AUTHENTICATED',
         'You are not authenticated',
         401

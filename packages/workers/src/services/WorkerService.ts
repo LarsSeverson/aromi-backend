@@ -1,4 +1,4 @@
-import { ApiError, throwError, type JobPayload, type JobPayloadKey, type QueueName } from '@aromi/shared'
+import { BackendError, throwError, type JobPayload, type JobPayloadKey, type QueueName } from '@aromi/shared'
 import { type Job, Worker } from 'bullmq'
 import { WorkerRegistry } from './WorkerRegistry.js'
 import type { JobHandler } from '@src/jobs/JobHandler.js'
@@ -69,7 +69,7 @@ export abstract class WorkerService<J extends JobPayloadKey, M extends JobPayloa
     const handler = this.registry.getHandler(job.name as J)
 
     if (handler == null) {
-      throw new ApiError(
+      throw new BackendError(
         'NO_JOB_HANDLER',
         `No handler registered for job: ${job.name}`,
         500

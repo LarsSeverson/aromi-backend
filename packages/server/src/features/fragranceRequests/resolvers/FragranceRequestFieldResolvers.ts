@@ -1,4 +1,4 @@
-import { ApiError, throwError } from '@aromi/shared'
+import { BackendError, throwError } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
 import { mapCombinedTraitRowToRequestTrait, mapFragranceRequesttImageRowToFragranceImage } from '../utils/mappers.js'
@@ -46,7 +46,7 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
         fragranceRequests
           .getImageLoader()
           .load(id),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .match(
         row => {
@@ -175,7 +175,7 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
         fragranceRequests
           .getVotesLoader(me?.id)
           .load(id),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .match(
         mapVoteInfoRowToVoteInfo,

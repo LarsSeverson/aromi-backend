@@ -12,8 +12,12 @@ import { ServerServices } from './services/ServerServices.js'
 import { ServerQueues } from './queues/ServerQueues.js'
 import { getContext, type ServerContext } from './context/index.js'
 import { ApiResolvers } from './resolvers/ApiResolvers.js'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const typeDefs = readFileSync('src/graphql/schema.graphql', { encoding: 'utf-8' })
+const dirname = path.dirname(fileURLToPath(import.meta.url))
+const schemaPath = path.join(dirname, 'graphql', 'schema.graphql')
+const typeDefs = readFileSync(schemaPath, { encoding: 'utf-8' })
 
 export const startServer = async (): Promise<string> => {
   const hostRes = requiredEnv('SERVER_HOST')

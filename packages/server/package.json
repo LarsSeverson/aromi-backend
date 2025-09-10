@@ -17,9 +17,11 @@
     "@as-integrations/express5": "^1.1.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dataloader": "^2.2.3",
     "express": "5",
     "graphql": "^16.11.0",
     "graphql-scalars": "^1.24.2",
+    "neverthrow": "^8.2.0",
     "unique-username-generator": "^1.5.1"
   },
   "devDependencies": {

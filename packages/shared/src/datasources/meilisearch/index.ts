@@ -1,5 +1,5 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import type { ApiError } from '@src/utils/error.js'
+import type { BackendError } from '@src/utils/error.js'
 import { MeiliSearch } from 'meilisearch'
 import { Result } from 'neverthrow'
 
@@ -7,7 +7,7 @@ export interface MeiliSearchWrapper {
   client: MeiliSearch
 }
 
-export const createMeiliSearchWrapper = (): Result<MeiliSearchWrapper, ApiError> => {
+export const createMeiliSearchWrapper = (): Result<MeiliSearchWrapper, BackendError> => {
   return Result
     .combine([
       requiredEnv('MEILI_HOST'),

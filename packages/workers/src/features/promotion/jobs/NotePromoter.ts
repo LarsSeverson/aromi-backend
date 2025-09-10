@@ -1,4 +1,4 @@
-import { ApiError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidNote } from '@aromi/shared'
+import { BackendError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidNote } from '@aromi/shared'
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
 import type z from 'zod'
 import { BasePromoter } from './BasePromoter.js'
@@ -7,7 +7,7 @@ import type { Job } from 'bullmq'
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_NOTE
 
 export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], NoteRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<NoteRow, ApiError> {
+  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<NoteRow, BackendError> {
     const row = job.data
 
     return this
@@ -17,16 +17,16 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       )
   }
 
-  private validateRow (row: NoteRequestRow): Result<z.output<typeof ValidNote>, ApiError> {
+  private validateRow (row: NoteRequestRow): Result<z.output<typeof ValidNote>, BackendError> {
     const { data, success, error } = ValidNote.safeParse(row)
     if (!success) {
-      return err(ApiError.fromZod(error))
+      return err(BackendError.fromZod(error))
     }
 
     return ok(data)
   }
 
-  private promoteNote (row: NoteRequestRow): ResultAsync<NoteRow, ApiError> {
+  private promoteNote (row: NoteRequestRow): ResultAsync<NoteRow, BackendError> {
     const { services } = this.context
     const { notes } = services
 
@@ -43,7 +43,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
   private promoteImage (
     request: NoteRequestRow,
     note: NoteRow
-  ): ResultAsync<NoteImageRow, ApiError> {
+  ): ResultAsync<NoteImageRow, BackendError> {
     const { services } = this.context
     const { notes } = services
 
@@ -65,7 +65,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       })
   }
 
-  private getImage (row: NoteRequestRow): ResultAsync<NoteRequestImageRow, ApiError> {
+  private getImage (row: NoteRequestRow): ResultAsync<NoteRequestImageRow, BackendError> {
     const { services } = this.context
     const { noteRequests } = services
 
@@ -79,7 +79,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       )
   }
 
-  private markFailed (row: NoteRequestRow, error: ApiError): ResultAsync<never, ApiError> {
+  private markFailed (row: NoteRequestRow, error: BackendError): ResultAsync<never, BackendError> {
     const { services } = this.context
     const { noteRequests } = services
 

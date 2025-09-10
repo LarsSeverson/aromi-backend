@@ -1,7 +1,7 @@
 import type { CombinedTraitRow, FragranceRequestTraitRow, DB } from '@src/db/index.js'
 import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import type { ExpressionOrFactory, SqlBool } from 'kysely'
 import { TableService } from '@src/db/services/TableService.js'
 
@@ -12,7 +12,7 @@ export class FragranceRequestTraitService extends TableService<'fragranceRequest
 
   findTraits (
     where?: ExpressionOrFactory<DB, 'fragranceRequestTraits' | 'traitOptions' | 'traitTypes', SqlBool>
-  ): ResultAsync<CombinedTraitRow[], ApiError> {
+  ): ResultAsync<CombinedTraitRow[], BackendError> {
     let query = this
       .Table
       .baseQuery
@@ -40,7 +40,7 @@ export class FragranceRequestTraitService extends TableService<'fragranceRequest
     return ResultAsync
       .fromPromise(
         query.execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .map(rows => rows
         .map(row => ({
@@ -59,7 +59,7 @@ export class FragranceRequestTraitService extends TableService<'fragranceRequest
 
   findTrait (
     where: ExpressionOrFactory<DB, 'fragranceRequestTraits' | 'traitOptions' | 'traitTypes', SqlBool>
-  ): ResultAsync<CombinedTraitRow, ApiError> {
+  ): ResultAsync<CombinedTraitRow, BackendError> {
     let query = this
       .Table
       .baseQuery
@@ -87,7 +87,7 @@ export class FragranceRequestTraitService extends TableService<'fragranceRequest
     return ResultAsync
       .fromPromise(
         query.executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .map(row => ({
         traitType: {

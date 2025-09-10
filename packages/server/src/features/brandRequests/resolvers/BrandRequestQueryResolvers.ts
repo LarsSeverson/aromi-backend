@@ -2,7 +2,7 @@ import { RequestPaginationFactory } from '@src/features/requests/factories/Reque
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers.js'
-import { ApiError, throwError } from '@aromi/shared'
+import { BackendError, throwError } from '@aromi/shared'
 import { errAsync, okAsync } from 'neverthrow'
 
 export class BrandRequestQueryResolvers extends BaseResolver<QueryResolvers> {
@@ -29,7 +29,7 @@ export class BrandRequestQueryResolvers extends BaseResolver<QueryResolvers> {
         if (row.requestStatus === 'DRAFT') {
           if (me?.id !== row.userId) {
             return errAsync(
-              new ApiError(
+              new BackendError(
                 'NOT_AUTHORIZED',
                 'You are not authorized to view this brand request',
                 403

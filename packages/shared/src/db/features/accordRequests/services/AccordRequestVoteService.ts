@@ -1,7 +1,7 @@
 import type { DataSources } from '@src/datasources/index.js'
 import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import type { AccordRequestVoteRow } from '../types.js'
 import type { DB, VoteInfoRow } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
@@ -14,7 +14,7 @@ export class AccordRequestVoteService extends TableService<'accordRequestVotes',
   findVoteInfo (
     where?: ExpressionOrFactory<DB, 'accordRequestVotes', SqlBool>,
     userId?: string | null
-  ): ResultAsync<VoteInfoRow[], ApiError> {
+  ): ResultAsync<VoteInfoRow[], BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -26,14 +26,14 @@ export class AccordRequestVoteService extends TableService<'accordRequestVotes',
         query
           .groupBy('requestId')
           .execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 
   findOneVoteInfo (
     where?: ExpressionOrFactory<DB, 'accordRequestVotes', SqlBool>,
     userId?: string | null
-  ): ResultAsync<VoteInfoRow, ApiError> {
+  ): ResultAsync<VoteInfoRow, BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -43,7 +43,7 @@ export class AccordRequestVoteService extends TableService<'accordRequestVotes',
     return ResultAsync
       .fromPromise(
         query.executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 

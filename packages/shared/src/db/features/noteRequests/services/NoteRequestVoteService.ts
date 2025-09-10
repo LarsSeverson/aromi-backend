@@ -1,7 +1,7 @@
 import type { DataSources } from '@src/datasources/index.js'
 import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import type { VoteInfoRow, NoteRequestVoteRow, DB } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
 
@@ -13,7 +13,7 @@ export class NoteRequestVoteService extends TableService<'noteRequestVotes', Not
   findVoteInfo (
     where?: ExpressionOrFactory<DB, 'noteRequestVotes', SqlBool>,
     userId?: string | null
-  ): ResultAsync<VoteInfoRow[], ApiError> {
+  ): ResultAsync<VoteInfoRow[], BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -25,14 +25,14 @@ export class NoteRequestVoteService extends TableService<'noteRequestVotes', Not
         query
           .groupBy('requestId')
           .execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 
   findOneVoteInfo (
     where?: ExpressionOrFactory<DB, 'noteRequestVotes', SqlBool>,
     userId?: string | null
-  ): ResultAsync<VoteInfoRow, ApiError> {
+  ): ResultAsync<VoteInfoRow, BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -42,7 +42,7 @@ export class NoteRequestVoteService extends TableService<'noteRequestVotes', Not
     return ResultAsync
       .fromPromise(
         query.executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 

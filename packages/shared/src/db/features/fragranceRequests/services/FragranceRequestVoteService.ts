@@ -1,18 +1,22 @@
 import type { DataSources } from '@src/datasources/index.js'
 import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import type { FragrnanceRequestRowWithVotes, FragranceRequestVoteRow, VoteInfoRow, DB } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
+import { FragranceRequestVoteCountService } from './FragranceRequestVoteCountService.js'
 
 export class FragranceRequestVoteService extends TableService<'fragranceRequestVotes', FragranceRequestVoteRow> {
+  counts: FragranceRequestVoteCountService
+
   constructor (sources: DataSources) {
     super(sources, 'fragranceRequestVotes')
+    this.counts = new FragranceRequestVoteCountService(sources)
   }
 
   findRequests (
     where?: ExpressionOrFactory<DB, 'fragranceRequestVotes' | 'fragranceRequests', SqlBool>
-  ): ResultAsync<FragrnanceRequestRowWithVotes[], ApiError> {
+  ): ResultAsync<FragrnanceRequestRowWithVotes[], BackendError> {
     let query = this
       .Table
       .connection
@@ -36,14 +40,14 @@ export class FragranceRequestVoteService extends TableService<'fragranceRequestV
         query
           .groupBy('fragranceRequests.id')
           .execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 
   findVoteInfo (
     where?: ExpressionOrFactory<DB, 'fragranceRequestVotes', SqlBool>,
     userId?: string | null
-  ): ResultAsync<VoteInfoRow[], ApiError> {
+  ): ResultAsync<VoteInfoRow[], BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -55,14 +59,14 @@ export class FragranceRequestVoteService extends TableService<'fragranceRequestV
         query
           .groupBy('requestId')
           .execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 
   findOneVoteInfo (
     where?: ExpressionOrFactory<DB, 'fragranceRequestVotes', SqlBool>,
     userId?: string
-  ): ResultAsync<VoteInfoRow, ApiError> {
+  ): ResultAsync<VoteInfoRow, BackendError> {
     let query = this.buildVoteQuery(this.Table.connection, userId)
 
     if (where != null) {
@@ -72,7 +76,7 @@ export class FragranceRequestVoteService extends TableService<'fragranceRequestV
     return ResultAsync
       .fromPromise(
         query.executeTakeFirstOrThrow(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 

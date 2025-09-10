@@ -1,4 +1,4 @@
-import { ApiError, type UserRow } from '@aromi/shared'
+import { BackendError, type UserRow } from '@aromi/shared'
 import type { ServerContext } from '@src/context/index.js'
 import { CursorFactory } from '@src/factories/CursorFactory.js'
 import { PageFactory } from '@src/factories/PageFactory.js'
@@ -14,7 +14,7 @@ export abstract class BaseResolver<T> {
     message?: string
   ): UserRow {
     if (context.me == null) {
-      throw new ApiError(
+      throw new BackendError(
         'NOT_AUTHENTICATED',
         message ?? 'Please log in or sign up before continuing',
         401

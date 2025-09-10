@@ -1,3 +1,8 @@
+import type { Kysely } from 'kysely'
+import type { DB } from './db-schema.js'
+
+export type DBConnection = Kysely<DB>
+
 export interface VoteInfoRow {
   targetId: string
 

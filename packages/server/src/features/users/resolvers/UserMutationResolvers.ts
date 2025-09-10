@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { ApiError, genAvatarUploadKey, parseSchema, throwError } from '@aromi/shared'
+import { BackendError, genAvatarUploadKey, parseSchema, throwError } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (
@@ -19,7 +19,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     parseSchema(UpdateUserSchema, input)
 
     if (me?.id !== id) {
-      throw new ApiError(
+      throw new BackendError(
         'NOT_AUTHORIZED',
         'You are not authorized to edit this users info',
         403
@@ -53,7 +53,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     const { assets, users } = services
 
     if (me == null) {
-      throw new ApiError(
+      throw new BackendError(
         'NOT_AUTHORIZED',
         'You need to log in or sign up before updating your avatar',
         403

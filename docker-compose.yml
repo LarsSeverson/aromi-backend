@@ -26,26 +26,26 @@ services:
   server:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/server.Dockerfile
     container_name: aromi-server
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT:-8080}:8080"
     env_file:
-      - .env
+      - ./packages/server/.env.docker
     depends_on:
       - redis
       - meilisearch
 
-  test-worker:
+  workers:
     build:
       context: .
-      dockerfile: docker/Dockerfile
-    container_name: aromi-test-worker
-    command: ["node", "dist/features/workers/main.js"]
+      dockerfile: docker/workers.Dockerfile
+    container_name: aromi-workers
     env_file:
-      - .env
+      - ./packages/workers/.env.docker
     depends_on:
       - redis
+      - meilisearch
 
 volumes:
   meili-data:

@@ -1,5 +1,5 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import type { ApiError } from '@src/utils/error.js'
+import type { BackendError } from '@src/utils/error.js'
 import { Redis } from 'ioredis'
 import { Result } from 'neverthrow'
 
@@ -7,7 +7,7 @@ export interface RedisWrapper {
   client: Redis
 }
 
-export const createRedisWrapper = (): Result<RedisWrapper, ApiError> => {
+export const createRedisWrapper = (): Result<RedisWrapper, BackendError> => {
   return Result
     .combine([
       requiredEnv('REDIS_HOST'),

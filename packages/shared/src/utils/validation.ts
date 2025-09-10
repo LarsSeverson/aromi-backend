@@ -1,6 +1,6 @@
 import type z from 'zod'
 import type { ZodType } from 'zod'
-import { ApiError } from './error.js'
+import { BackendError } from './error.js'
 
 export const parseSchema = <T extends ZodType>(
   schema: T,
@@ -8,7 +8,7 @@ export const parseSchema = <T extends ZodType>(
   args: z.input<T>
 ): z.output<T> => {
   const parsed = schema.safeParse(args)
-  if (!parsed.success) throw ApiError.fromZod(parsed.error)
+  if (!parsed.success) throw BackendError.fromZod(parsed.error)
 
   return parsed.data
 }

@@ -1,6 +1,6 @@
 import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import type { ExpressionOrFactory, SqlBool } from 'kysely'
 import type { DB, AccordRow, FragranceRequestAccordRow } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
@@ -12,7 +12,7 @@ export class FragranceRequestAccordService extends TableService<'fragranceReques
 
   findAccords (
     where?: ExpressionOrFactory<DB, 'fragranceRequestAccords' | 'accords', SqlBool>
-  ): ResultAsync<AccordRow[], ApiError> {
+  ): ResultAsync<AccordRow[], BackendError> {
     let query = this
       .Table
       .baseQuery
@@ -28,7 +28,7 @@ export class FragranceRequestAccordService extends TableService<'fragranceReques
     return ResultAsync
       .fromPromise(
         query.execute(),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 }

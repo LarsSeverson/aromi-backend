@@ -3,5 +3,7 @@ node_modules
 .serverless
 .build
 .env
+.env.*
+!.env.example
 .DS_Store
 .vscode

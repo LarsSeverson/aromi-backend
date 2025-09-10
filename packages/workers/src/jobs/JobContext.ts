@@ -1,4 +1,4 @@
-import { ApiError, type DataSources, throwError } from '@aromi/shared'
+import { BackendError, type DataSources, throwError } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 import { JobServices } from './JobServices.js'
 
@@ -12,8 +12,8 @@ export class JobContext {
   }
 
   withTransaction<R>(
-    fn: (ctx: this) => ResultAsync<R, ApiError>
-  ): ResultAsync<R, ApiError> {
+    fn: (ctx: this) => ResultAsync<R, BackendError>
+  ): ResultAsync<R, BackendError> {
     const { db } = this.sources
 
     return ResultAsync
@@ -28,7 +28,7 @@ export class JobContext {
                 throwError
               )
           }),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
   }
 

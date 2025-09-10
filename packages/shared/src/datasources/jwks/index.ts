@@ -1,13 +1,13 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import { ApiError } from '@src/utils/error.js'
+import { BackendError } from '@src/utils/error.js'
 import { JwksClient } from 'jwks-rsa'
 import { ok, err, type Result } from 'neverthrow'
 
-export const createJwksClient = (): Result<JwksClient, ApiError> => {
+export const createJwksClient = (): Result<JwksClient, BackendError> => {
   const jwksUri = requiredEnv('COGNITO_JWKS_URI')
 
   if (jwksUri.isErr()) {
-    return err(new ApiError('MISSING_ENV', 'JWKS_URI is missing', 500))
+    return err(new BackendError('MISSING_ENV', 'JWKS_URI is missing', 500))
   }
 
   const jwksClient = new JwksClient({

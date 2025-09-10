@@ -1,0 +1,1 @@
+export const ACCEPTED_VOTE_COUNT_THRESHOLD = 10

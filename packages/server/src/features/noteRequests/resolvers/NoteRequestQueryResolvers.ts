@@ -1,4 +1,4 @@
-import { ApiError, throwError } from '@aromi/shared'
+import { BackendError, throwError } from '@aromi/shared'
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapNoteRequestRowToNoteRequestSummary } from '../utils/mappers.js'
@@ -29,7 +29,7 @@ export class NoteRequestQueryResolvers extends BaseResolver<QueryResolvers> {
         if (row.requestStatus === 'DRAFT') {
           if (me?.id !== row.userId) {
             return errAsync(
-              new ApiError(
+              new BackendError(
                 'NOT_AUTHORIZED',
                 'You are not authorized to view this note request',
                 403

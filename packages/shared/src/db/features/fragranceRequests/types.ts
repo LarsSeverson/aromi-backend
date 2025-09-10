@@ -7,6 +7,7 @@ export type FragranceRequestTraitRow = Selectable<DB['fragranceRequestTraits']>
 export type FragranceRequestAccordRow = Selectable<DB['fragranceRequestAccords']>
 export type FragranceRequestNoteRow = Selectable<DB['fragranceRequestNotes']>
 export type FragranceRequestVoteRow = Selectable<DB['fragranceRequestVotes']>
+export type FragranceRequestVoteCountRow = Selectable<DB['fragranceRequestVoteCounts']>
 
 export type FragrnanceRequestRowWithVotes = FragranceRequestRow & {
   upvotes: number

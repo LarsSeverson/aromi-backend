@@ -1,4 +1,4 @@
-import { ApiError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidBrand } from '@aromi/shared'
+import { BackendError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidBrand } from '@aromi/shared'
 import { err, errAsync, ok, type ResultAsync, type Result } from 'neverthrow'
 import type z from 'zod'
 import { BasePromoter } from './BasePromoter.js'
@@ -7,7 +7,7 @@ import type { Job } from 'bullmq'
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_BRAND
 
 export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], BrandRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<BrandRow, ApiError> {
+  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<BrandRow, BackendError> {
     const row = job.data
 
     return this
@@ -17,7 +17,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       )
   }
 
-  private promoteBrand (row: BrandRequestRow): ResultAsync<BrandRow, ApiError> {
+  private promoteBrand (row: BrandRequestRow): ResultAsync<BrandRow, BackendError> {
     const { services } = this.context
     const { brands } = services
 
@@ -34,7 +34,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
   private promoteImage (
     request: BrandRequestRow,
     brand: BrandRow
-  ): ResultAsync<BrandImageRow, ApiError> {
+  ): ResultAsync<BrandImageRow, BackendError> {
     const { services } = this.context
     const { brands } = services
 
@@ -56,7 +56,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       })
   }
 
-  private getImage (row: BrandRequestRow): ResultAsync<BrandRequestImageRow, ApiError> {
+  private getImage (row: BrandRequestRow): ResultAsync<BrandRequestImageRow, BackendError> {
     const { services } = this.context
     const { brandRequests } = services
 
@@ -70,16 +70,16 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       )
   }
 
-  private validateRow (row: BrandRequestRow): Result<z.output<typeof ValidBrand>, ApiError> {
+  private validateRow (row: BrandRequestRow): Result<z.output<typeof ValidBrand>, BackendError> {
     const { data, success, error } = ValidBrand.safeParse(row)
     if (!success) {
-      return err(ApiError.fromZod(error))
+      return err(BackendError.fromZod(error))
     }
 
     return ok(data)
   }
 
-  private markFailed (row: BrandRequestRow, error: ApiError): ResultAsync<never, ApiError> {
+  private markFailed (row: BrandRequestRow, error: BackendError): ResultAsync<never, BackendError> {
     const { services } = this.context
     const { brandRequests } = services
 

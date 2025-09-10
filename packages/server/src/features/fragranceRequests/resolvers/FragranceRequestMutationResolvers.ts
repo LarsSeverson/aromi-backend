@@ -31,7 +31,14 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
     const { fragranceRequests } = services
 
     return await fragranceRequests
-      .createOne({ ...values, userId: me.id })
+      .withTransaction(trx => trx
+        .createOne({ ...values, userId: me.id })
+        .andThrough(request => trx
+          .votes
+          .counts
+          .createOne({ requestId: request.id })
+        )
+      )
       .match(
         mapFragranceRequestRowToFragranceRequest,
         throwError

@@ -1,1 +1,0 @@
-export const VOTE_COUNT_THRESHOLD = 10

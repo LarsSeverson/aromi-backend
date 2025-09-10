@@ -1,19 +1,19 @@
-import type { ApiError } from '@aromi/shared'
+import type { BackendError } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
 import type { ResultAsync } from 'neverthrow'
 
 export abstract class BasePromoter<I, O> extends JobHandler<I> {
-  abstract promote (job: Job<I>): ResultAsync<O, ApiError>
+  abstract promote (job: Job<I>): ResultAsync<O, BackendError>
 
-  handle (job: Job<I>): ResultAsync<O, ApiError> {
+  handle (job: Job<I>): ResultAsync<O, BackendError> {
     return this.promote(job)
   }
 
   withTransaction<T> (
-    fn: (promoter: this) => ResultAsync<T, ApiError>
-  ): ResultAsync<T, ApiError> {
+    fn: (promoter: this) => ResultAsync<T, BackendError>
+  ): ResultAsync<T, BackendError> {
     return this
       .context
       .withTransaction(ctx => {

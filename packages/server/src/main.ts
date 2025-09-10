@@ -1,12 +1,12 @@
 import { ResultAsync } from 'neverthrow'
 import { startServer } from './server.js'
-import { ApiError } from '@aromi/shared'
+import { BackendError } from '@aromi/shared'
 
-const main = (): ResultAsync<string, ApiError> => {
+const main = (): ResultAsync<string, BackendError> => {
   return ResultAsync
     .fromPromise(
       startServer(),
-      error => new ApiError('INTERNAL_ERROR', 'Unable to start server', 500, error)
+      error => new BackendError('INTERNAL_ERROR', 'Unable to start server', 500, error)
     )
 }
 

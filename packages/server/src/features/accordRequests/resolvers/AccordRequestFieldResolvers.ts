@@ -1,4 +1,4 @@
-import { ApiError, throwError } from '@aromi/shared'
+import { BackendError, throwError } from '@aromi/shared'
 import type { AccordRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { ResultAsync } from 'neverthrow'
@@ -23,7 +23,7 @@ export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResol
         accordRequests
           .getImageLoader()
           .load(id),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .match(
         row => {
@@ -54,7 +54,7 @@ export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResol
         accordRequests
           .getVotesLoader(me?.id)
           .load(id),
-        error => ApiError.fromDatabase(error)
+        error => BackendError.fromDatabase(error)
       )
       .match(
         mapVoteInfoRowToVoteInfo,

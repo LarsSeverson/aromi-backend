@@ -1,13 +1,13 @@
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
 import type z from 'zod'
 import type { Job } from 'bullmq'
-import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, ApiError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidAccord } from '@aromi/shared'
+import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, BackendError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidAccord } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
 
 export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], AccordRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<AccordRow, ApiError> {
+  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<AccordRow, BackendError> {
     const row = job.data
 
     return this
@@ -16,7 +16,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
         .orTee(error => this.markFailed(row, error)))
   }
 
-  private promoteAccord (row: AccordRequestRow): ResultAsync<AccordRow, ApiError> {
+  private promoteAccord (row: AccordRequestRow): ResultAsync<AccordRow, BackendError> {
     const { services } = this.context
     const { accords } = services
 
@@ -32,7 +32,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
   private promoteImage (
     request: AccordRequestRow,
     accord: AccordRow
-  ): ResultAsync<AccordImageRow, ApiError> {
+  ): ResultAsync<AccordImageRow, BackendError> {
     const { services } = this.context
     const { accords } = services
 
@@ -54,7 +54,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
       })
   }
 
-  private getImage (row: AccordRequestRow): ResultAsync<AccordRequestImageRow, ApiError> {
+  private getImage (row: AccordRequestRow): ResultAsync<AccordRequestImageRow, BackendError> {
     const { services } = this.context
     const { accordRequests } = services
 
@@ -68,16 +68,16 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
       )
   }
 
-  private validateRow (row: AccordRequestRow): Result<z.output<typeof ValidAccord>, ApiError> {
+  private validateRow (row: AccordRequestRow): Result<z.output<typeof ValidAccord>, BackendError> {
     const { data, success, error } = ValidAccord.safeParse(row)
     if (!success) {
-      return err(ApiError.fromZod(error))
+      return err(BackendError.fromZod(error))
     }
 
     return ok(data)
   }
 
-  private markFailed (row: AccordRequestRow, error: ApiError): ResultAsync<never, ApiError> {
+  private markFailed (row: AccordRequestRow, error: BackendError): ResultAsync<never, BackendError> {
     const { services } = this.context
     const { accordRequests } = services
 

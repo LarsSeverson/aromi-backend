@@ -2,14 +2,14 @@ import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow
 import type z from 'zod'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
-import { ApiError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidFragrance } from '@aromi/shared'
+import { BackendError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
 export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey], FragranceRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, ApiError> {
+  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, BackendError> {
     const row = job.data
 
     return this
@@ -35,7 +35,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
 
   private promoteFragrance (
     row: FragranceRequestRow
-  ): ResultAsync<FragranceRow, ApiError> {
+  ): ResultAsync<FragranceRow, BackendError> {
     const validRow = this.validateRow(row)
     if (validRow.isErr()) return errAsync(validRow.error)
 
@@ -48,7 +48,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteImage (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceImageRow, ApiError> {
+  ): ResultAsync<FragranceImageRow, BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
@@ -80,7 +80,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteAccords (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceAccordRow[], ApiError> {
+  ): ResultAsync<FragranceAccordRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
@@ -108,7 +108,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteNotes (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceNoteRow[], ApiError> {
+  ): ResultAsync<FragranceNoteRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
@@ -136,7 +136,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteTraits (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceTraitRow[], ApiError> {
+  ): ResultAsync<FragranceTraitRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
@@ -188,7 +188,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
 
   private processImage (
     imageRow: FragranceImageRow
-  ): ResultAsync<FragranceImageRow, ApiError> {
+  ): ResultAsync<FragranceImageRow, BackendError> {
     const { services } = this.context
     const { assets, fragrances } = services
 
@@ -220,16 +220,16 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       )
   }
 
-  private validateRow (row: FragranceRequestRow): Result<z.output<typeof ValidFragrance>, ApiError> {
+  private validateRow (row: FragranceRequestRow): Result<z.output<typeof ValidFragrance>, BackendError> {
     const { data, success, error } = ValidFragrance.safeParse(row)
     if (!success) {
-      return err(ApiError.fromZod(error))
+      return err(BackendError.fromZod(error))
     }
 
     return ok(data)
   }
 
-  private markFailed (row: FragranceRequestRow, error: ApiError): ResultAsync<never, ApiError> {
+  private markFailed (row: FragranceRequestRow, error: BackendError): ResultAsync<never, BackendError> {
     const { services } = this.context
     const { fragranceRequests } = services
 
@@ -246,29 +246,29 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
 
   private getMetadata (
     imageBuffer: Buffer
-  ): ResultAsync<sharp.Metadata, ApiError> {
+  ): ResultAsync<sharp.Metadata, BackendError> {
     return ResultAsync
       .fromPromise(
         sharp(imageBuffer)
           .metadata(),
-        error => ApiError.fromSharp(error)
+        error => BackendError.fromSharp(error)
       )
   }
 
   private getPrimaryColor (
     imageBuffer: Buffer
-  ): ResultAsync<string, ApiError> {
+  ): ResultAsync<string, BackendError> {
     return ResultAsync
       .fromPromise(
         Vibrant
           .from(imageBuffer)
           .getPalette(),
-        error => ApiError.fromVibrant(error)
+        error => BackendError.fromVibrant(error)
       )
       .andThen(palette => {
         const hex = palette.Vibrant?.hex
         if (hex == null) {
-          return errAsync(new ApiError('NoVibrantColor', 'Could not determine vibrant color from image', 500))
+          return errAsync(new BackendError('NoVibrantColor', 'Could not determine vibrant color from image', 500))
         }
         return okAsync(hex)
       })

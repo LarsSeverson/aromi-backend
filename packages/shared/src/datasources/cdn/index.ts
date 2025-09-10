@@ -1,5 +1,5 @@
 import { requiredEnv } from '@src/utils/env-util.js'
-import type { ApiError } from '@src/utils/error.js'
+import type { BackendError } from '@src/utils/error.js'
 import { Result } from 'neverthrow'
 
 export interface CdnWrapper {
@@ -8,7 +8,7 @@ export interface CdnWrapper {
   privateKey: string
 }
 
-export const createCdnWrapper = (): Result<CdnWrapper, ApiError> => {
+export const createCdnWrapper = (): Result<CdnWrapper, BackendError> => {
   return Result
     .combine(
       [
