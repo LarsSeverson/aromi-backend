@@ -1,10 +1,11 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
-import { type FragranceRequestRow, type FragranceRequestVoteCountRow, unwrapOrThrow } from '@aromi/shared'
+import { type FragranceRequestRow, type FragranceRequestVoteCountRow, parseSchema, unwrapOrThrow } from '@aromi/shared'
 import { errAsync, okAsync } from 'neverthrow'
 import type { InsertVoteParams, UpdateVoteParams } from '../types.js'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '@src/features/requests/types.js'
+import { VoteOnRequestSchema } from '@src/features/requests/utils/validation.js'
 
 export class FragranceRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnFragranceRequest: MutationResolvers['voteOnFragranceRequest'] = async (
@@ -17,7 +18,8 @@ export class FragranceRequestVoteMutationResolvers extends BaseResolver<Mutation
     const { services, queues } = context
     const me = this.checkAuthenticated(context)
 
-    const { requestId, vote } = input
+    const { requestId } = input
+    const { vote } = parseSchema(VoteOnRequestSchema, input)
     const { fragranceRequests } = services
 
     const { request, voteCounts }= await unwrapOrThrow(fragranceRequests
@@ -152,7 +154,7 @@ export class FragranceRequestVoteMutationResolvers extends BaseResolver<Mutation
   ) {
     return (
       voteCounts.upvotes >= ACCEPTED_VOTE_COUNT_THRESHOLD &&
-      request.requestStatus !== 'ACCEPTED'
+      request.requestStatus === 'PENDING'
     )
   }
 

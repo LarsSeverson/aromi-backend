@@ -56,11 +56,13 @@ export abstract class TableService<T extends keyof DB, R> {
     const db = this.db
 
     return ResultAsync.fromPromise(
-      db.transaction().execute(async trx => {
-        const service = this.createTrxService(trx)
-        return await fn(service)
-      }),
-      error => BackendError.fromDatabase(error)
+      db
+        .transaction()
+        .execute(async trx => {
+          const service = this.createTrxService(trx)
+          return await fn(service)
+        }),
+      error => error as BackendError
     )
   }
 

@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapNoteRequestRowToNoteRequestSummary, mapCreateNoteRequestInputToRow, mapUpdateNoteRequestInputToRow } from '../utils/mappers.js'
-import { throwError } from '@aromi/shared'
+import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidNote } from '@aromi/shared'
 import { NoteRequestImageMutationResolvers } from './NoteRequestImageMutationResolvers.js'
 import { NoteRequestVoteMutationResolvers } from './NoteRequestVoteMutationResolvers.js'
 
@@ -101,14 +101,40 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
     const { noteRequests } = services
 
     return await noteRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', '=', 'DRAFT')
-        ]),
-        { requestStatus: 'PENDING' }
-      )
+      .withTransactionAsync(async trx => {
+        await unwrapOrThrow(
+          trx
+            .images
+            .findOne(eb => eb.and([
+              eb('requestId', '=', id),
+              eb('status', '=', 'ready')
+            ]))
+            .mapErr(error => {
+              return new BackendError(
+                'IMAGE_REQUIRED',
+                'A note request must have at least one image before it can be submitted.',
+                400,
+                error
+              )
+            })
+        )
+
+        const request = await unwrapOrThrow(
+          trx
+            .updateOne(
+              eb => eb.and([
+                eb('id', '=', id),
+                eb('userId', '=', me.id),
+                eb('requestStatus', '=', 'DRAFT')
+              ]),
+              { requestStatus: 'PENDING' }
+            )
+        )
+
+        parseSchema(ValidNote, request)
+
+        return request
+      })
       .match(
         mapNoteRequestRowToNoteRequestSummary,
         throwError

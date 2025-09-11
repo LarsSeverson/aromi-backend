@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
     "rootDir": "src",
     "outDir": "dist",
     "baseUrl": "./",
@@ -18,6 +19,7 @@
   },
   "include": [
     "src",
+    "src/db/db-schema.d.ts"
   ],
   "exclude": [
     "node_modules",

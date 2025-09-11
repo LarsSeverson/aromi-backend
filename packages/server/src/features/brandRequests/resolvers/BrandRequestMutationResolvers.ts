@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapBrandRequestRowToBrandRequestSummary, mapCreateBrandRequestInputToRow } from '../utils/mappers.js'
-import { throwError } from '@aromi/shared'
+import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidBrand } from '@aromi/shared'
 import { BrandRequestImageMutationResolvers } from './BrandRequestImageMutationResolvers.js'
 import { BrandRequestVoteMutationResolvers } from './BrandRequestVoteMutationResolvers.js'
 import { mapUpdateFragranceRequestInputToRow } from '@src/features/fragranceRequests/utils/mappers.js'
@@ -102,14 +102,40 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
     const { brandRequests } = services
 
     return await brandRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', '=', 'DRAFT')
-        ]),
-        { requestStatus: 'PENDING' }
-      )
+      .withTransactionAsync(async trx => {
+        await unwrapOrThrow(
+          trx
+            .images
+            .findOne(eb => eb.and([
+              eb('requestId', '=', id),
+              eb('status', '=', 'ready')
+            ]))
+            .mapErr(error => {
+              return new BackendError(
+                'IMAGE_REQUIRED',
+                'At least one image is required to submit a brand request',
+                400,
+                error
+              )
+            })
+        )
+
+        const request = await unwrapOrThrow(
+          trx
+            .updateOne(
+              eb => eb.and([
+                eb('id', '=', id),
+                eb('userId', '=', me.id),
+                eb('requestStatus', '=', 'DRAFT')
+              ]),
+              { requestStatus: 'PENDING' }
+            )
+        )
+
+        parseSchema(ValidBrand, request)
+
+        return request
+      })
       .match(
         mapBrandRequestRowToBrandRequestSummary,
         throwError

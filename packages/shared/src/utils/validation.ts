@@ -4,8 +4,7 @@ import { BackendError } from './error.js'
 
 export const parseSchema = <T extends ZodType>(
   schema: T,
-
-  args: z.input<T>
+  args: unknown
 ): z.output<T> => {
   const parsed = schema.safeParse(args)
   if (!parsed.success) throw BackendError.fromZod(parsed.error)

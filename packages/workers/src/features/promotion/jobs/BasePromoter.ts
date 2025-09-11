@@ -8,7 +8,7 @@ export abstract class BasePromoter<I, O> extends JobHandler<I> {
   abstract promote (job: Job<I>): ResultAsync<O, BackendError>
 
   handle (job: Job<I>): ResultAsync<O, BackendError> {
-    return this.promote(job)
+    return this.promote(job).orTee(console.log)
   }
 
   withTransaction<T> (

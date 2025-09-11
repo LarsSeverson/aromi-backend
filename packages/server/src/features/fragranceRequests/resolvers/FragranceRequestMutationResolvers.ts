@@ -1,6 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { throwError } from '@aromi/shared'
+import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
 import { FragranceRequestBrandMutationResolvers } from './FragranceRequestBrandMutationResolvers.js'
 import { FragranceRequestImageMutationResolvers } from './FragranceRequestImageMutationResolvers.js'
 import { FragranceRequestTraitMutationResolvers } from './FragranceRequestTraitMutationResolvers.js'
@@ -119,14 +119,42 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
     const { fragranceRequests } = services
 
     return await fragranceRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ]),
-        { requestStatus: 'PENDING' }
-      )
+      .withTransactionAsync(async trx => {
+        await unwrapOrThrow(
+          trx
+            .images
+            .findOne(
+              eb => eb.and([
+                eb('requestId', '=', id),
+                eb('status', '=', 'ready')
+              ])
+            )
+            .mapErr(error => {
+              return new BackendError(
+                'IMAGE_REQUIRED',
+                'At least one image is required to submit a fragrance request',
+                400,
+                error
+              )
+            })
+        )
+
+        const request = await unwrapOrThrow(
+          trx
+            .updateOne(
+              eb => eb.and([
+                eb('id', '=', id),
+                eb('userId', '=', me.id),
+                eb('requestStatus', '=', 'DRAFT')
+              ]),
+              { requestStatus: 'PENDING' }
+            )
+        )
+
+        parseSchema(ValidFragrance, request)
+
+        return request
+      })
       .match(
         mapFragranceRequestRowToFragranceRequest,
         throwError

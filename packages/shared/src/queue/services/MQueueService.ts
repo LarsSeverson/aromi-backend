@@ -38,7 +38,7 @@ export abstract class MQueueService<
           .add(
             jobName,
             data,
-            { jobId, removeOnComplete: true }
+            { jobId, removeOnComplete: true, removeOnFail: true }
           ),
         error => BackendError.fromMQ(error)
       )

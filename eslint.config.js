@@ -16,7 +16,8 @@ export default [
       '**/node_modules/**',
       '**/.git/**',
       '**/*.config.js',
-      "**/gql-types.ts"
+      "**/gql-types.ts",
+      "**/db-schema.ts"
     ]
   },
 

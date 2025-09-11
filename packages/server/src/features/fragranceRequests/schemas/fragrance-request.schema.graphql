@@ -75,7 +75,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  createFragranceRequest(input: CreateFragranceRequestInput!): FragranceRequest!
+  createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
 

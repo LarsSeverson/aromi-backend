@@ -4,6 +4,7 @@ export interface Env {
   SERVER_HOST: string
   SERVER_PORT: string
   ALLOWED_ORIGINS: string
+  SERVER_DEV_AUTH_TOKEN: string
 
   DB_HOST: string
   DB_USER: string

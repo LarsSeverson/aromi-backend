@@ -13,16 +13,6 @@ services:
     depends_on:
       - redis
 
-  meilisearch:
-    image: getmeili/meilisearch:latest
-    container_name: aromi-search
-    ports:
-      - "7700:7700"
-    env_file:
-      - .env
-    volumes:
-      - meili-data:/meili_data
-
   server:
     build:
       context: .
@@ -31,10 +21,9 @@ services:
     ports:
       - "${SERVER_PORT:-8080}:8080"
     env_file:
-      - ./packages/server/.env.docker
+      - ./packages/server/.env.production
     depends_on:
       - redis
-      - meilisearch
 
   workers:
     build:
@@ -42,10 +31,9 @@ services:
       dockerfile: docker/workers.Dockerfile
     container_name: aromi-workers
     env_file:
-      - ./packages/workers/.env.docker
+      - ./packages/workers/.env.production
     depends_on:
       - redis
-      - meilisearch
 
 volumes:
   meili-data:

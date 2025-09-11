@@ -1,4 +1,4 @@
-import { BackendError, type DataSources, throwError } from '@aromi/shared'
+import { type BackendError, type DataSources, throwError } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 import { JobServices } from './JobServices.js'
 
@@ -28,7 +28,7 @@ export class JobContext {
                 throwError
               )
           }),
-        error => BackendError.fromDatabase(error)
+        error => error as BackendError
       )
   }
 

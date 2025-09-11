@@ -5,10 +5,14 @@ import { BackendError } from '@src/utils/error.js'
 import type { AccordRequestVoteRow } from '../types.js'
 import type { DB, VoteInfoRow } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
+import { AccordRequestVoteCountService } from './AccordRequestVoteCountService.js'
 
 export class AccordRequestVoteService extends TableService<'accordRequestVotes', AccordRequestVoteRow> {
+  counts: AccordRequestVoteCountService
+
   constructor (sources: DataSources) {
     super(sources, 'accordRequestVotes')
+    this.counts = new AccordRequestVoteCountService(sources)
   }
 
   findVoteInfo (

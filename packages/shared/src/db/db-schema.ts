@@ -59,6 +59,14 @@ export interface AccordRequest {
   version: Generated<number>;
 }
 
+export interface AccordRequestVoteCount {
+  deletedAt: Timestamp | null;
+  downvotes: Generated<number>;
+  requestId: string;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface AccordRequestVote {
   createdAt: Generated<Timestamp>;
   id: Generated<string>;
@@ -394,6 +402,7 @@ export interface DB {
   accordImages: AccordImage;
   accordRequestImages: AccordRequestImage;
   accordRequests: AccordRequest;
+  accordRequestVoteCounts: AccordRequestVoteCount;
   accordRequestVotes: AccordRequestVote;
   accords: Accord;
   brandImages: BrandImage;

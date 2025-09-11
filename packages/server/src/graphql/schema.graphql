@@ -394,7 +394,7 @@ type Mutation {
   confirmSignUp(input: ConfirmSignUpInput!): Boolean!
   createAccordRequest(input: CreateAccordRequestInput!): AccordRequest!
   createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
-  createFragranceRequest(input: CreateFragranceRequestInput!): FragranceRequest!
+  createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAccordRequestImage(input: DeleteAccordRequestImageInput!): AccordRequest!

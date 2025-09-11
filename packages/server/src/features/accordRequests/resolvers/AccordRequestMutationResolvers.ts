@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapAccordRequestRowToAccordRequestSummary, mapCreateAccordRequestInputToRow, mapUpdateAccordRequestInputToRow } from '../utils/mappers.js'
-import { throwError } from '@aromi/shared'
+import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
 import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers.js'
 import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers.js'
 
@@ -101,14 +101,40 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
     const { accordRequests } = services
 
     return await accordRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', '=', 'DRAFT')
-        ]),
-        { requestStatus: 'PENDING' }
-      )
+      .withTransactionAsync(async trx => {
+        await unwrapOrThrow(
+          trx
+            .images
+            .findOne(
+              eb => eb.and([
+                eb('requestId', '=', id),
+                eb('status', '=', 'ready')
+              ])
+            )
+            .mapErr(error => {
+              return new BackendError(
+                'IMAGE_REQUIRED',
+                'At least one image is required to submit a accord request',
+                400,
+                error
+              )
+            })
+        )
+
+        const request = await unwrapOrThrow(
+          trx
+            .updateOne(
+              eb => eb.and([
+                eb('id', '=', id),
+                eb('userId', '=', me.id),
+                eb('requestStatus', '=', 'DRAFT')
+              ]),
+              { requestStatus: 'PENDING' }
+            )
+        )
+
+        return request
+      })
       .match(
         mapAccordRequestRowToAccordRequestSummary,
         throwError

@@ -535,7 +535,7 @@ export type MutationCreateBrandRequestArgs = {
 
 
 export type MutationCreateFragranceRequestArgs = {
-  input: CreateFragranceRequestInput;
+  input?: InputMaybe<CreateFragranceRequestInput>;
 };
 
 
@@ -1735,7 +1735,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'input'>>;
   createAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationCreateAccordRequestArgs, 'input'>>;
   createBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationCreateBrandRequestArgs, 'input'>>;
-  createFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationCreateFragranceRequestArgs, 'input'>>;
+  createFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, Partial<MutationCreateFragranceRequestArgs>>;
   createNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationCreateNoteRequestArgs, 'input'>>;
   deleteAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestArgs, 'input'>>;
   deleteAccordRequestImage?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestImageArgs, 'input'>>;

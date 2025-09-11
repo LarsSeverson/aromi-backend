@@ -6,10 +6,10 @@ import { mapDBConcentrationToGQLConcentration, mapDBStatusToGQLStatus, mapGQLCon
 import type { IFragranceRequestSummary } from '../types.js'
 
 export const mapCreateFragranceRequestInputToRow = (
-  input: CreateFragranceRequestInput
+  input?: CreateFragranceRequestInput | null
 ): Partial<FragranceRequestRow> => {
-  const { status, concentration } = input
-  const parsedInput = parseSchema(CreateFragranceRequestSchema, input)
+  const { status, concentration } = input ?? {}
+  const parsedInput = parseSchema(CreateFragranceRequestSchema, input ?? {})
   const cleanedInput = removeNullish(parsedInput)
 
   const output: Partial<FragranceRequestRow> = cleanedInput

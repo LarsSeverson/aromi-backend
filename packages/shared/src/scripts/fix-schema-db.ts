@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-const schemaPath = './src/db/db-schema.d.ts'
+const schemaPath = './src/db/db-schema.ts'
 const schema = fs.readFileSync(schemaPath, 'utf8')
 
 const fixedSchema = schema.replace(
