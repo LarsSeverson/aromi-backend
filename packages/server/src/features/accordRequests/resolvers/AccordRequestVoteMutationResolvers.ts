@@ -1,7 +1,7 @@
 import { unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { VoteOnAccordResolver } from './helpers/VoteOnAccordResolver.js'
+import { VoteOnARResolver } from '../helpers/VoteOnARResolver.js'
 
 export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnAccordRequest: MutationResolvers['voteOnAccordRequest'] = async (
@@ -10,7 +10,7 @@ export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationRes
     context,
     info
   ) => {
-    const resolver = new VoteOnAccordResolver({ parent, args, context, info })
+    const resolver = new VoteOnARResolver({ parent, args, context, info })
     return await unwrapOrThrow(resolver.resolve())
   }
 

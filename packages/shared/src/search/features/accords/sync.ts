@@ -5,7 +5,7 @@ import { ResultAsync } from 'neverthrow'
 export const syncAccords = (
   meili: DataSources['meili'],
   db: DataSources['db']
-): ResultAsync<undefined, BackendError> => {
+) => {
   return ResultAsync
     .fromPromise(
       db
@@ -22,6 +22,6 @@ export const syncAccords = (
           .index('accords')
           .addDocuments(accords),
         error => BackendError.fromMeili(error)
-      ))
-    .map(() => undefined)
+      )
+    )
 }

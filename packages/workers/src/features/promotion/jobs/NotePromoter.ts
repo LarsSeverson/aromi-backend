@@ -8,12 +8,17 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_NOTE
 
 export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], NoteRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<NoteRow, BackendError> {
+    const { search } = this.context.services
     const row = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
         .promoteNote(row)
-        .orTee(error => this.markFailed(row, error))
+        .orTee(error => trxPromoter.markFailed(row, error))
+      )
+      .andTee(note => search
+        .notes
+        .addDocument(note)
       )
   }
 

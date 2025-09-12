@@ -21,6 +21,7 @@ export interface SearchResult<T> {
 }
 
 export const INDEX_NAMES = {
+  FRAGRANCES: 'fragrances',
   BRANDS: 'brands',
   ACCORDS: 'accords',
   NOTES: 'notes'

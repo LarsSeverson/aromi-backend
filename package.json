@@ -29,7 +29,9 @@
     "lint:workers": "eslint 'packages/workers/src/**/*.ts'",
     "lint:workers:fix": "eslint 'packages/workers/src/**/*.ts' --fix",
     "lint:shared": "eslint 'packages/shared/src/**/*.ts'",
-    "lint:shared:fix": "eslint 'packages/shared/src/**/*.ts' --fix"
+    "lint:shared:fix": "eslint 'packages/shared/src/**/*.ts' --fix",
+    "search:init": "yarn workspace @aromi/shared init-search",
+    "search:sync": "yarn workspace @aromi/shared sync:search"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

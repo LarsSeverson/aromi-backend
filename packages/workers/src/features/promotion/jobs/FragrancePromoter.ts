@@ -17,20 +17,20 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         .promoteFragrance(row)
         .andThen(fragrance => ResultAsync
           .combine([
-            this.promoteImage(row, fragrance),
-            this.promoteAccords(row, fragrance),
-            this.promoteNotes(row, fragrance),
-            this.promoteTraits(row, fragrance)
+            trxPromoter.promoteImage(row, fragrance),
+            trxPromoter.promoteAccords(row, fragrance),
+            trxPromoter.promoteNotes(row, fragrance),
+            trxPromoter.promoteTraits(row, fragrance)
           ])
-          .map(([image, accords, notes, traits]) => [fragrance, image, accords, notes, traits] as const)
+          .map(([image, accords, notes, traits]) => ({ fragrance, image, accords, notes, traits }))
         )
         .orTee(error => this.markFailed(row, error))
       )
-      .andThrough(([, image]) => this
+      .andThrough(({ image }) => this
         .processImage(image)
         .orElse(() => okAsync(image))
       )
-      .map(([fragrance]) => fragrance)
+      .map(({ fragrance }) => fragrance)
   }
 
   private promoteFragrance (

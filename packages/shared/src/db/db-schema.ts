@@ -120,6 +120,14 @@ export interface BrandRequest {
   website: string | null;
 }
 
+export interface BrandRequestVoteCount {
+  deletedAt: Timestamp | null;
+  downvotes: Generated<number>;
+  requestId: string;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface BrandRequestVote {
   createdAt: Generated<Timestamp>;
   id: Generated<string>;
@@ -343,6 +351,14 @@ export interface NoteRequest {
   version: Generated<number>;
 }
 
+export interface NoteRequestVoteCount {
+  deletedAt: Timestamp | null;
+  downvotes: Generated<number>;
+  requestId: string;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface NoteRequestVote {
   createdAt: Generated<Timestamp>;
   id: Generated<string>;
@@ -408,6 +424,7 @@ export interface DB {
   brandImages: BrandImage;
   brandRequestImages: BrandRequestImage;
   brandRequests: BrandRequest;
+  brandRequestVoteCounts: BrandRequestVoteCount;
   brandRequestVotes: BrandRequestVote;
   brands: Brand;
   fragranceAccords: FragranceAccord;
@@ -429,6 +446,7 @@ export interface DB {
   noteImages: NoteImage;
   noteRequestImages: NoteRequestImage;
   noteRequests: NoteRequest;
+  noteRequestVoteCounts: NoteRequestVoteCount;
   noteRequestVotes: NoteRequestVote;
   notes: Note;
   traitOptions: TraitOption;

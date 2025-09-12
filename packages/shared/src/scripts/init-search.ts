@@ -1,9 +1,10 @@
 import { ResultAsync } from 'neverthrow'
 import type { BackendError } from '@src/utils/error.js'
 import { createMeiliSearchWrapper } from '@src/datasources/index.js'
-import { initBrandsIndex } from './features/brands/init.js'
-import { initAccordsIndex } from './features/accords/init.js'
-import { initNotesIndex } from './features/notes/init.js'
+import { initBrandsIndex } from '../search/features/brands/init.js'
+import { initAccordsIndex } from '../search/features/accords/init.js'
+import { initNotesIndex } from '../search/features/notes/init.js'
+import { initFragrancesIndex } from '@src/search/features/fragrances/init.js'
 
 export const initSearch = (): ResultAsync<undefined, BackendError> => {
   return createMeiliSearchWrapper()
@@ -11,7 +12,8 @@ export const initSearch = (): ResultAsync<undefined, BackendError> => {
       .combine([
         initBrandsIndex(meili),
         initAccordsIndex(meili),
-        initNotesIndex(meili)
+        initNotesIndex(meili),
+        initFragrancesIndex(meili)
       ]))
     .map(() => undefined)
 }

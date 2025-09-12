@@ -5,24 +5,32 @@ import { INDEX_NAMES } from '../../types.js'
 
 export const initNotesIndex = (
   meili: DataSources['meili']
-): ResultAsync<undefined, BackendError> => {
+) => {
   return ResultAsync
     .fromPromise(
       meili
         .client
-        .createIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
+        .updateIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
       error => BackendError.fromMeili(error)
     )
-    .andThen(() => ResultAsync
-      .fromPromise(
+    .orElse(() =>
+      ResultAsync
+        .fromPromise(
+          meili
+            .client
+            .createIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
+          error => BackendError.fromMeili(error)
+        )
+    )
+    .andThen(() =>
+      ResultAsync.fromPromise(
         meili
           .client
-          .index(INDEX_NAMES.NOTES)
-          .updateSettings({
+          .index(INDEX_NAMES.NOTES).updateSettings({
             searchableAttributes: ['name', 'description'],
             sortableAttributes: ['createdAt', 'updatedAt']
           }),
         error => BackendError.fromMeili(error)
-      ))
-    .map(() => undefined)
+      )
+    )
 }

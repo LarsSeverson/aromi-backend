@@ -2,7 +2,7 @@ import type { AccordRequestRow, BrandRequestRow, FragranceRequestRow, NoteReques
 
 export const PROMOTION_JOB_NAMES = {
   PROMOTE_FRAGRANCE: 'promote-fragrance',
-  PROMOTE_BRAND: 'promote-brands',
+  PROMOTE_BRAND: 'promote-brand',
   PROMOTE_ACCORD: 'promote-accord',
   PROMOTE_NOTE: 'promote-note'
 } as const

@@ -1,4 +1,4 @@
-import { AccordRequestService, AccordService, AssetService, BrandRequestService, BrandService, type DataSources, FragranceRequestService, FragranceService, NoteRequestService, NoteService } from '@aromi/shared'
+import { AccordRequestService, AccordService, AssetService, BrandRequestService, BrandService, type DataSources, FragranceRequestService, FragranceService, NoteRequestService, NoteService, SearchServices } from '@aromi/shared'
 
 export class JobServices {
   assets: AssetService
@@ -13,6 +13,8 @@ export class JobServices {
   accordRequests: AccordRequestService
   noteRequests: NoteRequestService
 
+  search: SearchServices
+
   constructor (sources: DataSources) {
     this.assets = new AssetService(sources)
 
@@ -25,5 +27,7 @@ export class JobServices {
     this.brandRequests = new BrandRequestService(sources)
     this.accordRequests = new AccordRequestService(sources)
     this.noteRequests = new NoteRequestService(sources)
+
+    this.search = new SearchServices(sources)
   }
 }

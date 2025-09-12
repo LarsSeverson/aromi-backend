@@ -4,10 +4,14 @@ import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import type { VoteInfoRow, NoteRequestVoteRow, DB } from '@src/db/index.js'
 import { TableService } from '@src/db/services/TableService.js'
+import { NoteRequestVoteCountService } from './NoteRequestVoteCountService.js'
 
 export class NoteRequestVoteService extends TableService<'noteRequestVotes', NoteRequestVoteRow> {
+  counts: NoteRequestVoteCountService
+
   constructor (sources: DataSources) {
     super(sources, 'noteRequestVotes')
+    this.counts = new NoteRequestVoteCountService(sources)
   }
 
   findVoteInfo (

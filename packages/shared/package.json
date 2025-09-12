@@ -12,7 +12,9 @@
   ],
   "scripts": {
     "build": "tsc --build && tsc-alias -p tsconfig.json",
-    "gen:db": "kysely-codegen && tsx src/scripts/fix-schema-db.ts"
+    "gen:db": "kysely-codegen && tsx src/scripts/fix-schema-db.ts",
+    "init-search": "tsx src/scripts/init-search.ts",
+    "sync:search": "tsx src/scripts/sync-search.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

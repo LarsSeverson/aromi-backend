@@ -4,21 +4,21 @@ import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
 import type { ResultAsync } from 'neverthrow'
 
-export abstract class BasePromoter<I, O> extends JobHandler<I> {
-  abstract promote (job: Job<I>): ResultAsync<O, BackendError>
+export abstract class BaseSearchSyncer<I, O> extends JobHandler<I> {
+  abstract sync (job: Job<I>): ResultAsync<O, BackendError>
 
   handle (job: Job<I>): ResultAsync<O, BackendError> {
-    return this.promote(job)
+    return this.sync(job)
   }
 
   withTransaction<T> (
-    fn: (promoter: this) => ResultAsync<T, BackendError>
+    fn: (syncer: this) => ResultAsync<T, BackendError>
   ): ResultAsync<T, BackendError> {
     return this
       .context
       .withTransaction(ctx => {
-        const promoter = this.createTrxContext(ctx)
-        return fn(promoter)
+        const syncer = this.createTrxContext(ctx)
+        return fn(syncer)
       })
   }
 

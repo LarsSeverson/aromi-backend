@@ -1,33 +1,41 @@
-import { type AccordRequestRow, BackendError, parseSchema, unwrapOrThrow, type AccordRequestService, type AccordRequestVoteRow, type AccordRequestVoteCountRow } from '@aromi/shared'
+import { BackendError, type BrandRequestRow, type BrandRequestService, type BrandRequestVoteCountRow, type BrandRequestVoteRow, parseSchema, unwrapOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { errAsync, okAsync, type ResultAsync } from 'neverthrow'
-import type { IAccordRequestSummary } from '../../types.js'
 import { VoteOnRequestSchema } from '@src/features/requests/utils/validation.js'
 import { AuthenticatedRequestResolver } from '@src/resolvers/AuthenticatedRequestResolver.js'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '@src/features/requests/types.js'
-import { mapAccordRequestRowToAccordRequestSummary } from '../../utils/mappers.js'
+import type { IBrandRequestSummary } from '../types.js'
+import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers.js'
 
-export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationResolvers['voteOnAccordRequest']> {
-  private trxService?: AccordRequestService
+export class VoteOnBRResolver extends AuthenticatedRequestResolver<MutationResolvers['voteOnBrandRequest']> {
+  private trxService?: BrandRequestService
 
-  resolve (): ResultAsync<IAccordRequestSummary, BackendError> {
+  resolve (): ResultAsync<IBrandRequestSummary, BackendError> {
     const { services } = this.context
 
-    const { accordRequests } = services
+    const { brandRequests } = services
 
-    return accordRequests
+    if (this.trxService != null) {
+      return errAsync(
+        new BackendError(
+          'ALREADY_INITIALIZED',
+          'Transaction service already initialized',
+          500
+        )
+      )
+    }
+
+    return brandRequests
       .withTransactionAsync(async trx => {
         this.trxService = trx
         return await this.handleVote()
       })
       .andThrough(({ request, voteCounts }) => {
-        if (!this.shouldPromote(voteCounts, request)) {
-          return okAsync()
-        }
+        if (!this.shouldPromote(voteCounts, request)) return okAsync()
         return this.handlePromotion(request)
       })
       .map(({ request }) =>
-        mapAccordRequestRowToAccordRequestSummary(request)
+        mapBrandRequestRowToBrandRequestSummary(request)
       )
   }
 
@@ -57,14 +65,14 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
     return { request, voteCounts }
   }
 
-  private handlePromotion (request: AccordRequestRow) {
+  private handlePromotion (request: BrandRequestRow) {
     const { queues } = this.context
     const { promotions } = queues
 
-    return promotions.enqueue({ jobName: 'promote-accord', data: request })
+    return promotions.enqueue({ jobName: 'promote-brand', data: request })
   }
 
-  private async getRequest (): Promise<AccordRequestRow> {
+  private async getRequest (): Promise<BrandRequestRow> {
     const { requestId } = this.args.input
 
     const request = await unwrapOrThrow(
@@ -78,7 +86,7 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
     return request
   }
 
-  private async getExistingVote (): Promise<AccordRequestVoteRow | null> {
+  private async getExistingVote (): Promise<BrandRequestVoteRow | null> {
     const { me, args } = this
     const { requestId } = args.input
 
@@ -103,7 +111,7 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
     return existing
   }
 
-  private async insertVote (): Promise<AccordRequestVoteRow> {
+  private async insertVote (): Promise<BrandRequestVoteRow> {
     const { me, args } = this
 
     const { requestId, vote } = args.input
@@ -138,7 +146,7 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
 
   private async updateVote (
     oldVote: number
-  ): Promise<AccordRequestVoteRow> {
+  ): Promise<BrandRequestVoteRow> {
     const { me, args } = this
 
     const { requestId, vote: newVote } = args.input
@@ -179,7 +187,7 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
     return updated
   }
 
-  private async getVoteCount (): Promise<AccordRequestVoteCountRow> {
+  private async getVoteCount (): Promise<BrandRequestVoteCountRow> {
     const { requestId } = this.args.input
 
     const voteCounts = await unwrapOrThrow(
@@ -196,8 +204,8 @@ export class VoteOnAccordResolver extends AuthenticatedRequestResolver<MutationR
   }
 
   private shouldPromote (
-    voteCounts: AccordRequestVoteCountRow,
-    request: AccordRequestRow
+    voteCounts: BrandRequestVoteCountRow,
+    request: BrandRequestRow
   ): boolean {
     return (
       voteCounts.upvotes >= ACCEPTED_VOTE_COUNT_THRESHOLD &&

@@ -8,12 +8,18 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
 
 export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], AccordRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<AccordRow, BackendError> {
+    const { search } = this.context.services
     const row = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
         .promoteAccord(row)
-        .orTee(error => this.markFailed(row, error)))
+        .orTee(error => trxPromoter.markFailed(row, error))
+      )
+      .andTee(accord => search
+        .accords
+        .addDocument(accord)
+      )
   }
 
   private promoteAccord (row: AccordRequestRow): ResultAsync<AccordRow, BackendError> {

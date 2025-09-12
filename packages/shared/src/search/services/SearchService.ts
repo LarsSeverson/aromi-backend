@@ -47,6 +47,10 @@ export abstract class SearchService<T extends BaseSearchIndex> {
         }))
   }
 
+  addDocument (document: T): ResultAsync<this, BackendError> {
+    return this.addDocuments([document])
+  }
+
   addDocuments (documents: T[]): ResultAsync<this, BackendError> {
     return ResultAsync
       .fromPromise(

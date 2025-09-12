@@ -5,13 +5,22 @@ import { INDEX_NAMES } from '../../types.js'
 
 export const initBrandsIndex = (
   meili: DataSources['meili']
-): ResultAsync<undefined, BackendError> => {
+) => {
   return ResultAsync
     .fromPromise(
       meili
         .client
-        .createIndex(INDEX_NAMES.BRANDS, { primaryKey: 'id' }),
+        .updateIndex(INDEX_NAMES.BRANDS, { primaryKey: 'id' }),
       error => BackendError.fromMeili(error)
+    )
+    .orElse(() =>
+      ResultAsync
+        .fromPromise(
+          meili
+            .client
+            .createIndex(INDEX_NAMES.BRANDS, { primaryKey: 'id' }),
+          error => BackendError.fromMeili(error)
+        )
     )
     .andThen(() => ResultAsync
       .fromPromise(
@@ -23,6 +32,6 @@ export const initBrandsIndex = (
             sortableAttributes: ['createdAt', 'updatedAt']
           }),
         error => BackendError.fromMeili(error)
-      ))
-    .map(() => undefined)
+      )
+    )
 }
