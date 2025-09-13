@@ -100,9 +100,10 @@ enum AvatarStatus {
 }
 
 type Brand {
+  avatar: Asset!
   id: ID!
-  image: Asset!
   name: String!
+  website: String
 }
 
 type BrandConnection {
@@ -287,15 +288,48 @@ input ForgotPasswordInput {
 }
 
 type Fragrance {
-  brand: String!
+  accords(input: FragranceAccordPaginationInput!): FragranceAccordConnection!
+  brand: Brand!
   concentration: Concentration!
-  description: String!
+  description: String
   id: ID!
   images: FragranceImageConnection!
   name: String!
+  notes(input: FragranceNotePaginationInput!): FragranceNoteConnection!
   releaseYear: Int!
   status: FragranceStatus!
-  traits: [Trait!]!
+  trait(input: FragranceTraitInput!): FragranceTrait!
+  traits: [FragranceTrait!]!
+}
+
+type FragranceAccord {
+  accord: Accord!
+  id: ID!
+}
+
+type FragranceAccordConnection {
+  edges: [FragranceAccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceAccordEdge {
+  cursor: String!
+  node: FragranceAccord!
+}
+
+input FragranceAccordPaginationInput {
+  after: String
+  first: Int
+  sort: FragranceAccordSortInput
+}
+
+enum FragranceAccordSortBy {
+  RECENT
+}
+
+input FragranceAccordSortInput {
+  by: FragranceAccordSortBy
+  direction: SortDirection
 }
 
 type FragranceConnection {
@@ -324,6 +358,44 @@ type FragranceImageConnection {
 type FragranceImageEdge {
   cursor: String!
   node: FragranceImage!
+}
+
+type FragranceNote {
+  id: ID!
+  layer: NoteLayer!
+  note: Note!
+}
+
+type FragranceNoteConnection {
+  edges: [FragranceNoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceNoteEdge {
+  cursor: String!
+  node: FragranceNote!
+}
+
+input FragranceNotePaginationInput {
+  after: String
+  first: Int
+  layer: NoteLayer!
+  sort: FragranceNoteSortInput
+}
+
+enum FragranceNoteSortBy {
+  RECENT
+}
+
+input FragranceNoteSortInput {
+  by: FragranceNoteSortBy
+  direction: SortDirection
+}
+
+input FragrancePaginationInput {
+  after: String
+  first: Int
+  sort: FragranceSortInput
 }
 
 type FragranceRequest {
@@ -376,10 +448,31 @@ type FragranceRequestTrait {
   traitType: TraitTypeEnum!
 }
 
+enum FragranceSortBy {
+  RECENT
+}
+
+input FragranceSortInput {
+  by: FragranceSortBy
+  direction: SortDirection
+}
+
 enum FragranceStatus {
   CURRENT
   DISCONTINUED
   REFORMULATED
+}
+
+type FragranceTrait {
+  id: ID!
+  myVote: TraitVote
+  options: [TraitOption!]!
+  stats: TraitStats
+  type: TraitTypeEnum!
+}
+
+input FragranceTraitInput {
+  type: TraitTypeEnum!
 }
 
 scalar JSON
@@ -441,6 +534,7 @@ type Mutation {
 type Note {
   id: ID!
   name: String!
+  thumbnail: String!
 }
 
 type NoteConnection {
@@ -531,8 +625,10 @@ type Query {
   brandRequest(id: ID!): BrandRequest!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   brands(input: BrandPaginationInput): BrandConnection!
+  fragrance(id: ID!): Fragrance!
   fragranceRequest(id: ID!): FragranceRequest!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
+  fragrances(input: FragrancePaginationInput!): FragranceConnection!
   me: User!
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
@@ -656,13 +752,6 @@ input SubmitFragranceRequestInput {
 
 input SubmitNoteRequestInput {
   id: ID!
-}
-
-type Trait {
-  myVote: TraitVote
-  options: [TraitOption!]!
-  stats: TraitStats
-  traitType: TraitTypeEnum!
 }
 
 type TraitOption {

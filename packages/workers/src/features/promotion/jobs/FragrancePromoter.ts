@@ -10,6 +10,8 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
 export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey], FragranceRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, BackendError> {
+    const { queues } = this.context
+
     const row = job.data
 
     return this
@@ -25,6 +27,10 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
           .map(([image, accords, notes, traits]) => ({ fragrance, image, accords, notes, traits }))
         )
         .orTee(error => this.markFailed(row, error))
+      )
+      .andTee(({ fragrance }) => queues
+        .searchSync
+        .enqueue({ jobName: 'sync-fragrance', data: { fragranceId: fragrance.id } })
       )
       .andThrough(({ image }) => this
         .processImage(image)

@@ -1,13 +1,12 @@
 import type { DataSources } from '@src/datasources/index.js'
-import type { FragranceRequestRow } from '@src/db/index.js'
+import { FeaturedTableService, type FragranceRequestRow } from '@src/db/index.js'
 import { FragranceRequestImageService } from './FragranceRequestImageService.js'
 import { FragranceRequestAccordService } from './FragranceRequestAccordService.js'
 import { FragranceRequestNoteService } from './FragranceRequestNoteService.js'
 import { FragranceRequestTraitService } from './FragranceRequestTraitService.js'
 import { FragranceRequestVoteService } from './FragranceRequestVoteService.js'
-import { TableService } from '@src/db/services/TableService.js'
 
-export class FragranceRequestService extends TableService<'fragranceRequests', FragranceRequestRow> {
+export class FragranceRequestService extends FeaturedTableService<FragranceRequestRow> {
   images: FragranceRequestImageService
   traits: FragranceRequestTraitService
   accords: FragranceRequestAccordService

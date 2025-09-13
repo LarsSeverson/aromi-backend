@@ -7,12 +7,7 @@ enum TraitTypeEnum {
   APPEAL
 }
 
-type Trait {
-  traitType: TraitTypeEnum!
-  options: [TraitOption!]!
-  stats: TraitStats
-  myVote: TraitVote
-}
+
 
 type TraitOption {
   id: ID!

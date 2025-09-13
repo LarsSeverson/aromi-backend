@@ -1,28 +1,23 @@
-import { type ExtendInsertFn, Table, type ExtendSelectFn, type OnConflictFn } from './Table.js'
 import { errAsync, ResultAsync } from 'neverthrow'
 import { BackendError, throwError } from '@src/utils/error.js'
 import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject } from 'kysely'
 import type { DataSources } from '@src/datasources/index.js'
 import type { DB } from '@src/db/index.js'
-import type { CursorPaginationInput } from '../types.js'
+import type { TablesMatching } from '../types.js'
+import { Table } from './Table.js'
 
-export interface QueryOptions<T extends keyof DB, R, C> {
-  pagination?: CursorPaginationInput<C>
-  extend?: ExtendSelectFn<T, R>
-}
-
-export abstract class TableService<T extends keyof DB, R> {
+export abstract class TableService<R, T extends TablesMatching<R> = TablesMatching<R>> {
   private readonly sources: DataSources
   protected readonly db: DataSources['db']
-  protected readonly Table: Table<T, R>
+  readonly Table: Table<R, T>
 
   constructor (
     sources: DataSources,
-    table: T
+    tableName: T
   ) {
     this.sources = sources
     this.db = sources.db
-    this.Table = new Table<T, R>(sources.db, table)
+    this.Table = new Table(sources.db, tableName)
   }
 
   get connection (): DataSources['db'] {
@@ -74,8 +69,8 @@ export abstract class TableService<T extends keyof DB, R> {
     return fn(service)
   }
 
-  withParentTransaction <O, PT extends keyof DB, PR>(
-    parent: TableService<PT, PR>,
+  withParentTransaction <O, PR>(
+    parent: TableService<PR>,
     fn: (service: this) => ResultAsync<O, BackendError>
   ): ResultAsync<O, BackendError> {
     return this.withExistingTransaction(parent.connection, fn)
@@ -86,28 +81,26 @@ export abstract class TableService<T extends keyof DB, R> {
   }
 
   createOne (
-    values: InsertObject<DB, T>,
-    extend?: ExtendInsertFn<T, R>
+    values: InsertObject<DB, T>
   ): ResultAsync<R, BackendError> {
     return ResultAsync
       .fromPromise(
         this
           .Table
-          .create(values, extend)
+          .create(values)
           .executeTakeFirstOrThrow(),
         error => BackendError.fromDatabase(error)
       )
   }
 
   create (
-    values: InsertObject<DB, T> | Array<InsertObject<DB, T>>,
-    extend?: ExtendInsertFn<T, R>
+    values: InsertObject<DB, T> | Array<InsertObject<DB, T>>
   ): ResultAsync<R[], BackendError> {
     return ResultAsync
       .fromPromise(
         this
           .Table
-          .create(values, extend)
+          .create(values)
           .execute(),
         error => BackendError.fromDatabase(error)
       )
@@ -143,7 +136,7 @@ export abstract class TableService<T extends keyof DB, R> {
 
   upsert (
     values: InsertObject<DB, T> | Array<InsertObject<DB, T>> | ((eb: ExpressionBuilder<DB, T>) => InsertObject<DB, T>),
-    onConflict: OnConflictFn<T>
+    onConflict: Parameters<typeof this.Table.upsert>[1]
   ): ResultAsync<R, BackendError> {
     return ResultAsync
       .fromPromise(
@@ -151,32 +144,6 @@ export abstract class TableService<T extends keyof DB, R> {
           .Table
           .upsert(values, onConflict)
           .executeTakeFirstOrThrow(),
-        error => BackendError.fromDatabase(error)
-      )
-  }
-
-  softDeleteOne (
-    where: ExpressionOrFactory<DB, T, SqlBool>
-  ): ResultAsync<R, BackendError> {
-    return ResultAsync
-      .fromPromise(
-        this
-          .Table
-          .softDelete(where)
-          .executeTakeFirstOrThrow(),
-        error => BackendError.fromDatabase(error)
-      )
-  }
-
-  softDelete (
-    where: ExpressionOrFactory<DB, T, SqlBool>
-  ): ResultAsync<R[], BackendError> {
-    return ResultAsync
-      .fromPromise(
-        this
-          .Table
-          .softDelete(where)
-          .execute(),
         error => BackendError.fromDatabase(error)
       )
   }
@@ -194,25 +161,13 @@ export abstract class TableService<T extends keyof DB, R> {
       )
   }
 
-  find <C>(
-    where?: ExpressionOrFactory<DB, T, SqlBool>,
-    options?: QueryOptions<T, R, C>
+  find (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
   ): ResultAsync<R[], BackendError> {
-    const { pagination, extend } = options ?? {}
 
-    let query = this
+    const query = this
       .Table
-      .find(this.Table.filterDeleted(where))
-
-    if (pagination != null) {
-      query = this
-        .Table
-        .paginatedQuery(pagination, query)
-    }
-
-    if (extend != null) {
-      query = extend(query)
-    }
+      .find(where)
 
     return ResultAsync
       .fromPromise(
@@ -234,20 +189,6 @@ export abstract class TableService<T extends keyof DB, R> {
 
         return errAsync(error)
       })
-  }
-
-  paginate <C>(
-    input: CursorPaginationInput<C>
-  ): ResultAsync<R[], BackendError> {
-    const query = this
-      .Table
-      .paginatedQuery(input)
-
-    return ResultAsync
-      .fromPromise(
-        query.execute(),
-        error => BackendError.fromDatabase(error)
-      )
   }
 
   private createTrxService (trx: DataSources['db']): this {

@@ -55,6 +55,7 @@
       "public"
     ],
     "singularize": true,
-    "dateParser": "string"
+    "dateParser": "string",
+    "runtimeEnums": true
   }
 }

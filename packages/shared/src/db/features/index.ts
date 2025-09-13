@@ -6,6 +6,7 @@ export * from './accords/index.js'
 export * from './notes/index.js'
 export * from './traits/index.js'
 
+export * from './requests/index.js'
 export * from './fragranceRequests/index.js'
 export * from './brandRequests/index.js'
 export * from './accordRequests/index.js'

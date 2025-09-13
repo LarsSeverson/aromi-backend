@@ -1,26 +1,3 @@
-type Fragrance {
-  id: ID!
-  name: String!
-  brand: String!
-  description: String!
-  releaseYear: Int!
-  concentration: Concentration!
-  status: FragranceStatus!
-
-  images: FragranceImageConnection!
-  traits: [Trait!]!
-}
-
-type FragranceEdge {
-  node: Fragrance!
-  cursor: String!
-}
-
-type FragranceConnection {
-  edges: [FragranceEdge!]!
-  pageInfo: PageInfo!
-}
-
 enum Concentration {
   PARFUM
   EDP
@@ -36,4 +13,53 @@ enum FragranceStatus {
   CURRENT
   DISCONTINUED
   REFORMULATED
+}
+
+type Fragrance {
+  id: ID!
+  name: String!
+  brand: Brand!
+  description: String
+  releaseYear: Int!
+  concentration: Concentration!
+  status: FragranceStatus!
+
+  images: FragranceImageConnection!
+
+  accords(input: FragranceAccordPaginationInput!): FragranceAccordConnection!
+
+  notes(input: FragranceNotePaginationInput!): FragranceNoteConnection!
+
+  traits: [FragranceTrait!]!
+  trait(input: FragranceTraitInput!): FragranceTrait!
+}
+
+type FragranceEdge {
+  node: Fragrance!
+  cursor: String!
+}
+
+type FragranceConnection {
+  edges: [FragranceEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceSortBy {
+  RECENT
+}
+
+input FragranceSortInput {
+  direction: SortDirection
+  by: FragranceSortBy
+}
+
+input FragrancePaginationInput {
+  first: Int
+  after: String
+  sort: FragranceSortInput
+}
+
+extend type Query {
+  fragrance(id: ID!): Fragrance!
+  fragrances(input: FragrancePaginationInput!): FragranceConnection!
 }

@@ -1,0 +1,29 @@
+type FragranceAccord {
+  id: ID!
+  accord: Accord!
+}
+
+type FragranceAccordEdge {
+  node: FragranceAccord!
+  cursor: String!
+}
+
+type FragranceAccordConnection {
+  edges: [FragranceAccordEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceAccordSortBy {
+  RECENT
+}
+
+input FragranceAccordSortInput {
+  direction: SortDirection
+  by: FragranceAccordSortBy
+}
+
+input FragranceAccordPaginationInput {
+  first: Int
+  after: String
+  sort: FragranceAccordSortInput
+}

@@ -1,7 +1,7 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema: ['**/*.graphql', '!src/graphql/schema.graphql'],
+  schema: ['src/**/*.graphql', '!src/graphql/schema.graphql'],
   generates: {
     'src/graphql/gql-types.ts': {
       config: {
@@ -17,6 +17,8 @@ const config: CodegenConfig = {
           User: '../features/users/types.js#IUserSummary',
 
           Brand: '../features/brands/types.js#IBrandSummary',
+
+          Fragrance: '../features/fragrances/types.js#IFragranceSummary',
 
           FragranceRequest: '../features/fragranceRequests/types.js#IFragranceRequestSummary',
 

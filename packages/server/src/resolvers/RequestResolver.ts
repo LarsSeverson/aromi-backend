@@ -11,20 +11,32 @@ export type Info<T> = ResolverArgs<T>[3]
 
 export type ResolverReturnType<T> = Awaited<ReturnType<ResolverFnOf<T>>>
 
-export interface RequestResolverParams<T> {
-  parent: Parent<T>
-  args: Args<T>
+export interface RequestResolverParams<
+  TResolver,
+  TArgs = Args<TResolver>,
+  TParent = Parent<TResolver>,
+  TInfo = Info<TResolver>
+> {
+  parent: TParent
+  args: TArgs
   context: ServerContext
-  info: Info<T>
+  info: TInfo
 }
 
-export abstract class RequestResolver<TResolver> {
-  protected readonly parent: Parent<TResolver>
-  protected readonly args: Args<TResolver>
+export abstract class RequestResolver<
+  TResolver,
+  TArgs = Args<TResolver>,
+  TParent = Parent<TResolver>,
+  TInfo = Info<TResolver>
+> {
+  protected readonly parent: TParent
+  protected readonly args: TArgs
   protected readonly context: ServerContext
-  protected readonly info: Info<TResolver>
+  protected readonly info: TInfo
 
-  constructor (params: RequestResolverParams<TResolver>) {
+  constructor (
+    params: RequestResolverParams<TResolver, TArgs, TParent, TInfo>
+  ) {
     const { parent, args, context, info } = params
     this.parent = parent
     this.args = args

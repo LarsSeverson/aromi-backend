@@ -3,11 +3,10 @@ import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'k
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import type { AccordRequestVoteRow } from '../types.js'
-import type { DB, VoteInfoRow } from '@src/db/index.js'
-import { TableService } from '@src/db/services/TableService.js'
+import { TableService, type DB, type VoteInfoRow } from '@src/db/index.js'
 import { AccordRequestVoteCountService } from './AccordRequestVoteCountService.js'
 
-export class AccordRequestVoteService extends TableService<'accordRequestVotes', AccordRequestVoteRow> {
+export class AccordRequestVoteService extends TableService<AccordRequestVoteRow> {
   counts: AccordRequestVoteCountService
 
   constructor (sources: DataSources) {

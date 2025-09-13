@@ -5,23 +5,55 @@
 
 import type { ColumnType } from "kysely";
 
-export type AssetStatus = "ready" | "staged";
+export enum AssetStatus {
+  READY = "ready",
+  STAGED = "staged",
+}
 
-export type AvatarStatus = "FAILED" | "PENDING" | "PROCESSING" | "READY";
+export enum AvatarStatus {
+  FAILED = "FAILED",
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  READY = "READY",
+}
 
-export type FragranceConcentration = "BODY_MIST" | "EAU_FRAICHE" | "EDC" | "EDP" | "EDT" | "OIL" | "OTHER" | "PARFUM";
+export enum FragranceConcentration {
+  BODY_MIST = "BODY_MIST",
+  EAU_FRAICHE = "EAU_FRAICHE",
+  EDC = "EDC",
+  EDP = "EDP",
+  EDT = "EDT",
+  OIL = "OIL",
+  OTHER = "OTHER",
+  PARFUM = "PARFUM",
+}
 
-export type FragranceStatus = "CURRENT" | "DISCONTINUED" | "REFORMULATED";
+export enum FragranceStatus {
+  CURRENT = "CURRENT",
+  DISCONTINUED = "DISCONTINUED",
+  REFORMULATED = "REFORMULATED",
+}
+
+export enum NoteLayerEnum {
+  BASE = "base",
+  MIDDLE = "middle",
+  TOP = "top",
+}
+
+export enum RequestStatus {
+  ACCEPTED = "ACCEPTED",
+  DENIED = "DENIED",
+  DRAFT = "DRAFT",
+  FAILED = "FAILED",
+  PENDING = "PENDING",
+  PUBLISHED = "PUBLISHED",
+}
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
-
-export type NoteLayerEnum = "base" | "middle" | "top";
-
-export type RequestStatus = "ACCEPTED" | "DENIED" | "DRAFT" | "FAILED" | "PENDING" | "PUBLISHED";
 
 export type Timestamp = ColumnType<string, string, string>;
 
@@ -82,7 +114,6 @@ export interface Accord {
   description: string | null;
   id: Generated<string>;
   name: string;
-  oldId: number | null;
   updatedAt: Generated<Timestamp>;
 }
 
@@ -286,7 +317,7 @@ export interface FragranceRequestVote {
 
 export interface Fragrance {
   brandId: string | null;
-  concentration: Generated<FragranceConcentration | null>;
+  concentration: Generated<FragranceConcentration>;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   description: string | null;
@@ -294,11 +325,10 @@ export interface Fragrance {
   id: Generated<string>;
   likesCount: Generated<number>;
   name: string;
-  oldId: number | null;
   rating: number | null;
   releaseYear: number | null;
   reviewsCount: Generated<number>;
-  status: Generated<FragranceStatus | null>;
+  status: Generated<FragranceStatus>;
   updatedAt: Generated<Timestamp>;
   voteScore: Generated<number>;
 }
@@ -373,7 +403,6 @@ export interface Note {
   description: string | null;
   id: Generated<string>;
   name: string;
-  oldId: number | null;
   s3Key: string | null;
   thumbnailImageId: string | null;
   updatedAt: Generated<Timestamp>;

@@ -3,3 +3,35 @@ enum NoteLayer {
   MIDDLE
   BASE
 }
+
+type FragranceNote {
+  id: ID!
+  note: Note!
+  layer: NoteLayer!
+}
+
+type FragranceNoteEdge {
+  node: FragranceNote!
+  cursor: String!
+}
+
+type FragranceNoteConnection {
+  edges: [FragranceNoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceNoteSortBy {
+  RECENT
+}
+
+input FragranceNoteSortInput {
+  direction: SortDirection
+  by: FragranceNoteSortBy
+}
+
+input FragranceNotePaginationInput {
+  layer: NoteLayer!
+  first: Int
+  after: String
+  sort: FragranceNoteSortInput
+}

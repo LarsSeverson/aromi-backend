@@ -1,4 +1,4 @@
-import { BackendError, throwError } from '@aromi/shared'
+import { BackendError, RequestStatus, throwError } from '@aromi/shared'
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers.js'
@@ -26,7 +26,7 @@ export class AccordRequestQueryResolvers extends BaseResolver<QueryResolvers> {
         ])
       )
       .andThen(row => {
-        if (row.requestStatus === 'DRAFT') {
+        if (row.requestStatus === RequestStatus.DRAFT) {
           if (me?.id !== row.userId) {
             return errAsync(
               new BackendError(
@@ -61,7 +61,7 @@ export class AccordRequestQueryResolvers extends BaseResolver<QueryResolvers> {
     return await accordRequests
       .find(
         eb => eb.and([
-          eb('requestStatus', '!=', 'DRAFT')
+          eb('requestStatus', '!=', RequestStatus.DRAFT)
         ]),
         { pagination }
       )

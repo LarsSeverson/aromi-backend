@@ -1,0 +1,11 @@
+type FragranceTrait {
+  id: ID!
+  type: TraitTypeEnum!
+  options: [TraitOption!]!
+  stats: TraitStats
+  myVote: TraitVote
+}
+
+input FragranceTraitInput {
+  type: TraitTypeEnum!
+}

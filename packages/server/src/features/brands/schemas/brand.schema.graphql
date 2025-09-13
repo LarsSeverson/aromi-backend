@@ -1,7 +1,8 @@
 type Brand {
   id: ID!
   name: String!
-  image: Asset!
+  website: String
+  avatar: Asset!
 }
 
 type BrandEdge {

@@ -1,14 +1,17 @@
 import { type BackendError, type DataSources, throwError } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 import { JobServices } from './JobServices.js'
+import { JobQueues } from './JobQueues.js'
 
 export class JobContext {
   readonly sources: DataSources
   readonly services: JobServices
+  readonly queues: JobQueues
 
   constructor (sources: DataSources) {
     this.sources = sources
     this.services = new JobServices(sources)
+    this.queues = new JobQueues(sources)
   }
 
   withTransaction<R>(

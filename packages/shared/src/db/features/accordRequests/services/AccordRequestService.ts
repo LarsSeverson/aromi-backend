@@ -2,9 +2,9 @@ import type { AccordRequestRow } from '../types.js'
 import type { DataSources } from '@src/datasources/index.js'
 import { AccordRequestImageService } from './AccordRequestImageService.js'
 import { AccordRequestVoteService } from './AccordRequestVoteService.js'
-import { TableService } from '@src/db/services/TableService.js'
+import { FeaturedTableService } from '@src/db/index.js'
 
-export class AccordRequestService extends TableService<'accordRequests', AccordRequestRow> {
+export class AccordRequestService extends FeaturedTableService<AccordRequestRow> {
   images: AccordRequestImageService
   votes: AccordRequestVoteService
 
