@@ -2,10 +2,9 @@ import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import type { ExpressionOrFactory, SqlBool } from 'kysely'
-import type { DB, AccordRow, FragranceRequestAccordRow } from '@src/db/index.js'
-import { TableService } from '@src/db/services/TableService.js'
+import { type DB, type AccordRow, type FragranceRequestAccordRow, FeaturedTableService } from '@src/db/index.js'
 
-export class FragranceRequestAccordService extends TableService<'fragranceRequestAccords', FragranceRequestAccordRow> {
+export class FragranceRequestAccordService extends FeaturedTableService<FragranceRequestAccordRow> {
   constructor (sources: DataSources) {
     super(sources, 'fragranceRequestAccords')
   }

@@ -1,5 +1,3 @@
-import type { AccordRequestRow, BrandRequestRow, FragranceRequestRow, NoteRequestRow } from '@src/db/index.js'
-
 export const PROMOTION_JOB_NAMES = {
   PROMOTE_FRAGRANCE: 'promote-fragrance',
   PROMOTE_BRAND: 'promote-brand',
@@ -10,8 +8,8 @@ export const PROMOTION_JOB_NAMES = {
 export type PromotionJobName = (typeof PROMOTION_JOB_NAMES)[keyof typeof PROMOTION_JOB_NAMES]
 
 export interface PromotionJobPayload {
-  [PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE]: FragranceRequestRow
-  [PROMOTION_JOB_NAMES.PROMOTE_BRAND]: BrandRequestRow
-  [PROMOTION_JOB_NAMES.PROMOTE_ACCORD]: AccordRequestRow
-  [PROMOTION_JOB_NAMES.PROMOTE_NOTE]: NoteRequestRow
+  [PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE]: { requestId: string }
+  [PROMOTION_JOB_NAMES.PROMOTE_BRAND]: { requestId: string }
+  [PROMOTION_JOB_NAMES.PROMOTE_ACCORD]: { requestId: string }
+  [PROMOTION_JOB_NAMES.PROMOTE_NOTE]: { requestId: string }
 }

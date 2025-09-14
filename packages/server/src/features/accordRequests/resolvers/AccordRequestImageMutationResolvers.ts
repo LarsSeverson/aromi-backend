@@ -1,4 +1,4 @@
-import { parseSchema, throwError, genImageKey } from '@aromi/shared'
+import { parseOrThrow, throwError, genImageKey } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { errAsync, okAsync } from 'neverthrow'
@@ -17,7 +17,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
     const me = this.checkAuthenticated(context)
 
     const { id, fileName } = input
-    const { contentType, contentSize } = parseSchema(StageAccordRequestImageSchema, input)
+    const { contentType, contentSize } = parseOrThrow(StageAccordRequestImageSchema, input)
     const { assets, accordRequests } = services
 
     const { key } = genImageKey('accords', id)
@@ -69,7 +69,7 @@ export class AccordRequestImageMutationResolvers extends BaseResolver<MutationRe
     const me = this.checkAuthenticated(context)
 
     const { requestId, assetId } = input
-    const { version } = parseSchema(FinalizeAccordRequestImageSchema, input)
+    const { version } = parseOrThrow(FinalizeAccordRequestImageSchema, input)
     const { assets, accordRequests } = services
 
     const values = {

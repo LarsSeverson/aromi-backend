@@ -1,11 +1,10 @@
-import type { FragranceRequestNoteRow, DB, NoteRow } from '@src/db/index.js'
+import { type FragranceRequestNoteRow, type DB, type NoteRow, FeaturedTableService } from '@src/db/index.js'
 import type { DataSources } from '@src/datasources/index.js'
 import type { ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
-import { TableService } from '@src/db/services/TableService.js'
 
-export class FragranceRequestNoteService extends TableService<'fragranceRequestNotes', FragranceRequestNoteRow> {
+export class FragranceRequestNoteService extends FeaturedTableService<FragranceRequestNoteRow> {
   constructor (sources: DataSources) {
     super(sources, 'fragranceRequestNotes')
   }

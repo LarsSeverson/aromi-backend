@@ -2,11 +2,10 @@ import type { DataSources } from '@src/datasources/index.js'
 import type { Kysely, SelectQueryBuilder, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
-import type { VoteInfoRow, BrandRequestVoteRow, DB } from '@src/db/index.js'
-import { TableService } from '@src/db/services/TableService.js'
+import { type VoteInfoRow, type BrandRequestVoteRow, type DB, TableService } from '@src/db/index.js'
 import { BrandRequestVoteCountService } from './BrandRequestVoteCountService.js'
 
-export class BrandRequestVoteService extends TableService<'brandRequestVotes', BrandRequestVoteRow> {
+export class BrandRequestVoteService extends TableService<BrandRequestVoteRow> {
   counts: BrandRequestVoteCountService
 
   constructor (sources: DataSources) {

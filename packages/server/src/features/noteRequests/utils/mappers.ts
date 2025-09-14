@@ -1,13 +1,13 @@
 import type { RequestStatus, CreateNoteRequestInput, UpdateNoteRequestInput, NoteRequestImage } from '@src/graphql/gql-types.js'
 import type { INoteRequestSummary } from '../types.js'
 import type { NoteRequestRow, NoteRequestImageRow } from '@aromi/shared'
-import { parseSchema, removeNullish } from '@aromi/shared'
+import { parseOrThrow, removeNullish } from '@aromi/shared'
 import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation.js'
 
 export const mapCreateNoteRequestInputToRow = (
   input: CreateNoteRequestInput
 ): Partial<NoteRequestRow> => {
-  const parsed = parseSchema(CreateNoteRequestSchema, input)
+  const parsed = parseOrThrow(CreateNoteRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<NoteRequestRow> = cleaned
@@ -18,7 +18,7 @@ export const mapCreateNoteRequestInputToRow = (
 export const mapUpdateNoteRequestInputToRow = (
   input: UpdateNoteRequestInput
 ): Partial<NoteRequestRow> => {
-  const { version, ...parsed } = parseSchema(UpdateNoteRequestSchema, input)
+  const { version, ...parsed } = parseOrThrow(UpdateNoteRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<NoteRequestRow> = cleaned

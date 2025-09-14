@@ -1,4 +1,4 @@
-import { BackendError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidNote } from '@aromi/shared'
+import { AssetStatus, BackendError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidNote } from '@aromi/shared'
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
 import type z from 'zod'
 import { BasePromoter } from './BasePromoter.js'
@@ -9,16 +9,29 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_NOTE
 export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], NoteRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<NoteRow, BackendError> {
     const { search } = this.context.services
-    const row = job.data
+    const { requestId } = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .promoteNote(row)
-        .orTee(error => trxPromoter.markFailed(row, error))
+        .getNoteRequest(requestId)
+        .andThen(row => trxPromoter
+          .promoteNote(row)
+          .orTee(error => trxPromoter.markFailed(row, error))
+        )
       )
       .andTee(note => search
         .notes
         .addDocument(note)
+      )
+  }
+
+  private getNoteRequest (id: string): ResultAsync<NoteRequestRow, BackendError> {
+    const { services } = this.context
+    const { noteRequests } = services
+
+    return noteRequests
+      .findOne(
+        eb => eb('id', '=', id)
       )
   }
 
@@ -79,7 +92,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       .findOne(
         eb => eb.and([
           eb('requestId', '=', row.id),
-          eb('status', '=', 'ready')
+          eb('status', '=', AssetStatus.READY)
         ])
       )
   }
@@ -92,7 +105,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       .updateOne(
         eb => eb('id', '=', row.id),
         {
-          requestStatus: 'FAILED',
+          requestStatus: RequestStatus.FAILED,
           updatedAt: new Date().toISOString()
         }
       )

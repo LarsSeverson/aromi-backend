@@ -1,7 +1,7 @@
 import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
 import type z from 'zod'
 import type { Job } from 'bullmq'
-import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, BackendError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidAccord } from '@aromi/shared'
+import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, AssetStatus, BackendError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidAccord } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
@@ -9,16 +9,29 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
 export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], AccordRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<AccordRow, BackendError> {
     const { search } = this.context.services
-    const row = job.data
+    const { requestId } = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .promoteAccord(row)
-        .orTee(error => trxPromoter.markFailed(row, error))
+        .getAccordRequest(requestId)
+        .andThen(row => trxPromoter
+          .promoteAccord(row)
+          .orTee(error => trxPromoter.markFailed(row, error))
+        )
       )
       .andTee(accord => search
         .accords
         .addDocument(accord)
+      )
+  }
+
+  private getAccordRequest (id: string): ResultAsync<AccordRequestRow, BackendError> {
+    const { services } = this.context
+    const { accordRequests } = services
+
+    return accordRequests
+      .findOne(
+        eb => eb('id', '=', id)
       )
   }
 
@@ -69,7 +82,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
       .findOne(
         eb => eb.and([
           eb('requestId', '=', row.id),
-          eb('status', '=', 'ready')
+          eb('status', '=', AssetStatus.READY)
         ])
       )
   }
@@ -91,7 +104,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
       .updateOne(
         eb => eb('id', '=', row.id),
         {
-          requestStatus: 'FAILED',
+          requestStatus: RequestStatus.FAILED,
           updatedAt: new Date().toISOString()
         }
       )

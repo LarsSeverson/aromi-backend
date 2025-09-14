@@ -1,4 +1,4 @@
-import { BackendError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidBrand } from '@aromi/shared'
+import { AssetStatus, BackendError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidBrand } from '@aromi/shared'
 import { err, errAsync, ok, type ResultAsync, type Result } from 'neverthrow'
 import type z from 'zod'
 import { BasePromoter } from './BasePromoter.js'
@@ -9,16 +9,29 @@ type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_BRAND
 export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], BrandRow> {
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<BrandRow, BackendError> {
     const { search } = this.context.services
-    const row = job.data
+    const { requestId } = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .promoteBrand(row)
-        .orTee(error => trxPromoter.markFailed(row, error))
+        .getBrandRequest(requestId)
+        .andThen(row => trxPromoter
+          .promoteBrand(row)
+          .orTee(error => trxPromoter.markFailed(row, error))
+        )
       )
       .andTee(brand => search
         .brands
         .addDocument(brand)
+      )
+  }
+
+  private getBrandRequest (id: string): ResultAsync<BrandRequestRow, BackendError> {
+    const { services } = this.context
+    const { brandRequests } = services
+
+    return brandRequests
+      .findOne(
+        eb => eb('id', '=', id)
       )
   }
 
@@ -70,7 +83,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       .findOne(
         eb => eb.and([
           eb('requestId', '=', row.id),
-          eb('status', '=', 'ready')
+          eb('status', '=', AssetStatus.READY)
         ])
       )
   }
@@ -92,7 +105,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       .updateOne(
         eb => eb('id', '=', row.id),
         {
-          requestStatus: 'FAILED',
+          requestStatus: RequestStatus.FAILED,
           updatedAt: new Date().toISOString()
         }
       )

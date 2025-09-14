@@ -7,4 +7,9 @@ export const VoteOnRequestSchema = z
   })
   .strip()
 
-export type VoteOnRequestInput = z.infer<typeof VoteOnRequestSchema>
+export const GenericStageRequestAssetSchema = z
+  .object({
+    contentType: z.string(),
+    contentSize: z.number()
+  })
+  .strip()

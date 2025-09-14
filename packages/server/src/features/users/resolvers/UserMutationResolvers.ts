@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, genAvatarUploadKey, parseSchema, throwError } from '@aromi/shared'
+import { BackendError, genAvatarUploadKey, parseOrThrow, throwError } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (
@@ -16,7 +16,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     const { me, services } = context
     const { users } = services
 
-    parseSchema(UpdateUserSchema, input)
+    parseOrThrow(UpdateUserSchema, input)
 
     if (me?.id !== id) {
       throw new BackendError(

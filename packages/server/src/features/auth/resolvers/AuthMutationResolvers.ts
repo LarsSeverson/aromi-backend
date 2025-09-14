@@ -3,7 +3,7 @@ import type { Response } from 'express'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { generateFromEmail } from 'unique-username-generator'
 import type { AuthDeliveryResult, AuthTokenPayload, MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseSchema, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
+import { BackendError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseOrThrow, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
 
 export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   refresh: MutationResolvers['refresh'] = async (
@@ -34,7 +34,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(LogInSchema, input)
+    parseOrThrow(LogInSchema, input)
 
     const { res, services } = context
     const { auth } = services
@@ -85,7 +85,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(SignUpSchema, input)
+    parseOrThrow(SignUpSchema, input)
 
     const { services } = context
     const { auth } = services
@@ -106,7 +106,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(ConfirmSignUpSchema, input)
+    parseOrThrow(ConfirmSignUpSchema, input)
 
     const { email } = input
     const { services } = context
@@ -133,7 +133,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(ResendSignUpCodeSchema, input)
+    parseOrThrow(ResendSignUpCodeSchema, input)
 
     const { services } = context
     const { auth } = services
@@ -154,7 +154,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(ForgotPasswordSchema, input)
+    parseOrThrow(ForgotPasswordSchema, input)
 
     const { services } = context
     const { auth } = services
@@ -175,7 +175,7 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   ) => {
     const { input } = args
 
-    parseSchema(ConfirmForgotPasswordSchema, input)
+    parseOrThrow(ConfirmForgotPasswordSchema, input)
 
     const { services } = context
     const { auth } = services

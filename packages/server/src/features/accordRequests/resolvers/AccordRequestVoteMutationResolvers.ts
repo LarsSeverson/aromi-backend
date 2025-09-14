@@ -10,9 +10,7 @@ export class AccordRequestVoteMutationResolvers extends BaseResolver<MutationRes
     context,
     info
   ) => {
-    const { services } = context
-    const { accordRequests } = services
-    const resolver = new VoteOnARResolver({ parent, args, context, info, service: accordRequests })
+    const resolver = new VoteOnARResolver({ parent, args, context, info })
     return await unwrapOrThrow(resolver.resolve())
   }
 

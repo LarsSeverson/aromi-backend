@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapBrandRequestRowToBrandRequestSummary, mapCreateBrandRequestInputToRow } from '../utils/mappers.js'
-import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidBrand } from '@aromi/shared'
+import { BackendError, parseOrThrow, throwError, unwrapOrThrow, ValidBrand } from '@aromi/shared'
 import { BrandRequestImageMutationResolvers } from './BrandRequestImageMutationResolvers.js'
 import { BrandRequestVoteMutationResolvers } from './BrandRequestVoteMutationResolvers.js'
 import { mapUpdateFragranceRequestInputToRow } from '@src/features/fragranceRequests/utils/mappers.js'
@@ -132,7 +132,7 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
             )
         )
 
-        parseSchema(ValidBrand, request)
+        parseOrThrow(ValidBrand, request)
 
         return request
       })

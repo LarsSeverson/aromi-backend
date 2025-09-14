@@ -1,12 +1,12 @@
 import type { UpdateAccordRequestInput, CreateAccordRequestInput, AccordRequestImage, RequestStatus } from '@src/graphql/gql-types.js'
 import type { IAccordRequestSummary } from '../types.js'
-import { type AccordRequestRow, type AccordRequestImageRow, parseSchema, removeNullish } from '@aromi/shared'
+import { type AccordRequestRow, type AccordRequestImageRow, parseOrThrow, removeNullish } from '@aromi/shared'
 import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation.js'
 
 export const mapCreateAccordRequestInputToRow = (
   input: CreateAccordRequestInput
 ): Partial<AccordRequestRow> => {
-  const parsed = parseSchema(CreateAccordRequestSchema, input)
+  const parsed = parseOrThrow(CreateAccordRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<AccordRequestRow> = cleaned
@@ -17,7 +17,7 @@ export const mapCreateAccordRequestInputToRow = (
 export const mapUpdateAccordRequestInputToRow = (
   input: UpdateAccordRequestInput
 ): Partial<AccordRequestRow> => {
-  const { version, ...parsed } = parseSchema(UpdateAccordRequestSchema, input)
+  const { version, ...parsed } = parseOrThrow(UpdateAccordRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<AccordRequestRow> = cleaned

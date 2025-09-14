@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapNoteRequestRowToNoteRequestSummary, mapCreateNoteRequestInputToRow, mapUpdateNoteRequestInputToRow } from '../utils/mappers.js'
-import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidNote } from '@aromi/shared'
+import { BackendError, parseOrThrow, throwError, unwrapOrThrow, ValidNote } from '@aromi/shared'
 import { NoteRequestImageMutationResolvers } from './NoteRequestImageMutationResolvers.js'
 import { NoteRequestVoteMutationResolvers } from './NoteRequestVoteMutationResolvers.js'
 
@@ -131,7 +131,7 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
             )
         )
 
-        parseSchema(ValidNote, request)
+        parseOrThrow(ValidNote, request)
 
         return request
       })

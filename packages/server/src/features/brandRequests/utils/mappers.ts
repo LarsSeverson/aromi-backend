@@ -1,13 +1,13 @@
 import type { UpdateBrandRequestInput, CreateBrandRequestInput, RequestStatus, BrandRequestImage } from '@src/graphql/gql-types.js'
 import type { IBrandRequestSummary } from '../types.js'
 import type { BrandRequestRow, BrandRequestImageRow } from '@aromi/shared'
-import { parseSchema, removeNullish } from '@aromi/shared'
+import { parseOrThrow, removeNullish } from '@aromi/shared'
 import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation.js'
 
 export const mapCreateBrandRequestInputToRow = (
   input: CreateBrandRequestInput
 ): Partial<BrandRequestRow> => {
-  const parsed = parseSchema(CreateBrandRequestSchema, input)
+  const parsed = parseOrThrow(CreateBrandRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<BrandRequestRow> = cleaned
@@ -18,7 +18,7 @@ export const mapCreateBrandRequestInputToRow = (
 export const mapUpdateBrandRequestInputToRow = (
   input: UpdateBrandRequestInput
 ): Partial<BrandRequestRow> => {
-  const { version, ...parsed } = parseSchema(UpdateBrandRequestSchema, input)
+  const { version, ...parsed } = parseOrThrow(UpdateBrandRequestSchema, input)
   const cleaned = removeNullish(parsed)
 
   const output: Partial<BrandRequestRow> = cleaned

@@ -1,4 +1,4 @@
-import { BackendError, parseSchema, type RequestService, RequestStatus, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, parseOrThrow, type PromotionJobName, type RequestService, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import type { SomeRequestRow, SomeRequestVoteCountRow, SomeRequestVoteRow } from '@aromi/shared/src/db/features/requests/types.js'
 import { errAsync, okAsync, type ResultAsync } from 'neverthrow'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '../types.js'
@@ -13,20 +13,25 @@ interface VoteOnRequestArgs {
   }
 }
 
+export interface VoteOnRequestParams<TResolver, R extends SomeRequestRow> extends RequestResolverParams<TResolver, VoteOnRequestArgs> {
+  service: RequestService<R>
+  jobName: PromotionJobName
+}
+
 export abstract class VoteOnRequestResolver<
   TResolver,
   R extends SomeRequestRow
 > extends AuthenticatedRequestResolver<TResolver, VoteOnRequestArgs> {
   protected readonly initialService: RequestService<R>
-  protected trxService?: RequestService
+  protected readonly jobName: PromotionJobName
+  protected trxService?: RequestService<R>
 
   constructor (
-    params: RequestResolverParams<TResolver, VoteOnRequestArgs> & {
-      service: RequestService<R>
-    }
+    params: VoteOnRequestParams<TResolver, R>
   ) {
     super(params)
     this.initialService = params.service
+    this.jobName = params.jobName
   }
 
   abstract mapToOutput (request: R): ResolverReturnType<TResolver>
@@ -46,8 +51,12 @@ export abstract class VoteOnRequestResolver<
 
     return initialService
       .withTransactionAsync(async trx => {
-        this.trxService = trx as unknown as RequestService
+        this.trxService = trx
         return await this.handleVote()
+      })
+      .andThrough(({ request, voteCounts }) => {
+        if (!this.shouldPromote(voteCounts, request)) return okAsync()
+        return this.handlePromotion(request)
       })
       .map(({ request }) => this.mapToOutput(request as R))
   }
@@ -62,7 +71,7 @@ export abstract class VoteOnRequestResolver<
     }
 
     const { input } = this.args
-    parseSchema(VoteOnRequestSchema, input)
+    parseOrThrow(VoteOnRequestSchema, input)
 
     const request = await this.getRequest()
     const existingVote = await this.getExistingVote()
@@ -78,12 +87,21 @@ export abstract class VoteOnRequestResolver<
     return { request, voteCounts }
   }
 
+  protected handlePromotion (request: SomeRequestRow) {
+    const { queues } = this.context
+    const { promotions } = queues
+
+    const jobName = this.jobName
+    const data = { requestId: request.id }
+
+    return promotions.enqueue({ jobName, data })
+  }
+
   protected async getRequest (): Promise<SomeRequestRow> {
     const { requestId } = this.args.input
 
     const request = await unwrapOrThrow(
-      this
-        .trxService!
+      (this.trxService as unknown as RequestService)
         .findOne(
           eb => eb('id', '=', requestId)
         )

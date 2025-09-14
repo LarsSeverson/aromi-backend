@@ -1,4 +1,4 @@
-import { parseSchema, throwError, genImageKey } from '@aromi/shared'
+import { parseOrThrow, throwError, genImageKey } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { errAsync, okAsync } from 'neverthrow'
@@ -17,7 +17,7 @@ export class NoteRequestImageMutationResolvers extends BaseResolver<MutationReso
     const me = this.checkAuthenticated(context)
 
     const { id, fileName } = input
-    const { contentType, contentSize } = parseSchema(StageNoteRequestImageSchema, input)
+    const { contentType, contentSize } = parseOrThrow(StageNoteRequestImageSchema, input)
     const { assets, noteRequests } = services
 
     const { key } = genImageKey('notes', fileName)
@@ -69,7 +69,7 @@ export class NoteRequestImageMutationResolvers extends BaseResolver<MutationReso
     const me = this.checkAuthenticated(context)
 
     const { requestId, assetId } = input
-    const { version } = parseSchema(FinalizeNoteRequestImageSchema, input)
+    const { version } = parseOrThrow(FinalizeNoteRequestImageSchema, input)
     const { assets, noteRequests } = services
 
     const values = {

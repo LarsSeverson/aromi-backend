@@ -2,7 +2,7 @@ import type z from 'zod'
 import type { ZodType } from 'zod'
 import { BackendError } from './error.js'
 
-export const parseSchema = <T extends ZodType>(
+export const parseOrThrow = <T extends ZodType>(
   schema: T,
   args: unknown
 ): z.output<T> => {

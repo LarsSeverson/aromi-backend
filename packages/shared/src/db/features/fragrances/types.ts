@@ -5,7 +5,7 @@ export type FragranceRow = Selectable<DB['fragrances']>
 export type FragranceImageRow = Selectable<DB['fragranceImages']>
 export type FragranceAccordRow = Selectable<DB['fragranceAccords']>
 export type FragranceNoteRow = Selectable<DB['fragranceNotes']>
-export type FragranceTraitRow = Selectable<DB['fragranceTraits']>
+export type FragranceTraitVoteRow = Selectable<DB['fragranceTraitVotes']>
 
 export interface ExistingNoteRow extends FragranceNoteRow {
   name: string

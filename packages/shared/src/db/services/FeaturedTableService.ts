@@ -8,7 +8,7 @@ import { FeaturedTable } from './FeaturedTable.js'
 import type { DataSources } from '@src/datasources/DataSources.js'
 
 export abstract class FeaturedTableService<R, T extends ServicableTablesMatching<R> = ServicableTablesMatching<R>> extends TableService<R, T> {
-  protected override readonly Table: FeaturedTable<R, T>
+  override readonly Table: FeaturedTable<R, T>
 
   constructor (
     sources: DataSources,

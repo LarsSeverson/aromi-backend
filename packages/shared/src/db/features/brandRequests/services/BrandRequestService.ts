@@ -1,10 +1,9 @@
 import type { DataSources } from '@src/datasources/index.js'
-import type { BrandRequestRow } from '@src/db/index.js'
+import { FeaturedTableService, type BrandRequestRow } from '@src/db/index.js'
 import { BrandRequestImageService } from './BrandRequestImageService.js'
 import { BrandRequestVoteService } from './BrandRequestVoteService.js'
-import { TableService } from '@src/db/services/TableService.js'
 
-export class BrandRequestService extends TableService<'brandRequests', BrandRequestRow> {
+export class BrandRequestService extends FeaturedTableService<BrandRequestRow> {
   images: BrandRequestImageService
   votes: BrandRequestVoteService
 

@@ -2,9 +2,10 @@ import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow
 import type z from 'zod'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
-import { BackendError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, ValidFragrance } from '@aromi/shared'
+import { AssetStatus, BackendError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
+import { SEARCH_SYNC_JOB_NAMES } from '@aromi/shared/src/queues/services/search-sync/types.js'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
@@ -12,31 +13,44 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, BackendError> {
     const { queues } = this.context
 
-    const row = job.data
+    const { requestId } = job.data
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .promoteFragrance(row)
-        .andThen(fragrance => ResultAsync
-          .combine([
-            trxPromoter.promoteImage(row, fragrance),
-            trxPromoter.promoteAccords(row, fragrance),
-            trxPromoter.promoteNotes(row, fragrance),
-            trxPromoter.promoteTraits(row, fragrance)
-          ])
-          .map(([image, accords, notes, traits]) => ({ fragrance, image, accords, notes, traits }))
+        .getFragranceRequest(requestId)
+        .andThen(row => trxPromoter
+          .promoteFragrance(row)
+          .andThen(fragrance => ResultAsync
+            .combine([
+              trxPromoter.promoteImage(row, fragrance),
+              trxPromoter.promoteAccords(row, fragrance),
+              trxPromoter.promoteNotes(row, fragrance),
+              trxPromoter.promoteTraits(row, fragrance)
+            ])
+            .map(([image, accords, notes, traits]) => ({ fragrance, image, accords, notes, traits }))
+          )
+          .orTee(error => this.markFailed(row, error))
         )
-        .orTee(error => this.markFailed(row, error))
       )
       .andTee(({ fragrance }) => queues
         .searchSync
-        .enqueue({ jobName: 'sync-fragrance', data: { fragranceId: fragrance.id } })
+        .enqueue({ jobName: SEARCH_SYNC_JOB_NAMES.SYNC_FRAGRANCE, data: { fragranceId: fragrance.id } })
       )
       .andThrough(({ image }) => this
         .processImage(image)
         .orElse(() => okAsync(image))
       )
       .map(({ fragrance }) => fragrance)
+  }
+
+  private getFragranceRequest (id: string): ResultAsync<FragranceRequestRow, BackendError> {
+    const { services } = this.context
+    const { fragranceRequests } = services
+
+    return fragranceRequests
+      .findOne(
+        eb => eb('id', '=', id)
+      )
   }
 
   private promoteFragrance (
@@ -65,7 +79,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       .findOne(
         eb => eb.and([
           eb('requestId', '=', request.id),
-          eb('status', '=', 'ready')
+          eb('status', '=', AssetStatus.READY)
         ])
       )
       .andThen(image => {
@@ -142,7 +156,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteTraits (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceTraitRow[], BackendError> {
+  ): ResultAsync<FragranceTraitVoteRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
@@ -155,26 +169,14 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         eb => eb('requestId', '=', request.id)
       )
       .andThen(traits => {
-        if (traits.length === 0) {
-          return okAsync({ traits: [], fTraits: [] })
-        }
-
-        const values = traits.map(({ traitTypeId }) => ({ fragranceId, traitTypeId }))
-
-        return fragrances
-          .traits
-          .create(values)
-          .map(fTraits => ({ traits, fTraits }))
-      })
-      .andThrough(({ traits, fTraits }) => {
         const values = traits
           .map(trait => {
-            const fTrait = fTraits.find(ft => ft.traitTypeId === trait.traitTypeId)
-            if (fTrait == null || trait.traitOptionId == null) return null
+            if (trait.traitOptionId == null) return null
 
             return {
               userId,
-              fragranceTraitId: fTrait.id,
+              fragranceId,
+              traitTypeId: trait.traitTypeId,
               traitOptionId: trait.traitOptionId
             }
           })
@@ -185,11 +187,9 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         }
 
         return fragrances
-          .traits
-          .votes
+          .traitVotes
           .create(values)
       })
-      .map(({ fTraits }) => fTraits)
   }
 
   private processImage (
@@ -243,7 +243,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       .updateOne(
         eb => eb('id', '=', row.id),
         {
-          requestStatus: 'FAILED',
+          requestStatus: RequestStatus.FAILED,
           updatedAt: new Date().toISOString()
         }
       )

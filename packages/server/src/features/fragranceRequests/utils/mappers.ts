@@ -1,4 +1,4 @@
-import { parseSchema, removeNullish } from '@aromi/shared'
+import { parseOrThrow, removeNullish } from '@aromi/shared'
 import type { FragranceRequestImageRow, FragranceRequestRow, CombinedTraitRow } from '@aromi/shared'
 import type { RequestStatus, UpdateFragranceRequestInput, CreateFragranceRequestInput, FragranceRequestTrait, TraitTypeEnum, FragranceRequestImage } from '@src/graphql/gql-types.js'
 import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from './validation.js'
@@ -9,7 +9,7 @@ export const mapCreateFragranceRequestInputToRow = (
   input?: CreateFragranceRequestInput | null
 ): Partial<FragranceRequestRow> => {
   const { status, concentration } = input ?? {}
-  const parsedInput = parseSchema(CreateFragranceRequestSchema, input ?? {})
+  const parsedInput = parseOrThrow(CreateFragranceRequestSchema, input ?? {})
   const cleanedInput = removeNullish(parsedInput)
 
   const output: Partial<FragranceRequestRow> = cleanedInput
@@ -29,7 +29,7 @@ export const mapUpdateFragranceRequestInputToRow = (
   input: UpdateFragranceRequestInput
 ): Partial<FragranceRequestRow> => {
   const { status, concentration } = input
-  const { version, ...parsedInput } = parseSchema(UpdateFragranceRequestSchema, input)
+  const { version, ...parsedInput } = parseOrThrow(UpdateFragranceRequestSchema, input)
   const cleanedInput = removeNullish(parsedInput)
 
   const output: Partial<FragranceRequestRow> = cleanedInput

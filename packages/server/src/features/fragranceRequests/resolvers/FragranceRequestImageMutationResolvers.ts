@@ -1,4 +1,4 @@
-import { parseSchema, throwError, genImageKey } from '@aromi/shared'
+import { parseOrThrow, throwError, genImageKey } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation.js'
@@ -17,7 +17,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
     const me = this.checkAuthenticated(context)
 
     const { id, fileName } = input
-    const { contentType, contentSize } = parseSchema(StageFragranceRequestImageSchema, input)
+    const { contentType, contentSize } = parseOrThrow(StageFragranceRequestImageSchema, input)
     const { assets, fragranceRequests } = services
 
     const { key } = genImageKey('fragrances', fileName)
@@ -65,7 +65,7 @@ export class FragranceRequestImageMutationResolvers extends BaseResolver<Mutatio
     const me = this.checkAuthenticated(context)
 
     const { requestId, assetId } = input
-    const { version } = parseSchema(FinalizeFragranceRequestImageSchema, input)
+    const { version } = parseOrThrow(FinalizeFragranceRequestImageSchema, input)
     const { assets, fragranceRequests } = services
 
     const values = {

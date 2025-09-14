@@ -10,10 +10,7 @@ export class FragranceRequestVoteMutationResolvers extends BaseResolver<Mutation
     context,
     info
   ) => {
-    const { services } = context
-    const { fragranceRequests } = services
-
-    const resolver = new VoteOnFRResolver({ parent, args, context, info, service: fragranceRequests })
+    const resolver = new VoteOnFRResolver({ parent, args, context, info })
     return await unwrapOrThrow(resolver.resolve())
   }
 

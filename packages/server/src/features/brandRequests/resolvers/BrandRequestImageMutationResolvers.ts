@@ -1,4 +1,4 @@
-import { parseSchema, throwError, genImageKey } from '@aromi/shared'
+import { parseOrThrow, throwError, genImageKey } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { FinalizeBrandRequestImageSchema, StageBrandRequestImageSchema } from '../utils/validation.js'
@@ -17,7 +17,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
     const me = this.checkAuthenticated(context)
 
     const { id, fileName } = input
-    const { contentType, contentSize } = parseSchema(StageBrandRequestImageSchema, input)
+    const { contentType, contentSize } = parseOrThrow(StageBrandRequestImageSchema, input)
     const { assets, brandRequests } = services
 
     const { key } = genImageKey('brands', fileName)
@@ -65,7 +65,7 @@ export class BrandRequestImageMutationResolvers extends BaseResolver<MutationRes
     const me = this.checkAuthenticated(context)
 
     const { requestId, assetId } = input
-    const { version } = parseSchema(FinalizeBrandRequestImageSchema, input)
+    const { version } = parseOrThrow(FinalizeBrandRequestImageSchema, input)
     const { assets, brandRequests } = services
 
     const values = {

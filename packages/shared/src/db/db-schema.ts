@@ -333,12 +333,6 @@ export interface Fragrance {
   voteScore: Generated<number>;
 }
 
-export interface FragranceTrait {
-  fragranceId: string;
-  id: Generated<string>;
-  traitTypeId: string;
-}
-
 export interface FragranceTraitVote {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -420,14 +414,6 @@ export interface TraitType {
   name: string;
 }
 
-export interface TraitVote {
-  createdAt: Generated<Timestamp>;
-  fragranceTraitId: string;
-  id: Generated<string>;
-  traitOptionId: string;
-  userId: string;
-}
-
 export interface User {
   avatarError: string | null;
   avatarS3Key: string | null;
@@ -470,7 +456,6 @@ export interface DB {
   fragranceRequestVoteCounts: FragranceRequestVoteCount;
   fragranceRequestVotes: FragranceRequestVote;
   fragrances: Fragrance;
-  fragranceTraits: FragranceTrait;
   fragranceTraitVotes: FragranceTraitVote;
   noteImages: NoteImage;
   noteRequestImages: NoteRequestImage;
@@ -480,6 +465,5 @@ export interface DB {
   notes: Note;
   traitOptions: TraitOption;
   traitTypes: TraitType;
-  traitVotes: TraitVote;
   users: User;
 }

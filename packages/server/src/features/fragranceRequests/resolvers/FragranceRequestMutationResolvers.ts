@@ -1,6 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { BackendError, parseSchema, throwError, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
+import { BackendError, parseOrThrow, throwError, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
 import { FragranceRequestBrandMutationResolvers } from './FragranceRequestBrandMutationResolvers.js'
 import { FragranceRequestImageMutationResolvers } from './FragranceRequestImageMutationResolvers.js'
 import { FragranceRequestTraitMutationResolvers } from './FragranceRequestTraitMutationResolvers.js'
@@ -151,7 +151,7 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
             )
         )
 
-        parseSchema(ValidFragrance, request)
+        parseOrThrow(ValidFragrance, request)
 
         return request
       })
