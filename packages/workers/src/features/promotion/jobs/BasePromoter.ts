@@ -1,4 +1,4 @@
-import type { BackendError } from '@aromi/shared'
+import type { BackendError, DataSources } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
@@ -23,7 +23,8 @@ export abstract class BasePromoter<I, O> extends JobHandler<I> {
   }
 
   private createTrxContext (trx: JobContext): this {
-    const Ctor = this.constructor as new (context: JobContext) => this
-    return new Ctor(trx)
+    const Ctor = this.constructor as new (sources: DataSources) => this
+    const promoter = new Ctor(trx.sources)
+    return promoter
   }
 }

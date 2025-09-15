@@ -8,7 +8,7 @@ export const MAX_ACCORD_COLOR_LENGTH = 9
 export const MAX_ACCORD_IMAGE_SIZE = 2_000_000 // 2 MB
 
 export const ValidAccordName = z
-  .string()
+  .string('Accord name is required')
   .trim()
   .min(MIN_ACCORD_NAME_LENGTH, 'Accord name must not be empty')
   .max(MAX_ACCORD_NAME_LENGTH, 'Accord name cannot exceed 100 characters')
@@ -20,7 +20,7 @@ export const ValidAccordDescription = z
   .nullish()
 
 export const ValidAccordColor = z
-  .string()
+  .string('Accord color is required')
   .trim()
   .max(MAX_ACCORD_COLOR_LENGTH, 'Accord color cannot exceed 9 characters')
   .regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, 'Color must be a valid hex code')
@@ -36,7 +36,7 @@ export const ValidAccordImageSize = z
 export const ValidAccord = z
   .object({
     name: ValidAccordName,
-    description: ValidAccordDescription,
-    color: ValidAccordColor
+    color: ValidAccordColor,
+    description: ValidAccordDescription
   })
   .strip()

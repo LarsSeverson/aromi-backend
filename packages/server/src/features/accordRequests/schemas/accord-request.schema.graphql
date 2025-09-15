@@ -52,7 +52,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  createAccordRequest(input: CreateAccordRequestInput!): AccordRequest!
+  createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
 

@@ -1,144 +1,55 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { mapNoteRequestRowToNoteRequestSummary, mapCreateNoteRequestInputToRow, mapUpdateNoteRequestInputToRow } from '../utils/mappers.js'
-import { BackendError, parseOrThrow, throwError, unwrapOrThrow, ValidNote } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import { NoteRequestImageMutationResolvers } from './NoteRequestImageMutationResolvers.js'
 import { NoteRequestVoteMutationResolvers } from './NoteRequestVoteMutationResolvers.js'
+import { CreateNRResolver } from '../helpers/CreateNRResolver.js'
+import { UpdateNRResolver } from '../helpers/UpdateNRResolver.js'
+import { DeleteNRResolver } from '../helpers/DeleteNRResolver.js'
+import { SubmitNRResolver } from '../helpers/SubmitNRResolver.js'
 
 export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly images = new NoteRequestImageMutationResolvers()
   private readonly votes = new NoteRequestVoteMutationResolvers()
 
   createNoteRequest: MutationResolvers['createNoteRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const values = mapCreateNoteRequestInputToRow(input)
-    const { noteRequests } = services
-
-    return await noteRequests
-      .createOne({ ...values, userId: me.id })
-      .match(
-        mapNoteRequestRowToNoteRequestSummary,
-        throwError
-      )
+    const resolver = new CreateNRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   updateNoteRequest: MutationResolvers['updateNoteRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id, version } = input
-    const values = mapUpdateNoteRequestInputToRow(input)
-    const { noteRequests } = services
-
-    return await noteRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('version', '=', version),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ]),
-        values
-      )
-      .match(
-        mapNoteRequestRowToNoteRequestSummary,
-        throwError
-      )
+    const resolver = new UpdateNRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   deleteNoteRequest: MutationResolvers['deleteNoteRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { noteRequests } = services
-
-    return await noteRequests
-      .softDeleteOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ])
-      )
-      .match(
-        mapNoteRequestRowToNoteRequestSummary,
-        throwError
-      )
+    const resolver = new DeleteNRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   submitNoteRequest: MutationResolvers['submitNoteRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { noteRequests } = services
-
-    return await noteRequests
-      .withTransactionAsync(async trx => {
-        await unwrapOrThrow(
-          trx
-            .images
-            .findOne(eb => eb.and([
-              eb('requestId', '=', id),
-              eb('status', '=', 'ready')
-            ]))
-            .mapErr(error => {
-              return new BackendError(
-                'IMAGE_REQUIRED',
-                'A note request must have at least one image before it can be submitted.',
-                400,
-                error
-              )
-            })
-        )
-
-        const request = await unwrapOrThrow(
-          trx
-            .updateOne(
-              eb => eb.and([
-                eb('id', '=', id),
-                eb('userId', '=', me.id),
-                eb('requestStatus', '=', 'DRAFT')
-              ]),
-              { requestStatus: 'PENDING' }
-            )
-        )
-
-        parseOrThrow(ValidNote, request)
-
-        return request
-      })
-      .match(
-        mapNoteRequestRowToNoteRequestSummary,
-        throwError
-      )
+    const resolver = new SubmitNRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   getResolvers (): MutationResolvers {

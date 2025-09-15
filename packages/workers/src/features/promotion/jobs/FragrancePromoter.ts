@@ -5,7 +5,7 @@ import { Vibrant } from 'node-vibrant/node'
 import { AssetStatus, BackendError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
-import { SEARCH_SYNC_JOB_NAMES } from '@aromi/shared/src/queues/services/search-sync/types.js'
+import { SEARCH_SYNC_JOB_NAMES } from '@aromi/shared'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
@@ -17,7 +17,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .getFragranceRequest(requestId)
+        .updateRequest(requestId)
         .andThen(row => trxPromoter
           .promoteFragrance(row)
           .andThen(fragrance => ResultAsync
@@ -43,13 +43,14 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       .map(({ fragrance }) => fragrance)
   }
 
-  private getFragranceRequest (id: string): ResultAsync<FragranceRequestRow, BackendError> {
+  private updateRequest (id: string): ResultAsync<FragranceRequestRow, BackendError> {
     const { services } = this.context
     const { fragranceRequests } = services
 
     return fragranceRequests
-      .findOne(
-        eb => eb('id', '=', id)
+      .updateOne(
+        eb => eb('id', '=', id),
+        { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 

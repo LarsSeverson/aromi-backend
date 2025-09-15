@@ -7,7 +7,7 @@ export class PromotionQueueService extends MQueueService<PromotionJobName, Promo
     jobName: J,
     data: PromotionJobPayload[J]
   ): string {
-    return `${jobName}:${data.id}`
+    return `${jobName}:${data.requestId}`
   }
 
   constructor (sources: DataSources) {

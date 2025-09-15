@@ -5,7 +5,7 @@ import { AuthMutationResolvers } from '@src/features/auth/index.js'
 import { UserFieldResolvers, UserMutationResolvers, UserQueryResolvers } from '@src/features/users/index.js'
 import { BrandQueryResolvers } from '@src/features/brands/index.js'
 import { AccordQueryResolvers } from '@src/features/accords/index.js'
-import { NoteQueryResolvers } from '@src/features/notes/index.js'
+import { NoteFieldResolvers, NoteQueryResolvers } from '@src/features/notes/index.js'
 import { FragranceRequestFieldResolvers, FragranceRequestMutationResolvers, FragranceRequestQueryResolvers } from '@src/features/fragranceRequests/index.js'
 import { BrandRequestFieldResolvers, BrandRequestMutationResolvers, BrandRequestQueryResolvers } from '@src/features/brandRequests/index.js'
 import { AccordRequestFieldResolvers, AccordRequestMutationResolvers, AccordRequestQueryResolvers } from '@src/features/accordRequests/index.js'
@@ -19,7 +19,9 @@ const userMutations = new UserMutationResolvers()
 
 const brandQueries = new BrandQueryResolvers()
 const accordQueries = new AccordQueryResolvers()
+
 const noteQueries = new NoteQueryResolvers()
+const noteFieldResolvers = new NoteFieldResolvers()
 
 const fragranceRequestQueries = new FragranceRequestQueryResolvers()
 const fragranceRequestFieldResolvers = new FragranceRequestFieldResolvers()
@@ -75,6 +77,10 @@ export const ApiResolvers: Resolvers = {
 
   User: {
     ...userFieldQueries.getResolvers()
+  },
+
+  Note: {
+    ...noteFieldResolvers.getResolvers()
   },
 
   FragranceRequest: {

@@ -1,5 +1,5 @@
 import { type DataSources, PromotionQueueService } from '@aromi/shared'
-import { SearchSyncQueueService } from '@aromi/shared/src/queues/services/search-sync/SearchSyncQueueService.js'
+import { SearchSyncQueueService } from '@aromi/shared'
 
 export class JobQueues {
   promotions: PromotionQueueService

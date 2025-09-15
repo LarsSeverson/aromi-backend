@@ -1,4 +1,4 @@
-import { throwError } from '@aromi/shared'
+import { RequestStatus, throwError } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
@@ -27,7 +27,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
           if (me?.id !== id) {
             return eb.and([
               eb('userId', '=', id),
-              eb('requestStatus', '!=', 'DRAFT')
+              eb('requestStatus', '!=', RequestStatus.DRAFT)
             ])
           }
 
@@ -68,7 +68,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
           if (me?.id !== id) {
             return eb.and([
               eb('userId', '=', id),
-              eb('requestStatus', '!=', 'DRAFT')
+              eb('requestStatus', '!=', RequestStatus.DRAFT)
             ])
           }
 

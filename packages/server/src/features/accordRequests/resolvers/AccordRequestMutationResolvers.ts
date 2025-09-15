@@ -1,144 +1,55 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { mapAccordRequestRowToAccordRequestSummary, mapCreateAccordRequestInputToRow, mapUpdateAccordRequestInputToRow } from '../utils/mappers.js'
-import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers.js'
 import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers.js'
+import { CreateARResolver } from '../helpers/CreateARResolver.js'
+import { UpdateARResolver } from '../helpers/UpdateARResolver.js'
+import { DeleteARResolver } from '../helpers/DeleteARResolver.js'
+import { SubmitARResolver } from '../helpers/SubmitARResolver.js'
 
 export class AccordRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly images = new AccordRequestImageMutationResolvers()
   private readonly votes = new AccordRequestVoteMutationResolvers()
 
   createAccordRequest: MutationResolvers['createAccordRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const values = mapCreateAccordRequestInputToRow(input)
-    const { accordRequests } = services
-
-    return await accordRequests
-      .createOne({ ...values, userId: me.id })
-      .match(
-        mapAccordRequestRowToAccordRequestSummary,
-        throwError
-      )
+    const resolver = new CreateARResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   updateAccordRequest: MutationResolvers['updateAccordRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id, version } = input
-    const values = mapUpdateAccordRequestInputToRow(input)
-    const { accordRequests } = services
-
-    return await accordRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('version', '=', version),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ]),
-        values
-      )
-      .match(
-        mapAccordRequestRowToAccordRequestSummary,
-        throwError
-      )
+    const resolver = new UpdateARResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   deleteAccordRequest: MutationResolvers['deleteAccordRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { accordRequests } = services
-
-    return await accordRequests
-      .softDeleteOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ])
-      )
-      .match(
-        mapAccordRequestRowToAccordRequestSummary,
-        throwError
-      )
+    const resolver = new DeleteARResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   submitAccordRequest: MutationResolvers['submitAccordRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { accordRequests } = services
-
-    return await accordRequests
-      .withTransactionAsync(async trx => {
-        await unwrapOrThrow(
-          trx
-            .images
-            .findOne(
-              eb => eb.and([
-                eb('requestId', '=', id),
-                eb('status', '=', 'ready')
-              ])
-            )
-            .mapErr(error => {
-              return new BackendError(
-                'IMAGE_REQUIRED',
-                'At least one image is required to submit a accord request',
-                400,
-                error
-              )
-            })
-        )
-
-        const request = await unwrapOrThrow(
-          trx
-            .updateOne(
-              eb => eb.and([
-                eb('id', '=', id),
-                eb('userId', '=', me.id),
-                eb('requestStatus', '=', 'DRAFT')
-              ]),
-              { requestStatus: 'PENDING' }
-            )
-        )
-
-        return request
-      })
-      .match(
-        mapAccordRequestRowToAccordRequestSummary,
-        throwError
-      )
+    const resolver = new SubmitARResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   getResolvers (): MutationResolvers {

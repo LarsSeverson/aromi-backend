@@ -5,9 +5,9 @@ import { parseOrThrow, removeNullish } from '@aromi/shared'
 import { CreateBrandRequestSchema, UpdateBrandRequestSchema } from './validation.js'
 
 export const mapCreateBrandRequestInputToRow = (
-  input: CreateBrandRequestInput
+  input?: CreateBrandRequestInput | null
 ): Partial<BrandRequestRow> => {
-  const parsed = parseOrThrow(CreateBrandRequestSchema, input)
+  const parsed = parseOrThrow(CreateBrandRequestSchema, input ?? {})
   const cleaned = removeNullish(parsed)
 
   const output: Partial<BrandRequestRow> = cleaned

@@ -5,9 +5,9 @@ import { parseOrThrow, removeNullish } from '@aromi/shared'
 import { CreateNoteRequestSchema, UpdateNoteRequestSchema } from './validation.js'
 
 export const mapCreateNoteRequestInputToRow = (
-  input: CreateNoteRequestInput
+  input?: CreateNoteRequestInput | null
 ): Partial<NoteRequestRow> => {
-  const parsed = parseOrThrow(CreateNoteRequestSchema, input)
+  const parsed = parseOrThrow(CreateNoteRequestSchema, input ?? {})
   const cleaned = removeNullish(parsed)
 
   const output: Partial<NoteRequestRow> = cleaned

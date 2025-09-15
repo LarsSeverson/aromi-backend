@@ -1,7 +1,8 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IUserSummary } from '../features/users/types.js';
-import { IBrandSummary } from '../features/brands/types.js';
 import { IFragranceSummary } from '../features/fragrances/types.js';
+import { IBrandSummary } from '../features/brands/types.js';
+import { INoteSummary } from '../features/notes/types.js';
 import { IFragranceRequestSummary } from '../features/fragranceRequests/types.js';
 import { IBrandRequestSummary } from '../features/brandRequests/types.js';
 import { IAccordRequestSummary } from '../features/accordRequests/types.js';
@@ -644,7 +645,7 @@ export type MutationConfirmSignUpArgs = {
 
 
 export type MutationCreateAccordRequestArgs = {
-  input: CreateAccordRequestInput;
+  input?: InputMaybe<CreateAccordRequestInput>;
 };
 
 
@@ -856,7 +857,7 @@ export type Note = {
   __typename?: 'Note';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  thumbnail: Scalars['String']['output'];
+  thumbnail?: Maybe<Scalars['String']['output']>;
 };
 
 export type NoteConnection = {
@@ -1439,9 +1440,9 @@ export type ResolversTypes = ResolversObject<{
   FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
   FragranceImageConnection: ResolverTypeWrapper<Partial<FragranceImageConnection>>;
   FragranceImageEdge: ResolverTypeWrapper<Partial<FragranceImageEdge>>;
-  FragranceNote: ResolverTypeWrapper<Partial<FragranceNote>>;
-  FragranceNoteConnection: ResolverTypeWrapper<Partial<FragranceNoteConnection>>;
-  FragranceNoteEdge: ResolverTypeWrapper<Partial<FragranceNoteEdge>>;
+  FragranceNote: ResolverTypeWrapper<Partial<Omit<FragranceNote, 'note'> & { note: ResolversTypes['Note'] }>>;
+  FragranceNoteConnection: ResolverTypeWrapper<Partial<Omit<FragranceNoteConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceNoteEdge']> }>>;
+  FragranceNoteEdge: ResolverTypeWrapper<Partial<Omit<FragranceNoteEdge, 'node'> & { node: ResolversTypes['FragranceNote'] }>>;
   FragranceNotePaginationInput: ResolverTypeWrapper<Partial<FragranceNotePaginationInput>>;
   FragranceNoteSortBy: ResolverTypeWrapper<Partial<FragranceNoteSortBy>>;
   FragranceNoteSortInput: ResolverTypeWrapper<Partial<FragranceNoteSortInput>>;
@@ -1463,9 +1464,9 @@ export type ResolversTypes = ResolversObject<{
   JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
   LogInInput: ResolverTypeWrapper<Partial<LogInInput>>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
-  Note: ResolverTypeWrapper<Partial<Note>>;
-  NoteConnection: ResolverTypeWrapper<Partial<NoteConnection>>;
-  NoteEdge: ResolverTypeWrapper<Partial<NoteEdge>>;
+  Note: ResolverTypeWrapper<INoteSummary>;
+  NoteConnection: ResolverTypeWrapper<Partial<Omit<NoteConnection, 'edges'> & { edges: Array<ResolversTypes['NoteEdge']> }>>;
+  NoteEdge: ResolverTypeWrapper<Partial<Omit<NoteEdge, 'node'> & { node: ResolversTypes['Note'] }>>;
   NoteLayer: ResolverTypeWrapper<Partial<NoteLayer>>;
   NotePaginationInput: ResolverTypeWrapper<Partial<NotePaginationInput>>;
   NoteRequest: ResolverTypeWrapper<INoteRequestSummary>;
@@ -1581,9 +1582,9 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceImage: Partial<FragranceImage>;
   FragranceImageConnection: Partial<FragranceImageConnection>;
   FragranceImageEdge: Partial<FragranceImageEdge>;
-  FragranceNote: Partial<FragranceNote>;
-  FragranceNoteConnection: Partial<FragranceNoteConnection>;
-  FragranceNoteEdge: Partial<FragranceNoteEdge>;
+  FragranceNote: Partial<Omit<FragranceNote, 'note'> & { note: ResolversParentTypes['Note'] }>;
+  FragranceNoteConnection: Partial<Omit<FragranceNoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceNoteEdge']> }>;
+  FragranceNoteEdge: Partial<Omit<FragranceNoteEdge, 'node'> & { node: ResolversParentTypes['FragranceNote'] }>;
   FragranceNotePaginationInput: Partial<FragranceNotePaginationInput>;
   FragranceNoteSortInput: Partial<FragranceNoteSortInput>;
   FragrancePaginationInput: Partial<FragrancePaginationInput>;
@@ -1602,9 +1603,9 @@ export type ResolversParentTypes = ResolversObject<{
   JSON: Partial<Scalars['JSON']['output']>;
   LogInInput: Partial<LogInInput>;
   Mutation: Record<PropertyKey, never>;
-  Note: Partial<Note>;
-  NoteConnection: Partial<NoteConnection>;
-  NoteEdge: Partial<NoteEdge>;
+  Note: INoteSummary;
+  NoteConnection: Partial<Omit<NoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['NoteEdge']> }>;
+  NoteEdge: Partial<Omit<NoteEdge, 'node'> & { node: ResolversParentTypes['Note'] }>;
   NotePaginationInput: Partial<NotePaginationInput>;
   NoteRequest: INoteRequestSummary;
   NoteRequestConnection: Partial<Omit<NoteRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['NoteRequestEdge']> }>;
@@ -1929,7 +1930,7 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type MutationResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'input'>>;
-  createAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationCreateAccordRequestArgs, 'input'>>;
+  createAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, Partial<MutationCreateAccordRequestArgs>>;
   createBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationCreateBrandRequestArgs, 'input'>>;
   createFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, Partial<MutationCreateFragranceRequestArgs>>;
   createNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationCreateNoteRequestArgs, 'input'>>;
@@ -1978,7 +1979,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
 export type NoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
 export type NoteConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['NoteConnection'] = ResolversParentTypes['NoteConnection']> = ResolversObject<{

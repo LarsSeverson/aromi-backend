@@ -1,6 +1,6 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { BrandRequestLoadersKey } from '../types.js'
-import { type BrandRequestImageRow, type VoteInfoRow, throwError } from '@aromi/shared'
+import { AssetStatus, type BrandRequestImageRow, type VoteInfoRow, throwError } from '@aromi/shared'
 import DataLoader from 'dataloader'
 
 export class BrandRequestLoaders extends BaseLoader<BrandRequestLoadersKey> {
@@ -31,7 +31,7 @@ export class BrandRequestLoaders extends BaseLoader<BrandRequestLoadersKey> {
       return await images
         .find(
           eb => eb.and([
-            eb('brandRequestImages.status', '=', 'ready'),
+            eb('brandRequestImages.status', '=', AssetStatus.READY),
             eb('brandRequestImages.requestId', 'in', keys)
           ])
         )

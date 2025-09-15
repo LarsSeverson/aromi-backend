@@ -1,131 +1,28 @@
-import { parseOrThrow, throwError, genImageKey } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { FinalizeFragranceRequestImageSchema, StageFragranceRequestImageSchema } from '../utils/validation.js'
-import { errAsync, okAsync } from 'neverthrow'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
+import { StageFRAssetResolver } from '../helpers/StageFRAssetResolver.js'
+import { FinalizeFRAssetResolver } from '../helpers/FinalizeFRAssetResolver.js'
 
 export class FragranceRequestImageMutationResolvers extends BaseResolver<MutationResolvers> {
   stageFragranceRequestImage: MutationResolvers['stageFragranceRequestImage'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id, fileName } = input
-    const { contentType, contentSize } = parseOrThrow(StageFragranceRequestImageSchema, input)
-    const { assets, fragranceRequests } = services
-
-    const { key } = genImageKey('fragrances', fileName)
-
-    const values = {
-      requestId: id,
-      name: fileName,
-      contentType,
-      sizeBytes: String(contentSize),
-      s3Key: key
-    }
-
-    return await fragranceRequests
-      .withTransaction(trxService => trxService
-        .findOne(
-          eb => eb.and([
-            eb('id', '=', id),
-            eb('userId', '=', me.id),
-            eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-          ])
-        )
-        .andThen(() => trxService
-          .images
-          .createOne(values)
-        )
-      )
-      .andThen(newRow => assets
-        .getPresignedUrl({ key: newRow.s3Key, contentType, maxSizeBytes: contentSize })
-        .map(presigned => ({ newRow, presigned }))
-      )
-      .match(
-        ({ newRow, presigned }) => ({ ...presigned, id: newRow.id }),
-        throwError
-      )
+    const resolver = new StageFRAssetResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   finalizeFragranceRequestImage: MutationResolvers['finalizeFragranceRequestImage'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { requestId, assetId } = input
-    const { version } = parseOrThrow(FinalizeFragranceRequestImageSchema, input)
-    const { assets, fragranceRequests } = services
-
-    const values = {
-      updatedAt: new Date().toISOString()
-    }
-
-    return await fragranceRequests
-      .withTransaction(trxService => trxService
-        .updateOne(
-          eb => eb.and([
-            eb('fragranceRequests.id', '=', requestId),
-            eb('userId', '=', me.id),
-            eb('version', '=', version),
-            eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-          ]),
-          eb => ({
-            ...values,
-            version: eb(eb.ref('version'), '+', 1)
-          })
-        )
-        .andThen(request => trxService
-          .images
-          .softDeleteOne(
-            eb => eb.and([
-              eb('fragranceRequestImages.requestId', '=', requestId),
-              eb('fragranceRequestImages.status', '=', 'ready')
-            ])
-          )
-          .orElse(error => {
-            if (error.status === 404) {
-              return okAsync(null)
-            }
-            return errAsync(error)
-          })
-          .map(oldAsset => ({ oldAsset, request }))
-        )
-        .andThrough(() => trxService
-          .images
-          .updateOne(
-            eb => eb.and([
-              eb('fragranceRequestImages.requestId', '=', requestId),
-              eb('fragranceRequestImages.id', '=', assetId),
-              eb('fragranceRequestImages.status', '=', 'staged')
-            ]),
-            { status: 'ready' }
-          )
-        )
-      )
-      .andThrough(({ oldAsset }) => {
-        if (oldAsset == null) return okAsync()
-
-        return assets
-          .deleteFromS3(oldAsset.s3Key)
-          .orElse(okAsync)
-      })
-      .map(({ request }) => request)
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new FinalizeFRAssetResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   getResolvers (): MutationResolvers {

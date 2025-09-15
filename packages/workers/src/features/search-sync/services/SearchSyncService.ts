@@ -1,5 +1,5 @@
 import { QUEUE_NAMES } from '@aromi/shared'
-import { SEARCH_SYNC_JOB_NAMES, type SearchSyncJobPayload } from '@aromi/shared/src/queues/services/search-sync/types.js'
+import { SEARCH_SYNC_JOB_NAMES, type SearchSyncJobPayload } from '@aromi/shared'
 import type { WorkerContext } from '@src/context/WorkerContext.js'
 import { WorkerService } from '@src/services/WorkerService.js'
 import { FragranceSearchSyncer } from '../jobs/FragranceSearchSyncer.js'

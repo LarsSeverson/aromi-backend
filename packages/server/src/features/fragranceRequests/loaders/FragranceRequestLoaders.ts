@@ -1,7 +1,7 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { FragranceRequestLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
-import { type db, utils } from '@aromi/shared'
+import { AssetStatus, type db, utils } from '@aromi/shared'
 
 export class FragranceRequestLoaders extends BaseLoader<FragranceRequestLoadersKey> {
   getImageLoader (): DataLoader<FragranceRequestLoadersKey, db.FragranceRequestImageRow | null> {
@@ -31,7 +31,7 @@ export class FragranceRequestLoaders extends BaseLoader<FragranceRequestLoadersK
       return await images
         .find(
           eb => eb.and([
-            eb('fragranceRequestImages.status', '=', 'ready'),
+            eb('fragranceRequestImages.status', '=', AssetStatus.READY),
             eb('fragranceRequestImages.requestId', 'in', keys)
           ])
         )

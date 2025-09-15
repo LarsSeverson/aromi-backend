@@ -485,7 +485,7 @@ input LogInInput {
 type Mutation {
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
   confirmSignUp(input: ConfirmSignUpInput!): Boolean!
-  createAccordRequest(input: CreateAccordRequestInput!): AccordRequest!
+  createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
   createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
@@ -534,7 +534,7 @@ type Mutation {
 type Note {
   id: ID!
   name: String!
-  thumbnail: String!
+  thumbnail: String
 }
 
 type NoteConnection {

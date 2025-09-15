@@ -1,6 +1,6 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { AccordRequestLoadersKey } from '../types.js'
-import { throwError, type AccordRequestImageRow, type VoteInfoRow } from '@aromi/shared'
+import { AssetStatus, throwError, type AccordRequestImageRow, type VoteInfoRow } from '@aromi/shared'
 import DataLoader from 'dataloader'
 
 export class AccordRequestLoaders extends BaseLoader<AccordRequestLoadersKey> {
@@ -31,7 +31,7 @@ export class AccordRequestLoaders extends BaseLoader<AccordRequestLoadersKey> {
       return await images
         .find(
           eb => eb.and([
-            eb('accordRequestImages.status', '=', 'ready'),
+            eb('accordRequestImages.status', '=', AssetStatus.READY),
             eb('accordRequestImages.requestId', 'in', keys)
           ])
         )

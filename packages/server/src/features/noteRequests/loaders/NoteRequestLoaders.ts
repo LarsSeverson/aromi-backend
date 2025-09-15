@@ -2,7 +2,7 @@ import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { NoteRequestLoadersKey } from '../types.js'
 import type { NoteRequestImageRow, VoteInfoRow } from '@aromi/shared'
 import DataLoader from 'dataloader'
-import { throwError } from '@aromi/shared'
+import { AssetStatus, throwError } from '@aromi/shared'
 
 export class NoteRequestLoaders extends BaseLoader<NoteRequestLoadersKey> {
   getImageLoader (): DataLoader<NoteRequestLoadersKey, NoteRequestImageRow | null> {
@@ -32,7 +32,7 @@ export class NoteRequestLoaders extends BaseLoader<NoteRequestLoadersKey> {
       return await images
         .find(
           eb => eb.and([
-            eb('status', '=', 'ready'),
+            eb('status', '=', AssetStatus.READY),
             eb('requestId', 'in', keys)
           ])
         )

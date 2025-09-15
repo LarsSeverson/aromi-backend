@@ -1,13 +1,14 @@
 import type { ServerContext } from '@src/context/index.js'
-import { type Args, type Info, type Parent, RequestResolver, type RequestResolverParams } from './RequestResolver.js'
+import { type Args, type Info, type Parent, RequestResolver, type RequestResolverParams, type ResolverReturn } from './RequestResolver.js'
 import { BackendError } from '@aromi/shared'
 
-export abstract class AuthenticatedRequestResolver<
+export abstract class MutationResolver<
   TResolver,
   TArgs = Args<TResolver>,
   TParent = Parent<TResolver>,
-  TInfo = Info<TResolver>
-> extends RequestResolver<TResolver, TArgs, TParent, TInfo> {
+  TInfo = Info<TResolver>,
+  TResult = ResolverReturn<TResolver>
+> extends RequestResolver<TResolver, TArgs, TParent, TInfo, TResult> {
   protected me!: NonNullable<ServerContext['me']>
 
   constructor (

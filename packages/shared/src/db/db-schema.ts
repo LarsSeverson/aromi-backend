@@ -70,12 +70,14 @@ export interface AccordImage {
 export interface AccordRequestImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
   id: Generated<string>;
   name: string;
   requestId: string;
   s3Key: string;
   sizeBytes: Int8;
   status: Generated<AssetStatus>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface AccordRequest {
@@ -130,12 +132,14 @@ export interface BrandImage {
 export interface BrandRequestImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
   id: Generated<string>;
   name: string;
   requestId: string;
   s3Key: string;
   sizeBytes: Int8;
   status: Generated<AssetStatus>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface BrandRequest {
@@ -170,9 +174,11 @@ export interface BrandRequestVote {
 export interface Brand {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
+  description: string | null;
   id: Generated<string>;
   name: string;
   updatedAt: Generated<Timestamp>;
+  website: string | null;
 }
 
 export interface FragranceAccord {
@@ -264,6 +270,7 @@ export interface FragranceRequestImage {
   s3Key: string;
   sizeBytes: Int8;
   status: Generated<AssetStatus>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface FragranceRequestNote {
@@ -316,7 +323,7 @@ export interface FragranceRequestVote {
 }
 
 export interface Fragrance {
-  brandId: string | null;
+  brandId: string;
   concentration: Generated<FragranceConcentration>;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -346,22 +353,26 @@ export interface FragranceTraitVote {
 export interface NoteImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
   id: Generated<string>;
   name: string;
   noteId: string;
   s3Key: string;
   sizeBytes: Int8;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface NoteRequestImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
   id: Generated<string>;
   name: string;
   requestId: string;
   s3Key: string;
   sizeBytes: Int8;
   status: Generated<AssetStatus>;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface NoteRequest {

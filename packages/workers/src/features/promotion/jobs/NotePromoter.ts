@@ -13,7 +13,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .getNoteRequest(requestId)
+        .updateRequest(requestId)
         .andThen(row => trxPromoter
           .promoteNote(row)
           .orTee(error => trxPromoter.markFailed(row, error))
@@ -25,13 +25,14 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
       )
   }
 
-  private getNoteRequest (id: string): ResultAsync<NoteRequestRow, BackendError> {
+  private updateRequest (id: string): ResultAsync<NoteRequestRow, BackendError> {
     const { services } = this.context
     const { noteRequests } = services
 
     return noteRequests
-      .findOne(
-        eb => eb('id', '=', id)
+      .updateOne(
+        eb => eb('id', '=', id),
+        { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 

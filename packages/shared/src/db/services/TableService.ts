@@ -81,13 +81,13 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
   }
 
   createOne (
-    values: InsertObject<DB, T>
+    values: InsertObject<DB, T> | Partial<R>
   ): ResultAsync<R, BackendError> {
     return ResultAsync
       .fromPromise(
         this
           .Table
-          .create(values)
+          .create(values as InsertObject<DB, T>)
           .executeTakeFirstOrThrow(),
         error => BackendError.fromDatabase(error)
       )

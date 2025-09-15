@@ -9,7 +9,10 @@ export type Args<T> = ResolverArgs<T>[1]
 export type Context<T> = ResolverArgs<T>[2]
 export type Info<T> = ResolverArgs<T>[3]
 
-export type ResolverReturnType<T> = Awaited<ReturnType<ResolverFnOf<T>>>
+export type ResolverReturn<T> = Awaited<ReturnType<ResolverFnOf<T>>>
+export type WrappedReturn<T> =
+  | Result<T, BackendError>
+  | ResultAsync<T, BackendError>
 
 export interface RequestResolverParams<
   TResolver,
@@ -27,7 +30,8 @@ export abstract class RequestResolver<
   TResolver,
   TArgs = Args<TResolver>,
   TParent = Parent<TResolver>,
-  TInfo = Info<TResolver>
+  TInfo = Info<TResolver>,
+  TResult = ResolverReturn<TResolver>
 > {
   protected readonly parent: TParent
   protected readonly args: TArgs
@@ -44,7 +48,5 @@ export abstract class RequestResolver<
     this.info = info
   }
 
-  abstract resolve ():
-    | Result<ResolverReturnType<TResolver>, BackendError>
-    | ResultAsync<ResolverReturnType<TResolver>, BackendError>
+  abstract resolve (): WrappedReturn<TResult>
 }

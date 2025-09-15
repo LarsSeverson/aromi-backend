@@ -13,7 +13,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .getAccordRequest(requestId)
+        .updateRequest(requestId)
         .andThen(row => trxPromoter
           .promoteAccord(row)
           .orTee(error => trxPromoter.markFailed(row, error))
@@ -25,13 +25,14 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
       )
   }
 
-  private getAccordRequest (id: string): ResultAsync<AccordRequestRow, BackendError> {
+  private updateRequest (id: string): ResultAsync<AccordRequestRow, BackendError> {
     const { services } = this.context
     const { accordRequests } = services
 
     return accordRequests
-      .findOne(
-        eb => eb('id', '=', id)
+      .updateOne(
+        eb => eb('id', '=', id),
+        { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 

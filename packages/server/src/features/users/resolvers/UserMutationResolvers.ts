@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, genAvatarUploadKey, parseOrThrow, throwError } from '@aromi/shared'
+import { AvatarStatus, BackendError, genAvatarUploadKey, parseOrThrow, throwError } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (
@@ -65,9 +65,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     return await users
       .updateOne(
         eb => eb('id', '=', me.id),
-        {
-          avatarStatus: 'PENDING'
-        }
+        { avatarStatus: AvatarStatus.PENDING }
       )
       .andThen(() => assets
         .getPresignedUrl({ key, contentType, maxSizeBytes: contentSize })

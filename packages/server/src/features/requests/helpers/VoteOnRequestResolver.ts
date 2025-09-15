@@ -2,9 +2,9 @@ import { BackendError, parseOrThrow, type PromotionJobName, type RequestService,
 import type { SomeRequestRow, SomeRequestVoteCountRow, SomeRequestVoteRow } from '@aromi/shared/src/db/features/requests/types.js'
 import { errAsync, okAsync, type ResultAsync } from 'neverthrow'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '../types.js'
-import { AuthenticatedRequestResolver } from '@src/resolvers/AuthenticatedRequestResolver.js'
 import { VoteOnRequestSchema } from '../utils/validation.js'
-import type { RequestResolverParams, ResolverReturnType } from '@src/resolvers/RequestResolver.js'
+import type { RequestResolverParams, ResolverReturn } from '@src/resolvers/RequestResolver.js'
+import { RequestMutationResolver } from './RequestMutationResolver.js'
 
 interface VoteOnRequestArgs {
   input: {
@@ -21,10 +21,10 @@ export interface VoteOnRequestParams<TResolver, R extends SomeRequestRow> extend
 export abstract class VoteOnRequestResolver<
   TResolver,
   R extends SomeRequestRow
-> extends AuthenticatedRequestResolver<TResolver, VoteOnRequestArgs> {
+> extends RequestMutationResolver<TResolver, VoteOnRequestArgs> {
   protected readonly initialService: RequestService<R>
   protected readonly jobName: PromotionJobName
-  protected trxService?: RequestService<R>
+  protected trxService?: RequestService
 
   constructor (
     params: VoteOnRequestParams<TResolver, R>
@@ -34,9 +34,9 @@ export abstract class VoteOnRequestResolver<
     this.jobName = params.jobName
   }
 
-  abstract mapToOutput (request: R): ResolverReturnType<TResolver>
+  abstract mapToOutput (request: R): ResolverReturn<TResolver>
 
-  resolve (): ResultAsync<ResolverReturnType<TResolver>, BackendError> {
+  resolve (): ResultAsync<ResolverReturn<TResolver>, BackendError> {
     const { initialService } = this
 
     if (this.trxService != null) {
@@ -51,7 +51,7 @@ export abstract class VoteOnRequestResolver<
 
     return initialService
       .withTransactionAsync(async trx => {
-        this.trxService = trx
+        this.trxService = trx as unknown as RequestService
         return await this.handleVote()
       })
       .andThrough(({ request, voteCounts }) => {
@@ -101,10 +101,12 @@ export abstract class VoteOnRequestResolver<
     const { requestId } = this.args.input
 
     const request = await unwrapOrThrow(
-      (this.trxService as unknown as RequestService)
+      this
+        .trxService!
         .findOne(
           eb => eb('id', '=', requestId)
         )
+        .andThen(request => this.authorizeEdit(request))
     )
 
     return request
@@ -233,7 +235,11 @@ export abstract class VoteOnRequestResolver<
   ): boolean {
     return (
       voteCounts.upvotes >= ACCEPTED_VOTE_COUNT_THRESHOLD &&
-      request.requestStatus !== RequestStatus.PENDING
+      request.requestStatus === RequestStatus.PENDING
     )
+  }
+
+  protected override isRequestEditable (request: SomeRequestRow): boolean {
+    return true
   }
 }

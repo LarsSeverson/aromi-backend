@@ -2,7 +2,7 @@ import { RequestPaginationFactory } from '@src/features/requests/factories/Reque
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers.js'
-import { BackendError, throwError } from '@aromi/shared'
+import { BackendError, RequestStatus, throwError } from '@aromi/shared'
 import { errAsync, okAsync } from 'neverthrow'
 
 export class BrandRequestQueryResolvers extends BaseResolver<QueryResolvers> {
@@ -26,7 +26,7 @@ export class BrandRequestQueryResolvers extends BaseResolver<QueryResolvers> {
         ])
       )
       .andThen(row => {
-        if (row.requestStatus === 'DRAFT') {
+        if (row.requestStatus === RequestStatus.DRAFT) {
           if (me?.id !== row.userId) {
             return errAsync(
               new BackendError(
@@ -61,7 +61,7 @@ export class BrandRequestQueryResolvers extends BaseResolver<QueryResolvers> {
     return await brandRequests
       .find(
         eb => eb.and([
-          eb('requestStatus', '!=', 'DRAFT')
+          eb('requestStatus', '!=', RequestStatus.DRAFT)
         ]),
         { pagination }
       )

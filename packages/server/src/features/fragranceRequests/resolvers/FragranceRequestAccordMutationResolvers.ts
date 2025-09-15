@@ -1,71 +1,17 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { okAsync } from 'neverthrow'
-import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
-import { throwError } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
+import { SetFRAccordsResolver } from '../helpers/SetFRAccordsResolver.js'
 
 export class FragranceRequestAccordMutationResolvers extends BaseResolver<MutationResolvers> {
   setFragranceRequestAccords: MutationResolvers['setFragranceRequestAccords'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { requestId, version, accordIds } = input
-    const { fragranceRequests } = services
-
-    const values = {
-      updatedAt: new Date().toISOString()
-    }
-
-    return await fragranceRequests
-      .withTransaction(trxService => trxService
-        .updateOne(
-          eb => eb.and([
-            eb('id', '=', requestId),
-            eb('userId', '=', me.id),
-            eb('version', '=', version),
-            eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-          ]),
-          eb => ({
-            ...values,
-            version: eb(eb.ref('version'), '+', 1)
-          })
-        )
-        .andThrough(() => trxService
-          .accords
-          .softDelete(
-            eb => eb('requestId', '=', requestId)
-          )
-          .andThen(() => {
-            if (accordIds.length === 0) {
-              return okAsync([])
-            }
-
-            const insertValues = accordIds.map((accordId) => ({
-              requestId,
-              accordId
-            }))
-
-            return trxService
-              .accords
-              .upsert(
-                insertValues,
-                oc => oc
-                  .columns(['requestId', 'accordId'])
-                  .doUpdateSet({ deletedAt: null })
-              )
-          })
-        )
-      )
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new SetFRAccordsResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   getResolvers (): MutationResolvers {

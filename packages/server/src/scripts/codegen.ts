@@ -16,9 +16,11 @@ const config: CodegenConfig = {
         mappers: {
           User: '../features/users/types.js#IUserSummary',
 
+          Fragrance: '../features/fragrances/types.js#IFragranceSummary',
+
           Brand: '../features/brands/types.js#IBrandSummary',
 
-          Fragrance: '../features/fragrances/types.js#IFragranceSummary',
+          Note: '../features/notes/types.js#INoteSummary',
 
           FragranceRequest: '../features/fragranceRequests/types.js#IFragranceRequestSummary',
 

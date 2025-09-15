@@ -13,7 +13,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
 
     return this
       .withTransaction(trxPromoter => trxPromoter
-        .getBrandRequest(requestId)
+        .updateRequest(requestId)
         .andThen(row => trxPromoter
           .promoteBrand(row)
           .orTee(error => trxPromoter.markFailed(row, error))
@@ -25,13 +25,14 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       )
   }
 
-  private getBrandRequest (id: string): ResultAsync<BrandRequestRow, BackendError> {
+  private updateRequest (id: string): ResultAsync<BrandRequestRow, BackendError> {
     const { services } = this.context
     const { brandRequests } = services
 
     return brandRequests
-      .findOne(
-        eb => eb('id', '=', id)
+      .updateOne(
+        eb => eb('id', '=', id),
+        { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 

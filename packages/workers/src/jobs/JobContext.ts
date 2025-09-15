@@ -1,4 +1,4 @@
-import { type BackendError, type DataSources, throwError } from '@aromi/shared'
+import { type BackendError, type DataSources, unwrapOrThrow } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 import { JobServices } from './JobServices.js'
 import { JobQueues } from './JobQueues.js'
@@ -25,11 +25,7 @@ export class JobContext {
           .transaction()
           .execute(async trx => {
             const trxContext = this.createTrxContext(trx)
-            return await fn(trxContext)
-              .match(
-                ok => ok,
-                throwError
-              )
+            return await unwrapOrThrow(fn(trxContext))
           }),
         error => error as BackendError
       )

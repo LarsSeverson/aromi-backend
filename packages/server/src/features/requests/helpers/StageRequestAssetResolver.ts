@@ -1,41 +1,41 @@
-import { BackendError, genImageKey, parseOrThrow, RequestStatus, type RequestService, type S3Entity, type SomeRequestRow } from '@aromi/shared'
-import type { StageAssetInput } from '@src/graphql/gql-types.js'
-import { AuthenticatedRequestResolver } from '@src/resolvers/AuthenticatedRequestResolver.js'
-import type { ResolverReturnType, RequestResolverParams } from '@src/resolvers/RequestResolver.js'
+import { BackendError, genImageKey, parseOrThrow, type SomeRequestImageRow, unwrapOrThrow, type RequestService, type S3Entity, type SomeRequestRow } from '@aromi/shared'
+import type { PresignedUpload, StageAssetInput } from '@src/graphql/gql-types.js'
+import type { RequestResolverParams, Parent, Info } from '@src/resolvers/RequestResolver.js'
 import { errAsync, type ResultAsync } from 'neverthrow'
 import { GenericStageRequestAssetSchema } from '../utils/validation.js'
+import type z from 'zod'
+import { RequestMutationResolver } from './RequestMutationResolver.js'
 
 interface StageRequestAssetArgs {
   input: StageAssetInput
 }
 
-export interface StageRequestAssetParams<
-  TResolver,
-  R extends SomeRequestRow
-> extends RequestResolverParams<TResolver, StageRequestAssetArgs> {
+export interface StageRequestAssetParams<TR, R extends SomeRequestRow> extends RequestResolverParams<TR, StageRequestAssetArgs> {
   service: RequestService<R>
   entity: S3Entity
-  schema?: typeof GenericStageRequestAssetSchema
+  schema?: z.ZodType<{ contentType: string, contentSize: number }>
 }
 
-export abstract class StageRequestAssetResolver<
-  TResolver,
-  R extends SomeRequestRow
-> extends AuthenticatedRequestResolver<TResolver, StageRequestAssetArgs> {
+export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> extends RequestMutationResolver<
+  TR,
+  StageRequestAssetArgs,
+  Parent<TR>,
+  Info<TR>,
+  PresignedUpload
+> {
   protected service: RequestService<R>
-  protected trxService?: RequestService<R>
+  protected trxService?: RequestService
   protected entity: S3Entity
-  protected schema: typeof GenericStageRequestAssetSchema
+  protected schema: z.ZodType<{ contentType: string, contentSize: number }>
 
-  constructor (params: StageRequestAssetParams<TResolver, R>) {
+  constructor (params: StageRequestAssetParams<TR, R>) {
     super(params)
     this.service = params.service
     this.entity = params.entity
     this.schema = params.schema ?? GenericStageRequestAssetSchema
   }
 
-  resolve (): ResultAsync<ResolverReturnType<TResolver>, BackendError> {
-    const { services } = this.context
+  resolve (): ResultAsync<PresignedUpload, BackendError> {
     const { service } = this
 
     if (this.trxService != null) {
@@ -48,38 +48,45 @@ export abstract class StageRequestAssetResolver<
       )
     }
 
-    const { assets } = services
-
     return service
-      .withTransaction(trxService => {
-        this.trxService = trxService
-        return this.handleStageAsset()
+      .withTransactionAsync(async trxService => {
+        this.trxService = trxService as unknown as RequestService
+        return await this.handleStageAsset()
       })
       .andThen(
-        (newRow) => {
-          const { s3Key, contentType, sizeBytes } = newRow
-
-          return assets
-            .getPresignedUrl({
-              key: s3Key,
-              contentType,
-              maxSizeBytes: Number(sizeBytes)
-            })
-            .map(presigned => ({ newRow, presigned }))
-        }
+        ({ asset }) => this
+          .handlePresignUrl(asset)
+          .map(presigned => ({ asset, presigned }))
       )
       .map(
-        ({ newRow, presigned }) => ({ ...presigned, id: newRow.id } satisfies ResolverReturnType<TResolver>)
+        ({ asset, presigned }) => ({ ...presigned, id: asset.id })
       )
   }
 
-  private handleStageAsset () {
+  private async handleStageAsset () {
+    const request = await unwrapOrThrow(this.handleGetRequest())
+    const asset = await unwrapOrThrow(this.handleCreateAsset())
+
+    return { request, asset }
+  }
+
+  private handleGetRequest () {
+    const { id } = this.args.input
+
+    return this
+      .trxService!
+      .findOne(
+        eb => eb('id', '=', id)
+      )
+      .andThen(request => this.authorizeEdit(request))
+  }
+
+  private handleCreateAsset () {
     const { input } = this.args
 
     const { id, fileName } = input
     const { contentType, contentSize } = parseOrThrow(this.schema, input)
     const { key } = genImageKey(this.entity, fileName)
-    const userId = this.me.id
 
     const values = {
       requestId: id,
@@ -89,18 +96,20 @@ export abstract class StageRequestAssetResolver<
       s3Key: key
     }
 
-    return (this.trxService as unknown as RequestService)
-      .findOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', userId),
-          eb('requestStatus', 'not in', [RequestStatus.ACCEPTED, RequestStatus.DENIED])
-        ])
-      )
-      .andThen(() => this
-        .trxService!
-        .images
-        .createOne(values)
-      )
+    return this
+      .trxService!
+      .images
+      .createOne(values)
+  }
+
+  private handlePresignUrl (asset: SomeRequestImageRow) {
+    const { services } = this.context
+    const { assets } = services
+
+    return assets.getPresignedUrl({
+      key: asset.s3Key,
+      contentType: asset.contentType,
+      maxSizeBytes: Number(asset.sizeBytes)
+    })
   }
 }

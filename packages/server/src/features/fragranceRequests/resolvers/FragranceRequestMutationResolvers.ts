@@ -1,13 +1,16 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { BackendError, parseOrThrow, throwError, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import { FragranceRequestBrandMutationResolvers } from './FragranceRequestBrandMutationResolvers.js'
 import { FragranceRequestImageMutationResolvers } from './FragranceRequestImageMutationResolvers.js'
 import { FragranceRequestTraitMutationResolvers } from './FragranceRequestTraitMutationResolvers.js'
 import { FragranceRequestAccordMutationResolvers } from './FragranceRequestAccordMutationResolvers.js'
 import { FragranceRequestNoteMutationResolvers } from './FragranceRequestNoteMutationResolvers.js'
 import { FragranceRequestVoteMutationResolvers } from './FragranceRequestVoteMutationResolvers.js'
-import { mapCreateFragranceRequestInputToRow, mapFragranceRequestRowToFragranceRequest, mapUpdateFragranceRequestInputToRow } from '../utils/mappers.js'
+import { CreateFRResolver } from '../helpers/CreateFRResolver.js'
+import { UpdateFRResolver } from '../helpers/UpdateFRResolver.js'
+import { DeleteFRResolver } from '../helpers/DeleteFRResolver.js'
+import { SubmitFRResolver } from '../helpers/SubmitFRResolver.js'
 
 export class FragranceRequestMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly brands = new FragranceRequestBrandMutationResolvers()
@@ -18,147 +21,43 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
   private readonly votes = new FragranceRequestVoteMutationResolvers()
 
   createFragranceRequest: MutationResolvers['createFragranceRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const values = mapCreateFragranceRequestInputToRow(input)
-    const { fragranceRequests } = services
-
-    return await fragranceRequests
-      .withTransaction(trx => trx
-        .createOne({ ...values, userId: me.id })
-        .andThrough(request => trx
-          .votes
-          .counts
-          .createOne({ requestId: request.id })
-        )
-      )
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new CreateFRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   updateFragranceRequest: MutationResolvers['updateFragranceRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id, version } = input
-    const { fragranceRequests } = services
-    const values = mapUpdateFragranceRequestInputToRow(input)
-
-    return await fragranceRequests
-      .updateOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('version', '=', version),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ]),
-        eb => ({
-          ...values,
-          version: eb(eb.ref('version'), '+', 1)
-        })
-      )
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new UpdateFRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   deleteFragranceRequest: MutationResolvers['deleteFragranceRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { fragranceRequests } = services
-
-    return await fragranceRequests
-      .softDeleteOne(
-        eb => eb.and([
-          eb('id', '=', id),
-          eb('userId', '=', me.id),
-          eb('requestStatus', 'not in', ['ACCEPTED', 'DENIED'])
-        ])
-      )
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new DeleteFRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   submitFragranceRequest: MutationResolvers['submitFragranceRequest'] = async (
-    _,
+    parent,
     args,
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const { id } = input
-    const { fragranceRequests } = services
-
-    return await fragranceRequests
-      .withTransactionAsync(async trx => {
-        await unwrapOrThrow(
-          trx
-            .images
-            .findOne(
-              eb => eb.and([
-                eb('requestId', '=', id),
-                eb('status', '=', 'ready')
-              ])
-            )
-            .mapErr(error => {
-              return new BackendError(
-                'IMAGE_REQUIRED',
-                'At least one image is required to submit a fragrance request',
-                400,
-                error
-              )
-            })
-        )
-
-        const request = await unwrapOrThrow(
-          trx
-            .updateOne(
-              eb => eb.and([
-                eb('id', '=', id),
-                eb('userId', '=', me.id),
-                eb('requestStatus', '=', 'DRAFT')
-              ]),
-              { requestStatus: 'PENDING' }
-            )
-        )
-
-        parseOrThrow(ValidFragrance, request)
-
-        return request
-      })
-      .match(
-        mapFragranceRequestRowToFragranceRequest,
-        throwError
-      )
+    const resolver = new SubmitFRResolver({ parent, args, context, info })
+    return await unwrapOrThrow(resolver.resolve())
   }
 
   getResolvers (): MutationResolvers {

@@ -4,9 +4,9 @@ import { type AccordRequestRow, type AccordRequestImageRow, parseOrThrow, remove
 import { CreateAccordRequestSchema, UpdateAccordRequestSchema } from './validation.js'
 
 export const mapCreateAccordRequestInputToRow = (
-  input: CreateAccordRequestInput
+  input?: CreateAccordRequestInput | null
 ): Partial<AccordRequestRow> => {
-  const parsed = parseOrThrow(CreateAccordRequestSchema, input)
+  const parsed = parseOrThrow(CreateAccordRequestSchema, input ?? {})
   const cleaned = removeNullish(parsed)
 
   const output: Partial<AccordRequestRow> = cleaned

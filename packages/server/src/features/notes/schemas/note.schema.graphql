@@ -1,7 +1,7 @@
 type Note {
   id: ID!
   name: String!
-  thumbnail: String!
+  thumbnail: String
 }
 
 type NoteEdge {
