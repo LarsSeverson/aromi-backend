@@ -15,12 +15,12 @@ export class FeaturedTable<R, T extends ServicableTablesMatching<R> = Servicable
 
     return qb
       .$if(cursor.isValid, qb =>
-        qb.where(({ eb, or, and }) =>
-          or([
-            eb(parsedColumn, operator, cursor.value),
-            and([
-              eb(parsedColumn, '=', cursor.value),
-              eb(idColumn, operator, cursor.lastId)
+        qb.where(w =>
+          w.or([
+            w.eb(parsedColumn, operator, cursor.value),
+            w.and([
+              w.eb(parsedColumn, '=', cursor.value),
+              w.eb(idColumn, operator, cursor.lastId)
             ])
           ])
         )

@@ -1,10 +1,11 @@
 import { BackendError, genImageKey, parseOrThrow, type SomeRequestImageRow, unwrapOrThrow, type RequestService, type S3Entity, type SomeRequestRow } from '@aromi/shared'
 import type { PresignedUpload, StageAssetInput } from '@src/graphql/gql-types.js'
-import type { RequestResolverParams, Parent, Info } from '@src/resolvers/RequestResolver.js'
+import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
 import { errAsync, type ResultAsync } from 'neverthrow'
 import { GenericStageRequestAssetSchema } from '../utils/validation.js'
 import type z from 'zod'
 import { RequestMutationResolver } from './RequestMutationResolver.js'
+import type { Info, Parent } from '@src/utils/types.js'
 
 interface StageRequestAssetArgs {
   input: StageAssetInput

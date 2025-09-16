@@ -288,17 +288,16 @@ input ForgotPasswordInput {
 }
 
 type Fragrance {
-  accords(input: FragranceAccordPaginationInput!): FragranceAccordConnection!
+  accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
   brand: Brand!
   concentration: Concentration!
   description: String
   id: ID!
-  images: FragranceImageConnection!
+  images: [FragranceImage!]!
   name: String!
-  notes(input: FragranceNotePaginationInput!): FragranceNoteConnection!
+  notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
   status: FragranceStatus!
-  trait(input: FragranceTraitInput!): FragranceTrait!
   traits: [FragranceTrait!]!
 }
 
@@ -346,7 +345,7 @@ type FragranceImage {
   bg: String
   height: Int!
   id: ID!
-  url: String!
+  url: String
   width: Int!
 }
 
@@ -466,6 +465,7 @@ enum FragranceStatus {
 type FragranceTrait {
   id: ID!
   myVote: TraitVote
+  name: String!
   options: [TraitOption!]!
   stats: TraitStats
   type: TraitTypeEnum!

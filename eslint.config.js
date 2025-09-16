@@ -56,9 +56,9 @@ export default [
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-empty-interface': 'off',
       '@typescript-eslint/class-methods-use-this': 'off',
-      '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/init-declarations': 'off',
       '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+      // '@typescript-eslint/unbound-method': 'off',
 
       // Core stylistic formatting
       '@stylistic/indent': ['error', 2],

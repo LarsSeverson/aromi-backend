@@ -408,7 +408,7 @@ export interface Note {
   description: string | null;
   id: Generated<string>;
   name: string;
-  s3Key: string | null;
+  s3Key: string;
   thumbnailImageId: string | null;
   updatedAt: Generated<Timestamp>;
 }

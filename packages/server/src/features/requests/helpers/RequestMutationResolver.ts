@@ -1,6 +1,6 @@
 import { BackendError, RequestStatus, type SomeRequestRow } from '@aromi/shared'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import type { Args, Info, Parent, ResolverReturn } from '@src/resolvers/RequestResolver.js'
+import type { Args, Info, Parent, ResolverReturn } from '@src/utils/types.js'
 import { errAsync, okAsync } from 'neverthrow'
 
 export abstract class RequestMutationResolver<

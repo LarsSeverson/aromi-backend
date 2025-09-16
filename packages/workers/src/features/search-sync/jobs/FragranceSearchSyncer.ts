@@ -1,7 +1,7 @@
 import type { FragranceIndex } from '@aromi/shared/src/search/features/fragrances/types.js'
 import { BaseSearchSyncer } from './BaseSearchSyncer.js'
 import type { SEARCH_SYNC_JOB_NAMES, SearchSyncJobPayload } from '@aromi/shared/src/queues/services/search-sync/types.js'
-import type { AccordRow, BackendError, BrandRow, ExistingNoteRow, FragranceRow } from '@aromi/shared'
+import type { BackendError, BrandRow, CombinedFragranceAccordRow, CombinedFragranceNoteRow, FragranceRow } from '@aromi/shared'
 import type { Job } from 'bullmq'
 import { okAsync, ResultAsync } from 'neverthrow'
 
@@ -32,8 +32,8 @@ export class FragranceSearchSyncer extends BaseSearchSyncer<SearchSyncJobPayload
   syncFragrance (
     fragrance: FragranceRow,
     brand: BrandRow | null,
-    accords: AccordRow[],
-    notes: ExistingNoteRow[]
+    accords: CombinedFragranceAccordRow[],
+    notes: CombinedFragranceNoteRow[]
   ): ResultAsync<FragranceIndex, BackendError> {
     const { search } = this.context.services
 
@@ -46,13 +46,13 @@ export class FragranceSearchSyncer extends BaseSearchSyncer<SearchSyncJobPayload
       : null
 
     const docAccords = accords.map(accord => ({
-      id: accord.id,
-      name: accord.name
+      id: accord.accordId,
+      name: accord.accordName
     }))
 
     const docNotes = notes.map(note => ({
-      id: note.id,
-      name: note.name,
+      id: note.noteId,
+      name: note.noteName,
       layer: note.layer
     }))
 
@@ -89,7 +89,7 @@ export class FragranceSearchSyncer extends BaseSearchSyncer<SearchSyncJobPayload
       )
   }
 
-  getAccords (row: FragranceRow): ResultAsync<AccordRow[], BackendError> {
+  getAccords (row: FragranceRow): ResultAsync<CombinedFragranceAccordRow[], BackendError> {
     const { services } = this.context
     const { fragrances } = services
 
@@ -100,13 +100,13 @@ export class FragranceSearchSyncer extends BaseSearchSyncer<SearchSyncJobPayload
       )
   }
 
-  getNotes (row: FragranceRow): ResultAsync<ExistingNoteRow[], BackendError> {
+  getNotes (row: FragranceRow): ResultAsync<CombinedFragranceNoteRow[], BackendError> {
     const { services } = this.context
     const { fragrances } = services
 
     return fragrances
       .notes
-      .findExisting(
+      .findNotes(
         eb => eb('fragranceNotes.fragranceId', '=', row.id)
       )
   }

@@ -24,14 +24,13 @@ type Fragrance {
   concentration: Concentration!
   status: FragranceStatus!
 
-  images: FragranceImageConnection!
+  images: [FragranceImage!]!
 
-  accords(input: FragranceAccordPaginationInput!): FragranceAccordConnection!
+  accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
 
-  notes(input: FragranceNotePaginationInput!): FragranceNoteConnection!
+  notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
 
   traits: [FragranceTrait!]!
-  trait(input: FragranceTraitInput!): FragranceTrait!
 }
 
 type FragranceEdge {

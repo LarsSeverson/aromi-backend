@@ -1,7 +1,8 @@
 import { AssetStatus, BackendError, RequestStatus, unwrapOrThrow, type RequestService, type SomeRequestRow } from '@aromi/shared'
-import type { RequestResolverParams, ResolverReturn } from '@src/resolvers/RequestResolver.js'
+import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
 import { errAsync, type Result, type ResultAsync } from 'neverthrow'
 import { RequestMutationResolver } from './RequestMutationResolver.js'
+import type { ResolverReturn } from '@src/utils/types.js'
 
 interface SubmitRequestArgs {
   input: {

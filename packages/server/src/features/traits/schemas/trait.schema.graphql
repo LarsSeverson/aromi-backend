@@ -7,8 +7,6 @@ enum TraitTypeEnum {
   APPEAL
 }
 
-
-
 type TraitOption {
   id: ID!
   label: String!

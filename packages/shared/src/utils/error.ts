@@ -84,6 +84,11 @@ export class BackendError extends GraphQLError {
     return new BackendError('INVALID_INPUT', error.issues.at(0)?.message ?? 'Invalid input', 400, error)
   }
 
+  static fromLoader (error: unknown): BackendError {
+    if (error instanceof BackendError) return error
+    return new BackendError('LOADER_ERROR', 'Something went wrong. Please try again later', 500, error)
+  }
+
   serialize (): GraphQLFormattedError {
     const { message, extensions } = this
 
@@ -102,6 +107,8 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
     return new BackendError('GRAPHQL_VALIDATION_FAILED', 'Invalid query', 400, error)
       .serialize()
   }
+
+  console.log(error)
 
   return new BackendError('INTERNAL_ERROR', 'Something went wrong on our end. Please try again later', 500, error)
     .serialize()

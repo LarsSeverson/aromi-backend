@@ -348,28 +348,22 @@ export type Fragrance = {
   concentration: Concentration;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  images: FragranceImageConnection;
+  images: Array<FragranceImage>;
   name: Scalars['String']['output'];
   notes: FragranceNoteConnection;
   releaseYear: Scalars['Int']['output'];
   status: FragranceStatus;
-  trait: FragranceTrait;
   traits: Array<FragranceTrait>;
 };
 
 
 export type FragranceAccordsArgs = {
-  input: FragranceAccordPaginationInput;
+  input?: InputMaybe<FragranceAccordPaginationInput>;
 };
 
 
 export type FragranceNotesArgs = {
-  input: FragranceNotePaginationInput;
-};
-
-
-export type FragranceTraitArgs = {
-  input: FragranceTraitInput;
+  input?: InputMaybe<FragranceNotePaginationInput>;
 };
 
 export type FragranceAccord = {
@@ -423,7 +417,7 @@ export type FragranceImage = {
   bg?: Maybe<Scalars['String']['output']>;
   height: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  url: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
   width: Scalars['Int']['output'];
 };
 
@@ -569,6 +563,7 @@ export type FragranceTrait = {
   __typename?: 'FragranceTrait';
   id: Scalars['ID']['output'];
   myVote?: Maybe<TraitVote>;
+  name: Scalars['String']['output'];
   options: Array<TraitOption>;
   stats?: Maybe<TraitStats>;
   type: TraitTypeEnum;
@@ -1792,17 +1787,16 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type FragranceResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Fragrance'] = ResolversParentTypes['Fragrance']> = ResolversObject<{
-  accords?: Resolver<ResolversTypes['FragranceAccordConnection'], ParentType, ContextType, RequireFields<FragranceAccordsArgs, 'input'>>;
+  accords?: Resolver<ResolversTypes['FragranceAccordConnection'], ParentType, ContextType, Partial<FragranceAccordsArgs>>;
   brand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
   concentration?: Resolver<ResolversTypes['Concentration'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  images?: Resolver<ResolversTypes['FragranceImageConnection'], ParentType, ContextType>;
+  images?: Resolver<Array<ResolversTypes['FragranceImage']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  notes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, RequireFields<FragranceNotesArgs, 'input'>>;
+  notes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, Partial<FragranceNotesArgs>>;
   releaseYear?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['FragranceStatus'], ParentType, ContextType>;
-  trait?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType, RequireFields<FragranceTraitArgs, 'input'>>;
   traits?: Resolver<Array<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
 }>;
 
@@ -1835,7 +1829,7 @@ export type FragranceImageResolvers<ContextType = ServerContext, ParentType exte
   bg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   width?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 }>;
 
@@ -1918,6 +1912,7 @@ export type FragranceRequestTraitResolvers<ContextType = ServerContext, ParentTy
 export type FragranceTraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['TraitVote']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   options?: Resolver<Array<ResolversTypes['TraitOption']>, ParentType, ContextType>;
   stats?: Resolver<Maybe<ResolversTypes['TraitStats']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;

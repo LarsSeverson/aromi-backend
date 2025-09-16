@@ -1,6 +1,7 @@
 import type { ServerContext } from '@src/context/index.js'
-import { type Args, type Info, type Parent, RequestResolver, type RequestResolverParams, type ResolverReturn } from './RequestResolver.js'
+import { RequestResolver, type RequestResolverParams } from './RequestResolver.js'
 import { BackendError } from '@aromi/shared'
+import type { Args, Info, Parent, ResolverReturn } from '@src/utils/types.js'
 
 export abstract class MutationResolver<
   TResolver,

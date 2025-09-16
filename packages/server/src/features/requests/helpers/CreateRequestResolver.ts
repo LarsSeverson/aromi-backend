@@ -1,6 +1,7 @@
 import { BackendError, unwrapOrThrow, type RequestService, type SomeRequestRow } from '@aromi/shared'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import type { Args, RequestResolverParams, ResolverReturn } from '@src/resolvers/RequestResolver.js'
+import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
+import type { Args, ResolverReturn } from '@src/utils/types.js'
 import { errAsync, type ResultAsync } from 'neverthrow'
 
 export interface CreateRequestParams<TR, R extends SomeRequestRow> extends RequestResolverParams<TR> {

@@ -3,8 +3,9 @@ import type { SomeRequestRow, SomeRequestVoteCountRow, SomeRequestVoteRow } from
 import { errAsync, okAsync, type ResultAsync } from 'neverthrow'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '../types.js'
 import { VoteOnRequestSchema } from '../utils/validation.js'
-import type { RequestResolverParams, ResolverReturn } from '@src/resolvers/RequestResolver.js'
+import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
 import { RequestMutationResolver } from './RequestMutationResolver.js'
+import type { ResolverReturn } from '@src/utils/types.js'
 
 interface VoteOnRequestArgs {
   input: {

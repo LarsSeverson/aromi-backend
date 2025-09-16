@@ -1,5 +1,5 @@
-import type { NoteLayerEnum, FragranceStatus as DBFragranceStatus, FragranceConcentration, FragranceRow } from '@aromi/shared'
-import type { FragranceStatus, Concentration, NoteLayer } from '@src/graphql/gql-types.js'
+import type { NoteLayerEnum, FragranceStatus as DBFragranceStatus, FragranceConcentration, FragranceRow, FragranceImageRow } from '@aromi/shared'
+import type { FragranceStatus, Concentration, NoteLayer, FragranceImage } from '@src/graphql/gql-types.js'
 import type { IFragranceSummary } from '../types.js'
 
 export const mapGQLConcentrationToDBConcentration = (
@@ -39,14 +39,25 @@ export const mapDBNoteLayerToGQLNoteLayer = (
 }
 
 export const mapFragranceRowToFragranceSummary = (row: FragranceRow): IFragranceSummary => {
-  const { id, name, description, concentration, status, releaseYear } = row
+  const { id, brandId, name, description, concentration, status, releaseYear } = row
 
   return {
     id,
+    brandId,
     name,
     description,
     concentration: mapDBConcentrationToGQLConcentration(concentration),
     status: mapDBStatusToGQLStatus(status),
     releaseYear: releaseYear ?? 1890
+  }
+}
+
+export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): FragranceImage => {
+  const { id, primaryColor, width, height } = row
+  return {
+    id,
+    width,
+    height,
+    bg: primaryColor
   }
 }

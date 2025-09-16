@@ -8,3 +8,9 @@ export interface CombinedTraitRow {
   traitType: TraitTypeRow
   traitOption: TraitOptionRow
 }
+
+export interface CombinedTraitRow2 extends TraitTypeRow {
+  optionId: string
+  optionLabel: string
+  optionScore: number
+}
