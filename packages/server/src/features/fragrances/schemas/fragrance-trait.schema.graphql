@@ -10,3 +10,13 @@ type FragranceTrait {
 input FragranceTraitInput {
   type: TraitTypeEnum!
 }
+
+input VoteOnFragranceTraitInput {
+  fragranceId: ID!
+  traitTypeId: ID!
+  traitOptionId: ID!
+}
+
+extend type Mutation {
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
+}

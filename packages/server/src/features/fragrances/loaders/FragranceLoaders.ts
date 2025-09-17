@@ -1,7 +1,7 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { FragranceLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
-import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, type FragranceImageRow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, type FragranceImageRow, unwrapOrThrow, type FragranceTraitVoteRow } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 
 export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
@@ -142,12 +142,12 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
   private createMyTraitVoteLoader (userId: string) {
     const { fragrances } = this.services
 
-    return new DataLoader<FragranceLoadersKey, AggFragranceTraitVoteRow[]>(
+    return new DataLoader<FragranceLoadersKey, FragranceTraitVoteRow[]>(
       async keys => {
         const rows = await unwrapOrThrow(
           fragrances
             .traitVotes
-            .findVotesAgg(
+            .find(
               eb => eb.and([
                 eb('fragranceId', 'in', keys),
                 eb('userId', '=', userId)
@@ -155,7 +155,7 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
             )
         )
 
-        const rowsMap = new Map<string, AggFragranceTraitVoteRow[]>()
+        const rowsMap = new Map<string, FragranceTraitVoteRow[]>()
 
         rows.forEach(row => {
           const arr = rowsMap.get(row.fragranceId) ?? []

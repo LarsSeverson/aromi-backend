@@ -528,6 +528,7 @@ type Mutation {
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
 }
 
@@ -633,9 +634,10 @@ type Query {
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
-  searchAccords(input: SearchAccordsInput): [Accord!]!
-  searchBrands(input: SearchBrandsInput): [Brand!]!
-  searchNotes(input: SearchNotesInput): [Note!]!
+  searchAccords(input: SearchInput): [Accord!]!
+  searchBrands(input: SearchInput): [Brand!]!
+  searchFragrances(input: SearchInput): [Fragrance!]!
+  searchNotes(input: SearchInput): [Note!]!
   user(id: ID!): User!
 }
 
@@ -665,17 +667,7 @@ input ResendSignUpCodeInput {
   email: String!
 }
 
-input SearchAccordsInput {
-  pagination: SearchPaginationInput
-  term: String
-}
-
-input SearchBrandsInput {
-  pagination: SearchPaginationInput
-  term: String
-}
-
-input SearchNotesInput {
+input SearchInput {
   pagination: SearchPaginationInput
   term: String
 }
@@ -853,6 +845,12 @@ input VoteOnBrandRequestInput {
 input VoteOnFragranceRequestInput {
   requestId: ID!
   vote: Int!
+}
+
+input VoteOnFragranceTraitInput {
+  fragranceId: ID!
+  traitOptionId: ID!
+  traitTypeId: ID!
 }
 
 input VoteOnNoteRequestInput {

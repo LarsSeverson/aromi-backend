@@ -1,8 +1,3 @@
-input SearchNotesInput {
-  term: String
-  pagination: SearchPaginationInput
-}
-
 extend type Query {
-  searchNotes(input: SearchNotesInput): [Note!]!
+  searchNotes(input: SearchInput): [Note!]!
 }

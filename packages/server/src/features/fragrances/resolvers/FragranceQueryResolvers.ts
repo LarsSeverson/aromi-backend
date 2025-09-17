@@ -3,9 +3,11 @@ import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapFragranceRowToFragranceSummary } from '../utils/mappers.js'
 import { FragrancePaginationFactory } from '../factories/FragrancePaginationFactory.js'
+import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 
 export class FragracneQueryResolvers extends BaseResolver<QueryResolvers> {
   pagination = new FragrancePaginationFactory()
+  searchPagination = new SearchPaginationFactory()
 
   fragrance: QueryResolvers['fragrance'] = async (
     parent,
@@ -48,10 +50,36 @@ export class FragracneQueryResolvers extends BaseResolver<QueryResolvers> {
     return summaryConnection
   }
 
+  searchFragrances: QueryResolvers['searchFragrances'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+
+    const { term, pagination } = input ?? {}
+    const offsetPagination = this.searchPagination.parse(pagination)
+    const { search } = services
+
+    const { hits } = await unwrapOrThrow(
+      search
+        .fragrances
+        .search({
+          term,
+          pagination: offsetPagination
+        })
+    )
+
+    return hits.map(mapFragranceRowToFragranceSummary)
+  }
+
   getResolvers (): QueryResolvers {
     return {
       fragrance: this.fragrance,
-      fragrances: this.fragrances
+      fragrances: this.fragrances,
+      searchFragrances: this.searchFragrances
     }
   }
 }

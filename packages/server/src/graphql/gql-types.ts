@@ -625,6 +625,7 @@ export type Mutation = {
   voteOnAccordRequest: AccordRequest;
   voteOnBrandRequest: BrandRequest;
   voteOnFragranceRequest: FragranceRequest;
+  voteOnFragranceTrait?: Maybe<TraitVote>;
   voteOnNoteRequest: NoteRequest;
 };
 
@@ -844,6 +845,11 @@ export type MutationVoteOnFragranceRequestArgs = {
 };
 
 
+export type MutationVoteOnFragranceTraitArgs = {
+  input: VoteOnFragranceTraitInput;
+};
+
+
 export type MutationVoteOnNoteRequestArgs = {
   input: VoteOnNoteRequestInput;
 };
@@ -966,6 +972,7 @@ export type Query = {
   notes: NoteConnection;
   searchAccords: Array<Accord>;
   searchBrands: Array<Brand>;
+  searchFragrances: Array<Fragrance>;
   searchNotes: Array<Note>;
   user: User;
 };
@@ -1037,17 +1044,22 @@ export type QueryNotesArgs = {
 
 
 export type QuerySearchAccordsArgs = {
-  input?: InputMaybe<SearchAccordsInput>;
+  input?: InputMaybe<SearchInput>;
 };
 
 
 export type QuerySearchBrandsArgs = {
-  input?: InputMaybe<SearchBrandsInput>;
+  input?: InputMaybe<SearchInput>;
+};
+
+
+export type QuerySearchFragrancesArgs = {
+  input?: InputMaybe<SearchInput>;
 };
 
 
 export type QuerySearchNotesArgs = {
-  input?: InputMaybe<SearchNotesInput>;
+  input?: InputMaybe<SearchInput>;
 };
 
 
@@ -1083,17 +1095,7 @@ export type ResendSignUpCodeInput = {
   email: Scalars['String']['input'];
 };
 
-export type SearchAccordsInput = {
-  pagination?: InputMaybe<SearchPaginationInput>;
-  term?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type SearchBrandsInput = {
-  pagination?: InputMaybe<SearchPaginationInput>;
-  term?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type SearchNotesInput = {
+export type SearchInput = {
   pagination?: InputMaybe<SearchPaginationInput>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1292,6 +1294,12 @@ export type VoteOnFragranceRequestInput = {
   vote: Scalars['Int']['input'];
 };
 
+export type VoteOnFragranceTraitInput = {
+  fragranceId: Scalars['ID']['input'];
+  traitOptionId: Scalars['ID']['input'];
+  traitTypeId: Scalars['ID']['input'];
+};
+
 export type VoteOnNoteRequestInput = {
   requestId: Scalars['ID']['input'];
   vote: Scalars['Int']['input'];
@@ -1480,9 +1488,7 @@ export type ResolversTypes = ResolversObject<{
   RequestSortInput: ResolverTypeWrapper<Partial<RequestSortInput>>;
   RequestStatus: ResolverTypeWrapper<Partial<RequestStatus>>;
   ResendSignUpCodeInput: ResolverTypeWrapper<Partial<ResendSignUpCodeInput>>;
-  SearchAccordsInput: ResolverTypeWrapper<Partial<SearchAccordsInput>>;
-  SearchBrandsInput: ResolverTypeWrapper<Partial<SearchBrandsInput>>;
-  SearchNotesInput: ResolverTypeWrapper<Partial<SearchNotesInput>>;
+  SearchInput: ResolverTypeWrapper<Partial<SearchInput>>;
   SearchPaginationInput: ResolverTypeWrapper<Partial<SearchPaginationInput>>;
   SearchSortBy: ResolverTypeWrapper<Partial<SearchSortBy>>;
   SearchSortInput: ResolverTypeWrapper<Partial<SearchSortInput>>;
@@ -1513,6 +1519,7 @@ export type ResolversTypes = ResolversObject<{
   VoteOnAccordRequestInput: ResolverTypeWrapper<Partial<VoteOnAccordRequestInput>>;
   VoteOnBrandRequestInput: ResolverTypeWrapper<Partial<VoteOnBrandRequestInput>>;
   VoteOnFragranceRequestInput: ResolverTypeWrapper<Partial<VoteOnFragranceRequestInput>>;
+  VoteOnFragranceTraitInput: ResolverTypeWrapper<Partial<VoteOnFragranceTraitInput>>;
   VoteOnNoteRequestInput: ResolverTypeWrapper<Partial<VoteOnNoteRequestInput>>;
 }>;
 
@@ -1615,9 +1622,7 @@ export type ResolversParentTypes = ResolversObject<{
   RequestPaginationInput: Partial<RequestPaginationInput>;
   RequestSortInput: Partial<RequestSortInput>;
   ResendSignUpCodeInput: Partial<ResendSignUpCodeInput>;
-  SearchAccordsInput: Partial<SearchAccordsInput>;
-  SearchBrandsInput: Partial<SearchBrandsInput>;
-  SearchNotesInput: Partial<SearchNotesInput>;
+  SearchInput: Partial<SearchInput>;
   SearchPaginationInput: Partial<SearchPaginationInput>;
   SearchSortInput: Partial<SearchSortInput>;
   SetFragranceRequestAccordsInput: Partial<SetFragranceRequestAccordsInput>;
@@ -1645,6 +1650,7 @@ export type ResolversParentTypes = ResolversObject<{
   VoteOnAccordRequestInput: Partial<VoteOnAccordRequestInput>;
   VoteOnBrandRequestInput: Partial<VoteOnBrandRequestInput>;
   VoteOnFragranceRequestInput: Partial<VoteOnFragranceRequestInput>;
+  VoteOnFragranceTraitInput: Partial<VoteOnFragranceTraitInput>;
   VoteOnNoteRequestInput: Partial<VoteOnNoteRequestInput>;
 }>;
 
@@ -1968,6 +1974,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;
   voteOnBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationVoteOnBrandRequestArgs, 'input'>>;
   voteOnFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceRequestArgs, 'input'>>;
+  voteOnFragranceTrait?: Resolver<Maybe<ResolversTypes['TraitVote']>, ParentType, ContextType, RequireFields<MutationVoteOnFragranceTraitArgs, 'input'>>;
   voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
 }>;
 
@@ -2054,6 +2061,7 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
   searchAccords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
   searchBrands?: Resolver<Array<ResolversTypes['Brand']>, ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;
+  searchFragrances?: Resolver<Array<ResolversTypes['Fragrance']>, ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   searchNotes?: Resolver<Array<ResolversTypes['Note']>, ParentType, ContextType, Partial<QuerySearchNotesArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;

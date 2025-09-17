@@ -1,8 +1,3 @@
-input SearchAccordsInput {
-  term: String
-  pagination: SearchPaginationInput
-}
-
 extend type Query {
-  searchAccords(input: SearchAccordsInput): [Accord!]!
+  searchAccords(input: SearchInput): [Accord!]!
 }

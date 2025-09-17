@@ -1,7 +1,12 @@
 type FragranceAccord {
   id: ID!
   accord: Accord!
-  # There may be other complex fields
+  votesStats: FragranceAccordVoteStats!
+}
+
+type FragranceAccordVoteStats {
+  total: Int!
+  myVote: Boolean
 }
 
 type FragranceAccordEdge {

@@ -25,8 +25,7 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
     const { pagination } = options ?? {}
 
     let query = this.Table
-      .baseQuery
-      .where(this.Table.filterDeleted(where))
+      .find(this.Table.filterDeleted(where))
 
     if (pagination != null) {
       query = this.Table.paginatedQuery(pagination, query)
@@ -35,6 +34,20 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
     return ResultAsync
       .fromPromise(
         query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  override findOne (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
+  ): ResultAsync<R, BackendError> {
+    const query = this
+      .Table
+      .findOne(this.Table.filterDeleted(where))
+
+    return ResultAsync
+      .fromPromise(
+        query.executeTakeFirstOrThrow(),
         error => BackendError.fromDatabase(error)
       )
   }

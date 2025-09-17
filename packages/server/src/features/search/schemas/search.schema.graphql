@@ -12,3 +12,8 @@ input SearchPaginationInput {
   offset: Int
   sort: SearchSortInput
 }
+
+input SearchInput {
+  term: String
+  pagination: SearchPaginationInput
+}

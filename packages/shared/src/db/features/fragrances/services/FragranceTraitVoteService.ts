@@ -20,7 +20,11 @@ export class FragranceTraitVoteService extends FeaturedTableService<FragranceTra
       .select([
         'fragranceTraitVotes.fragranceId',
         'fragranceTraitVotes.traitOptionId',
-        this.db.fn.countAll<number>().as('votes')
+        this
+          .db
+          .fn
+          .countAll()
+          .as('votes')
       ])
       .where('fragranceTraitVotes.deletedAt', 'is', null)
 
@@ -35,5 +39,6 @@ export class FragranceTraitVoteService extends FeaturedTableService<FragranceTra
         query.execute(),
         error => BackendError.fromDatabase(error)
       )
+      .map(rows => rows.map(row => ({ ...row, votes: Number(row.votes) })))
   }
 }

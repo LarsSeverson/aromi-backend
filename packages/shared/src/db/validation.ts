@@ -24,3 +24,12 @@ export const ValidVote = z
     ],
     'Vote must be -1, 0, or 1'
   )
+
+export const ValidVoteBinary = z
+  .union(
+    [
+      z.literal(0),
+      z.literal(1)
+    ],
+    'Vote must be 0 or 1'
+  )
