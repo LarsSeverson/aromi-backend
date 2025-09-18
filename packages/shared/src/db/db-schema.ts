@@ -17,6 +17,12 @@ export enum AvatarStatus {
   READY = "READY",
 }
 
+export enum EditStatus {
+  APPROVED = "APPROVED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+}
+
 export enum FragranceConcentration {
   BODY_MIST = "BODY_MIST",
   EAU_FRAICHE = "EAU_FRAICHE",
@@ -49,6 +55,12 @@ export enum RequestStatus {
   PUBLISHED = "PUBLISHED",
 }
 
+export enum UserRole {
+  ADMIN = "ADMIN",
+  MODERATOR = "MODERATOR",
+  USER = "USER",
+}
+
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
@@ -56,6 +68,27 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
 export type Timestamp = ColumnType<string, string, string>;
+
+export interface AccordEdit {
+  accordId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  proposedAvatarContentType: string | null;
+  proposedAvatarName: string | null;
+  proposedAvatarS3Key: string | null;
+  proposedAvatarSizeBytes: Int8 | null;
+  proposedAvatarStatus: AssetStatus | null;
+  proposedColor: string | null;
+  proposedDescription: string | null;
+  proposedName: string | null;
+  reason: string | null;
+  reviewedAt: Timestamp | null;
+  reviewedBy: string | null;
+  reviewerFeedback: string | null;
+  status: Generated<EditStatus>;
+  userId: string;
+}
 
 export interface AccordImage {
   accordId: string;
@@ -117,6 +150,39 @@ export interface Accord {
   id: Generated<string>;
   name: string;
   updatedAt: Generated<Timestamp>;
+}
+
+export interface AssetUpload {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  name: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  status: Generated<AssetStatus>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface BrandEdit {
+  brandId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  proposedAvatarContentType: string | null;
+  proposedAvatarName: string | null;
+  proposedAvatarS3Key: string | null;
+  proposedAvatarSizeBytes: Int8 | null;
+  proposedAvatarStatus: AssetStatus | null;
+  proposedDescription: string | null;
+  proposedName: string | null;
+  proposedWebsite: string | null;
+  reason: string | null;
+  reviewedAt: Timestamp | null;
+  reviewedBy: string | null;
+  reviewerFeedback: string | null;
+  status: Generated<EditStatus>;
+  userId: string;
 }
 
 export interface BrandImage {
@@ -193,14 +259,23 @@ export interface FragranceAccord {
   voteScore: Generated<number>;
 }
 
+export interface FragranceAccordScore {
+  accordId: string;
+  downvotes: Generated<number>;
+  fragranceId: string;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface FragranceAccordVote {
+  accordId: string;
   createdAt: Generated<Timestamp | null>;
   deletedAt: Timestamp | null;
-  fragranceAccordId: string;
+  fragranceId: string;
   id: Generated<string>;
   updatedAt: Generated<Timestamp | null>;
   userId: string;
-  vote: number;
 }
 
 export interface FragranceCollection {
@@ -242,14 +317,24 @@ export interface FragranceNote {
   voteScore: Generated<number>;
 }
 
+export interface FragranceNoteScore {
+  downvotes: Generated<number>;
+  fragranceId: string;
+  layer: NoteLayerEnum;
+  noteId: string;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface FragranceNoteVote {
-  createdAt: Generated<Timestamp | null>;
+  createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
-  fragranceNoteId: string;
+  fragranceId: string;
   id: Generated<string>;
-  updatedAt: Generated<Timestamp | null>;
+  layer: NoteLayerEnum;
+  noteId: string;
   userId: string;
-  vote: number;
 }
 
 export interface FragranceRequestAccord {
@@ -436,17 +521,21 @@ export interface User {
   deletedAt: Timestamp | null;
   email: string;
   id: Generated<string>;
+  role: Generated<UserRole>;
   updatedAt: Generated<Timestamp>;
   username: string;
 }
 
 export interface DB {
+  accordEdits: AccordEdit;
   accordImages: AccordImage;
   accordRequestImages: AccordRequestImage;
   accordRequests: AccordRequest;
   accordRequestVoteCounts: AccordRequestVoteCount;
   accordRequestVotes: AccordRequestVote;
   accords: Accord;
+  assetUploads: AssetUpload;
+  brandEdits: BrandEdit;
   brandImages: BrandImage;
   brandRequestImages: BrandRequestImage;
   brandRequests: BrandRequest;
@@ -454,10 +543,12 @@ export interface DB {
   brandRequestVotes: BrandRequestVote;
   brands: Brand;
   fragranceAccords: FragranceAccord;
+  fragranceAccordScores: FragranceAccordScore;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceCollections: FragranceCollection;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
+  fragranceNoteScores: FragranceNoteScore;
   fragranceNoteVotes: FragranceNoteVote;
   fragranceRequestAccords: FragranceRequestAccord;
   fragranceRequestImages: FragranceRequestImage;

@@ -8,6 +8,7 @@ type FragranceNote {
   id: ID!
   note: Note!
   layer: NoteLayer!
+  votes: VoteInfo!
 }
 
 type FragranceNoteEdge {
@@ -21,7 +22,7 @@ type FragranceNoteConnection {
 }
 
 enum FragranceNoteSortBy {
-  RECENT
+  VOTES
 }
 
 input FragranceNoteSortInput {
@@ -34,4 +35,14 @@ input FragranceNotePaginationInput {
   first: Int
   after: String
   sort: FragranceNoteSortInput
+}
+
+input VoteOnFragranceNoteInput {
+  fragranceId: ID!
+  noteId: ID!
+  layer: NoteLayer!
+}
+
+extend type Mutation {
+  voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
 }

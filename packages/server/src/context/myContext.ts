@@ -15,6 +15,7 @@ export const getMyContext = (context: ServerContext): ResultAsync<UserRow, Backe
       .findOne(
         eb => eb('id', '=', '5a10574b-908e-44f6-944e-9a292c9d1aeb')
       )
+      .orTee(console.log)
   }
 
   return services

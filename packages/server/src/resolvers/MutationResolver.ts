@@ -1,7 +1,8 @@
 import type { ServerContext } from '@src/context/index.js'
 import { RequestResolver, type RequestResolverParams } from './RequestResolver.js'
-import { BackendError } from '@aromi/shared'
+import { BackendError, UserRole } from '@aromi/shared'
 import type { Args, Info, Parent, ResolverReturn } from '@src/utils/types.js'
+import { err, ok } from 'neverthrow'
 
 export abstract class MutationResolver<
   TResolver,
@@ -32,5 +33,21 @@ export abstract class MutationResolver<
     }
 
     this.me = this.context.me
+  }
+
+  protected checkAdminAuthorized () {
+    const { role } = this.me
+
+    if (role !== UserRole.ADMIN) {
+      return err(
+        new BackendError(
+          'NOT_AUTHORIZED',
+          'You are not authorized to perform this action',
+          403
+        )
+      )
+    }
+
+    return ok(this.me)
   }
 }

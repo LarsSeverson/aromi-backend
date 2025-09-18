@@ -58,6 +58,6 @@ export const mapFragranceImageRowToFragranceImage = (row: FragranceImageRow): Fr
     id,
     width,
     height,
-    bg: primaryColor
+    primaryColor
   }
 }

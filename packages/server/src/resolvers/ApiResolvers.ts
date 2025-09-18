@@ -2,16 +2,19 @@ import type { Resolvers } from '@src/graphql/gql-types.js'
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
 import { AuthMutationResolvers } from '@src/features/auth/index.js'
 import { UserFieldResolvers, UserMutationResolvers, UserQueryResolvers } from '@src/features/users/index.js'
-import { BrandQueryResolvers } from '@src/features/brands/index.js'
-import { AccordQueryResolvers } from '@src/features/accords/index.js'
+import { BrandEditFieldResolvers, BrandFieldResolvers, BrandMutationResolvers, BrandQueryResolvers } from '@src/features/brands/index.js'
+import { AccordMutationResolvers, AccordQueryResolvers } from '@src/features/accords/index.js'
 import { NoteFieldResolvers, NoteQueryResolvers } from '@src/features/notes/index.js'
 import { FragranceRequestFieldResolvers, FragranceRequestMutationResolvers, FragranceRequestQueryResolvers } from '@src/features/fragranceRequests/index.js'
 import { BrandRequestFieldResolvers, BrandRequestMutationResolvers, BrandRequestQueryResolvers } from '@src/features/brandRequests/index.js'
 import { AccordRequestFieldResolvers, AccordRequestMutationResolvers, AccordRequestQueryResolvers } from '@src/features/accordRequests/index.js'
 import { NoteRequestFieldResolvers, NoteRequestMutationResolvers, NoteRequestQueryResolvers } from '@src/features/noteRequests/index.js'
 import { FragracneQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers } from '@src/features/fragrances/index.js'
+import { AssetMutationResolvers } from '@src/features/assets/index.js'
+import { AccordEditFieldResolvers } from '@src/features/accords/resolvers/AccordEditFieldResolvers.js'
 
 const authMutations = new AuthMutationResolvers()
+const assetMutations = new AssetMutationResolvers()
 
 const userQueries = new UserQueryResolvers()
 const userFieldQueries = new UserFieldResolvers()
@@ -22,7 +25,13 @@ const fragranceFieldResolvers = new FragranceFieldResolvers()
 const fragranceMutations = new FragranceMutationResolvers()
 
 const brandQueries = new BrandQueryResolvers()
+const brandMutations = new BrandMutationResolvers()
+const brandFieldResolvers = new BrandFieldResolvers()
+const brandEditFieldResolvers = new BrandEditFieldResolvers()
+
 const accordQueries = new AccordQueryResolvers()
+const accordMutations = new AccordMutationResolvers()
+const accordEditFieldResolvers = new AccordEditFieldResolvers()
 
 const noteQueries = new NoteQueryResolvers()
 const noteFieldResolvers = new NoteFieldResolvers()
@@ -69,10 +78,15 @@ export const ApiResolvers: Resolvers = {
 
   Mutation: {
     ...authMutations.getResolvers(),
+    ...assetMutations.getResolvers(),
 
     ...userMutations.getResolvers(),
 
     ...fragranceMutations.getResolvers(),
+
+    ...brandMutations.getResolvers(),
+
+    ...accordMutations.getResolvers(),
 
     ...fragranceRequestMutations.getResolvers(),
 
@@ -89,6 +103,18 @@ export const ApiResolvers: Resolvers = {
 
   Fragrance: {
     ...fragranceFieldResolvers.getResolvers()
+  },
+
+  Brand: {
+    ...brandFieldResolvers.getResolvers()
+  },
+
+  BrandEdit: {
+    ...brandEditFieldResolvers.getResolvers()
+  },
+
+  AccordEdit: {
+    ...accordEditFieldResolvers.getResolvers()
   },
 
   Note: {

@@ -5,3 +5,7 @@ export interface IFragranceSummary extends Omit<Fragrance, 'brand' | 'images' | 
 }
 
 export type FragranceLoadersKey = string
+export interface FragranceAccordLoadersKey {
+  fragranceId: string
+  accordId: string
+}

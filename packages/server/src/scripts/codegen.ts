@@ -19,6 +19,9 @@ const config: CodegenConfig = {
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
 
           Brand: '../features/brands/types.js#IBrandSummary',
+          BrandEdit: '../features/brands/types.js#IBrandEditSummary',
+
+          AccordEdit: '../features/accords/types.js#IAccordEditSummary',
 
           Note: '../features/notes/types.js#INoteSummary',
 

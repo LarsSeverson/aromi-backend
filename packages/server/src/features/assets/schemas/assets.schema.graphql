@@ -1,0 +1,33 @@
+type Asset {
+  id: ID!
+  name: String!
+  contentType: String!
+  contentSize: Int!
+}
+
+type PresignedUpload {
+  id: ID!
+  url: String!
+  fields: JSON!
+}
+
+input StageAssetInput {
+  id: ID!
+  fileName: String!
+  contentType: String!
+  contentSize: Int!
+}
+
+input StageGenericAssetInput {
+  fileName: String!
+  contentType: String!
+  contentSize: Int!
+}
+
+input DeleteAssetInput {
+  id: ID!
+}
+
+extend type Mutation {
+  deleteAsset(input: DeleteAssetInput!): Boolean!
+}

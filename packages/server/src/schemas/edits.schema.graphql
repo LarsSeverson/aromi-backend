@@ -1,0 +1,5 @@
+enum EditStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

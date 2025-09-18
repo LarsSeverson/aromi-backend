@@ -1,3 +1,0 @@
-extend type Query {
-  searchBrands(input: SearchInput): [Brand!]!
-}

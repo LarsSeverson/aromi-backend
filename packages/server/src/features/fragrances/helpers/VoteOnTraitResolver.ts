@@ -59,7 +59,6 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
   }
 
   private upsertVote (existingVote: FragranceTraitVoteRow | null) {
-    console.log(existingVote)
     const { me, args, context } = this
 
     const { input } = args

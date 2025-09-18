@@ -7,14 +7,19 @@ import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
 import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'
 import { PRESIGNED_EXP, SIGNED_CDN_URL_EXP, type PresignUploadParams } from '../types.js'
 import { streamToBuffer } from '@src/utils/stream.js'
+import { AssetUploadService } from '@src/db/index.js'
 
 export class AssetService {
   s3: DataSources['s3']
   cdn: DataSources['cdn']
 
+  uploads: AssetUploadService
+
   constructor (sources: DataSources) {
     this.s3 = sources.s3
     this.cdn = sources.cdn
+
+    this.uploads = new AssetUploadService(sources)
   }
 
   getPresignedUrl (

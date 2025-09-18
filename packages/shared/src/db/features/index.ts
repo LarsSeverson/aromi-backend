@@ -1,10 +1,12 @@
 export * from './users/index.js'
 
+export * from './assetUploads/index.js'
 export * from './fragrances/index.js'
 export * from './brands/index.js'
 export * from './accords/index.js'
 export * from './notes/index.js'
 export * from './traits/index.js'
+export * from './edits/index.js'
 
 export * from './requests/index.js'
 export * from './fragranceRequests/index.js'

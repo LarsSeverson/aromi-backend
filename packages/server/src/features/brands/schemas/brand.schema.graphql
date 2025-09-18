@@ -2,7 +2,9 @@ type Brand {
   id: ID!
   name: String!
   website: String
-  avatar: Asset!
+  avatar: String!
+
+  fragrances(input: FragrancePaginationInput): FragranceConnection!
 }
 
 type BrandEdge {
@@ -31,5 +33,7 @@ input BrandPaginationInput {
 }
 
 extend type Query {
+  brand(id: ID!): Brand
   brands(input: BrandPaginationInput): BrandConnection!
+  searchBrands(input: SearchInput): [Brand!]!
 }

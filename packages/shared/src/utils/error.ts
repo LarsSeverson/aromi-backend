@@ -167,6 +167,13 @@ export const unwrapOrThrow = async <T, E> (result: ResultAsync<T, E>): Promise<T
   )
 }
 
+export const unwrapOrThrowSync = <T, E> (result: Result<T, E>): T => {
+  return result.match(
+    v => v,
+    throwError
+  )
+}
+
 export const partitionResults = <T, E> (results: Array<Result<T, E>>): [T[], E[]] => {
   const oks = results
     .filter(r => r.isOk())

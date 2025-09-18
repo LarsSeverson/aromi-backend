@@ -1,0 +1,68 @@
+type BrandEdit {
+  id: ID!
+  status: EditStatus!
+  reason: String
+
+  proposedName: String
+  proposedDescription: String
+  proposedWebsite: String
+  proposedAvatar: Asset
+
+  brand: Brand!
+  user: User!
+  reviewer: User
+}
+
+type BrandEditEdge {
+  node: BrandEdit!
+  cursor: String!
+}
+
+type BrandEditConnection {
+  edges: [BrandEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum BrandEditSortBy {
+  RECENT
+}
+
+input BrandEditSortInput {
+  direction: SortDirection
+  by: BrandEditSortBy
+}
+
+input BrandEditPaginationInput {
+  first: Int
+  after: String
+  sort: BrandEditSortInput
+}
+
+input CreateBrandEditInput {
+  brandId: ID!
+
+  proposedName: String
+  proposedDescription: String
+  proposedWebsite: String
+  proposedAvatarId: ID
+
+  reason: String
+}
+
+input ReviewBrandEditInput {
+  editId: ID!
+  status: EditStatus!
+  feedback: String
+}
+
+extend type Query {
+  brandEdit(id: ID!): BrandEdit!
+  brandEdits(input: BrandEditPaginationInput): BrandEditConnection!
+}
+
+extend type Mutation {
+  createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
+  reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
+
+  stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
+}

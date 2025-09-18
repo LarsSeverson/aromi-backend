@@ -1,12 +1,7 @@
 type FragranceAccord {
   id: ID!
   accord: Accord!
-  votesStats: FragranceAccordVoteStats!
-}
-
-type FragranceAccordVoteStats {
-  total: Int!
-  myVote: Boolean
+  votes: VoteInfo!
 }
 
 type FragranceAccordEdge {
@@ -20,7 +15,7 @@ type FragranceAccordConnection {
 }
 
 enum FragranceAccordSortBy {
-  RECENT
+  VOTES
 }
 
 input FragranceAccordSortInput {
@@ -32,4 +27,13 @@ input FragranceAccordPaginationInput {
   first: Int
   after: String
   sort: FragranceAccordSortInput
+}
+
+input VoteOnFragranceAccordInput {
+  fragranceId: ID!
+  accordId: ID!
+}
+
+extend type Mutation {
+  voteOnFragranceAccord(input: VoteOnFragranceAccordInput!): Accord!
 }

@@ -8,7 +8,7 @@ export class FAPaginationFactory extends CursorPaginationFactory<FragranceAccord
     switch (sort?.by) {
       default:
         return {
-          column: 'createdAt',
+          column: 'score',
           direction: sort?.direction ?? SortDirection.Descending,
           decoder: v => String(v)
         }

@@ -14,6 +14,43 @@ type AccordEdge {
   node: Accord!
 }
 
+type AccordEdit {
+  accord: Accord!
+  id: ID!
+  proposedColor: String
+  proposedDescription: String
+  proposedName: String
+  reason: String
+  reviewer: User
+  status: EditStatus!
+  user: User!
+}
+
+type AccordEditConnection {
+  edges: [AccordEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+type AccordEditEdge {
+  cursor: String!
+  node: AccordEdit!
+}
+
+input AccordEditPaginationInput {
+  after: String
+  first: Int
+  sort: AccordEditSortInput
+}
+
+enum AccordEditSortBy {
+  RECENT
+}
+
+input AccordEditSortInput {
+  by: AccordEditSortBy
+  direction: SortDirection
+}
+
 input AccordPaginationInput {
   after: String
   first: Int
@@ -68,11 +105,10 @@ input AccordSortInput {
 }
 
 type Asset {
+  contentSize: Int!
+  contentType: String!
   id: ID!
   name: String!
-  size: Int!
-  type: String!
-  url: String
 }
 
 type AuthCodeDeliveryDetails {
@@ -100,7 +136,8 @@ enum AvatarStatus {
 }
 
 type Brand {
-  avatar: Asset!
+  avatar: String!
+  fragrances(input: FragrancePaginationInput): FragranceConnection!
   id: ID!
   name: String!
   website: String
@@ -114,6 +151,44 @@ type BrandConnection {
 type BrandEdge {
   cursor: String!
   node: Brand!
+}
+
+type BrandEdit {
+  brand: Brand!
+  id: ID!
+  proposedAvatar: Asset
+  proposedDescription: String
+  proposedName: String
+  proposedWebsite: String
+  reason: String
+  reviewer: User
+  status: EditStatus!
+  user: User!
+}
+
+type BrandEditConnection {
+  edges: [BrandEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BrandEditEdge {
+  cursor: String!
+  node: BrandEdit!
+}
+
+input BrandEditPaginationInput {
+  after: String
+  first: Int
+  sort: BrandEditSortInput
+}
+
+enum BrandEditSortBy {
+  RECENT
+}
+
+input BrandEditSortInput {
+  by: BrandEditSortBy
+  direction: SortDirection
 }
 
 input BrandPaginationInput {
@@ -191,10 +266,27 @@ input ConfirmSignUpInput {
   email: String!
 }
 
+input CreateAccordEditInput {
+  accordId: ID!
+  proposedColor: String
+  proposedDescription: String
+  proposedName: String
+  reason: String
+}
+
 input CreateAccordRequestInput {
   color: String
   description: String
   name: String
+}
+
+input CreateBrandEditInput {
+  brandId: ID!
+  proposedAvatarId: ID
+  proposedDescription: String
+  proposedName: String
+  proposedWebsite: String
+  reason: String
 }
 
 input CreateBrandRequestInput {
@@ -229,6 +321,10 @@ input DeleteAccordRequestInput {
   id: ID!
 }
 
+input DeleteAssetInput {
+  id: ID!
+}
+
 input DeleteBrandRequestImageInput {
   assetId: ID!
   requestId: ID!
@@ -257,6 +353,12 @@ input DeleteNoteRequestImageInput {
 
 input DeleteNoteRequestInput {
   id: ID!
+}
+
+enum EditStatus {
+  APPROVED
+  PENDING
+  REJECTED
 }
 
 input FinalizeAccordRequestImageInput {
@@ -304,6 +406,7 @@ type Fragrance {
 type FragranceAccord {
   accord: Accord!
   id: ID!
+  votes: VoteInfo!
 }
 
 type FragranceAccordConnection {
@@ -323,7 +426,7 @@ input FragranceAccordPaginationInput {
 }
 
 enum FragranceAccordSortBy {
-  RECENT
+  VOTES
 }
 
 input FragranceAccordSortInput {
@@ -342,9 +445,9 @@ type FragranceEdge {
 }
 
 type FragranceImage {
-  bg: String
   height: Int!
   id: ID!
+  primaryColor: String
   url: String
   width: Int!
 }
@@ -363,6 +466,7 @@ type FragranceNote {
   id: ID!
   layer: NoteLayer!
   note: Note!
+  votes: VoteInfo!
 }
 
 type FragranceNoteConnection {
@@ -383,7 +487,7 @@ input FragranceNotePaginationInput {
 }
 
 enum FragranceNoteSortBy {
-  RECENT
+  VOTES
 }
 
 input FragranceNoteSortInput {
@@ -485,12 +589,15 @@ input LogInInput {
 type Mutation {
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
   confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  createAccordEdit(input: CreateAccordEditInput!): AccordEdit!
   createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
+  createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
   createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
   createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAccordRequestImage(input: DeleteAccordRequestImageInput!): AccordRequest!
+  deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
   deleteBrandRequestImage(input: DeleteBrandRequestImageInput!): BrandRequest!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
@@ -506,12 +613,15 @@ type Mutation {
   logOut: Boolean!
   refresh: AuthTokenPayload
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
+  reviewAccordEdit(input: ReviewAccordEditInput!): AccordEdit!
+  reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
   setFragranceRequestAccords(input: SetFragranceRequestAccordsInput!): FragranceRequest!
   setFragranceRequestBrand(input: SetFragranceRequestBrandInput!): FragranceRequest!
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
   setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
   signUp(input: SignUpInput!): AuthDeliveryResult!
   stageAccordRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
   stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
   stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
   stageNoteRequestImage(input: StageAssetInput!): PresignedUpload!
@@ -527,6 +637,8 @@ type Mutation {
   updateUserAvatar(input: StageAssetInput!): PresignedUpload!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
+  voteOnFragranceAccord(input: VoteOnFragranceAccordInput!): Accord!
+  voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
   voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
@@ -620,9 +732,14 @@ type PresignedUpload {
 }
 
 type Query {
+  accordEdit(id: ID!): AccordEdit!
+  accordEdits(input: AccordEditPaginationInput): AccordEditConnection!
   accordRequest(id: ID!): AccordRequest!
   accordRequests(input: RequestPaginationInput): AccordRequestConnection!
   accords(input: AccordPaginationInput): AccordConnection!
+  brand(id: ID!): Brand
+  brandEdit(id: ID!): BrandEdit!
+  brandEdits(input: BrandEditPaginationInput): BrandEditConnection!
   brandRequest(id: ID!): BrandRequest!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   brands(input: BrandPaginationInput): BrandConnection!
@@ -665,6 +782,18 @@ enum RequestStatus {
 
 input ResendSignUpCodeInput {
   email: String!
+}
+
+input ReviewAccordEditInput {
+  editId: ID!
+  feedback: String
+  status: EditStatus!
+}
+
+input ReviewBrandEditInput {
+  editId: ID!
+  feedback: String
+  status: EditStatus!
 }
 
 input SearchInput {
@@ -728,6 +857,12 @@ input StageAssetInput {
   contentType: String!
   fileName: String!
   id: ID!
+}
+
+input StageGenericAssetInput {
+  contentSize: Int!
+  contentType: String!
+  fileName: String!
 }
 
 input SubmitAccordRequestInput {
@@ -840,6 +975,17 @@ input VoteOnAccordRequestInput {
 input VoteOnBrandRequestInput {
   requestId: ID!
   vote: Int!
+}
+
+input VoteOnFragranceAccordInput {
+  accordId: ID!
+  fragranceId: ID!
+}
+
+input VoteOnFragranceNoteInput {
+  fragranceId: ID!
+  layer: NoteLayer!
+  noteId: ID!
 }
 
 input VoteOnFragranceRequestInput {

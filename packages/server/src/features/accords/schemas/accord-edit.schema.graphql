@@ -1,0 +1,64 @@
+type AccordEdit {
+  id: ID!
+  status: EditStatus!
+  reason: String
+
+  proposedName: String
+  proposedColor: String
+  proposedDescription: String
+
+  accord: Accord!
+  user: User!
+  reviewer: User
+}
+
+type AccordEditEdge {
+  node: AccordEdit!
+  cursor: String!
+}
+
+type AccordEditConnection {
+  edges: [AccordEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum AccordEditSortBy {
+  RECENT
+}
+
+input AccordEditSortInput {
+  direction: SortDirection
+  by: AccordEditSortBy
+}
+
+input AccordEditPaginationInput {
+  first: Int
+  after: String
+  sort: AccordEditSortInput
+}
+
+input CreateAccordEditInput {
+  accordId: ID!
+
+  proposedName: String
+  proposedColor: String
+  proposedDescription: String
+
+  reason: String
+}
+
+input ReviewAccordEditInput {
+  editId: ID!
+  status: EditStatus!
+  feedback: String
+}
+
+extend type Query {
+  accordEdit(id: ID!): AccordEdit!
+  accordEdits(input: AccordEditPaginationInput): AccordEditConnection!
+}
+
+extend type Mutation {
+  createAccordEdit(input: CreateAccordEditInput!): AccordEdit!
+  reviewAccordEdit(input: ReviewAccordEditInput!): AccordEdit!
+}

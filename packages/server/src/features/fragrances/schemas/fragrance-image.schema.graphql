@@ -1,7 +1,7 @@
 type FragranceImage {
   id: ID!
   url: String
-  bg: String
+  primaryColor: String
   width: Int!
   height: Int!
 }
