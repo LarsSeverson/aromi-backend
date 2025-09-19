@@ -17,6 +17,7 @@ const config: CodegenConfig = {
           User: '../features/users/types.js#IUserSummary',
 
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
+          FragranceEdit: '../features/fragrances/types.js#IFragranceEditSummary',
 
           Brand: '../features/brands/types.js#IBrandSummary',
           BrandEdit: '../features/brands/types.js#IBrandEditSummary',
@@ -24,6 +25,7 @@ const config: CodegenConfig = {
           AccordEdit: '../features/accords/types.js#IAccordEditSummary',
 
           Note: '../features/notes/types.js#INoteSummary',
+          NoteEdit: '../features/notes/types.js#INoteEditSummary',
 
           FragranceRequest: '../features/fragranceRequests/types.js#IFragranceRequestSummary',
 

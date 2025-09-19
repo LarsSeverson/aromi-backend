@@ -1,6 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { type BackendError, type EditStatus, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { type BackendError, type BrandEditRow, type EditStatus, EditType, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewBrandEdit']
@@ -18,8 +18,15 @@ export class ReviewBrandEditResolver extends MutationResolver<Mutation> {
     unwrapOrThrowSync(this.checkAdminAuthorized())
 
     const brandEditRow = await unwrapOrThrow(this.updateRow())
+    await unwrapOrThrow(this.handleQueueJob(brandEditRow))
 
     return brandEditRow
+  }
+
+  private handleQueueJob (editRow: BrandEditRow) {
+    return this
+      .createJob(editRow)
+      .andThen(() => this.enqueueJob(editRow))
   }
 
   private updateRow () {
@@ -30,13 +37,13 @@ export class ReviewBrandEditResolver extends MutationResolver<Mutation> {
 
     const { editId, status, feedback } = input
     const { brands } = services
-    const reviewerId = me.id
+    const reviewedBy = me.id
 
-    const values = {
-      reviewerId,
+    const values: Partial<BrandEditRow> = {
+      reviewedBy,
       status: status as EditStatus,
       reviewerFeedback: feedback,
-      reviewdAt: new Date().toISOString()
+      reviewedAt: new Date().toISOString()
     }
 
     return brands
@@ -45,5 +52,30 @@ export class ReviewBrandEditResolver extends MutationResolver<Mutation> {
         eb => eb('id', '=', editId),
         values
       )
+  }
+
+  private createJob (editRow: BrandEditRow) {
+    const { context } = this
+    const { services } = context
+
+    const { brands } = services
+
+    return brands
+      .edits
+      .jobs
+      .createOne({ editId: editRow.id, editType: EditType.BRAND })
+  }
+
+  private enqueueJob (editRow: BrandEditRow) {
+    const { context } = this
+    const { queues } = context
+
+    const { revisions } = queues
+
+    return revisions
+      .enqueue({
+        jobName: REVISION_JOB_NAMES.REVISE_BRAND,
+        data: { editId: editRow.id }
+      })
   }
 }

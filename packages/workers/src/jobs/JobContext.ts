@@ -31,6 +31,19 @@ export class JobContext {
       )
   }
 
+  async withTransactionAsync<R>(
+    fn: (ctx: this) => Promise<R>
+  ): Promise<R> {
+    const { db } = this.sources
+
+    return await db
+      .transaction()
+      .execute(async trx => {
+        const trxContext = this.createTrxContext(trx)
+        return await fn(trxContext)
+      })
+  }
+
   private createTrxContext (trx: DataSources['db']): this {
     const Ctor = this.constructor as new (sources: DataSources) => this
     const sources = this.sources.with({ db: trx })

@@ -1,4 +1,5 @@
 import { AccordRequestService, AccordService, AssetService, BrandRequestService, BrandService, type DataSources, FragranceRequestService, FragranceService, NoteRequestService, NoteService, SearchServices } from '@aromi/shared'
+import { EditJobService } from '@aromi/shared/src/db/features/edits/services/EditJobService.js'
 
 export class JobServices {
   assets: AssetService
@@ -14,6 +15,7 @@ export class JobServices {
   noteRequests: NoteRequestService
 
   search: SearchServices
+  editJobs: EditJobService
 
   constructor (sources: DataSources) {
     this.assets = new AssetService(sources)
@@ -29,5 +31,6 @@ export class JobServices {
     this.noteRequests = new NoteRequestService(sources)
 
     this.search = new SearchServices(sources)
+    this.editJobs = new EditJobService(sources)
   }
 }

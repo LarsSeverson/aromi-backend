@@ -5,12 +5,14 @@ import { FragranceAccordService } from './FragranceAccordService.js'
 import { FragranceNoteService } from './FragranceNoteService.js'
 import { FeaturedTableService } from '@src/db/services/FeaturedTableService.js'
 import { FragranceTraitVoteService } from './FragranceTraitVoteService.js'
+import { FragranceEditService } from './FragranceEditService.js'
 
 export class FragranceService extends FeaturedTableService<FragranceRow> {
   images: FragranceImageService
   accords: FragranceAccordService
   notes: FragranceNoteService
   traitVotes: FragranceTraitVoteService
+  edits: FragranceEditService
 
   constructor (sources: DataSources) {
     super(sources, 'fragrances')
@@ -19,5 +21,6 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
     this.accords = new FragranceAccordService(sources)
     this.notes = new FragranceNoteService(sources)
     this.traitVotes = new FragranceTraitVoteService(sources)
+    this.edits = new FragranceEditService(sources)
   }
 }

@@ -3,3 +3,16 @@ enum EditStatus {
   APPROVED
   REJECTED
 }
+
+enum EditJobStatus {
+  QUEUED
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+type EditJob {
+  id: ID!
+  status: EditJobStatus!
+  error: String
+}

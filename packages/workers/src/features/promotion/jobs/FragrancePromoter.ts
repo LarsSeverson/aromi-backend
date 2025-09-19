@@ -2,7 +2,7 @@ import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow
 import type z from 'zod'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
-import { AssetStatus, BackendError, type FragranceAccordRow, type FragranceImageRow, type FragranceNoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
+import { AssetStatus, BackendError, type FragranceAccordVoteRow, type FragranceImageRow, type FragranceNoteVoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
 import { SEARCH_SYNC_JOB_NAMES } from '@aromi/shared'
@@ -34,7 +34,10 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       )
       .andTee(({ fragrance }) => queues
         .searchSync
-        .enqueue({ jobName: SEARCH_SYNC_JOB_NAMES.SYNC_FRAGRANCE, data: { fragranceId: fragrance.id } })
+        .enqueue({
+          jobName: SEARCH_SYNC_JOB_NAMES.SYNC_FRAGRANCE,
+          data: { fragranceId: fragrance.id }
+        })
       )
       .andThrough(({ image }) => this
         .processImage(image)
@@ -101,16 +104,17 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteAccords (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceAccordRow[], BackendError> {
+  ): ResultAsync<FragranceAccordVoteRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
+    const { id: requestId, userId } = request
     const { id: fragranceId } = fragrance
 
     return fragranceRequests
       .accords
       .find(
-        eb => eb('requestId', '=', request.id)
+        eb => eb('requestId', '=', requestId)
       )
       .andThen(accords => {
         if (accords.length === 0) {
@@ -118,10 +122,11 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         }
 
         const values = accords
-          .map(({ accordId }) => ({ fragranceId, accordId }))
+          .map(({ accordId }) => ({ fragranceId, accordId, userId }))
 
         return fragrances
           .accords
+          .votes
           .create(values)
       })
   }
@@ -129,16 +134,17 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   private promoteNotes (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceNoteRow[], BackendError> {
+  ): ResultAsync<FragranceNoteVoteRow[], BackendError> {
     const { services } = this.context
     const { fragrances, fragranceRequests } = services
 
+    const { id: requestId, userId } = request
     const { id: fragranceId } = fragrance
 
     return fragranceRequests
       .notes
       .find(
-        eb => eb('requestId', '=', request.id)
+        eb => eb('requestId', '=', requestId)
       )
       .andThen(notes => {
         if (notes.length === 0) {
@@ -146,10 +152,11 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         }
 
         const values = notes
-          .map(({ noteId, layer }) => ({ fragranceId, noteId, layer }))
+          .map(({ noteId, layer }) => ({ fragranceId, userId, noteId, layer }))
 
         return fragrances
           .notes
+          .votes
           .create(values)
       })
   }

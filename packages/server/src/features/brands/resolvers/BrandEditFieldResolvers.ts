@@ -60,11 +60,34 @@ export class BrandEditFieldResolvers extends BaseResolver<BrandEditResolvers> {
     return mapUserRowToUserSummary(row)
   }
 
+  proposedAvatar: BrandEditResolvers['proposedAvatar'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { proposedAvatarId } = parent
+    const { services } = context
+
+    if (proposedAvatarId == null) return null
+
+    const { assets } = services
+
+    const row = await unwrapOrThrow(
+      assets
+        .uploads
+        .findOne(a => a('id', '=', proposedAvatarId))
+    )
+
+    return row
+  }
+
   getResolvers (): BrandEditResolvers {
     return {
       brand: this.brand,
       user: this.user,
-      reviewer: this.reviewer
+      reviewer: this.reviewer,
+      proposedAvatar: this.proposedAvatar
     }
   }
 }

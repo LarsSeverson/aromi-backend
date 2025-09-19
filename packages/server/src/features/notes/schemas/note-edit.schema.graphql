@@ -1,0 +1,66 @@
+type NoteEdit {
+  id: ID!
+  status: EditStatus!
+  reason: String
+
+  proposedName: String
+  proposedDescription: String
+  proposedThumbnail: Asset
+
+  note: Note!
+  user: User!
+  reviewer: User
+}
+
+type NoteEditEdge {
+  node: NoteEdit!
+  cursor: String!
+}
+
+type NoteEditConnection {
+  edges: [NoteEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum NoteEditSortBy {
+  RECENT
+}
+
+input NoteEditSortInput {
+  direction: SortDirection
+  by: NoteEditSortBy
+}
+
+input NoteEditPaginationInput {
+  first: Int
+  after: String
+  sort: NoteEditSortInput
+}
+
+input CreateNoteEditInput {
+  noteId: ID!
+
+  proposedName: String
+  proposedDescription: String
+  proposedThumbnailId: String
+
+  reason: String
+}
+
+input ReviewNoteEditInput {
+  editId: ID!
+  status: EditStatus!
+  feedback: String
+}
+
+extend type Query {
+  noteEdit(id: ID!): NoteEdit!
+  noteEdits(input: NoteEditPaginationInput): NoteEditConnection!
+}
+
+extend type Mutation {
+  createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
+  reviewNoteEdit(input: ReviewNoteEditInput!): NoteEdit!
+
+  stageNoteEditThumbnail(input: StageGenericAssetInput!): PresignedUpload!
+}

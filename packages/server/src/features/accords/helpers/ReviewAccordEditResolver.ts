@@ -1,6 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { type BackendError, type EditStatus, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { type AccordEditRow, type BackendError, type EditStatus, EditType, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
 import { ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewAccordEdit']
@@ -18,6 +18,7 @@ export class ReviewAccordEditResolver extends MutationResolver<Mutation> {
     unwrapOrThrowSync(this.checkAdminAuthorized())
 
     const accordEditRow = await unwrapOrThrow(this.updateRow())
+    await unwrapOrThrow(this.queueRevision(accordEditRow))
 
     return accordEditRow
   }
@@ -30,13 +31,13 @@ export class ReviewAccordEditResolver extends MutationResolver<Mutation> {
 
     const { editId, status, feedback } = input
     const { accords } = services
-    const reviewerId = me.id
+    const reviewedBy = me.id
 
-    const values = {
-      reviewerId,
+    const values: Partial<AccordEditRow> = {
+      reviewedBy,
       status: status as EditStatus,
       reviewerFeedback: feedback,
-      reviewdAt: new Date().toISOString()
+      reviewedAt: new Date().toISOString()
     }
 
     return accords
@@ -46,4 +47,36 @@ export class ReviewAccordEditResolver extends MutationResolver<Mutation> {
         values
       )
   }
+
+  private queueRevision (editRow: AccordEditRow) {
+    return this
+      .createJob(editRow)
+      .andThen(() => this.enqueueJob(editRow))
+  }
+
+  private createJob (editRow: AccordEditRow) {
+    const { context } = this
+    const { services } = context
+
+    const { accords } = services
+
+    return accords
+      .edits
+      .jobs
+      .createOne({ editId: editRow.id, editType: EditType.ACCORD })
+  }
+
+  private enqueueJob (editRow: AccordEditRow) {
+    const { context } = this
+    const { queues } = context
+
+    const { revisions } = queues
+
+    return revisions
+      .enqueue({
+        jobName: REVISION_JOB_NAMES.REVISE_ACCORD,
+        data: { editId: editRow.id }
+      })
+  }
+
 }

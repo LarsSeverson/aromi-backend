@@ -17,7 +17,6 @@ export const ValidAccordDescription = z
   .string()
   .trim()
   .max(MAX_ACCORD_DESCRIPTION_LENGTH, 'Accord description cannot exceed 3000 characters')
-  .nullish()
 
 export const ValidAccordColor = z
   .string('Accord color is required')
@@ -37,6 +36,6 @@ export const ValidAccord = z
   .object({
     name: ValidAccordName,
     color: ValidAccordColor,
-    description: ValidAccordDescription
+    description: ValidAccordDescription.nullish()
   })
   .strip()

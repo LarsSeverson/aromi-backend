@@ -1,8 +1,9 @@
-import type { DB } from '@src/db/index.js'
+import type { DB, NoteLayerEnum, NoteRow } from '@src/db/index.js'
 import type { Selectable } from 'kysely'
 
 export type FragranceRow = Selectable<DB['fragrances']>
 export type FragranceImageRow = Selectable<DB['fragranceImages']>
+export type FragranceEditRow = Selectable<DB['fragranceEdits']>
 
 export type FragranceAccordVoteRow = Selectable<DB['fragranceAccordVotes']>
 export type FragranceAccordScoreRow = Selectable<DB['fragranceAccordScores']>
@@ -16,6 +17,10 @@ export interface AggFragranceTraitVoteRow {
   fragranceId: string
   traitOptionId: string
   votes: number
+}
+
+export interface LayerNoteRow extends NoteRow {
+  layer: NoteLayerEnum
 }
 
 export interface CombinedFragranceAccordScoreRow extends FragranceAccordScoreRow {

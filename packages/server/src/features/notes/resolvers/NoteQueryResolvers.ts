@@ -3,8 +3,10 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError } from '@aromi/shared'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
+import { NoteEditQueryResolvers } from './NoteEditQueryResolvers.js'
 
 export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
+  private readonly edits = new NoteEditQueryResolvers()
   private readonly pagination = new NotePaginationFactory()
   private readonly searchPagination = new SearchPaginationFactory()
 
@@ -61,7 +63,8 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
   getResolvers (): QueryResolvers {
     return {
       notes: this.notes,
-      searchNotes: this.searchNotes
+      searchNotes: this.searchNotes,
+      ...this.edits.getResolvers()
     }
   }
 }

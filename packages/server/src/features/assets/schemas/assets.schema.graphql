@@ -3,6 +3,8 @@ type Asset {
   name: String!
   contentType: String!
   contentSize: Int!
+  s3Key: String!
+  url: String
 }
 
 type PresignedUpload {

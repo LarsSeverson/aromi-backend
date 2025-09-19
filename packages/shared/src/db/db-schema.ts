@@ -23,6 +23,13 @@ export enum EditStatus {
   REJECTED = "REJECTED",
 }
 
+export enum EditType {
+  ACCORD = "accord",
+  BRAND = "brand",
+  FRAGRANCE = "fragrance",
+  NOTE = "note",
+}
+
 export enum FragranceConcentration {
   BODY_MIST = "BODY_MIST",
   EAU_FRAICHE = "EAU_FRAICHE",
@@ -38,6 +45,13 @@ export enum FragranceStatus {
   CURRENT = "CURRENT",
   DISCONTINUED = "DISCONTINUED",
   REFORMULATED = "REFORMULATED",
+}
+
+export enum JobStatus {
+  FAILED = "FAILED",
+  PROCESSING = "PROCESSING",
+  QUEUED = "QUEUED",
+  SUCCESS = "SUCCESS",
 }
 
 export enum NoteLayerEnum {
@@ -74,11 +88,6 @@ export interface AccordEdit {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   id: Generated<string>;
-  proposedAvatarContentType: string | null;
-  proposedAvatarName: string | null;
-  proposedAvatarS3Key: string | null;
-  proposedAvatarSizeBytes: Int8 | null;
-  proposedAvatarStatus: AssetStatus | null;
   proposedColor: string | null;
   proposedDescription: string | null;
   proposedName: string | null;
@@ -169,11 +178,7 @@ export interface BrandEdit {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   id: Generated<string>;
-  proposedAvatarContentType: string | null;
-  proposedAvatarName: string | null;
-  proposedAvatarS3Key: string | null;
-  proposedAvatarSizeBytes: Int8 | null;
-  proposedAvatarStatus: AssetStatus | null;
+  proposedAvatarId: string | null;
   proposedDescription: string | null;
   proposedName: string | null;
   proposedWebsite: string | null;
@@ -247,6 +252,17 @@ export interface Brand {
   website: string | null;
 }
 
+export interface EditJob {
+  createdAt: Generated<Timestamp>;
+  editId: string;
+  editType: EditType;
+  error: string | null;
+  id: Generated<string>;
+  processedAt: Timestamp | null;
+  status: Generated<JobStatus>;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface FragranceAccord {
   accordId: string;
   createdAt: Generated<Timestamp>;
@@ -284,6 +300,26 @@ export interface FragranceCollection {
   id: Generated<string>;
   name: string;
   updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface FragranceEdit {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: string;
+  id: Generated<string>;
+  proposedBrandId: string | null;
+  proposedConcentration: FragranceConcentration | null;
+  proposedDescription: string | null;
+  proposedImageId: string | null;
+  proposedName: string | null;
+  proposedReleaseYear: number | null;
+  proposedStatus: FragranceStatus | null;
+  reason: string | null;
+  reviewedAt: Timestamp | null;
+  reviewedBy: string | null;
+  reviewerFeedback: string | null;
+  status: Generated<EditStatus>;
   userId: string;
 }
 
@@ -435,6 +471,22 @@ export interface FragranceTraitVote {
   userId: string;
 }
 
+export interface NoteEdit {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  noteId: string;
+  proposedDescription: string | null;
+  proposedName: string | null;
+  proposedThumbnailId: string | null;
+  reason: string | null;
+  reviewedAt: Timestamp | null;
+  reviewedBy: string | null;
+  reviewerFeedback: string | null;
+  status: Generated<EditStatus>;
+  userId: string;
+}
+
 export interface NoteImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
@@ -542,10 +594,12 @@ export interface DB {
   brandRequestVoteCounts: BrandRequestVoteCount;
   brandRequestVotes: BrandRequestVote;
   brands: Brand;
+  editJobs: EditJob;
   fragranceAccords: FragranceAccord;
   fragranceAccordScores: FragranceAccordScore;
   fragranceAccordVotes: FragranceAccordVote;
   fragranceCollections: FragranceCollection;
+  fragranceEdits: FragranceEdit;
   fragranceImages: FragranceImage;
   fragranceNotes: FragranceNote;
   fragranceNoteScores: FragranceNoteScore;
@@ -559,6 +613,7 @@ export interface DB {
   fragranceRequestVotes: FragranceRequestVote;
   fragrances: Fragrance;
   fragranceTraitVotes: FragranceTraitVote;
+  noteEdits: NoteEdit;
   noteImages: NoteImage;
   noteRequestImages: NoteRequestImage;
   noteRequests: NoteRequest;

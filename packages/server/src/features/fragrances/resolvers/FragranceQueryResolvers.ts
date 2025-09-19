@@ -4,10 +4,12 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapFragranceRowToFragranceSummary } from '../utils/mappers.js'
 import { FragrancePaginationFactory } from '../factories/FragrancePaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
+import { FragranceEditQueryResolvers } from './FragranceEditQueryResolvers.js'
 
-export class FragracneQueryResolvers extends BaseResolver<QueryResolvers> {
-  pagination = new FragrancePaginationFactory()
-  searchPagination = new SearchPaginationFactory()
+export class FragranceQueryResolvers extends BaseResolver<QueryResolvers> {
+  private readonly edits = new FragranceEditQueryResolvers()
+  private readonly pagination = new FragrancePaginationFactory()
+  private readonly searchPagination = new SearchPaginationFactory()
 
   fragrance: QueryResolvers['fragrance'] = async (
     parent,
@@ -79,7 +81,8 @@ export class FragracneQueryResolvers extends BaseResolver<QueryResolvers> {
     return {
       fragrance: this.fragrance,
       fragrances: this.fragrances,
-      searchFragrances: this.searchFragrances
+      searchFragrances: this.searchFragrances,
+      ...this.edits.getResolvers()
     }
   }
 }

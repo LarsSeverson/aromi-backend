@@ -1,0 +1,74 @@
+type FragranceEdit {
+  id: ID!
+  status: EditStatus!
+  reason: String
+
+  proposedName: String
+  proposedDescription: String
+  proposedReleaseYear: Int
+  proposedConcentration: Concentration
+  proposedStatus: FragranceStatus
+  proposedBrand: Brand
+  proposedImage: Asset
+
+  fragrance: Fragrance!
+  user: User!
+  reviewer: User
+}
+
+type FragranceEditEdge {
+  node: FragranceEdit!
+  cursor: String!
+}
+
+type FragranceEditConnection {
+  edges: [FragranceEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceEditSortBy {
+  RECENT
+}
+
+input FragranceEditSortInput {
+  direction: SortDirection
+  by: FragranceEditSortBy
+}
+
+input FragranceEditPaginationInput {
+  first: Int
+  after: String
+  sort: FragranceEditSortInput
+}
+
+input CreateFragranceEditInput {
+  fragranceId: ID!
+
+  proposedName: String
+  proposedDescription: String
+  proposedReleaseYear: Int
+  proposedConcentration: Concentration
+  proposedStatus: FragranceStatus
+  proposedBrandId: ID
+  proposedImageId: ID
+
+  reason: String
+}
+
+input ReviewFragranceEditInput {
+  editId: ID!
+  status: EditStatus!
+  feedback: String
+}
+
+extend type Query {
+  fragranceEdit(id: ID!): FragranceEdit!
+  fragranceEdits(input: FragranceEditPaginationInput): FragranceEditConnection!
+}
+
+extend type Mutation {
+  createFragranceEdit(input: CreateFragranceEditInput!): FragranceEdit!
+  reviewFragranceEdit(input: ReviewFragranceEditInput!): FragranceEdit!
+
+  stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
+}

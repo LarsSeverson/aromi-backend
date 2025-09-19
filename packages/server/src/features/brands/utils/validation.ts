@@ -3,6 +3,9 @@ import z from 'zod'
 
 export const CreateBrandEditSchema = z
   .object({
+    brandId: z
+      .uuid('Brand ID must be a valid UUID')
+      .nonoptional('Brand ID is required'),
     proposedName: ValidBrandName.nullish(),
     proposedDescription: ValidBrandDescription,
     proposedWebsite: ValidBrandWebsite,

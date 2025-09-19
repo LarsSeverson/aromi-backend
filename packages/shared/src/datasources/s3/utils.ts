@@ -8,7 +8,7 @@ export interface UtilKeyReturn {
 }
 
 const withIdFileName = (fileName: string): { id: string, name: string } => {
-  const id = nanoid(8)
+  const id = nanoid()
   const ext = path.extname(fileName)
   return {
     id,

@@ -31,4 +31,5 @@ input NotePaginationInput {
 
 extend type Query {
   notes(input: NotePaginationInput): NoteConnection!
+  searchNotes(input: SearchInput): [Note!]!
 }

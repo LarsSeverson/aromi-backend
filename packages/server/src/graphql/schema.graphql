@@ -109,6 +109,8 @@ type Asset {
   contentType: String!
   id: ID!
   name: String!
+  s3Key: String!
+  url: String
 }
 
 type AuthCodeDeliveryDetails {
@@ -295,12 +297,32 @@ input CreateBrandRequestInput {
   website: String
 }
 
+input CreateFragranceEditInput {
+  fragranceId: ID!
+  proposedBrandId: ID
+  proposedConcentration: Concentration
+  proposedDescription: String
+  proposedImageId: ID
+  proposedName: String
+  proposedReleaseYear: Int
+  proposedStatus: FragranceStatus
+  reason: String
+}
+
 input CreateFragranceRequestInput {
   concentration: Concentration
   description: String
   name: String
   releaseYear: Int
   status: FragranceStatus
+}
+
+input CreateNoteEditInput {
+  noteId: ID!
+  proposedDescription: String
+  proposedName: String
+  proposedThumbnailId: String
+  reason: String
 }
 
 input CreateNoteRequestInput {
@@ -353,6 +375,19 @@ input DeleteNoteRequestImageInput {
 
 input DeleteNoteRequestInput {
   id: ID!
+}
+
+type EditJob {
+  error: String
+  id: ID!
+  status: EditJobStatus!
+}
+
+enum EditJobStatus {
+  FAILED
+  PROCESSING
+  QUEUED
+  SUCCESS
 }
 
 enum EditStatus {
@@ -442,6 +477,47 @@ type FragranceConnection {
 type FragranceEdge {
   cursor: String!
   node: Fragrance!
+}
+
+type FragranceEdit {
+  fragrance: Fragrance!
+  id: ID!
+  proposedBrand: Brand
+  proposedConcentration: Concentration
+  proposedDescription: String
+  proposedImage: Asset
+  proposedName: String
+  proposedReleaseYear: Int
+  proposedStatus: FragranceStatus
+  reason: String
+  reviewer: User
+  status: EditStatus!
+  user: User!
+}
+
+type FragranceEditConnection {
+  edges: [FragranceEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceEditEdge {
+  cursor: String!
+  node: FragranceEdit!
+}
+
+input FragranceEditPaginationInput {
+  after: String
+  first: Int
+  sort: FragranceEditSortInput
+}
+
+enum FragranceEditSortBy {
+  RECENT
+}
+
+input FragranceEditSortInput {
+  by: FragranceEditSortBy
+  direction: SortDirection
 }
 
 type FragranceImage {
@@ -593,7 +669,9 @@ type Mutation {
   createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
   createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
+  createFragranceEdit(input: CreateFragranceEditInput!): FragranceEdit!
   createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
+  createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
   createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAccordRequestImage(input: DeleteAccordRequestImageInput!): AccordRequest!
@@ -615,6 +693,8 @@ type Mutation {
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
   reviewAccordEdit(input: ReviewAccordEditInput!): AccordEdit!
   reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
+  reviewFragranceEdit(input: ReviewFragranceEditInput!): FragranceEdit!
+  reviewNoteEdit(input: ReviewNoteEditInput!): NoteEdit!
   setFragranceRequestAccords(input: SetFragranceRequestAccordsInput!): FragranceRequest!
   setFragranceRequestBrand(input: SetFragranceRequestBrandInput!): FragranceRequest!
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
@@ -623,7 +703,9 @@ type Mutation {
   stageAccordRequestImage(input: StageAssetInput!): PresignedUpload!
   stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
   stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
   stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageNoteEditThumbnail(input: StageGenericAssetInput!): PresignedUpload!
   stageNoteRequestImage(input: StageAssetInput!): PresignedUpload!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
@@ -658,6 +740,43 @@ type NoteConnection {
 type NoteEdge {
   cursor: String!
   node: Note!
+}
+
+type NoteEdit {
+  id: ID!
+  note: Note!
+  proposedDescription: String
+  proposedName: String
+  proposedThumbnail: Asset
+  reason: String
+  reviewer: User
+  status: EditStatus!
+  user: User!
+}
+
+type NoteEditConnection {
+  edges: [NoteEditEdge!]!
+  pageInfo: PageInfo!
+}
+
+type NoteEditEdge {
+  cursor: String!
+  node: NoteEdit!
+}
+
+input NoteEditPaginationInput {
+  after: String
+  first: Int
+  sort: NoteEditSortInput
+}
+
+enum NoteEditSortBy {
+  RECENT
+}
+
+input NoteEditSortInput {
+  by: NoteEditSortBy
+  direction: SortDirection
 }
 
 enum NoteLayer {
@@ -744,10 +863,14 @@ type Query {
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   brands(input: BrandPaginationInput): BrandConnection!
   fragrance(id: ID!): Fragrance!
+  fragranceEdit(id: ID!): FragranceEdit!
+  fragranceEdits(input: FragranceEditPaginationInput): FragranceEditConnection!
   fragranceRequest(id: ID!): FragranceRequest!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   fragrances(input: FragrancePaginationInput!): FragranceConnection!
   me: User!
+  noteEdit(id: ID!): NoteEdit!
+  noteEdits(input: NoteEditPaginationInput): NoteEditConnection!
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
@@ -791,6 +914,18 @@ input ReviewAccordEditInput {
 }
 
 input ReviewBrandEditInput {
+  editId: ID!
+  feedback: String
+  status: EditStatus!
+}
+
+input ReviewFragranceEditInput {
+  editId: ID!
+  feedback: String
+  status: EditStatus!
+}
+
+input ReviewNoteEditInput {
   editId: ID!
   feedback: String
   status: EditStatus!
