@@ -5,7 +5,7 @@ import { Vibrant } from 'node-vibrant/node'
 import { AssetStatus, BackendError, type FragranceAccordVoteRow, type FragranceImageRow, type FragranceNoteVoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
-import { SEARCH_SYNC_JOB_NAMES } from '@aromi/shared'
+import { INDEXATION_JOB_NAMES } from '@aromi/shared'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
@@ -33,9 +33,9 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         )
       )
       .andTee(({ fragrance }) => queues
-        .searchSync
+        .indexation
         .enqueue({
-          jobName: SEARCH_SYNC_JOB_NAMES.SYNC_FRAGRANCE,
+          jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
           data: { fragranceId: fragrance.id }
         })
       )

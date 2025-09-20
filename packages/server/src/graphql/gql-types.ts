@@ -100,9 +100,9 @@ export type AccordRequest = {
   color?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  image?: Maybe<AccordRequestImage>;
   name?: Maybe<Scalars['String']['output']>;
   requestStatus: RequestStatus;
+  thumbnail?: Maybe<Asset>;
   user: User;
   version: Scalars['Int']['output'];
   votes: VoteInfo;
@@ -118,25 +118,6 @@ export type AccordRequestEdge = {
   __typename?: 'AccordRequestEdge';
   cursor: Scalars['String']['output'];
   node: AccordRequest;
-};
-
-export type AccordRequestImage = {
-  __typename?: 'AccordRequestImage';
-  id: Scalars['ID']['output'];
-  type: Scalars['String']['output'];
-  url?: Maybe<Scalars['String']['output']>;
-};
-
-export type AccordRequestImageConnection = {
-  __typename?: 'AccordRequestImageConnection';
-  edges: Array<AccordRequestImageEdge>;
-  pageInfo: PageInfo;
-};
-
-export type AccordRequestImageEdge = {
-  __typename?: 'AccordRequestImageEdge';
-  cursor: Scalars['String']['output'];
-  node: AccordRequestImage;
 };
 
 export const AccordSortBy = {
@@ -401,12 +382,6 @@ export type CreateNoteRequestInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type DeleteAccordRequestImageInput = {
-  assetId: Scalars['ID']['input'];
-  requestId: Scalars['ID']['input'];
-  version: Scalars['Int']['input'];
-};
-
 export type DeleteAccordRequestInput = {
   id: Scalars['ID']['input'];
 };
@@ -467,12 +442,6 @@ export const EditStatus = {
 } as const;
 
 export type EditStatus = typeof EditStatus[keyof typeof EditStatus];
-export type FinalizeAccordRequestImageInput = {
-  assetId: Scalars['ID']['input'];
-  requestId: Scalars['ID']['input'];
-  version: Scalars['Int']['input'];
-};
-
 export type FinalizeBrandRequestImageInput = {
   assetId: Scalars['ID']['input'];
   requestId: Scalars['ID']['input'];
@@ -792,7 +761,6 @@ export type Mutation = {
   createNoteEdit: NoteEdit;
   createNoteRequest: NoteRequest;
   deleteAccordRequest: AccordRequest;
-  deleteAccordRequestImage: AccordRequest;
   deleteAsset: Scalars['Boolean']['output'];
   deleteBrandRequest: BrandRequest;
   deleteBrandRequestImage: BrandRequest;
@@ -800,7 +768,6 @@ export type Mutation = {
   deleteFragranceRequestImage: FragranceRequest;
   deleteNoteRequest: NoteRequest;
   deleteNoteRequestImage: NoteRequest;
-  finalizeAccordRequestImage: AccordRequest;
   finalizeBrandRequestImage: BrandRequest;
   finalizeFragranceRequestImage: FragranceRequest;
   finalizeNoteRequestImage: NoteRequest;
@@ -818,7 +785,7 @@ export type Mutation = {
   setFragranceRequestNotes: FragranceRequest;
   setFragranceRequestTrait: FragranceRequest;
   signUp: AuthDeliveryResult;
-  stageAccordRequestImage: PresignedUpload;
+  stageAccordRequestThumbnail: PresignedUpload;
   stageBrandEditAvatar: PresignedUpload;
   stageBrandRequestImage: PresignedUpload;
   stageFragranceEditImage: PresignedUpload;
@@ -900,11 +867,6 @@ export type MutationDeleteAccordRequestArgs = {
 };
 
 
-export type MutationDeleteAccordRequestImageArgs = {
-  input: DeleteAccordRequestImageInput;
-};
-
-
 export type MutationDeleteAssetArgs = {
   input: DeleteAssetInput;
 };
@@ -937,11 +899,6 @@ export type MutationDeleteNoteRequestArgs = {
 
 export type MutationDeleteNoteRequestImageArgs = {
   input: DeleteNoteRequestImageInput;
-};
-
-
-export type MutationFinalizeAccordRequestImageArgs = {
-  input: FinalizeAccordRequestImageInput;
 };
 
 
@@ -1020,7 +977,7 @@ export type MutationSignUpArgs = {
 };
 
 
-export type MutationStageAccordRequestImageArgs = {
+export type MutationStageAccordRequestThumbnailArgs = {
   input: StageAssetInput;
 };
 
@@ -1626,7 +1583,6 @@ export type UpdateAccordRequestInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  version: Scalars['Int']['input'];
 };
 
 export type UpdateBrandRequestInput = {
@@ -1813,9 +1769,6 @@ export type ResolversTypes = ResolversObject<{
   AccordRequest: ResolverTypeWrapper<IAccordRequestSummary>;
   AccordRequestConnection: ResolverTypeWrapper<Partial<Omit<AccordRequestConnection, 'edges'> & { edges: Array<ResolversTypes['AccordRequestEdge']> }>>;
   AccordRequestEdge: ResolverTypeWrapper<Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversTypes['AccordRequest'] }>>;
-  AccordRequestImage: ResolverTypeWrapper<Partial<AccordRequestImage>>;
-  AccordRequestImageConnection: ResolverTypeWrapper<Partial<AccordRequestImageConnection>>;
-  AccordRequestImageEdge: ResolverTypeWrapper<Partial<AccordRequestImageEdge>>;
   AccordSortBy: ResolverTypeWrapper<Partial<AccordSortBy>>;
   AccordSortInput: ResolverTypeWrapper<Partial<AccordSortInput>>;
   Asset: ResolverTypeWrapper<Partial<Asset>>;
@@ -1854,7 +1807,6 @@ export type ResolversTypes = ResolversObject<{
   CreateNoteEditInput: ResolverTypeWrapper<Partial<CreateNoteEditInput>>;
   CreateNoteRequestInput: ResolverTypeWrapper<Partial<CreateNoteRequestInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
-  DeleteAccordRequestImageInput: ResolverTypeWrapper<Partial<DeleteAccordRequestImageInput>>;
   DeleteAccordRequestInput: ResolverTypeWrapper<Partial<DeleteAccordRequestInput>>;
   DeleteAssetInput: ResolverTypeWrapper<Partial<DeleteAssetInput>>;
   DeleteBrandRequestImageInput: ResolverTypeWrapper<Partial<DeleteBrandRequestImageInput>>;
@@ -1866,7 +1818,6 @@ export type ResolversTypes = ResolversObject<{
   EditJob: ResolverTypeWrapper<Partial<EditJob>>;
   EditJobStatus: ResolverTypeWrapper<Partial<EditJobStatus>>;
   EditStatus: ResolverTypeWrapper<Partial<EditStatus>>;
-  FinalizeAccordRequestImageInput: ResolverTypeWrapper<Partial<FinalizeAccordRequestImageInput>>;
   FinalizeBrandRequestImageInput: ResolverTypeWrapper<Partial<FinalizeBrandRequestImageInput>>;
   FinalizeFragranceRequestImageInput: ResolverTypeWrapper<Partial<FinalizeFragranceRequestImageInput>>;
   FinalizeNoteRequestImageInput: ResolverTypeWrapper<Partial<FinalizeNoteRequestImageInput>>;
@@ -1997,9 +1948,6 @@ export type ResolversParentTypes = ResolversObject<{
   AccordRequest: IAccordRequestSummary;
   AccordRequestConnection: Partial<Omit<AccordRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['AccordRequestEdge']> }>;
   AccordRequestEdge: Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversParentTypes['AccordRequest'] }>;
-  AccordRequestImage: Partial<AccordRequestImage>;
-  AccordRequestImageConnection: Partial<AccordRequestImageConnection>;
-  AccordRequestImageEdge: Partial<AccordRequestImageEdge>;
   AccordSortInput: Partial<AccordSortInput>;
   Asset: Partial<Asset>;
   AuthCodeDeliveryDetails: Partial<AuthCodeDeliveryDetails>;
@@ -2033,7 +1981,6 @@ export type ResolversParentTypes = ResolversObject<{
   CreateNoteEditInput: Partial<CreateNoteEditInput>;
   CreateNoteRequestInput: Partial<CreateNoteRequestInput>;
   Date: Partial<Scalars['Date']['output']>;
-  DeleteAccordRequestImageInput: Partial<DeleteAccordRequestImageInput>;
   DeleteAccordRequestInput: Partial<DeleteAccordRequestInput>;
   DeleteAssetInput: Partial<DeleteAssetInput>;
   DeleteBrandRequestImageInput: Partial<DeleteBrandRequestImageInput>;
@@ -2043,7 +1990,6 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteNoteRequestImageInput: Partial<DeleteNoteRequestImageInput>;
   DeleteNoteRequestInput: Partial<DeleteNoteRequestInput>;
   EditJob: Partial<EditJob>;
-  FinalizeAccordRequestImageInput: Partial<FinalizeAccordRequestImageInput>;
   FinalizeBrandRequestImageInput: Partial<FinalizeBrandRequestImageInput>;
   FinalizeFragranceRequestImageInput: Partial<FinalizeFragranceRequestImageInput>;
   FinalizeNoteRequestImageInput: Partial<FinalizeNoteRequestImageInput>;
@@ -2189,9 +2135,9 @@ export type AccordRequestResolvers<ContextType = ServerContext, ParentType exten
   color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  image?: Resolver<Maybe<ResolversTypes['AccordRequestImage']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   requestStatus?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
@@ -2205,22 +2151,6 @@ export type AccordRequestConnectionResolvers<ContextType = ServerContext, Parent
 export type AccordRequestEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestEdge'] = ResolversParentTypes['AccordRequestEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType>;
-}>;
-
-export type AccordRequestImageResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImage'] = ResolversParentTypes['AccordRequestImage']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-}>;
-
-export type AccordRequestImageConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImageConnection'] = ResolversParentTypes['AccordRequestImageConnection']> = ResolversObject<{
-  edges?: Resolver<Array<ResolversTypes['AccordRequestImageEdge']>, ParentType, ContextType>;
-  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-}>;
-
-export type AccordRequestImageEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['AccordRequestImageEdge'] = ResolversParentTypes['AccordRequestImageEdge']> = ResolversObject<{
-  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  node?: Resolver<ResolversTypes['AccordRequestImage'], ParentType, ContextType>;
 }>;
 
 export type AssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
@@ -2514,7 +2444,6 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   createNoteEdit?: Resolver<ResolversTypes['NoteEdit'], ParentType, ContextType, RequireFields<MutationCreateNoteEditArgs, 'input'>>;
   createNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationCreateNoteRequestArgs, 'input'>>;
   deleteAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestArgs, 'input'>>;
-  deleteAccordRequestImage?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestImageArgs, 'input'>>;
   deleteAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'input'>>;
   deleteBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationDeleteBrandRequestArgs, 'input'>>;
   deleteBrandRequestImage?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationDeleteBrandRequestImageArgs, 'input'>>;
@@ -2522,7 +2451,6 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   deleteFragranceRequestImage?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationDeleteFragranceRequestImageArgs, 'input'>>;
   deleteNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestArgs, 'input'>>;
   deleteNoteRequestImage?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestImageArgs, 'input'>>;
-  finalizeAccordRequestImage?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationFinalizeAccordRequestImageArgs, 'input'>>;
   finalizeBrandRequestImage?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationFinalizeBrandRequestImageArgs, 'input'>>;
   finalizeFragranceRequestImage?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationFinalizeFragranceRequestImageArgs, 'input'>>;
   finalizeNoteRequestImage?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationFinalizeNoteRequestImageArgs, 'input'>>;
@@ -2540,7 +2468,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   setFragranceRequestNotes?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestNotesArgs, 'input'>>;
   setFragranceRequestTrait?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestTraitArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
-  stageAccordRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageAccordRequestImageArgs, 'input'>>;
+  stageAccordRequestThumbnail?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageAccordRequestThumbnailArgs, 'input'>>;
   stageBrandEditAvatar?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageBrandEditAvatarArgs, 'input'>>;
   stageBrandRequestImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageBrandRequestImageArgs, 'input'>>;
   stageFragranceEditImage?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageFragranceEditImageArgs, 'input'>>;
@@ -2733,9 +2661,6 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   AccordRequest?: AccordRequestResolvers<ContextType>;
   AccordRequestConnection?: AccordRequestConnectionResolvers<ContextType>;
   AccordRequestEdge?: AccordRequestEdgeResolvers<ContextType>;
-  AccordRequestImage?: AccordRequestImageResolvers<ContextType>;
-  AccordRequestImageConnection?: AccordRequestImageConnectionResolvers<ContextType>;
-  AccordRequestImageEdge?: AccordRequestImageEdgeResolvers<ContextType>;
   Asset?: AssetResolvers<ContextType>;
   AuthCodeDeliveryDetails?: AuthCodeDeliveryDetailsResolvers<ContextType>;
   AuthDeliveryResult?: AuthDeliveryResultResolvers<ContextType>;

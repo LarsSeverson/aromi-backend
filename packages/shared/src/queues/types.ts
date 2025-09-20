@@ -1,7 +1,8 @@
 export const QUEUE_NAMES = {
   PROMOTION: 'promotion',
-  SEARCH_SYNC: 'search-sync',
-  REVISION: 'revision'
+  INDEXATION: 'indexation',
+  REVISION: 'revision',
+  AGGREGATION: 'aggregation'
 } as const
 
 export type QueueName = (typeof QUEUE_NAMES)[keyof typeof QUEUE_NAMES]

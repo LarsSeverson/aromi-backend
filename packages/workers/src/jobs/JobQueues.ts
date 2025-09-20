@@ -1,12 +1,12 @@
 import { type DataSources, PromotionQueueService } from '@aromi/shared'
-import { SearchSyncQueueService } from '@aromi/shared'
+import { IndexationQueueService } from '@aromi/shared'
 
 export class JobQueues {
   promotions: PromotionQueueService
-  searchSync: SearchSyncQueueService
+  indexation: IndexationQueueService
 
   constructor (sources: DataSources) {
     this.promotions = new PromotionQueueService(sources)
-    this.searchSync = new SearchSyncQueueService(sources)
+    this.indexation = new IndexationQueueService(sources)
   }
 }

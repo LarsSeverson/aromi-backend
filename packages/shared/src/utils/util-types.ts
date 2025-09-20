@@ -16,3 +16,5 @@ export type ValueOf<T> = T[keyof T]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DBAny = any
+
+export type PartialWithId<T> = Partial<T> & { id: string }

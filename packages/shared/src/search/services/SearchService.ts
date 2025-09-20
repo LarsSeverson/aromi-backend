@@ -62,7 +62,11 @@ export abstract class SearchService<T extends BaseSearchIndex> {
       .map(() => this)
   }
 
-  updateDocuments (documents: T[]): ResultAsync<this, BackendError> {
+  updateDocument (document: Partial<T>): ResultAsync<this, BackendError> {
+    return this.updateDocuments([document])
+  }
+
+  updateDocuments (documents: Array<Partial<T>>): ResultAsync<this, BackendError> {
     return ResultAsync
       .fromPromise(
         this

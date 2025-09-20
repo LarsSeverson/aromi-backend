@@ -2,15 +2,12 @@ type AccordRequest {
   id: ID!
   version: Int!
   requestStatus: RequestStatus!
-
   name: String
   description: String
   color: String
 
-  image: AccordRequestImage
-
+  thumbnail: Asset
   votes: VoteInfo!
-
   user: User!
 }
 
@@ -32,7 +29,6 @@ input CreateAccordRequestInput {
 
 input UpdateAccordRequestInput {
   id: ID!
-  version: Int!
   name: String
   description: String
   color: String
@@ -55,6 +51,7 @@ extend type Mutation {
   createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
-
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
+
+  stageAccordRequestThumbnail(input: StageAssetInput!): PresignedUpload!
 }

@@ -1,4 +1,4 @@
-import { type AccordEditRow, BackendError, EditStatus, type AccordRow, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow, type DataSources, EditType, removeNullish } from '@aromi/shared'
+import { type AccordEditRow, BackendError, EditStatus, type AccordRow, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow, type DataSources, EditType, removeNullish, INDEXATION_JOB_NAMES, type PartialWithId, type AccordIndex } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import type { Job } from 'bullmq'
 import { errAsync, okAsync } from 'neverthrow'
@@ -13,18 +13,33 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
   async revise (job: Job<RevisionJobPayload[JobKey]>): Promise<AccordRow> {
     const { editId } = job.data
 
-    const accordRow = await this.withTransactionAsync(
+    const { accord, newValues } = await this.withTransactionAsync(
       async reviser => await reviser.handleRevise(editId)
     )
 
-    return accordRow
+    const indexValues = { id: accord.id, ...newValues }
+    await this.queueIndex(indexValues)
+
+    return accord
   }
 
   private async handleRevise (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
-    const accordRow = await unwrapOrThrow(this.applyEdit(editRow))
+    const { accord, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
 
-    return accordRow
+    return { accord, newValues }
+  }
+
+  private queueIndex (data: PartialWithId<AccordIndex>) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.UPDATE_ACCORD,
+        data
+      })
   }
 
   private applyEdit (edit: AccordEditRow) {
@@ -40,6 +55,7 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
         eb => eb('id', '=', accordId),
         values
       )
+      .map(accord => ({ accord, newValues: values }))
   }
 
   private getEditRow (id: string) {

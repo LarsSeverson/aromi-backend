@@ -1,4 +1,4 @@
-import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, type NoteEditRow, type NoteRow, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
+import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, INDEXATION_JOB_NAMES, type NoteEditRow, type NoteIndex, type NoteRow, type PartialWithId, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -13,19 +13,34 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
   async revise (job: Job<RevisionJobPayload[JobKey]>): Promise<NoteRow> {
     const { editId } = job.data
 
-    const noteRow = await this.withTransactionAsync(
+    const { note, newValues }= await this.withTransactionAsync(
       async reviser => await reviser.handleRevise(editId)
     )
 
-    return noteRow
+    const indexValues = { id: note.id, ...newValues }
+    await this.queueIndex(indexValues)
+
+    return note
   }
 
   private async handleRevise (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
-    const noteRow = await unwrapOrThrow(this.applyEdit(editRow))
+    const { note, newValues }= await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyThumbnail(editRow))
 
-    return noteRow
+    return { note, newValues }
+  }
+
+  private queueIndex (data: PartialWithId<NoteIndex>) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.UPDATE_NOTE,
+        data
+      })
   }
 
   private applyEdit (edit: NoteEditRow) {
@@ -41,6 +56,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
         eb => eb('id', '=', noteId),
         values
       )
+      .map(note => ({ note, newValues: values }))
   }
 
   private copyThumbnail (edit: NoteEditRow) {

@@ -1,4 +1,4 @@
-import { type BackendError, unwrapOrThrow, type FragranceAccordVoteRow } from '@aromi/shared'
+import { type BackendError, unwrapOrThrow, type FragranceAccordVoteRow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
@@ -16,12 +16,41 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
 
   private async handleVote () {
     const existingVote = await unwrapOrThrow(this.getExistingVote())
-
-    await unwrapOrThrow(this.upsertVote(existingVote))
-
+    const vote = await unwrapOrThrow(this.upsertVote(existingVote))
     const accord = await unwrapOrThrow(this.getAccord())
 
+    await this.queueIndex(vote)
+    await this.queueAggregate(vote)
+
     return accord
+  }
+
+  private queueIndex (vote: FragranceAccordVoteRow) {
+    const { context } = this
+    const { queues } = context
+
+    const { fragranceId } = vote
+
+    return queues
+      .indexations
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
+        data: { fragranceId }
+      })
+  }
+
+  private queueAggregate (vote: FragranceAccordVoteRow) {
+    const { context } = this
+    const { queues } = context
+
+    const { fragranceId, accordId } = vote
+
+    return queues
+      .aggregations
+      .enqueue({
+        jobName: AGGREGATION_JOB_NAMES.AGGREGATE_ACCORD_VOTES,
+        data: { fragranceId, accordId }
+      })
   }
 
   private getExistingVote () {

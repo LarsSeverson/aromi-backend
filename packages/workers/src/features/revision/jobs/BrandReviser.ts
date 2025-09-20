@@ -1,4 +1,4 @@
-import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow } from '@aromi/shared'
+import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow, type PartialWithId, type BrandIndex, INDEXATION_JOB_NAMES } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -13,19 +13,34 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
   async revise (job: Job<RevisionJobPayload[JobKey]>): Promise<BrandRow> {
     const { editId } = job.data
 
-    const brandRow = await this.withTransactionAsync(
+    const { brand, newValues } = await this.withTransactionAsync(
       async reviser => await reviser.handleRevise(editId)
     )
 
-    return brandRow
+    const indexValues = { id: brand.id, ...newValues }
+    await this.queueIndex(indexValues)
+
+    return brand
   }
 
   private async handleRevise (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
-    const brandRow = await unwrapOrThrow(this.applyEdit(editRow))
+    const { brand, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyAvatar(editRow))
 
-    return brandRow
+    return { brand, newValues }
+  }
+
+  private queueIndex (data: PartialWithId<BrandIndex>) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.UPDATE_BRAND,
+        data
+      })
   }
 
   private applyEdit (edit: BrandEditRow) {
@@ -41,6 +56,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
         eb => eb('id', '=', brandId),
         values
       )
+      .map(brand => ({ brand, newValues: values }))
   }
 
   private copyAvatar (edit: BrandEditRow) {

@@ -1,7 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { unwrapOrThrow } from '@aromi/shared'
-import { AccordRequestImageMutationResolvers } from './AccordRequestImageMutationResolvers.js'
 import { AccordRequestVoteMutationResolvers } from './AccordRequestVoteMutationResolvers.js'
 import { CreateARResolver } from '../helpers/CreateARResolver.js'
 import { UpdateARResolver } from '../helpers/UpdateARResolver.js'
@@ -9,7 +8,6 @@ import { DeleteARResolver } from '../helpers/DeleteARResolver.js'
 import { SubmitARResolver } from '../helpers/SubmitARResolver.js'
 
 export class AccordRequestMutationResolvers extends BaseResolver<MutationResolvers> {
-  private readonly images = new AccordRequestImageMutationResolvers()
   private readonly votes = new AccordRequestVoteMutationResolvers()
 
   createAccordRequest: MutationResolvers['createAccordRequest'] = async (
@@ -52,9 +50,22 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
     return await unwrapOrThrow(resolver.resolve())
   }
 
+  stageAccordRequestThumbnail: MutationResolvers['stageAccordRequestThumbnail'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+
+    this.checkAuthenticated(context)
+
+    
+  }
+
   getResolvers (): MutationResolvers {
     return {
-      ...this.images.getResolvers(),
       ...this.votes.getResolvers(),
 
       createAccordRequest: this.createAccordRequest,

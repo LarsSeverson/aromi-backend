@@ -1,4 +1,4 @@
-import { BackendError, EditStatus, EditType, type FragranceEditRow, type DataSources, type FragranceRow, type REVISION_JOB_NAMES, type RevisionJobPayload, removeNullish, type AssetUploadRow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, EditStatus, EditType, type FragranceEditRow, type DataSources, type FragranceRow, type REVISION_JOB_NAMES, type RevisionJobPayload, removeNullish, type AssetUploadRow, unwrapOrThrow, INDEXATION_JOB_NAMES, type PartialWithId } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -13,19 +13,34 @@ export class FragranceReviser extends BaseReviser<RevisionJobPayload[JobKey], Fr
   async revise (job: Job<RevisionJobPayload[JobKey]>): Promise<FragranceRow> {
     const { editId } = job.data
 
-    const fragranceRow = await this.withTransactionAsync(
+    const { fragrance, newValues } = await this.withTransactionAsync(
       async reviser => await reviser.handleRevise(editId)
     )
 
-    return fragranceRow
+    const indexValues = { id: fragrance.id, ...newValues }
+    await this.queueIndex(indexValues)
+
+    return fragrance
   }
 
   private async handleRevise (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
-    const fragranceRow = await unwrapOrThrow(this.applyEdit(editRow))
+    const { fragrance, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyImage(editRow))
 
-    return fragranceRow
+    return { fragrance, newValues }
+  }
+
+  private queueIndex (data: PartialWithId<FragranceRow>) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.UPDATE_FRAGRANCE,
+        data
+      })
   }
 
   private applyEdit (edit: FragranceEditRow) {
@@ -41,6 +56,7 @@ export class FragranceReviser extends BaseReviser<RevisionJobPayload[JobKey], Fr
         eb => eb('id', '=', fragranceId),
         values
       )
+      .map(fragrance => ({ fragrance, newValues: values }))
   }
 
   private copyImage (edit: FragranceEditRow) {

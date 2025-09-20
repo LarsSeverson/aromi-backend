@@ -61,9 +61,9 @@ type AccordRequest {
   color: String
   description: String
   id: ID!
-  image: AccordRequestImage
   name: String
   requestStatus: RequestStatus!
+  thumbnail: Asset
   user: User!
   version: Int!
   votes: VoteInfo!
@@ -77,22 +77,6 @@ type AccordRequestConnection {
 type AccordRequestEdge {
   cursor: String!
   node: AccordRequest!
-}
-
-type AccordRequestImage {
-  id: ID!
-  type: String!
-  url: String
-}
-
-type AccordRequestImageConnection {
-  edges: [AccordRequestImageEdge!]!
-  pageInfo: PageInfo!
-}
-
-type AccordRequestImageEdge {
-  cursor: String!
-  node: AccordRequestImage!
 }
 
 enum AccordSortBy {
@@ -333,12 +317,6 @@ input CreateNoteRequestInput {
 
 scalar Date
 
-input DeleteAccordRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
-}
-
 input DeleteAccordRequestInput {
   id: ID!
 }
@@ -394,12 +372,6 @@ enum EditStatus {
   APPROVED
   PENDING
   REJECTED
-}
-
-input FinalizeAccordRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
 }
 
 input FinalizeBrandRequestImageInput {
@@ -674,7 +646,6 @@ type Mutation {
   createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
   createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
-  deleteAccordRequestImage(input: DeleteAccordRequestImageInput!): AccordRequest!
   deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
   deleteBrandRequestImage(input: DeleteBrandRequestImageInput!): BrandRequest!
@@ -682,7 +653,6 @@ type Mutation {
   deleteFragranceRequestImage(input: DeleteFragranceRequestImageInput!): FragranceRequest!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
   deleteNoteRequestImage(input: DeleteNoteRequestImageInput!): NoteRequest!
-  finalizeAccordRequestImage(input: FinalizeAccordRequestImageInput!): AccordRequest!
   finalizeBrandRequestImage(input: FinalizeBrandRequestImageInput!): BrandRequest!
   finalizeFragranceRequestImage(input: FinalizeFragranceRequestImageInput!): FragranceRequest!
   finalizeNoteRequestImage(input: FinalizeNoteRequestImageInput!): NoteRequest!
@@ -700,7 +670,7 @@ type Mutation {
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
   setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
   signUp(input: SignUpInput!): AuthDeliveryResult!
-  stageAccordRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageAccordRequestThumbnail(input: StageAssetInput!): PresignedUpload!
   stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
   stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
   stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
@@ -1051,7 +1021,6 @@ input UpdateAccordRequestInput {
   description: String
   id: ID!
   name: String
-  version: Int!
 }
 
 input UpdateBrandRequestInput {
