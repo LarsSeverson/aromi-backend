@@ -30,5 +30,7 @@ input AccordPaginationInput {
 }
 
 extend type Query {
+  accord(id: ID!): Accord!
   accords(input: AccordPaginationInput): AccordConnection!
+  searchAccords(input: SearchInput): [Accord!]!
 }

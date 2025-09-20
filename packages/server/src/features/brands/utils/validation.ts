@@ -1,4 +1,4 @@
-import { ValidBrandDescription, ValidBrandImageSize, ValidBrandImageType, ValidBrandName, ValidBrandWebsite, ValidEditReason } from '@aromi/shared'
+import { ValidBrandDescription, ValidBrandAvatarSize, ValidBrandAvatarType, ValidBrandName, ValidBrandWebsite, ValidEditReason } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateBrandEditSchema = z
@@ -7,13 +7,38 @@ export const CreateBrandEditSchema = z
       .uuid('Brand ID must be a valid UUID')
       .nonoptional('Brand ID is required'),
     proposedName: ValidBrandName.nullish(),
-    proposedDescription: ValidBrandDescription,
-    proposedWebsite: ValidBrandWebsite,
+    proposedDescription: ValidBrandDescription.nullish(),
+    proposedWebsite: ValidBrandWebsite.nullish(),
     reason: ValidEditReason.nullish()
   })
+  .strip()
 
 export const StageBrandEditAvatarSchema = z
   .object({
-    contentType: ValidBrandImageType,
-    contentSize: ValidBrandImageSize
+    contentType: ValidBrandAvatarType,
+    contentSize: ValidBrandAvatarSize
   })
+  .strip()
+
+export const CreateBrandRequestSchema = z
+  .object({
+    name: ValidBrandName.nullish(),
+    description: ValidBrandDescription.nullish(),
+    website: ValidBrandWebsite.nullish()
+  })
+  .strip()
+
+export const UpdateBrandRequestSchema = z
+  .object({
+    name: ValidBrandName.nullish(),
+    description: ValidBrandDescription.nullish(),
+    website: ValidBrandWebsite.nullish()
+  })
+  .strip()
+
+export const StageBrandRequestAvatarSchema = z
+  .object({
+    contentType: ValidBrandAvatarType,
+    contentSize: ValidBrandAvatarSize
+  })
+  .strip()

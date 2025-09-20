@@ -17,14 +17,13 @@ export const ValidBrandDescription = z
   .string()
   .trim()
   .max(MAX_BRAND_DESCRIPTION_LENGTH, 'Brand description cannot exceed 3000 characters')
-  .nullish()
 
-export const ValidBrandWebsite = ValidWebsite.nullish()
+export const ValidBrandWebsite = ValidWebsite
 
-export const ValidBrandImageType = z
+export const ValidBrandAvatarType = z
   .enum(VALID_IMAGE_TYPES, 'Image must be a JPEG, PNG, or WEBP')
 
-export const ValidBrandImageSize = z
+export const ValidBrandAvatarSize = z
   .number()
   .int()
   .max(MAX_BRAND_IMAGE_SIZE, 'Image size cannot exceed 2 MB')
@@ -32,7 +31,7 @@ export const ValidBrandImageSize = z
 export const ValidBrand = z
   .object({
     name: ValidBrandName,
-    description: ValidBrandDescription,
-    website: ValidBrandWebsite
+    description: ValidBrandDescription.nullish(),
+    website: ValidBrandWebsite.nullish()
   })
   .strip()

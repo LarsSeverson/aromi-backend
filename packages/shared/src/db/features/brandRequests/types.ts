@@ -1,7 +1,0 @@
-import type { DB } from '@src/db/index.js'
-import type { Selectable } from 'kysely'
-
-export type BrandRequestRow = Selectable<DB['brandRequests']>
-export type BrandRequestImageRow = Selectable<DB['brandRequestImages']>
-export type BrandRequestVoteRow = Selectable<DB['brandRequestVotes']>
-export type BrandRequestVoteCountRow = Selectable<DB['brandRequestVoteCounts']>

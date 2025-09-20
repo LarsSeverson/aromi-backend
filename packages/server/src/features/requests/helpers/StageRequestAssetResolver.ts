@@ -1,4 +1,4 @@
-import { BackendError, genImageKey, parseOrThrow, type SomeRequestImageRow, unwrapOrThrow, type RequestService, type S3Entity, type SomeRequestRow } from '@aromi/shared'
+import { type AssetUploadRow, BackendError, genImageKey, parseOrThrow, unwrapOrThrow, type RequestService, type S3Entity, type SomeRequestRow } from '@aromi/shared'
 import type { PresignedUpload, StageAssetInput } from '@src/graphql/gql-types.js'
 import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
 import { errAsync, type ResultAsync } from 'neverthrow'
@@ -72,45 +72,48 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
   }
 
   private handleGetRequest () {
-    const { id } = this.args.input
+    const { entityId } = this.args.input
 
     return this
       .trxService!
       .findOne(
-        eb => eb('id', '=', id)
+        eb => eb('id', '=', entityId)
       )
       .andThen(request => this.authorizeEdit(request))
   }
 
   private handleCreateAsset () {
     const { input } = this.args
+    const { services } = this.context
+    const { assets } = services
 
-    const { id, fileName } = input
+    const { entityId, fileName } = input
     const { contentType, contentSize } = parseOrThrow(this.schema, input)
     const { key } = genImageKey(this.entity, fileName)
 
     const values = {
-      requestId: id,
+      requestId: entityId,
       name: fileName,
       contentType,
       sizeBytes: String(contentSize),
       s3Key: key
     }
 
-    return this
-      .trxService!
-      .images
+    return assets
+      .uploads
       .createOne(values)
   }
 
-  private handlePresignUrl (asset: SomeRequestImageRow) {
+  private handlePresignUrl (asset: AssetUploadRow) {
     const { services } = this.context
     const { assets } = services
 
+    const { s3Key, contentType, sizeBytes } = asset
+
     return assets.getPresignedUrl({
-      key: asset.s3Key,
-      contentType: asset.contentType,
-      maxSizeBytes: Number(asset.sizeBytes)
+      key: s3Key,
+      contentType,
+      maxSizeBytes: Number(sizeBytes)
     })
   }
 }

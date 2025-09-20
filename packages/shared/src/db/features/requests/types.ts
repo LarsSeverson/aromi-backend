@@ -1,22 +1,10 @@
-import type { AssetStatus, RequestStatus } from '@src/db/db-schema.js'
+import type { RequestStatus } from '@src/db/db-schema.js'
 
 export interface SomeRequestRow {
   id: string
   userId: string
   requestStatus: RequestStatus
-}
-
-export interface SomeRequestImageRow {
-  id: string
-  requestId: string
-  s3Key: string
-  name: string
-  contentType: string
-  sizeBytes: string | number
-  status: AssetStatus
-  createdAt?: string
-  updatedAt?: string
-  deletedAt?: string | null
+  assetId: string | null
 }
 
 export interface SomeRequestVoteRow {
@@ -25,7 +13,7 @@ export interface SomeRequestVoteRow {
   vote: number
 }
 
-export interface SomeRequestVoteCountRow {
+export interface SomeRequestScoreRow {
   requestId: string
   upvotes: number
   downvotes: number

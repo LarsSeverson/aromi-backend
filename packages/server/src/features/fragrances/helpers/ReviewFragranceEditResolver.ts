@@ -1,7 +1,7 @@
-import { type FragranceEditRow, unwrapOrThrow, unwrapOrThrowSync, type BackendError, type EditStatus, REVISION_JOB_NAMES, EditType } from '@aromi/shared'
+import { type FragranceEditRow, unwrapOrThrow, unwrapOrThrowSync, type BackendError, EditStatus, REVISION_JOB_NAMES, EditType } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { ResultAsync } from 'neverthrow'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewFragranceEdit']
 
@@ -49,6 +49,10 @@ export class ReviewFragranceEditResolver extends MutationResolver<Mutation> {
   }
 
   private handleQueueJob (editRow: FragranceEditRow) {
+    if (editRow.status !== EditStatus.APPROVED) {
+      return okAsync(undefined)
+    }
+
     return this
       .createJob(editRow)
       .andThen(() => this.enqueueJob(editRow))

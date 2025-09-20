@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { type AccordEditRow, type BackendError, type EditStatus, EditType, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
-import { ResultAsync } from 'neverthrow'
+import { type AccordEditRow, type BackendError, EditStatus, EditType, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewAccordEdit']
 
@@ -49,6 +49,10 @@ export class ReviewAccordEditResolver extends MutationResolver<Mutation> {
   }
 
   private queueRevision (editRow: AccordEditRow) {
+    if (editRow.status !== EditStatus.APPROVED) {
+      return okAsync(undefined)
+    }
+
     return this
       .createJob(editRow)
       .andThen(() => this.enqueueJob(editRow))

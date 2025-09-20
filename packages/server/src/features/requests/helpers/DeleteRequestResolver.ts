@@ -16,7 +16,7 @@ export interface DeleteRequestParams<TR, R extends SomeRequestRow> extends Reque
 
 export abstract class DeleteRequestResolver<TR, R extends SomeRequestRow = SomeRequestRow> extends RequestMutationResolver<TR, DeleteRequestArgs> {
   protected service: RequestService<R>
-  protected trxService?: RequestService<R>
+  protected trxService?: RequestService
 
   constructor (params: DeleteRequestParams<TR, R>) {
     super(params)
@@ -40,7 +40,7 @@ export abstract class DeleteRequestResolver<TR, R extends SomeRequestRow = SomeR
 
     return service
       .withTransactionAsync(async trxService => {
-        this.trxService = trxService
+        this.trxService = trxService as unknown as RequestService
         return await this.handleDeleteRequest()
       })
       .map(request => this.mapToOutput(request as R))

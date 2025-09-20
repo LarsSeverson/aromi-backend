@@ -16,12 +16,11 @@ export const ValidNoteDescription = z
   .string()
   .trim()
   .max(MAX_NOTE_DESCRIPTION_LENGTH, 'Note description cannot exceed 3000 characters')
-  .nullish()
 
-export const ValidNoteImageType = z
+export const ValidNoteThumbnailType = z
   .enum(VALID_IMAGE_TYPES, 'Image must be a JPEG, PNG, or WEBP')
 
-export const ValidNoteImageSize = z
+export const ValidNoteThumbnailSize = z
   .number()
   .int()
   .max(MAX_NOTE_IMAGE_SIZE, 'Image size cannot exceed 2 MB')
@@ -29,6 +28,6 @@ export const ValidNoteImageSize = z
 export const ValidNote = z
   .object({
     name: ValidNoteName,
-    description: ValidNoteDescription
+    description: ValidNoteDescription.nullish()
   })
   .strip()

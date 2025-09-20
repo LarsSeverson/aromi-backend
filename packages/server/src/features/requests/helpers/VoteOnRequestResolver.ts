@@ -1,5 +1,5 @@
 import { BackendError, parseOrThrow, type PromotionJobName, type RequestService, RequestStatus, unwrapOrThrow } from '@aromi/shared'
-import type { SomeRequestRow, SomeRequestVoteCountRow, SomeRequestVoteRow } from '@aromi/shared/src/db/features/requests/types.js'
+import type { SomeRequestRow, SomeRequestScoreRow, SomeRequestVoteRow } from '@aromi/shared/src/db/features/requests/types.js'
 import { errAsync, okAsync, type ResultAsync } from 'neverthrow'
 import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '../types.js'
 import { VoteOnRequestSchema } from '../utils/validation.js'
@@ -161,7 +161,7 @@ export abstract class VoteOnRequestResolver<
       this
         .trxService!
         .votes
-        .counts
+        .scores
         .updateOne(
           eb => eb('requestId', '=', requestId),
           eb => ({ [column]: eb(column, '+', 1) })
@@ -200,7 +200,7 @@ export abstract class VoteOnRequestResolver<
         this
           .trxService!
           .votes
-          .counts
+          .scores
           .updateOne(
             eb => eb('requestId', '=', requestId),
             eb => ({
@@ -214,14 +214,14 @@ export abstract class VoteOnRequestResolver<
     return updatedVote
   }
 
-  protected async getVoteCount (): Promise<SomeRequestVoteCountRow> {
+  protected async getVoteCount (): Promise<SomeRequestScoreRow> {
     const { requestId } = this.args.input
 
     const voteCounts = await unwrapOrThrow(
       this
         .trxService!
         .votes
-        .counts
+        .scores
         .findOne(
           eb => eb('requestId', '=', requestId)
         )
@@ -231,7 +231,7 @@ export abstract class VoteOnRequestResolver<
   }
 
   protected shouldPromote (
-    voteCounts: SomeRequestVoteCountRow,
+    voteCounts: SomeRequestScoreRow,
     request: SomeRequestRow
   ): boolean {
     return (

@@ -4,3 +4,6 @@ import type { Selectable } from 'kysely'
 export type AccordRow = Selectable<DB['accords']>
 export type AccordEditRow = Selectable<DB['accordEdits']>
 export type AccordImageRow = Selectable<DB['accordImages']>
+export type AccordRequestRow = Selectable<DB['accordRequests']>
+export type AccordRequestVoteRow = Selectable<DB['accordRequestVotes']>
+export type AccordRequestScoreRow = Selectable<DB['accordRequestScores']>

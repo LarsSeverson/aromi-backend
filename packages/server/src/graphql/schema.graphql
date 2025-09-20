@@ -184,9 +184,9 @@ input BrandPaginationInput {
 }
 
 type BrandRequest {
+  avatar: Asset
   description: String
   id: ID!
-  image: BrandRequestImage
   name: String
   requestStatus: RequestStatus!
   user: User!
@@ -203,22 +203,6 @@ type BrandRequestConnection {
 type BrandRequestEdge {
   cursor: String!
   node: BrandRequest!
-}
-
-type BrandRequestImage {
-  id: ID!
-  type: String!
-  url: String
-}
-
-type BrandRequestImageConnection {
-  edges: [BrandRequestImageEdge!]!
-  pageInfo: PageInfo!
-}
-
-type BrandRequestImageEdge {
-  cursor: String!
-  node: BrandRequestImage!
 }
 
 enum BrandSortBy {
@@ -325,30 +309,12 @@ input DeleteAssetInput {
   id: ID!
 }
 
-input DeleteBrandRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
-}
-
 input DeleteBrandRequestInput {
   id: ID!
 }
 
-input DeleteFragranceRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
-}
-
 input DeleteFragranceRequestInput {
   id: ID!
-}
-
-input DeleteNoteRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
 }
 
 input DeleteNoteRequestInput {
@@ -372,24 +338,6 @@ enum EditStatus {
   APPROVED
   PENDING
   REJECTED
-}
-
-input FinalizeBrandRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
-}
-
-input FinalizeFragranceRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
-}
-
-input FinalizeNoteRequestImageInput {
-  assetId: ID!
-  requestId: ID!
-  version: Int!
 }
 
 input ForgotPasswordInput {
@@ -556,7 +504,7 @@ type FragranceRequest {
   description: String
   fragranceStatus: FragranceStatus
   id: ID!
-  image: FragranceRequestImage
+  image: Asset
   name: String
   notes(layer: NoteLayer!): [Note!]!
   releaseYear: Int
@@ -576,22 +524,6 @@ type FragranceRequestConnection {
 type FragranceRequestEdge {
   cursor: String!
   node: FragranceRequest!
-}
-
-type FragranceRequestImage {
-  id: ID!
-  type: String!
-  url: String!
-}
-
-type FragranceRequestImageConnection {
-  edges: [FragranceRequestImageEdge!]!
-  pageInfo: PageInfo!
-}
-
-type FragranceRequestImageEdge {
-  cursor: String!
-  node: FragranceRequestImage!
 }
 
 type FragranceRequestTrait {
@@ -648,14 +580,8 @@ type Mutation {
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
-  deleteBrandRequestImage(input: DeleteBrandRequestImageInput!): BrandRequest!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
-  deleteFragranceRequestImage(input: DeleteFragranceRequestImageInput!): FragranceRequest!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
-  deleteNoteRequestImage(input: DeleteNoteRequestImageInput!): NoteRequest!
-  finalizeBrandRequestImage(input: FinalizeBrandRequestImageInput!): BrandRequest!
-  finalizeFragranceRequestImage(input: FinalizeFragranceRequestImageInput!): FragranceRequest!
-  finalizeNoteRequestImage(input: FinalizeNoteRequestImageInput!): NoteRequest!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
@@ -672,11 +598,11 @@ type Mutation {
   signUp(input: SignUpInput!): AuthDeliveryResult!
   stageAccordRequestThumbnail(input: StageAssetInput!): PresignedUpload!
   stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
-  stageBrandRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageBrandRequestAvatar(input: StageAssetInput!): PresignedUpload!
   stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
   stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
   stageNoteEditThumbnail(input: StageGenericAssetInput!): PresignedUpload!
-  stageNoteRequestImage(input: StageAssetInput!): PresignedUpload!
+  stageNoteRequestThumbnail(input: StageAssetInput!): PresignedUpload!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
   submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
@@ -764,9 +690,9 @@ input NotePaginationInput {
 type NoteRequest {
   description: String
   id: ID!
-  image: NoteRequestImage
   name: String
   requestStatus: RequestStatus!
+  thumbnail: Asset
   user: User!
   version: Int!
   votes: VoteInfo!
@@ -780,22 +706,6 @@ type NoteRequestConnection {
 type NoteRequestEdge {
   cursor: String!
   node: NoteRequest!
-}
-
-type NoteRequestImage {
-  id: ID!
-  type: String!
-  url: String
-}
-
-type NoteRequestImageConnection {
-  edges: [NoteRequestImageEdge!]!
-  pageInfo: PageInfo!
-}
-
-type NoteRequestImageEdge {
-  cursor: String!
-  node: NoteRequestImage!
 }
 
 enum NoteSortBy {
@@ -821,6 +731,7 @@ type PresignedUpload {
 }
 
 type Query {
+  accord(id: ID!): Accord!
   accordEdit(id: ID!): AccordEdit!
   accordEdits(input: AccordEditPaginationInput): AccordEditConnection!
   accordRequest(id: ID!): AccordRequest!
@@ -960,8 +871,8 @@ enum SortDirection {
 input StageAssetInput {
   contentSize: Int!
   contentType: String!
+  entityId: ID!
   fileName: String!
-  id: ID!
 }
 
 input StageGenericAssetInput {
@@ -1027,7 +938,6 @@ input UpdateBrandRequestInput {
   description: String
   id: ID!
   name: String
-  version: Int!
   website: String
 }
 
@@ -1038,7 +948,6 @@ input UpdateFragranceRequestInput {
   name: String
   releaseYear: Int
   status: FragranceStatus
-  version: Int!
 }
 
 input UpdateNoteRequestInput {
@@ -1046,7 +955,6 @@ input UpdateNoteRequestInput {
   description: String
   id: ID!
   name: String
-  version: Int!
 }
 
 input UpdateUserInput {
@@ -1055,12 +963,14 @@ input UpdateUserInput {
 }
 
 type User {
+  accordRequests(input: RequestPaginationInput): AccordRequestConnection!
   avatarSrc: String
   avatarStatus: AvatarStatus!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   email: String!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
+  noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   username: String!
 }
 

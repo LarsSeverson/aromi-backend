@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec \"yarn run start\"",
     "start": "yarn run build && node dist/main.js",
-    "build": "tsc --build && tsc-alias -p tsconfig.json && copyfiles -u 2 src/graphql/schema.graphql dist/graphql",
+    "build": "tsc --build ; tsc-alias -p tsconfig.json && copyfiles -u 2 src/graphql/schema.graphql dist/graphql",
     "gen:gql": "graphql-codegen --config src/scripts/codegen.ts"
   },
   "dependencies": {

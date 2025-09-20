@@ -38,3 +38,14 @@ export interface CombinedFragranceNoteScoreRow extends FragranceNoteScoreRow {
   noteS3Key: string
   noteDescription: string | null
 }
+
+export type FragranceRequestRow = Selectable<DB['fragranceRequests']>
+export type FragranceRequestTraitRow = Selectable<DB['fragranceRequestTraits']>
+export type FragranceRequestAccordRow = Selectable<DB['fragranceRequestAccords']>
+export type FragranceRequestNoteRow = Selectable<DB['fragranceRequestNotes']>
+export type FragranceRequestVoteRow = Selectable<DB['fragranceRequestVotes']>
+export type FragranceRequestScoreRow = Selectable<DB['fragranceRequestScores']>
+
+export type FragranceRequestRowWithVotes = FragranceRequestRow & {
+  upvotes: number
+}

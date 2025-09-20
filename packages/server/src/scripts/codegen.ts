@@ -18,22 +18,18 @@ const config: CodegenConfig = {
 
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
           FragranceEdit: '../features/fragrances/types.js#IFragranceEditSummary',
+          FragranceRequest: '../features/fragrances/types.js#IFragranceRequestSummary',
 
           Brand: '../features/brands/types.js#IBrandSummary',
           BrandEdit: '../features/brands/types.js#IBrandEditSummary',
+          BrandRequest: '../features/brands/types.js#IBrandRequestSummary',
 
           AccordEdit: '../features/accords/types.js#IAccordEditSummary',
+          AccordRequest: '../features/accords/types.js#IAccordRequestSummary',
 
           Note: '../features/notes/types.js#INoteSummary',
           NoteEdit: '../features/notes/types.js#INoteEditSummary',
-
-          FragranceRequest: '../features/fragranceRequests/types.js#IFragranceRequestSummary',
-
-          BrandRequest: '../features/brandRequests/types.js#IBrandRequestSummary',
-
-          AccordRequest: '../features/accordRequests/types.js#IAccordRequestSummary',
-
-          NoteRequest: '../features/noteRequests/types.js#INoteRequestSummary'
+          NoteRequest: '../features/notes/types.js#INoteRequestSummary'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

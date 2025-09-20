@@ -5,7 +5,7 @@ import type { BrandResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 
 export class BrandFieldResolvers extends BaseResolver<BrandResolvers> {
-  private readonly fPagination = new FragrancePaginationFactory()
+  private readonly fragrancePagination = new FragrancePaginationFactory()
 
   fragrances: BrandResolvers['fragrances'] = async (
     parent,
@@ -17,7 +17,7 @@ export class BrandFieldResolvers extends BaseResolver<BrandResolvers> {
     const { input } = args
     const { services } = context
 
-    const pagination = this.fPagination.parse(input)
+    const pagination = this.fragrancePagination.parse(input)
     const { fragrances } = services
 
     const rows = await unwrapOrThrow(

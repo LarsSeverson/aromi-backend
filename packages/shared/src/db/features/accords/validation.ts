@@ -24,10 +24,10 @@ export const ValidAccordColor = z
   .max(MAX_ACCORD_COLOR_LENGTH, 'Accord color cannot exceed 9 characters')
   .regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, 'Color must be a valid hex code')
 
-export const ValidAccordImageType = z
+export const ValidAccordThumbnailType = z
   .enum(VALID_IMAGE_TYPES, 'Image must be a JPEG, PNG, or WEBP')
 
-export const ValidAccordImageSize = z
+export const ValidAccordThumbnailSize = z
   .number()
   .int()
   .max(MAX_ACCORD_IMAGE_SIZE, 'Image size cannot exceed 2 MB')

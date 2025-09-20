@@ -1,4 +1,4 @@
-import { ValidEditReason, ValidNoteDescription, ValidNoteImageSize, ValidNoteImageType, ValidNoteName } from '@aromi/shared'
+import { ValidEditReason, ValidNoteDescription, ValidNoteThumbnailSize, ValidNoteThumbnailType, ValidNoteName } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateNoteEditSchema = z
@@ -7,12 +7,35 @@ export const CreateNoteEditSchema = z
       .uuid('Note ID must be a valid UUID')
       .nonoptional('Note ID is required'),
     proposedName: ValidNoteName.nullish(),
-    proposedDescription: ValidNoteDescription,
+    proposedDescription: ValidNoteDescription.nullish(),
     reason: ValidEditReason.nullish()
   })
+  .strip()
 
 export const StageNoteEditThumbnailSchema = z
   .object({
-    contentType: ValidNoteImageType,
-    contentSize: ValidNoteImageSize
+    contentType: ValidNoteThumbnailType,
+    contentSize: ValidNoteThumbnailSize
   })
+  .strip()
+
+export const CreateNoteRequestSchema = z
+  .object({
+    name: ValidNoteName.nullish(),
+    description: ValidNoteDescription.nullish()
+  })
+  .strip()
+
+export const UpdateNoteRequestSchema = z
+  .object({
+    name: ValidNoteName.nullish(),
+    description: ValidNoteDescription.nullish()
+  })
+  .strip()
+
+export const StageNoteRequestThumbnailSchema = z
+  .object({
+    contentType: ValidNoteThumbnailType,
+    contentSize: ValidNoteThumbnailSize
+  })
+  .strip()

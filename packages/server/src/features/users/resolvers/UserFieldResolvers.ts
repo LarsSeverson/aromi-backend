@@ -1,9 +1,11 @@
-import { RequestStatus, throwError } from '@aromi/shared'
+import { RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
-import { mapFragranceRequestRowToFragranceRequest } from '@src/features/fragranceRequests/utils/mappers.js'
-import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brandRequests/utils/mappers.js'
+import { mapFragranceRequestRowToFragranceRequest } from '@src/features/fragrances/utils/mappers.js'
+import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/utils/mappers.js'
+import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords/utils/mappers.js'
+import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
@@ -18,35 +20,32 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { input } = args
     const { me, services } = context
 
-    const { fragranceRequests } = services
+    const { fragrances } = services
     const pagination = this.requestPagination.parse(input)
 
-    return await fragranceRequests
-      .find(
-        eb => {
-          if (me?.id !== id) {
-            return eb.and([
+    const requests = await unwrapOrThrow(
+      fragrances
+        .requests
+        .find(
+          eb => eb
+            .and([
               eb('userId', '=', id),
-              eb('requestStatus', '!=', RequestStatus.DRAFT)
-            ])
-          }
+              eb.or([
+                eb('requestStatus', '!=', RequestStatus.DRAFT),
+                eb.and([
+                  eb('requestStatus', '=', RequestStatus.DRAFT),
+                  eb('userId', '=', me?.id ?? '')
+                ])
+              ])
+            ]),
+          { pagination }
+        )
+    )
 
-          return eb.and([
-            eb('userId', '=', id)
-          ])
-        },
-        { pagination }
-      )
-      .map(rows => this
-        .pageFactory
-        .paginate(rows, pagination)
-      )
-      .match(
-        connection => this
-          .pageFactory
-          .transform(connection, mapFragranceRequestRowToFragranceRequest),
-        throwError
-      )
+    const connection = this.pageFactory.paginate(requests, pagination)
+    const transformed = this.pageFactory.transform(connection, mapFragranceRequestRowToFragranceRequest)
+
+    return transformed
   }
 
   brandRequests: UserResolvers['brandRequests'] = async (
@@ -59,41 +58,116 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { input } = args
     const { me, services } = context
 
-    const { brandRequests } = services
+    const { brands } = services
     const pagination = this.requestPagination.parse(input)
 
-    return await brandRequests
-      .find(
-        eb => {
-          if (me?.id !== id) {
-            return eb.and([
+    const requests = await unwrapOrThrow(
+      brands
+        .requests
+        .find(
+          eb => eb
+            .and([
               eb('userId', '=', id),
-              eb('requestStatus', '!=', RequestStatus.DRAFT)
-            ])
-          }
+              eb.or([
+                eb('requestStatus', '!=', RequestStatus.DRAFT),
+                eb.and([
+                  eb('requestStatus', '=', RequestStatus.DRAFT),
+                  eb('userId', '=', me?.id ?? '')
+                ])
+              ])
+            ]),
+          { pagination }
+        )
+    )
 
-          return eb.and([
-            eb('userId', '=', id)
-          ])
-        },
-        { pagination }
-      )
-      .map(rows => this
-        .pageFactory
-        .paginate(rows, pagination)
-      )
-      .match(
-        connection => this
-          .pageFactory
-          .transform(connection, mapBrandRequestRowToBrandRequestSummary),
-        throwError
-      )
+    const connection = this.pageFactory.paginate(requests, pagination)
+    const transformed = this.pageFactory.transform(connection, mapBrandRequestRowToBrandRequestSummary)
+
+    return transformed
+  }
+
+  accordRequests: UserResolvers['accordRequests'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { me, services } = context
+
+    const { accords } = services
+    const pagination = this.requestPagination.parse(input)
+
+    const requests = await unwrapOrThrow(
+      accords
+        .requests
+        .find(
+          eb => eb
+            .and([
+              eb('userId', '=', id),
+              eb.or([
+                eb('requestStatus', '!=', RequestStatus.DRAFT),
+                eb.and([
+                  eb('requestStatus', '=', RequestStatus.DRAFT),
+                  eb('userId', '=', me?.id ?? '')
+                ])
+              ])
+            ]),
+          { pagination }
+        )
+    )
+
+    const connection = this.pageFactory.paginate(requests, pagination)
+    const transformed = this.pageFactory.transform(connection, mapAccordRequestRowToAccordRequestSummary)
+
+    return transformed
+  }
+
+  noteRequests: UserResolvers['noteRequests'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { me, services } = context
+
+    const { notes } = services
+    const pagination = this.requestPagination.parse(input)
+
+    const requests = await unwrapOrThrow(
+      notes
+        .requests
+        .find(
+          eb => eb
+            .and([
+              eb('userId', '=', id),
+              eb.or([
+                eb('requestStatus', '!=', RequestStatus.DRAFT),
+                eb.and([
+                  eb('requestStatus', '=', RequestStatus.DRAFT),
+                  eb('userId', '=', me?.id ?? '')
+                ])
+              ])
+            ]),
+          { pagination }
+        )
+    )
+
+    const connection = this.pageFactory.paginate(requests, pagination)
+    const transformed = this.pageFactory.transform(connection, mapNoteRequestRowToNoteRequestSummary)
+
+    return transformed
   }
 
   getResolvers (): UserResolvers {
     return {
       fragranceRequests: this.fragranceRequests,
-      brandRequests: this.brandRequests
+      brandRequests: this.brandRequests,
+      accordRequests: this.accordRequests,
+      noteRequests: this.noteRequests
     }
   }
 }

@@ -4,9 +4,12 @@ import { throwError } from '@aromi/shared'
 import { AccordPaginationFactory } from '../factories/AccordPaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { AccordEditQueryResolvers } from './AccordEditQueryResolvers.js'
+import { AccordRequestQueryResolvers } from './AccordRequestQueryResolvers.js'
 
 export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly edits = new AccordEditQueryResolvers()
+  private readonly requests = new AccordRequestQueryResolvers()
+
   private readonly pagination = new AccordPaginationFactory()
   private readonly searchPagination = new SearchPaginationFactory()
 
@@ -64,7 +67,8 @@ export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
     return {
       accords: this.accords,
       searchAccords: this.searchAccords,
-      ...this.edits.getResolvers()
+      ...this.edits.getResolvers(),
+      ...this.requests.getResolvers()
     }
   }
 }

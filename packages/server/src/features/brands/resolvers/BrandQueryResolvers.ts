@@ -4,9 +4,12 @@ import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { BrandPaginationFactory } from '../factories/BrandPaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { BrandEditQueryResolvers } from './BrandEditQueryResolvers.js'
+import { BrandRequestQueryResolvers } from './BrandRequestQueryResolvers.js'
 
 export class BrandQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly edits = new BrandEditQueryResolvers()
+  private readonly requests = new BrandRequestQueryResolvers()
+
   private readonly pagination = new BrandPaginationFactory()
   private readonly searchPagination = new SearchPaginationFactory()
 
@@ -83,7 +86,8 @@ export class BrandQueryResolvers extends BaseResolver<QueryResolvers> {
       brand: this.brand,
       brands: this.brands,
       searchBrands: this.searchBrands,
-      ...this.edits.getResolvers()
+      ...this.edits.getResolvers(),
+      ...this.requests.getResolvers()
     }
   }
 }

@@ -14,7 +14,7 @@ type PresignedUpload {
 }
 
 input StageAssetInput {
-  id: ID!
+  entityId: ID!
   fileName: String!
   contentType: String!
   contentSize: Int!

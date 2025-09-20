@@ -1,4 +1,4 @@
-import { AssetStatus, BackendError, RequestStatus, unwrapOrThrow, type RequestService, type SomeRequestRow } from '@aromi/shared'
+import { BackendError, RequestStatus, unwrapOrThrow, type RequestService, type SomeRequestRow } from '@aromi/shared'
 import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
 import { errAsync, type Result, type ResultAsync } from 'neverthrow'
 import { RequestMutationResolver } from './RequestMutationResolver.js'
@@ -44,14 +44,12 @@ export abstract class SubmitRequestResolver<TR, R extends SomeRequestRow = SomeR
         this.trxService = trxService as unknown as RequestService
         return await this.handleSubmitRequest()
       })
-      .map(({ request }) => this.mapToOutput(request))
+      .map(request => this.mapToOutput(request))
   }
 
   private async handleSubmitRequest () {
     const request = await unwrapOrThrow(this.handleUpdateRequest())
-    const image = await unwrapOrThrow(this.handleUpdateImage())
-
-    return { request, image }
+    return request
   }
 
   private handleUpdateRequest () {
@@ -65,30 +63,5 @@ export abstract class SubmitRequestResolver<TR, R extends SomeRequestRow = SomeR
       )
       .andThen(request => this.authorizeEdit(request))
       .andThen(request => this.validateRequest(request as R))
-  }
-
-  private handleUpdateImage () {
-    const { id } = this.args.input
-
-    return this
-      .trxService!
-      .images
-      .findOne(
-        eb => eb.and([
-          eb('requestId', '=', id),
-          eb('status', '=', AssetStatus.READY)
-        ])
-      )
-      .mapErr(error => {
-        if (error.status === 404) {
-          return new BackendError(
-            'MISSING_IMAGE',
-            'A request image is required before submission',
-            400
-          )
-        }
-
-        return error
-      })
   }
 }

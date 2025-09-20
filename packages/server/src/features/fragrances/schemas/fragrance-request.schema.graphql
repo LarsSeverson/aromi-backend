@@ -1,0 +1,73 @@
+type FragranceRequest {
+  id: ID!
+  version: Int!
+  requestStatus: RequestStatus!
+
+  name: String
+  brand: Brand
+  description: String
+  releaseYear: Int
+  concentration: Concentration
+  fragranceStatus: FragranceStatus
+
+  image: Asset
+
+  trait(type: TraitTypeEnum!): FragranceRequestTrait!
+  traits: [FragranceRequestTrait!]!
+
+  accords: [Accord!]!
+
+  notes(layer: NoteLayer!): [Note!]!
+
+  votes: VoteInfo!
+
+  user: User!
+}
+
+type FragranceRequestEdge {
+  node: FragranceRequest!
+  cursor: String!
+}
+
+type FragranceRequestConnection {
+  edges: [FragranceRequestEdge!]!
+  pageInfo: PageInfo!
+}
+
+input CreateFragranceRequestInput {
+  name: String
+  description: String
+  releaseYear: Int
+  concentration: Concentration
+  status: FragranceStatus
+}
+
+input UpdateFragranceRequestInput {
+  id: ID!
+  name: String
+  description: String
+  releaseYear: Int
+  concentration: Concentration
+  status: FragranceStatus
+}
+
+input DeleteFragranceRequestInput {
+  id: ID!
+}
+
+input SubmitFragranceRequestInput {
+  id: ID!
+}
+
+extend type Query {
+  fragranceRequest(id: ID!): FragranceRequest!
+  fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
+}
+
+extend type Mutation {
+  createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
+  updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
+  deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
+  submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
+  stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
+}

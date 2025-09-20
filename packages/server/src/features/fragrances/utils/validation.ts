@@ -13,9 +13,34 @@ export const CreateFragranceEditSchema = z
     proposedStatus: ValidFragranceStatus.nullish(),
     reason: ValidEditReason.nullish()
   })
+  .strip()
 
 export const StageFragranceEditThumbnailSchema = z
   .object({
     contentType: ValidFragranceImageType,
     contentSize: ValidFragranceImageSize
   })
+  .strip()
+
+export const CreateFragranceRequestSchema = z
+  .object({
+    name: ValidFragranceName.nullish(),
+    description: ValidFragranceDescription,
+    releaseYear: ValidFragranceReleaseYear
+  })
+  .strip()
+
+export const UpdateFragranceRequestSchema = z
+  .object({
+    name: ValidFragranceName.nullish(),
+    description: ValidFragranceDescription.nullish(),
+    releaseYear: ValidFragranceReleaseYear.nullish()
+  })
+  .strip()
+
+export const StageFragranceRequestImageSchema = z
+  .object({
+    contentType: ValidFragranceImageType,
+    contentSize: ValidFragranceImageSize
+  })
+  .strip()

@@ -1,4 +1,4 @@
-import type { FragranceIndex } from '@aromi/shared/src/search/features/fragrances/types.js'
+import type { FragranceIndex } from '@aromi/shared/src/search/features/notes/fragrances/types.js'
 import { BaseIndexer } from './BaseIndexer.js'
 import type { INDEXATION_JOB_NAMES, IndexationJobPayload } from '@aromi/shared/src/queues/services/indexation/types.js'
 import { unwrapOrThrow, type AccordRow, type BackendError, type BrandRow, type FragranceRow, type LayerNoteRow } from '@aromi/shared'

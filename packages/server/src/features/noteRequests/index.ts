@@ -1,5 +1,0 @@
-export * from './resolvers/NoteRequestFieldResolvers.js'
-export * from './resolvers/NoteRequestImageMutationResolvers.js'
-export * from './resolvers/NoteRequestMutationResolvers.js'
-export * from './resolvers/NoteRequestQueryResolvers.js'
-export * from './resolvers/NoteRequestVoteMutationResolvers.js'

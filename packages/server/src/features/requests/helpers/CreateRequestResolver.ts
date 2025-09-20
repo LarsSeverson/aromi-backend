@@ -63,7 +63,7 @@ export abstract class CreateRequestResolver<TR, R extends SomeRequestRow = SomeR
     return this
       .trxService!
       .votes
-      .counts
+      .scores
       .createOne({ requestId })
   }
 }

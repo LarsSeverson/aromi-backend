@@ -1,4 +1,4 @@
-import { AccordRequestService, AccordService, AssetService, AuthService, BrandRequestService, BrandService, type DataSources, FragranceRequestService, FragranceService, NoteRequestService, NoteService, SearchServices, TraitService, UserService } from '@aromi/shared'
+import { AccordService, AssetService, AuthService, BrandService, type DataSources, FragranceService, NoteService, SearchServices, TraitService, UserService } from '@aromi/shared'
 
 export class ServerServices {
   auth: AuthService
@@ -11,11 +11,6 @@ export class ServerServices {
   traits: TraitService
   accords: AccordService
   notes: NoteService
-
-  fragranceRequests: FragranceRequestService
-  brandRequests: BrandRequestService
-  accordRequests: AccordRequestService
-  noteRequests: NoteRequestService
 
   search: SearchServices
 
@@ -30,11 +25,6 @@ export class ServerServices {
     this.traits = new TraitService(sources)
     this.accords = new AccordService(sources)
     this.notes = new NoteService(sources)
-
-    this.fragranceRequests = new FragranceRequestService(sources)
-    this.brandRequests = new BrandRequestService(sources)
-    this.accordRequests = new AccordRequestService(sources)
-    this.noteRequests = new NoteRequestService(sources)
 
     this.search = new SearchServices(sources)
   }
