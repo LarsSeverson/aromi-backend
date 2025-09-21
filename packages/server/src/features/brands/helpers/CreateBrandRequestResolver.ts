@@ -1,26 +1,64 @@
-import type { BrandRequestRow } from '@aromi/shared'
-import { CreateRequestResolver } from '@src/features/requests/helpers/CreateRequestResolver.js'
-import type { MutationCreateBrandRequestArgs, MutationResolvers } from '@src/graphql/gql-types.js'
-import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
-import { mapBrandRequestRowToBrandRequestSummary, mapCreateBrandRequestInputToRow } from '../utils/mappers.js'
+import { parseOrThrow, removeNullish, unwrapOrThrow, type BrandService } from '@aromi/shared'
+import { RequestMutationResolver } from '@src/features/requests/helpers/RequestMutationResolver.js'
+import { CreateBrandRequestSchema } from '../utils/validation.js'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { mapBrandRequestRowToBrandRequestSummary } from '../utils/mappers.js'
 
 type Mutation = MutationResolvers['createBrandRequest']
 
-export class CreateBrandRequestResolver extends CreateRequestResolver<Mutation, BrandRequestRow> {
-  constructor (params: RequestResolverParams<Mutation>) {
-    const { services } = params.context
+export class CreateBrandRequestResolver extends RequestMutationResolver<Mutation> {
+  private trxService?: BrandService
+
+  async resolve () {
+    const { context } = this
+    const { services } = context
     const { brands } = services
 
-    super({
-      ...params,
-      service: brands.requests
-    })
+    const { request } = await unwrapOrThrow(
+      brands.withTransactionAsync(async trx => {
+        this.trxService = trx
+        return await this.handleCreateRequest()
+      })
+    )
+
+    return mapBrandRequestRowToBrandRequestSummary(request)
   }
 
-  mapToOutput = mapBrandRequestRowToBrandRequestSummary
+  private async handleCreateRequest () {
+    const request = await unwrapOrThrow(this.createRequest())
+    const score = await unwrapOrThrow(this.createScore(request.id))
 
-  mapToValues (args: Partial<MutationCreateBrandRequestArgs>) {
+    return { request, score }
+  }
+
+  private createRequest () {
+    const values = this.getValues()
+
+    return this
+      .trxService!
+      .requests
+      .createOne(values)
+  }
+
+  private createScore (requestId: string) {
+    return this
+      .trxService!
+      .requests
+      .votes
+      .scores
+      .createOne({ requestId })
+  }
+
+  private getValues () {
+    const { me, args } = this
     const { input } = args
-    return mapCreateBrandRequestInputToRow(input)
+
+    const userId = me.id
+    const parsed = parseOrThrow(CreateBrandRequestSchema, input ?? {})
+    const cleaned = removeNullish(parsed)
+
+    const values = { ...cleaned, userId }
+
+    return values
   }
 }

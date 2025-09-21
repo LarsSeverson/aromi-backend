@@ -1,8 +1,7 @@
-import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import type { BrandRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { ResultAsync } from 'neverthrow'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
+import { BrandRequestVotesResolver } from '../helpers/BrandRequestVotesResolver.js'
 
 export class BrandRequestFieldResolvers extends BaseResolver<BrandRequestResolvers> {
   avatar: BrandRequestResolvers['avatar'] = async (
@@ -32,22 +31,8 @@ export class BrandRequestFieldResolvers extends BaseResolver<BrandRequestResolve
     context,
     info
   ) => {
-    const { id } = parent
-    const { me, loaders } = context
-
-    const { brandRequests } = loaders
-
-    return await ResultAsync
-      .fromPromise(
-        brandRequests
-          .getVotesLoader(me?.id)
-          .load(id),
-        error => BackendError.fromDatabase(error)
-      )
-      .match(
-        mapVoteInfoRowToVoteInfo,
-        throwError
-      )
+    const resolver = new BrandRequestVotesResolver({ parent, args, context, info })
+    return await resolver.resolve()
   }
 
   getResolvers (): BrandRequestResolvers {

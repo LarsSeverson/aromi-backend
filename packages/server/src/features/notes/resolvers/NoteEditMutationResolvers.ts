@@ -46,7 +46,7 @@ export class NoteEditMutationResolvers extends BaseResolver<MutationResolvers> {
     await unwrapOrThrow(
       assets
         .uploads
-        .createOne({ s3Key: key, contentType, sizeBytes: String(contentSize) })
+        .createOne({ name: fileName, s3Key: key, contentType, sizeBytes: String(contentSize) })
     )
 
     const payload = await unwrapOrThrow(

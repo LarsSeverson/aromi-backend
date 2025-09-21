@@ -1,8 +1,7 @@
-import { err, errAsync, ok, okAsync, ResultAsync, type Result } from 'neverthrow'
-import type z from 'zod'
+import { err, errAsync, ok, ResultAsync } from 'neverthrow'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
-import { AssetStatus, BackendError, type FragranceAccordVoteRow, type FragranceImageRow, type FragranceNoteVoteRow, type FragranceRequestRow, type FragranceRow, type FragranceTraitVoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidFragrance } from '@aromi/shared'
+import { BackendError, type DataSources, type FragranceImageRow, type FragranceRequestRow, type FragranceRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
 import { INDEXATION_JOB_NAMES } from '@aromi/shared'
@@ -10,54 +9,64 @@ import { INDEXATION_JOB_NAMES } from '@aromi/shared'
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE
 
 export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey], FragranceRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<FragranceRow, BackendError> {
-    const { queues } = this.context
+  constructor (sources: DataSources) {
+    super({ sources, type: RequestType.FRAGRANCE })
+  }
 
+  async promote (job: Job<PromotionJobPayload[JobKey]>) {
     const { requestId } = job.data
 
-    return this
-      .withTransaction(trxPromoter => trxPromoter
-        .updateRequest(requestId)
-        .andThen(row => trxPromoter
-          .promoteFragrance(row)
-          .andThen(fragrance => ResultAsync
-            .combine([
-              trxPromoter.promoteImage(row, fragrance),
-              trxPromoter.promoteAccords(row, fragrance),
-              trxPromoter.promoteNotes(row, fragrance),
-              trxPromoter.promoteTraits(row, fragrance)
-            ])
-            .map(([image, accords, notes, traits]) => ({ fragrance, image, accords, notes, traits }))
-          )
-          .orTee(error => this.markFailed(row, error))
-        )
-      )
-      .andTee(({ fragrance }) => queues
-        .indexation
-        .enqueue({
-          jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
-          data: { fragranceId: fragrance.id }
-        })
-      )
-      .andThrough(({ image }) => this
-        .processImage(image)
-        .orElse(() => okAsync(image))
-      )
-      .map(({ fragrance }) => fragrance)
+    const { fragrance, image } = await this.withTransactionAsync(
+      async promoter => await promoter.handlePromote(requestId)
+    )
+
+    await this.queueIndex(fragrance.id)
+    await this.processImage(image)
+
+    return fragrance
+  }
+
+  private async handlePromote (requestId: string) {
+    const request = await unwrapOrThrow(this.updateRequest(requestId))
+    const fragrance = await unwrapOrThrow(this.migrateFragrance(request))
+
+    const combined = await Promise.all([
+      this.migrateImage(request, fragrance),
+      this.migrateAccords(request, fragrance),
+      this.migrateNotes(request, fragrance),
+      this.migrateTraits(request, fragrance)
+    ])
+
+    const [image, accords, notes, traits] = combined
+
+    return { fragrance, image, accords, notes, traits }
+  }
+
+  private queueIndex (fragranceId: string) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
+        data: { fragranceId }
+      })
   }
 
   private updateRequest (id: string): ResultAsync<FragranceRequestRow, BackendError> {
     const { services } = this.context
-    const { fragranceRequests } = services
+    const { fragrances } = services
 
-    return fragranceRequests
+    return fragrances
+      .requests
       .updateOne(
         eb => eb('id', '=', id),
         { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 
-  private promoteFragrance (
+  private migrateFragrance (
     row: FragranceRequestRow
   ): ResultAsync<FragranceRow, BackendError> {
     const validRow = this.validateRow(row)
@@ -69,161 +78,181 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     return fragrances.createOne(validRow.value)
   }
 
-  private promoteImage (
+  private async migrateImage (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceImageRow, BackendError> {
+  ) {
     const { services } = this.context
-    const { fragrances, fragranceRequests } = services
+    const { fragrances } = services
 
     const { id: fragranceId } = fragrance
 
-    return fragranceRequests
-      .images
-      .findOne(
-        eb => eb.and([
-          eb('requestId', '=', request.id),
-          eb('status', '=', AssetStatus.READY)
-        ])
-      )
-      .andThen(image => {
-        const { s3Key, name, contentType, sizeBytes } = image
+    const image = await unwrapOrThrow(this.getImage(request))
 
-        return fragrances
-          .images
-          .createOne({
-            fragranceId,
-            s3Key,
-            name,
-            contentType,
-            sizeBytes
-          })
-      })
+    const values = {
+      fragranceId,
+      s3Key: image.s3Key,
+      name: image.name,
+      contentType: image.contentType,
+      sizeBytes: image.sizeBytes
+    }
+
+    return await unwrapOrThrow(
+      fragrances
+        .images
+        .createOne(values)
+    )
   }
 
-  private promoteAccords (
+  private async migrateAccords (
     request: FragranceRequestRow,
     fragrance: FragranceRow
-  ): ResultAsync<FragranceAccordVoteRow[], BackendError> {
+  ) {
     const { services } = this.context
-    const { fragrances, fragranceRequests } = services
-
-    const { id: requestId, userId } = request
-    const { id: fragranceId } = fragrance
-
-    return fragranceRequests
-      .accords
-      .find(
-        eb => eb('requestId', '=', requestId)
-      )
-      .andThen(accords => {
-        if (accords.length === 0) {
-          return okAsync([])
-        }
-
-        const values = accords
-          .map(({ accordId }) => ({ fragranceId, accordId, userId }))
-
-        return fragrances
-          .accords
-          .votes
-          .create(values)
-      })
-  }
-
-  private promoteNotes (
-    request: FragranceRequestRow,
-    fragrance: FragranceRow
-  ): ResultAsync<FragranceNoteVoteRow[], BackendError> {
-    const { services } = this.context
-    const { fragrances, fragranceRequests } = services
-
-    const { id: requestId, userId } = request
-    const { id: fragranceId } = fragrance
-
-    return fragranceRequests
-      .notes
-      .find(
-        eb => eb('requestId', '=', requestId)
-      )
-      .andThen(notes => {
-        if (notes.length === 0) {
-          return okAsync([])
-        }
-
-        const values = notes
-          .map(({ noteId, layer }) => ({ fragranceId, userId, noteId, layer }))
-
-        return fragrances
-          .notes
-          .votes
-          .create(values)
-      })
-  }
-
-  private promoteTraits (
-    request: FragranceRequestRow,
-    fragrance: FragranceRow
-  ): ResultAsync<FragranceTraitVoteRow[], BackendError> {
-    const { services } = this.context
-    const { fragrances, fragranceRequests } = services
+    const { fragrances } = services
 
     const { userId } = request
     const { id: fragranceId } = fragrance
 
-    return fragranceRequests
+    const accords = await unwrapOrThrow(this.getAccords(request))
+    if (accords.length === 0) return []
+
+    const values = accords
+      .map(({ accordId }) => ({ fragranceId, accordId, userId }))
+
+    return await unwrapOrThrow(
+      fragrances
+        .accords
+        .votes
+        .create(values)
+    )
+  }
+
+  private async migrateNotes (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    const { userId } = request
+    const { id: fragranceId } = fragrance
+
+    const notes = await unwrapOrThrow(this.getNotes(request))
+    if (notes.length === 0) return []
+
+    const values = notes.map(
+      ({ noteId, layer }) => ({ fragranceId, userId, noteId, layer })
+    )
+
+    return await unwrapOrThrow(
+      fragrances
+        .notes
+        .votes
+        .create(values)
+    )
+  }
+
+  private async migrateTraits (
+    request: FragranceRequestRow,
+    fragrance: FragranceRow
+  ) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    const { userId } = request
+    const { id: fragranceId } = fragrance
+
+    const traits = await unwrapOrThrow(this.getTraits(request))
+    if (traits.length === 0) return []
+
+    const values = traits.map(
+      ({ traitTypeId, traitOptionId }) => ({ fragranceId, userId, traitTypeId, traitOptionId })
+    )
+
+    return await unwrapOrThrow(
+      fragrances
+        .traitVotes
+        .create(values)
+    )
+  }
+
+  private getImage (request: FragranceRequestRow) {
+    const { services } = this.context
+    const { assets } = services
+
+    return assets
+      .uploads
+      .findOne(
+        eb => eb('id', '=', request.assetId)
+      )
+  }
+
+  private getAccords (request: FragranceRequestRow) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    return fragrances
+      .requests
+      .accords
+      .find(
+        eb => eb('requestId', '=', request.id)
+      )
+  }
+
+  private getNotes (request: FragranceRequestRow) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    return fragrances
+      .requests
+      .notes
+      .find(
+        eb => eb('requestId', '=', request.id)
+      )
+  }
+
+  private getTraits (request: FragranceRequestRow) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    return fragrances
+      .requests
       .traits
       .find(
         eb => eb('requestId', '=', request.id)
       )
-      .andThen(traits => {
-        const values = traits
-          .map(trait => {
-            if (trait.traitOptionId == null) return null
-
-            return {
-              userId,
-              fragranceId,
-              traitTypeId: trait.traitTypeId,
-              traitOptionId: trait.traitOptionId
-            }
-          })
-          .filter(v => v != null)
-
-        if (values.length === 0) {
-          return okAsync([])
-        }
-
-        return fragrances
-          .traitVotes
-          .create(values)
-      })
   }
 
-  private processImage (
-    imageRow: FragranceImageRow
-  ): ResultAsync<FragranceImageRow, BackendError> {
+  private validateRow (row: FragranceRequestRow) {
+    const { data, success, error } = ValidFragrance.safeParse(row)
+    if (!success) {
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_DATA',
+          `The fragrance request data is invalid: ${error.message}`,
+          400
+        )
+      )
+    }
+
+    return ok(data)
+  }
+
+  private async processImage (image: FragranceImageRow) {
     const { services } = this.context
     const { assets, fragrances } = services
 
-    return assets
-      .getFromS3(imageRow.s3Key)
-      .andThen(buffer => ResultAsync
-        .combine([
-          this.getMetadata(buffer).orElse(() => okAsync(null)),
-          this.getPrimaryColor(buffer).orElse(() => okAsync(null))
-        ])
-        .andThen(([metadata, primaryColor]) => {
-          const { width = 0, height = 0 } = metadata ?? {}
-          const bg = primaryColor ?? '#FFFFFF'
+    const buffer = await unwrapOrThrow(assets.getFromS3(image.s3Key))
 
-          return okAsync({ width, height, primaryColor: bg })
-        })
-      )
-      .andThen(({ width, height, primaryColor }) => fragrances
+    const { width, height }= await this.getMetadata(buffer).unwrapOr({ width: 0, height: 0 })
+    const primaryColor = await this.getPrimaryColor(buffer).unwrapOr('#FFFFFF')
+
+    const updated = await unwrapOrThrow(
+      fragrances
         .images
         .updateOne(
-          eb => eb('id', '=', imageRow.id),
+          eb => eb('id', '=', image.id),
           {
             width,
             height,
@@ -231,60 +260,27 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
             updatedAt: new Date().toISOString()
           }
         )
-      )
+    )
+
+    return updated
   }
 
-  private validateRow (row: FragranceRequestRow): Result<z.output<typeof ValidFragrance>, BackendError> {
-    const { data, success, error } = ValidFragrance.safeParse(row)
-    if (!success) {
-      return err(BackendError.fromZod(error))
-    }
-
-    return ok(data)
-  }
-
-  private markFailed (row: FragranceRequestRow, error: BackendError): ResultAsync<never, BackendError> {
-    const { services } = this.context
-    const { fragranceRequests } = services
-
-    return fragranceRequests
-      .updateOne(
-        eb => eb('id', '=', row.id),
-        {
-          requestStatus: RequestStatus.FAILED,
-          updatedAt: new Date().toISOString()
-        }
-      )
-      .andThen(() => errAsync(error))
-  }
-
-  private getMetadata (
-    imageBuffer: Buffer
-  ): ResultAsync<sharp.Metadata, BackendError> {
+  private getMetadata (buffer: Buffer) {
     return ResultAsync
       .fromPromise(
-        sharp(imageBuffer)
-          .metadata(),
+        sharp(buffer).metadata(),
         error => BackendError.fromSharp(error)
       )
   }
 
-  private getPrimaryColor (
-    imageBuffer: Buffer
-  ): ResultAsync<string, BackendError> {
+  private getPrimaryColor (buffer: Buffer) {
     return ResultAsync
       .fromPromise(
         Vibrant
-          .from(imageBuffer)
+          .from(buffer)
           .getPalette(),
         error => BackendError.fromVibrant(error)
       )
-      .andThen(palette => {
-        const hex = palette.Vibrant?.hex
-        if (hex == null) {
-          return errAsync(new BackendError('NoVibrantColor', 'Could not determine vibrant color from image', 500))
-        }
-        return okAsync(hex)
-      })
+      .map(palette => palette.Vibrant?.hex ?? '#FFFFFF')
   }
 }

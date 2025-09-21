@@ -67,6 +67,13 @@ export enum RequestStatus {
   PENDING = "PENDING",
 }
 
+export enum RequestType {
+  ACCORD = "accord",
+  BRAND = "brand",
+  FRAGRANCE = "fragrance",
+  NOTE = "note",
+}
+
 export enum UserRole {
   ADMIN = "ADMIN",
   MODERATOR = "MODERATOR",
@@ -125,6 +132,7 @@ export interface AccordRequestScore {
   deletedAt: Timestamp | null;
   downvotes: Generated<number>;
   requestId: string;
+  score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
 }
@@ -204,6 +212,7 @@ export interface BrandRequestScore {
   deletedAt: Timestamp | null;
   downvotes: Generated<number>;
   requestId: string;
+  score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
 }
@@ -385,6 +394,7 @@ export interface FragranceRequestScore {
   deletedAt: Timestamp | null;
   downvotes: Generated<number>;
   requestId: string;
+  score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
 }
@@ -393,7 +403,7 @@ export interface FragranceRequestTrait {
   deletedAt: Timestamp | null;
   id: Generated<string>;
   requestId: string;
-  traitOptionId: string | null;
+  traitOptionId: string;
   traitTypeId: string;
 }
 
@@ -477,6 +487,7 @@ export interface NoteRequestScore {
   deletedAt: Timestamp | null;
   downvotes: Generated<number>;
   requestId: string;
+  score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
 }
@@ -495,8 +506,18 @@ export interface Note {
   description: string | null;
   id: Generated<string>;
   name: string;
-  s3Key: string;
   thumbnailImageId: string | null;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface RequestJob {
+  createdAt: Generated<Timestamp>;
+  error: string | null;
+  id: Generated<string>;
+  processedAt: Timestamp | null;
+  requestId: string;
+  requestType: RequestType;
+  status: Generated<JobStatus>;
   updatedAt: Generated<Timestamp>;
 }
 
@@ -566,6 +587,7 @@ export interface DB {
   noteRequestScores: NoteRequestScore;
   noteRequestVotes: NoteRequestVote;
   notes: Note;
+  requestJobs: RequestJob;
   traitOptions: TraitOption;
   traitTypes: TraitType;
   users: User;

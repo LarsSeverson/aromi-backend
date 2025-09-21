@@ -31,7 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "kysely": "^0.28.2",
-    "meilisearch": "^0.52.0",
+    "meilisearch": "^0.53.0",
     "nanoid": "^5.1.5",
     "neverthrow": "^8.2.0",
     "pg": "^8.13.3",

@@ -6,9 +6,9 @@ import { type FNCursorType, FNPaginationFactory } from '../factories/FNPaginatio
 import { mapDBNoteLayerToGQLNoteLayer } from '../utils/mappers.js'
 import { okAsync, ResultAsync } from 'neverthrow'
 
-type Query = FragranceResolvers['notes']
+type Field = FragranceResolvers['notes']
 
-export class FragranceNotesResolver extends RequestResolver<Query> {
+export class FragranceNotesResolver extends RequestResolver<Field> {
   private readonly pageFactory = new PageFactory()
   private readonly pagination = new FNPaginationFactory()
 
@@ -26,8 +26,8 @@ export class FragranceNotesResolver extends RequestResolver<Query> {
     const pagination = this.pagination.parse(input)
 
     const scoreRows = await unwrapOrThrow(this.getScoreRows(pagination))
-
     const myVoteRows = await unwrapOrThrow(this.getMyVoteRows())
+
     const myVoteRowsMap = new Map(myVoteRows.map(v => [v.noteId, v]))
 
     const connection = this.pageFactory.paginate(scoreRows, pagination)
@@ -61,14 +61,13 @@ export class FragranceNotesResolver extends RequestResolver<Query> {
 
     const { fragrances } = loaders
 
-    return fragrances.loadMyNoteVotes(id, me.id)
+    return fragrances.loadUserNoteVotes(id, me.id)
   }
 
   mapToOutput (
     row: CombinedFragranceNoteScoreRow,
     myVoteRowsMap: Map<string, FragranceNoteVoteRow>
   ) {
-    const { assets } = this.context.services
     const myVote = myVoteRowsMap.get(row.noteId) != null ? 1 : null
 
     const {
@@ -80,7 +79,6 @@ export class FragranceNotesResolver extends RequestResolver<Query> {
 
       noteId,
       noteName,
-      noteS3Key,
       noteDescription
     } = row
 
@@ -90,8 +88,7 @@ export class FragranceNotesResolver extends RequestResolver<Query> {
       note: {
         id: noteId,
         name: noteName,
-        description: noteDescription,
-        thumbnail: assets.getCdnUrl(noteS3Key)
+        description: noteDescription
       },
       votes: {
         upvotes,

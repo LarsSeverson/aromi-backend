@@ -1,114 +1,126 @@
-import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
-import type z from 'zod'
+import { err, errAsync, ok } from 'neverthrow'
 import type { Job } from 'bullmq'
-import { type AccordImageRow, type AccordRequestImageRow, type AccordRequestRow, type AccordRow, AssetStatus, BackendError, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidAccord } from '@aromi/shared'
+import { type AccordRequestRow, type AccordRow, type AssetUploadRow, BackendError, type DataSources, INDEXATION_JOB_NAMES, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidAccord } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_ACCORD
 
 export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], AccordRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<AccordRow, BackendError> {
-    const { search } = this.context.services
-    const { requestId } = job.data
-
-    return this
-      .withTransaction(trxPromoter => trxPromoter
-        .updateRequest(requestId)
-        .andThen(row => trxPromoter
-          .promoteAccord(row)
-          .orTee(error => trxPromoter.markFailed(row, error))
-        )
-      )
-      .andTee(accord => search
-        .accords
-        .addDocument(accord)
-      )
+  constructor (sources: DataSources) {
+    super({ sources, type: RequestType.ACCORD })
   }
 
-  private updateRequest (id: string): ResultAsync<AccordRequestRow, BackendError> {
-    const { services } = this.context
-    const { accordRequests } = services
+  async promote (job: Job<PromotionJobPayload[JobKey]>) {
+    const { requestId } = job.data
 
-    return accordRequests
+    const accord = await this.withTransactionAsync(
+      async promoter => await promoter.handlePromote(requestId)
+    )
+
+    await this.queueIndex(accord.id)
+
+    return accord
+  }
+
+  private async handlePromote (requestId: string) {
+    const request = await unwrapOrThrow(this.updateRequest(requestId))
+    const thumbnail = await unwrapOrThrow(this.getThumbnail(request))
+
+    const accord = await unwrapOrThrow(this.createAccord(request))
+    await unwrapOrThrow(this.migrateThumbnail(thumbnail, accord))
+
+    return accord
+  }
+
+  private queueIndex (accordId: string) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_ACCORD,
+        data: { accordId }
+      })
+  }
+
+  private updateRequest (requestId: string) {
+    const { services } = this.context
+    const { accords } = services
+
+    return accords
+      .requests
       .updateOne(
-        eb => eb('id', '=', id),
+        eb => eb('id', '=', requestId),
         { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 
-  private promoteAccord (row: AccordRequestRow): ResultAsync<AccordRow, BackendError> {
+  private createAccord (row: AccordRequestRow) {
     const { services } = this.context
     const { accords } = services
 
-    const validRow = this.validateRow(row)
+    const validRow = this.validateRequest(row)
     if (validRow.isErr()) return errAsync(validRow.error)
 
-    return accords
-      .createOne(validRow.value)
-      .andThrough(accord => this
-        .promoteImage(row, accord))
+    return accords.createOne(validRow.value)
   }
 
-  private promoteImage (
-    request: AccordRequestRow,
+  private migrateThumbnail (
+    asset: AssetUploadRow,
     accord: AccordRow
-  ): ResultAsync<AccordImageRow, BackendError> {
+  ) {
     const { services } = this.context
     const { accords } = services
 
-    return this
-      .getImage(request)
-      .andThen(image => {
-        const { id: accordId } = accord
-        const { s3Key, name, contentType, sizeBytes } = image
+    const { id: accordId } = accord
+    const { s3Key, name, contentType, sizeBytes } = asset
 
-        return accords
-          .images
-          .createOne({
-            accordId,
-            s3Key,
-            name,
-            contentType,
-            sizeBytes
-          })
+    return accords
+      .images
+      .createOne({
+        accordId,
+        s3Key,
+        name,
+        contentType,
+        sizeBytes
       })
   }
 
-  private getImage (row: AccordRequestRow): ResultAsync<AccordRequestImageRow, BackendError> {
+  private getThumbnail (request: AccordRequestRow) {
     const { services } = this.context
-    const { accordRequests } = services
+    const { assets } = services
 
-    return accordRequests
-      .images
-      .findOne(
-        eb => eb.and([
-          eb('requestId', '=', row.id),
-          eb('status', '=', AssetStatus.READY)
-        ])
-      )
+    return assets
+      .uploads
+      .findOne(eb => eb('id', '=', request.assetId))
+      .mapErr(error => {
+        if (error.status === 404) {
+          return new BackendError(
+            'ASSET_NOT_FOUND',
+            'The request thumbnail was not found. This is required to promote an accord.',
+            400
+          )
+        }
+
+        return error
+      })
   }
 
-  private validateRow (row: AccordRequestRow): Result<z.output<typeof ValidAccord>, BackendError> {
-    const { data, success, error } = ValidAccord.safeParse(row)
+  private validateRequest (request: AccordRequestRow) {
+    const { data, success, error } = ValidAccord.safeParse(request)
+
     if (!success) {
-      return err(BackendError.fromZod(error))
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_DATA',
+          `The request did not pass validation: ${error.message}`,
+          400,
+          BackendError.fromZod(error)
+        )
+      )
     }
 
     return ok(data)
-  }
-
-  private markFailed (row: AccordRequestRow, error: BackendError): ResultAsync<never, BackendError> {
-    const { services } = this.context
-    const { accordRequests } = services
-
-    return accordRequests
-      .updateOne(
-        eb => eb('id', '=', row.id),
-        {
-          requestStatus: RequestStatus.FAILED,
-          updatedAt: new Date().toISOString()
-        }
-      )
-      .andThen(() => errAsync(error))
   }
 }

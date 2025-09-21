@@ -13,3 +13,5 @@ export interface PromotionJobPayload {
   [PROMOTION_JOB_NAMES.PROMOTE_ACCORD]: { requestId: string }
   [PROMOTION_JOB_NAMES.PROMOTE_NOTE]: { requestId: string }
 }
+
+export type PromotionJobData = PromotionJobPayload[keyof PromotionJobPayload]

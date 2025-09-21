@@ -1,26 +1,64 @@
-import type { FragranceRequestRow } from '@aromi/shared'
-import { CreateRequestResolver } from '@src/features/requests/helpers/CreateRequestResolver.js'
-import type { MutationCreateFragranceRequestArgs, MutationResolvers } from '@src/graphql/gql-types.js'
-import type { RequestResolverParams } from '@src/resolvers/RequestResolver.js'
-import { mapCreateFragranceRequestInputToRow, mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
+import { parseOrThrow, removeNullish, unwrapOrThrow, type FragranceService } from '@aromi/shared'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
+import { RequestMutationResolver } from '@src/features/requests/helpers/RequestMutationResolver.js'
+import { CreateFragranceRequestSchema } from '../utils/validation.js'
 
 type Mutation = MutationResolvers['createFragranceRequest']
 
-export class CreateFragranceRequestResolver extends CreateRequestResolver<Mutation, FragranceRequestRow> {
-  constructor (params: RequestResolverParams<Mutation>) {
-    const { services } = params.context
+export class CreateFragranceRequestResolver extends RequestMutationResolver<Mutation> {
+  private trxService?: FragranceService
+
+  async resolve () {
+    const { context } = this
+    const { services } = context
     const { fragrances } = services
 
-    super({
-      ...params,
-      service: fragrances.requests
-    })
+    const { request } = await unwrapOrThrow(
+      fragrances.withTransactionAsync(async trx => {
+        this.trxService = trx
+        return await this.handleCreateRequest()
+      })
+    )
+
+    return mapFragranceRequestRowToFragranceRequest(request)
   }
 
-  mapToOutput = mapFragranceRequestRowToFragranceRequest
+  private async handleCreateRequest () {
+    const request = await unwrapOrThrow(this.createRequest())
+    const score = await unwrapOrThrow(this.createScore(request.id))
 
-  mapToValues (args: Partial<MutationCreateFragranceRequestArgs>) {
+    return { request, score }
+  }
+
+  private createRequest () {
+    const values = this.getValues()
+
+    return this
+      .trxService!
+      .requests
+      .createOne(values)
+  }
+
+  private createScore (requestId: string) {
+    return this
+      .trxService!
+      .requests
+      .votes
+      .scores
+      .createOne({ requestId })
+  }
+
+  private getValues () {
+    const { me, args } = this
     const { input } = args
-    return mapCreateFragranceRequestInputToRow(input)
+
+    const userId = me.id
+    const parsed = parseOrThrow(CreateFragranceRequestSchema, input ?? {})
+    const cleaned = removeNullish(parsed)
+
+    const values = { ...cleaned, userId }
+
+    return values
   }
 }

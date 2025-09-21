@@ -69,10 +69,7 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
     jobId: string,
     error?: BackendError
   ) {
-    if (error != null) {
-      return this.markJobFailed(jobId, error)
-    }
-
+    if (error != null) return this.markJobFailed(jobId, error)
     return this.markJobSuccess(jobId)
   }
 
@@ -100,7 +97,7 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
       return errAsync(
         new BackendError(
           'INVALID_JOB_STATUS',
-          'Only edits with queued jobs can be revised',
+          'Only edits with queued status can be processed',
           400
         )
       )

@@ -1,4 +1,7 @@
-import type { RequestStatus } from '@src/db/db-schema.js'
+import type { DB, RequestStatus } from '@src/db/db-schema.js'
+import type { Selectable } from 'kysely'
+
+export type RequestJobRow = Selectable<DB['requestJobs']>
 
 export interface SomeRequestRow {
   id: string
@@ -17,4 +20,5 @@ export interface SomeRequestScoreRow {
   requestId: string
   upvotes: number
   downvotes: number
+  score: number
 }

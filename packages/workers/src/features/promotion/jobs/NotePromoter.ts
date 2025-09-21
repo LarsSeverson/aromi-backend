@@ -1,115 +1,144 @@
-import { AssetStatus, BackendError, type NoteImageRow, type NoteRequestImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidNote } from '@aromi/shared'
-import { err, errAsync, ok, type Result, type ResultAsync } from 'neverthrow'
-import type z from 'zod'
+import { type AssetUploadRow, BackendError, type DataSources, INDEXATION_JOB_NAMES, type NoteImageRow, type NoteRequestRow, type NoteRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidNote } from '@aromi/shared'
+import { err, errAsync, ok } from 'neverthrow'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_NOTE
 
 export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], NoteRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<NoteRow, BackendError> {
-    const { search } = this.context.services
-    const { requestId } = job.data
-
-    return this
-      .withTransaction(trxPromoter => trxPromoter
-        .updateRequest(requestId)
-        .andThen(row => trxPromoter
-          .promoteNote(row)
-          .orTee(error => trxPromoter.markFailed(row, error))
-        )
-      )
-      .andTee(note => search
-        .notes
-        .addDocument(note)
-      )
+  constructor (sources: DataSources) {
+    super({ sources, type: RequestType.NOTE })
   }
 
-  private updateRequest (id: string): ResultAsync<NoteRequestRow, BackendError> {
-    const { services } = this.context
-    const { noteRequests } = services
+  async promote (job: Job<PromotionJobPayload[JobKey]>) {
+    const { requestId } = job.data
 
-    return noteRequests
+    const note = await this.withTransactionAsync(
+      async promoter => await promoter.handlePromote(requestId)
+    )
+
+    await this.queueIndex(note.id)
+
+    return note
+  }
+
+  private async handlePromote (requestId: string) {
+    const request = await unwrapOrThrow(this.updateRequest(requestId))
+    const requestThumbnail = await unwrapOrThrow(this.getThumbnail(request))
+
+    const note = await unwrapOrThrow(this.createNote(request))
+    const noteThumbnail = await unwrapOrThrow(this.createThumbnail(requestThumbnail, note))
+    await unwrapOrThrow(this.linkThumbnail(noteThumbnail, note))
+
+    return note
+  }
+
+  private queueIndex (noteId: string) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_NOTE,
+        data: { noteId }
+      })
+  }
+
+  private updateRequest (requestId: string) {
+    const { services } = this.context
+    const { notes } = services
+
+    return notes
+      .requests
       .updateOne(
-        eb => eb('id', '=', id),
+        eb => eb('id', '=', requestId),
         { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 
-  private validateRow (row: NoteRequestRow): Result<z.output<typeof ValidNote>, BackendError> {
-    const { data, success, error } = ValidNote.safeParse(row)
-    if (!success) {
-      return err(BackendError.fromZod(error))
-    }
-
-    return ok(data)
-  }
-
-  private promoteNote (row: NoteRequestRow): ResultAsync<NoteRow, BackendError> {
+  private createNote (row: NoteRequestRow) {
     const { services } = this.context
     const { notes } = services
 
-    const validRow = this.validateRow(row)
+    const validRow = this.validateRequest(row)
     if (validRow.isErr()) return errAsync(validRow.error)
 
-    return notes
-      .createOne(validRow.value)
-      .andThrough(note => this
-        .promoteImage(row, note)
-      )
+    return notes.createOne(validRow.value)
   }
 
-  private promoteImage (
-    request: NoteRequestRow,
+  private createThumbnail (
+    asset: AssetUploadRow,
     note: NoteRow
-  ): ResultAsync<NoteImageRow, BackendError> {
+  ) {
     const { services } = this.context
     const { notes } = services
 
-    return this
-      .getImage(request)
-      .andThen(image => {
-        const { id: noteId } = note
-        const { s3Key, name, contentType, sizeBytes } = image
+    const { id: noteId } = note
+    const { s3Key, name, contentType, sizeBytes } = asset
 
-        return notes
-          .images
-          .createOne({
-            noteId,
-            s3Key,
-            name,
-            contentType,
-            sizeBytes
-          })
+    return notes
+      .images
+      .createOne({
+        noteId,
+        s3Key,
+        name,
+        contentType,
+        sizeBytes
       })
   }
 
-  private getImage (row: NoteRequestRow): ResultAsync<NoteRequestImageRow, BackendError> {
+  private linkThumbnail (
+    thumbnail: NoteImageRow,
+    note: NoteRow
+  ) {
     const { services } = this.context
-    const { noteRequests } = services
+    const { notes } = services
 
-    return noteRequests
-      .images
-      .findOne(
-        eb => eb.and([
-          eb('requestId', '=', row.id),
-          eb('status', '=', AssetStatus.READY)
-        ])
+    const { id: noteId } = note
+    const { id: thumbnailImageId } = thumbnail
+
+    return notes
+      .updateOne(
+        eb => eb('id', '=', noteId),
+        { thumbnailImageId }
       )
   }
 
-  private markFailed (row: NoteRequestRow, error: BackendError): ResultAsync<never, BackendError> {
+  private getThumbnail (request: NoteRequestRow) {
     const { services } = this.context
-    const { noteRequests } = services
+    const { assets } = services
 
-    return noteRequests
-      .updateOne(
-        eb => eb('id', '=', row.id),
-        {
-          requestStatus: RequestStatus.FAILED,
-          updatedAt: new Date().toISOString()
+    return assets
+      .uploads
+      .findOne(eb => eb('id', '=', request.assetId))
+      .mapErr(error => {
+        if (error.status === 404) {
+          return new BackendError(
+            'ASSET_NOT_FOUND',
+            'The request thumbnail was not found. This is required to promote a note.',
+            400
+          )
         }
+
+        return error
+      })
+  }
+
+  private validateRequest (request: NoteRequestRow) {
+    const { data, success, error } = ValidNote.safeParse(request)
+
+    if (!success) {
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_DATA',
+          `The request did not pass validation: ${error.message}`,
+          400,
+          BackendError.fromZod(error)
+        )
       )
-      .andThen(() => errAsync(error))
+    }
+
+    return ok(data)
   }
 }

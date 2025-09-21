@@ -1,7 +1,5 @@
-import type { FragranceIndex } from '@aromi/shared/src/search/features/notes/fragrances/types.js'
+import { type FragranceIndex, unwrapOrThrow, type AccordRow, type BackendError, type BrandRow, type FragranceRow, type LayerNoteRow, type IndexationJobPayload, type INDEXATION_JOB_NAMES } from '@aromi/shared'
 import { BaseIndexer } from './BaseIndexer.js'
-import type { INDEXATION_JOB_NAMES, IndexationJobPayload } from '@aromi/shared/src/queues/services/indexation/types.js'
-import { unwrapOrThrow, type AccordRow, type BackendError, type BrandRow, type FragranceRow, type LayerNoteRow } from '@aromi/shared'
 import type { Job } from 'bullmq'
 import { okAsync, ResultAsync } from 'neverthrow'
 

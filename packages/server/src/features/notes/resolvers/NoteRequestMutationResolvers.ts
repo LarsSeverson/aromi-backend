@@ -16,7 +16,7 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
     info
   ) => {
     const resolver = new CreateNoteRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   updateNoteRequest: MutationResolvers['updateNoteRequest'] = async (
@@ -66,7 +66,7 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
     info
   ) => {
     const resolver = new VoteOnNoteRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   getResolvers (): MutationResolvers {

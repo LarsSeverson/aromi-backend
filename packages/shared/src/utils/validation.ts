@@ -42,3 +42,5 @@ export const removeUndefined = <T extends Record<string, unknown>>(
       .filter(([, v]) => v !== undefined)
   ) as Partial<T>
 }
+
+export const notNull = <T>(value: T | null): value is T => value != null

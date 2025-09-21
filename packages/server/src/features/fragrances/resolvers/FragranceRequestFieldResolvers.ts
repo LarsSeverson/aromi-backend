@@ -1,11 +1,10 @@
-import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
+import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { ResultAsync } from 'neverthrow'
 import { mapCombinedTraitRowToRequestTrait } from '../utils/mappers.js'
 import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
 import type { FragranceRequestResolvers } from '@src/graphql/gql-types.js'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
+import { FragranceRequestVotesResolver } from '../helpers/FragranceRequestVotesResolver.js'
 
 export class FragranceRequestFieldResolvers extends BaseResolver<FragranceRequestResolvers> {
   brand: FragranceRequestResolvers['brand'] = async (
@@ -158,22 +157,8 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
     context,
     info
   ) => {
-    const { id } = parent
-    const { me, loaders } = context
-
-    const { fragranceRequests } = loaders
-
-    return await ResultAsync
-      .fromPromise(
-        fragranceRequests
-          .getVotesLoader(me?.id)
-          .load(id),
-        error => BackendError.fromDatabase(error)
-      )
-      .match(
-        mapVoteInfoRowToVoteInfo,
-        throwError
-      )
+    const resolver = new FragranceRequestVotesResolver({ parent, args, context, info })
+    return await resolver.resolve()
   }
 
   getResolvers (): FragranceRequestResolvers {

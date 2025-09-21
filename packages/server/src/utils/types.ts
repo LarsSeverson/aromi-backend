@@ -24,3 +24,4 @@ export type ResolverReturn<T> = Awaited<ReturnType<ResolverFnOf<T>>>
 export type WrappedReturn<T> =
   | Result<T, BackendError>
   | ResultAsync<T, BackendError>
+  | Promise<T>

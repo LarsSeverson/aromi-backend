@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec \"yarn run start\"",
     "start": "yarn run build && node dist/main.js",
-    "build": "tsc --build && tsc-alias -p tsconfig.json"
+    "build": "tsc --build ; tsc-alias -p tsconfig.json"
   },
   "dependencies": {
     "@aromi/shared": "*",

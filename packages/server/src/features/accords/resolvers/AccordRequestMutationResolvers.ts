@@ -16,7 +16,7 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
     info
   ) => {
     const resolver = new CreateAccordRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   updateAccordRequest: MutationResolvers['updateAccordRequest'] = async (
@@ -66,7 +66,7 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
     info
   ) => {
     const resolver = new VoteOnAccordRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   getResolvers (): MutationResolvers {

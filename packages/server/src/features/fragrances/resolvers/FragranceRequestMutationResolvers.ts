@@ -19,7 +19,7 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
     info
   ) => {
     const resolver = new CreateFragranceRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   updateFragranceRequest: MutationResolvers['updateFragranceRequest'] = async (
@@ -99,7 +99,7 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
     info
   ) => {
     const resolver = new VoteOnFragranceRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   getResolvers (): MutationResolvers {

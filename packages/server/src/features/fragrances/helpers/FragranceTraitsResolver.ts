@@ -47,7 +47,7 @@ export class FragranceTraitsResolver extends RequestResolver<Query> {
 
     if (userId == null) return okAsync([])
 
-    return fragrances.loadMyTraitVotes(id, userId)
+    return fragrances.loadUserTraitVotes(id, userId)
   }
 
   private mapToOutput (

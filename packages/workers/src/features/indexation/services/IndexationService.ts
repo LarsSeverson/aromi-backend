@@ -23,29 +23,31 @@ export class IndexationService extends WorkerService<keyof IndexationJobPayload,
         new FragranceIndexer(sources)
       )
       .register(
-        INDEXATION_JOB_NAMES.INDEX_BRAND,
-        new BrandIndexer(sources)
-      )
-      .register(
-        INDEXATION_JOB_NAMES.INDEX_ACCORD,
-        new AccordIndexer(sources)
-      )
-      .register(
-        INDEXATION_JOB_NAMES.INDEX_NOTE,
-        new NoteIndexer(sources)
+        INDEXATION_JOB_NAMES.UPDATE_FRAGRANCE,
+        new FragranceUpdater(sources)
       )
 
       .register(
-        INDEXATION_JOB_NAMES.UPDATE_FRAGRANCE,
-        new FragranceUpdater(sources)
+        INDEXATION_JOB_NAMES.INDEX_BRAND,
+        new BrandIndexer(sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_BRAND,
         new BrandUpdater(sources)
       )
+
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_ACCORD,
+        new AccordIndexer(sources)
+      )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_ACCORD,
         new AccordUpdater(sources)
+      )
+
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_NOTE,
+        new NoteIndexer(sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_NOTE,

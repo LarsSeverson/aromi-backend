@@ -1,115 +1,128 @@
-import { AssetStatus, BackendError, type BrandImageRow, type BrandRequestImageRow, type BrandRequestRow, type BrandRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, ValidBrand } from '@aromi/shared'
-import { err, errAsync, ok, type ResultAsync, type Result } from 'neverthrow'
-import type z from 'zod'
+import { type AssetUploadRow, BackendError, type BrandRequestRow, type BrandRow, type DataSources, INDEXATION_JOB_NAMES, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidBrand } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
+import { err, errAsync, ok } from 'neverthrow'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_BRAND
 
 export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], BrandRow> {
-  promote (job: Job<PromotionJobPayload[JobKey]>): ResultAsync<BrandRow, BackendError> {
-    const { search } = this.context.services
-    const { requestId } = job.data
-
-    return this
-      .withTransaction(trxPromoter => trxPromoter
-        .updateRequest(requestId)
-        .andThen(row => trxPromoter
-          .promoteBrand(row)
-          .orTee(error => trxPromoter.markFailed(row, error))
-        )
-      )
-      .andTee(brand => search
-        .brands
-        .addDocument(brand)
-      )
+  constructor (sources: DataSources) {
+    super({ sources, type: RequestType.BRAND })
   }
 
-  private updateRequest (id: string): ResultAsync<BrandRequestRow, BackendError> {
-    const { services } = this.context
-    const { brandRequests } = services
+  async promote (job: Job<PromotionJobPayload[JobKey]>) {
+    const { requestId } = job.data
 
-    return brandRequests
+    const brand = await this.withTransactionAsync(
+      async promoter => await promoter.handlePromote(requestId)
+    )
+
+    await this.queueIndex(brand.id)
+
+    return brand
+  }
+
+  private async handlePromote (requestId: string) {
+    const request = await unwrapOrThrow(this.updateRequest(requestId))
+    const avatar = await unwrapOrThrow(this.getAvatar(request))
+
+    const brand = await unwrapOrThrow(this.createBrand(request))
+    await unwrapOrThrow(this.createThumbnail(avatar, brand))
+
+    return brand
+  }
+
+  private queueIndex (brandId: string) {
+    const { context } = this
+    const { queues } = context
+
+    return queues
+      .indexation
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_BRAND,
+        data: { brandId }
+      })
+  }
+
+  private updateRequest (requestId: string) {
+    const { services } = this.context
+    const { brands } = services
+
+    return brands
+      .requests
       .updateOne(
-        eb => eb('id', '=', id),
+        eb => eb('id', '=', requestId),
         { requestStatus: RequestStatus.ACCEPTED }
       )
   }
 
-  private promoteBrand (row: BrandRequestRow): ResultAsync<BrandRow, BackendError> {
+  private createBrand (row: BrandRequestRow) {
     const { services } = this.context
     const { brands } = services
 
-    const validRow = this.validateRow(row)
+    const validRow = this.validateRequest(row)
     if (validRow.isErr()) return errAsync(validRow.error)
 
-    return brands
-      .createOne(validRow.value)
-      .andThrough(brand => this
-        .promoteImage(row, brand)
-      )
+    return brands.createOne(validRow.value)
   }
 
-  private promoteImage (
-    request: BrandRequestRow,
+  private createThumbnail (
+    asset: AssetUploadRow,
     brand: BrandRow
-  ): ResultAsync<BrandImageRow, BackendError> {
+  ) {
     const { services } = this.context
     const { brands } = services
 
-    return this
-      .getImage(request)
-      .andThen(image => {
-        const { id: brandId } = brand
-        const { s3Key, name, contentType, sizeBytes } = image
+    const { id: brandId } = brand
+    const { s3Key, name, contentType, sizeBytes } = asset
 
-        return brands
-          .images
-          .createOne({
-            brandId,
-            s3Key,
-            name,
-            contentType,
-            sizeBytes
-          })
+    return brands
+      .images
+      .createOne({
+        brandId,
+        s3Key,
+        name,
+        contentType,
+        sizeBytes
       })
   }
 
-  private getImage (row: BrandRequestRow): ResultAsync<BrandRequestImageRow, BackendError> {
+  private getAvatar (request: BrandRequestRow) {
     const { services } = this.context
-    const { brandRequests } = services
+    const { assets } = services
 
-    return brandRequests
-      .images
+    return assets
+      .uploads
       .findOne(
-        eb => eb.and([
-          eb('requestId', '=', row.id),
-          eb('status', '=', AssetStatus.READY)
-        ])
+        eb => eb('id', '=', request.assetId)
       )
+      .mapErr(error => {
+        if (error.status === 404) {
+          return new BackendError(
+            'ASSET_NOT_FOUND',
+            'The request avatar was not found. This is required to promote a brand.',
+            400
+          )
+        }
+
+        return error
+      })
   }
 
-  private validateRow (row: BrandRequestRow): Result<z.output<typeof ValidBrand>, BackendError> {
-    const { data, success, error } = ValidBrand.safeParse(row)
+  private validateRequest (request: BrandRequestRow) {
+    const { data, success, error } = ValidBrand.safeParse(request)
+
     if (!success) {
-      return err(BackendError.fromZod(error))
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_DATA',
+          `The request did not pass validation: ${error.message}`,
+          400,
+          BackendError.fromZod(error)
+        )
+      )
     }
 
     return ok(data)
-  }
-
-  private markFailed (row: BrandRequestRow, error: BackendError): ResultAsync<never, BackendError> {
-    const { services } = this.context
-    const { brandRequests } = services
-
-    return brandRequests
-      .updateOne(
-        eb => eb('id', '=', row.id),
-        {
-          requestStatus: RequestStatus.FAILED,
-          updatedAt: new Date().toISOString()
-        }
-      )
-      .andThen(() => errAsync(error))
   }
 }

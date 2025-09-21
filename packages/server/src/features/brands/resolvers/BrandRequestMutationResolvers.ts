@@ -16,7 +16,7 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
     info
   ) => {
     const resolver = new CreateBrandRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   updateBrandRequest: MutationResolvers['updateBrandRequest'] = async (
@@ -66,7 +66,7 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
     info
   ) => {
     const resolver = new VoteOnBrandRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   getResolvers (): MutationResolvers {

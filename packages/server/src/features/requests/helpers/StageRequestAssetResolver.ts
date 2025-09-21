@@ -56,7 +56,7 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
       })
       .andThen(
         ({ asset }) => this
-          .handlePresignUrl(asset)
+          .getPresignedUrl(asset)
           .map(presigned => ({ asset, presigned }))
       )
       .map(
@@ -65,24 +65,27 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
   }
 
   private async handleStageAsset () {
-    const request = await unwrapOrThrow(this.handleGetRequest())
-    const asset = await unwrapOrThrow(this.handleCreateAsset())
+    const asset = await unwrapOrThrow(this.createAsset())
+    const request = await unwrapOrThrow(this.updateRequest(asset.id))
 
     return { request, asset }
   }
 
-  private handleGetRequest () {
+  private updateRequest (assetId: string) {
     const { entityId } = this.args.input
+
+    const values = { assetId, updatedAt: new Date().toISOString() }
 
     return this
       .trxService!
-      .findOne(
-        eb => eb('id', '=', entityId)
+      .updateOne(
+        eb => eb('id', '=', entityId),
+        values
       )
       .andThen(request => this.authorizeEdit(request))
   }
 
-  private handleCreateAsset () {
+  private createAsset () {
     const { input } = this.args
     const { services } = this.context
     const { assets } = services
@@ -104,7 +107,7 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
       .createOne(values)
   }
 
-  private handlePresignUrl (asset: AssetUploadRow) {
+  private getPresignedUrl (asset: AssetUploadRow) {
     const { services } = this.context
     const { assets } = services
 

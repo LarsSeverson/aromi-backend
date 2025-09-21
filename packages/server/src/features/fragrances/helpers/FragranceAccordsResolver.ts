@@ -25,8 +25,8 @@ export class FragranceAccordsResolver extends RequestResolver<Query> {
     const pagination = this.pagination.parse(input)
 
     const scoreRows = await unwrapOrThrow(this.getScoreRows(pagination))
-
     const myVoteRows = await unwrapOrThrow(this.getMyVoteRows())
+
     const myVoteRowsMap = new Map(myVoteRows.map(v => [v.accordId, v]))
 
     const connection = this.pageFactory.paginate(scoreRows, pagination)
@@ -58,7 +58,7 @@ export class FragranceAccordsResolver extends RequestResolver<Query> {
 
     const { fragrances } = loaders
 
-    return fragrances.loadMyAccordVotes(id, me.id)
+    return fragrances.loadUserAccordVotes(id, me.id)
   }
 
   mapToOutput (

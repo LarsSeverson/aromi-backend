@@ -1,9 +1,8 @@
-import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import type { AccordRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { ResultAsync } from 'neverthrow'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
 import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
+import { AccordRequestVotesResolver } from '../helpers/AccordRequestVotesResolver.js'
 
 export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResolvers> {
   thumbnail: AccordRequestResolvers['thumbnail'] = async (
@@ -33,22 +32,8 @@ export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResol
     context,
     info
   ) => {
-    const { id } = parent
-    const { me, loaders } = context
-
-    const { accordRequests } = loaders
-
-    return await ResultAsync
-      .fromPromise(
-        accordRequests
-          .getVotesLoader(me?.id)
-          .load(id),
-        error => BackendError.fromDatabase(error)
-      )
-      .match(
-        mapVoteInfoRowToVoteInfo,
-        throwError
-      )
+    const resolver = new AccordRequestVotesResolver({ parent, args, context, info })
+    return await resolver.resolve()
   }
 
   user: AccordRequestResolvers['user'] = async (

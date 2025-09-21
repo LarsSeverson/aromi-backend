@@ -1,6 +1,5 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { unwrapOrThrow } from '@aromi/shared'
 import { VoteOnFragranceRequestResolver } from '../helpers/VoteOnFragranceRequestResolver.js'
 
 export class FragranceRequestVoteMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -11,7 +10,7 @@ export class FragranceRequestVoteMutationResolvers extends BaseResolver<Mutation
     info
   ) => {
     const resolver = new VoteOnFragranceRequestResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    return await resolver.resolve()
   }
 
   getResolvers (): MutationResolvers {

@@ -25,7 +25,6 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
         'notes.id as id',
         'notes.id as noteId',
         'notes.name as noteName',
-        'notes.s3Key as noteS3Key',
         'notes.description as noteDescription'
       ])
       .where('notes.deletedAt', 'is', null)

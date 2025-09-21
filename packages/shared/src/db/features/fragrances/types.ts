@@ -35,7 +35,6 @@ export interface CombinedFragranceNoteScoreRow extends FragranceNoteScoreRow {
   id: string
   noteId: string
   noteName: string
-  noteS3Key: string
   noteDescription: string | null
 }
 

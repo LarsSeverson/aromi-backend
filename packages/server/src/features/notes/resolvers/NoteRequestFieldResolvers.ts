@@ -1,8 +1,7 @@
-import { BackendError, throwError, unwrapOrThrow } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import type { NoteRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { ResultAsync } from 'neverthrow'
-import { mapVoteInfoRowToVoteInfo } from '@src/utils/mappers.js'
+import { NoteRequestVotesResolver } from '../helpers/NoteRequestVotesResolver.js'
 
 export class NoteRequestFieldResolvers extends BaseResolver<NoteRequestResolvers> {
   thumbnail: NoteRequestResolvers['thumbnail'] = async (
@@ -32,22 +31,8 @@ export class NoteRequestFieldResolvers extends BaseResolver<NoteRequestResolvers
     context,
     info
   ) => {
-    const { id } = parent
-    const { me, loaders } = context
-
-    const { noteRequests } = loaders
-
-    return await ResultAsync
-      .fromPromise(
-        noteRequests
-          .getVotesLoader(me?.id)
-          .load(id),
-        error => BackendError.fromDatabase(error)
-      )
-      .match(
-        mapVoteInfoRowToVoteInfo,
-        throwError
-      )
+    const resolver = new NoteRequestVotesResolver({ parent, args, context, info })
+    return await resolver.resolve()
   }
 
   getResolvers (): NoteRequestResolvers {

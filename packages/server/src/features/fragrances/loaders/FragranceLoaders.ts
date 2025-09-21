@@ -29,35 +29,35 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
-  loadMyTraitVotes (
+  loadUserTraitVotes (
     id: FragranceLoadersKey,
     userId: string
   ) {
     return ResultAsync
       .fromPromise(
-        this.getMyTraitVoteLoader(userId).load(id),
+        this.getUserTraitVoteLoader(userId).load(id),
         error => BackendError.fromLoader(error)
       )
   }
 
-  loadMyAccordVotes (
+  loadUserAccordVotes (
     id: FragranceLoadersKey,
     userId: string
   ) {
     return ResultAsync
       .fromPromise(
-        this.getMyAccordVoteLoader(userId).load(id),
+        this.getUserAccordVoteLoader(userId).load(id),
         error => BackendError.fromLoader(error)
       )
   }
 
-  loadMyNoteVotes (
+  loadUserNoteVotes (
     id: FragranceLoadersKey,
     userId: string
   ) {
     return ResultAsync
       .fromPromise(
-        this.getMyNoteVoteLoader(userId).load(id),
+        this.getUserNoteVoteLoader(userId).load(id),
         error => BackendError.fromLoader(error)
       )
   }
@@ -89,7 +89,7 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
-  private getMyTraitVoteLoader (userId: string) {
+  private getUserTraitVoteLoader (userId: string) {
     const key = this.genKey('myTraitVote', userId)
     return this
       .getLoader(
@@ -98,7 +98,7 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
-  private getMyAccordVoteLoader (userId: string) {
+  private getUserAccordVoteLoader (userId: string) {
     const key = this.genKey('myAccordVote', userId)
     return this
       .getLoader(
@@ -107,7 +107,7 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
-  private getMyNoteVoteLoader (userId: string) {
+  private getUserNoteVoteLoader (userId: string) {
     const key = this .genKey('myNoteVote', userId)
     return this
       .getLoader(
