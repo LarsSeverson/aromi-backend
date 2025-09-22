@@ -1,10 +1,20 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { NoteLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
-import { type NoteImageRow, throwError } from '@aromi/shared'
+import { BackendError, type NoteImageRow, unwrapOrThrow } from '@aromi/shared'
+import { ResultAsync } from 'neverthrow'
 
 export class NoteLoaders extends BaseLoader<NoteLoadersKey> {
-  getThumbnailLoader () {
+  loadThumbnail (key: NoteLoadersKey) {
+    return ResultAsync.fromPromise(
+      this
+        .getThumbnailLoader()
+        .load(key),
+      error => BackendError.fromLoader(error)
+    )
+  }
+
+  private getThumbnailLoader () {
     const key = this.genKey('thumbnail')
     return this
       .getLoader(
@@ -16,23 +26,20 @@ export class NoteLoaders extends BaseLoader<NoteLoadersKey> {
   private createThumbnailLoader () {
     const { images } = this.services.notes
 
-    return new DataLoader<NoteLoadersKey, NoteImageRow | null>(async keys => {
-      return await images
-        .findDistinct(
-          eb => eb('noteImages.noteId', 'in', keys)
+    return new DataLoader<NoteLoadersKey, NoteImageRow | null>(
+      async keys => {
+        const thumbnails = await unwrapOrThrow(
+          images
+            .findDistinct(
+              eb => eb('noteImages.noteId', 'in', keys),
+              'noteId'
+            )
         )
-        .match(
-          rows => {
-            const map = new Map<string, NoteImageRow>()
 
-            rows.forEach(row => {
-              if (!map.has(row.noteId)) map.set(row.noteId, row)
-            })
+        const map = new Map(thumbnails.map(img => [img.noteId, img]))
 
-            return keys.map(id => map.get(id) ?? null)
-          },
-          throwError
-        )
-    })
+        return keys.map(key => map.get(key) ?? null)
+      }
+    )
   }
 }

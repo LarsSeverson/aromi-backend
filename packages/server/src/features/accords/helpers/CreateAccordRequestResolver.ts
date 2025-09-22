@@ -44,7 +44,6 @@ export class CreateAccordRequestResolver extends RequestMutationResolver<Mutatio
     return this
       .trxService!
       .requests
-      .votes
       .scores
       .createOne({ requestId })
   }

@@ -41,6 +41,7 @@ input VoteOnFragranceNoteInput {
   fragranceId: ID!
   noteId: ID!
   layer: NoteLayer!
+  vote: Int!
 }
 
 extend type Mutation {

@@ -23,6 +23,7 @@ type Fragrance {
   releaseYear: Int!
   concentration: Concentration!
   status: FragranceStatus!
+  votes: VoteInfo!
 
   images: [FragranceImage!]!
 

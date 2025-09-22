@@ -9,12 +9,34 @@ export class NoteAggregator extends BaseAggregator<AggregationJobPayload[JobKey]
   async aggregate (job: Job<AggregationJobPayload[JobKey]>): Promise<FragranceNoteScoreRow> {
     const { fragranceId, noteId, layer } = job.data
 
-    const scoreRow = await unwrapOrThrow(this.handleUpdateRow(fragranceId, noteId, layer))
+    await unwrapOrThrow(this.getScore(fragranceId, noteId, layer))
+    const score = await unwrapOrThrow(this.updateScore(fragranceId, noteId, layer))
 
-    return scoreRow
+    return score
   }
 
-  handleUpdateRow (
+  private getScore (
+    fragranceId: string,
+    noteId: string,
+    layer: NoteLayerEnum
+  ) {
+    const { services } = this.context
+    const { fragrances } = services
+    const { notes } = fragrances
+
+    return notes
+      .scores
+      .findOrCreate(
+        eb => eb.and([
+          eb('fragranceId', '=', fragranceId),
+          eb('noteId', '=', noteId),
+          eb('layer', '=', layer)
+        ]),
+        { fragranceId, noteId, layer }
+      )
+  }
+
+  private updateScore (
     fragranceId: string,
     noteId: string,
     layer: NoteLayerEnum

@@ -2,7 +2,8 @@ type Brand {
   id: ID!
   name: String!
   website: String
-  avatar: String!
+  avatar: Asset
+  votes: VoteInfo!
 
   fragrances(input: FragrancePaginationInput): FragranceConnection!
 }

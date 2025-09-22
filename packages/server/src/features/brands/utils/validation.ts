@@ -1,4 +1,4 @@
-import { ValidBrandDescription, ValidBrandAvatarSize, ValidBrandAvatarType, ValidBrandName, ValidBrandWebsite, ValidEditReason } from '@aromi/shared'
+import { ValidBrandDescription, ValidBrandAvatarSize, ValidBrandAvatarType, ValidBrandName, ValidBrandWebsite, ValidEditReason, ValidVote } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateBrandEditSchema = z
@@ -40,5 +40,11 @@ export const StageBrandRequestAvatarSchema = z
   .object({
     contentType: ValidBrandAvatarType,
     contentSize: ValidBrandAvatarSize
+  })
+  .strip()
+
+export const VoteOnBrandInputSchema = z
+  .object({
+    vote: ValidVote
   })
   .strip()

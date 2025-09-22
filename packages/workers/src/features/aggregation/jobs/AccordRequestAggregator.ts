@@ -1,4 +1,4 @@
-import { unwrapOrThrow, type AccordRequestScoreRow, type AGGREGATION_JOB_NAMES, type AggregationJobPayload } from '@aromi/shared'
+import { PROMOTION_SCORE_THRESHOLD, type AccordRequestRow, PROMOTION_JOB_NAMES, RequestStatus, unwrapOrThrow, type AccordRequestScoreRow, type AGGREGATION_JOB_NAMES, type AggregationJobPayload } from '@aromi/shared'
 import { BaseAggregator } from './BaseAggregator.js'
 import type { Job } from 'bullmq'
 
@@ -8,20 +8,56 @@ export class AccordRequestAggregator extends BaseAggregator<AggregationJobPayloa
   async aggregate (job: Job<AggregationJobPayload[JobKey]>): Promise<AccordRequestScoreRow> {
     const { requestId } = job.data
 
-    const scoreRow = await unwrapOrThrow(this.handleUpdateRow(requestId))
+    const request = await unwrapOrThrow(this.getRequest(requestId))
+    await unwrapOrThrow(this.getScore(requestId))
+    const score = await unwrapOrThrow(this.updateScore(requestId))
 
-    return scoreRow
+    if (this.shouldEnqueuePromotion(request, score)) {
+      await this.enqueuePromotion(score)
+    }
+
+    return score
   }
 
-  handleUpdateRow (
-    requestId: string
-  ) {
+  private enqueuePromotion (score: AccordRequestScoreRow) {
+    const { queues } = this.context
+    const { promotions } = queues
+
+    return promotions
+      .enqueue({
+        jobName: PROMOTION_JOB_NAMES.PROMOTE_ACCORD,
+        data: { requestId: score.requestId }
+      })
+  }
+
+  private getRequest (requestId: string) {
+    const { services } = this.context
+    const { accords } = services
+
+    return accords
+      .requests
+      .findOne(eb => eb('id', '=', requestId))
+  }
+
+  private getScore (requestId: string) {
     const { services } = this.context
     const { accords } = services
     const { requests } = accords
 
     return requests
-      .votes
+      .scores
+      .findOrCreate(
+        eb => eb('requestId', '=', requestId),
+        { requestId }
+      )
+  }
+
+  private updateScore (requestId: string) {
+    const { services } = this.context
+    const { accords } = services
+    const { requests } = accords
+
+    return requests
       .scores
       .updateOne(
         eb => eb('requestId', '=', requestId),
@@ -65,5 +101,15 @@ export class AccordRequestAggregator extends BaseAggregator<AggregationJobPayloa
           updatedAt: new Date().toISOString()
         })
       )
+  }
+
+  private shouldEnqueuePromotion (
+    request: AccordRequestRow,
+    score: AccordRequestScoreRow
+  ) {
+    return (
+      request.requestStatus === RequestStatus.PENDING &&
+      score.score >= PROMOTION_SCORE_THRESHOLD
+    )
   }
 }

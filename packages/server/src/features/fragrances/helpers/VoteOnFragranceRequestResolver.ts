@@ -1,7 +1,6 @@
-import { PROMOTION_JOB_NAMES, type FragranceRequestRow, RequestStatus, parseOrThrow, unwrapOrThrow, AGGREGATION_JOB_NAMES, type FragranceService, type FragranceRequestScoreRow, RequestType } from '@aromi/shared'
+import { parseOrThrow, unwrapOrThrow, AGGREGATION_JOB_NAMES, type FragranceService } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { ACCEPTED_VOTE_COUNT_THRESHOLD } from '@src/features/requests/types.js'
 import { VoteOnRequestSchema } from '@src/features/requests/utils/validation.js'
 import { mapFragranceRequestRowToFragranceRequest } from '../utils/mappers.js'
 
@@ -15,7 +14,7 @@ export class VoteOnFragranceRequestResolver extends MutationResolver<Mutation> {
     const { services } = context
     const { fragrances } = services
 
-    const { request, score } = await unwrapOrThrow(
+    const { request } = await unwrapOrThrow(
       fragrances
         .withTransactionAsync(async trx => {
           this.trxService = trx
@@ -23,7 +22,7 @@ export class VoteOnFragranceRequestResolver extends MutationResolver<Mutation> {
         })
     )
 
-    await this.handleJobs(request, score)
+    await this.enqueueAggregation()
 
     return mapFragranceRequestRowToFragranceRequest(request)
   }
@@ -33,48 +32,9 @@ export class VoteOnFragranceRequestResolver extends MutationResolver<Mutation> {
     parseOrThrow(VoteOnRequestSchema, input)
 
     const request = await unwrapOrThrow(this.getRequest())
-    const upserted = await unwrapOrThrow(this.upsertVote())
-    const score = await unwrapOrThrow(this.getScore())
+    const vote = await unwrapOrThrow(this.upsertVote())
 
-    return { request, upserted, score }
-  }
-
-  private async handleJobs (
-    request: FragranceRequestRow,
-    score: FragranceRequestScoreRow
-  ) {
-    if (this.shouldPromote(request, score)) {
-      await this.createJob(request)
-      await this.enqueuePromotion()
-    }
-
-    return await this.enqueueAggregation()
-  }
-
-  private createJob (request: FragranceRequestRow) {
-    const { context } = this
-    const { services } = context
-
-    const { fragrances } = services
-
-    return fragrances
-      .requests
-      .jobs
-      .createOne({ requestId: request.id, requestType: RequestType.FRAGRANCE })
-  }
-
-  private enqueuePromotion () {
-    const { requestId } = this.args.input
-    const { queues } = this.context
-
-    const { promotions } = queues
-
-    return promotions
-      .enqueue({
-        jobName: PROMOTION_JOB_NAMES.PROMOTE_FRAGRANCE,
-        data: { requestId }
-      })
-
+    return { request, vote }
   }
 
   private enqueueAggregation () {
@@ -98,17 +58,6 @@ export class VoteOnFragranceRequestResolver extends MutationResolver<Mutation> {
       .findOne(eb => eb('id', '=', requestId))
   }
 
-  private getScore () {
-    const { requestId } = this.args.input
-
-    return this
-      .trxService!
-      .requests
-      .votes
-      .scores
-      .findOne(eb => eb('requestId', '=', requestId))
-  }
-
   private upsertVote () {
     const { me, args } = this
 
@@ -125,15 +74,5 @@ export class VoteOnFragranceRequestResolver extends MutationResolver<Mutation> {
           .columns(['requestId', 'userId'])
           .doUpdateSet({ vote })
       )
-  }
-
-  private shouldPromote (
-    request: FragranceRequestRow,
-    score: FragranceRequestScoreRow
-  ) {
-    return (
-      score.score >= ACCEPTED_VOTE_COUNT_THRESHOLD &&
-      request.requestStatus === RequestStatus.PENDING
-    )
   }
 }

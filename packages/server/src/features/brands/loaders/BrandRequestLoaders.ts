@@ -1,52 +1,101 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { BrandRequestLoadersKey } from '../types.js'
-import { type VoteInfoRow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, type BrandRequestScoreRow, type BrandRequestVoteRow, unwrapOrThrow } from '@aromi/shared'
 import DataLoader from 'dataloader'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 export class BrandRequestLoaders extends BaseLoader<BrandRequestLoadersKey> {
-  getVotesLoader (
-    userId?: string | null
-  ): DataLoader<BrandRequestLoadersKey, VoteInfoRow> {
-    const key = this.genKey('votes')
-    return this
-      .getLoader(
-        key,
-        () => this.createVotesLoader(userId)
+  loadScore (id: BrandRequestLoadersKey) {
+    return ResultAsync
+      .fromPromise(
+        this.getScoreLoader().load(id),
+        error => BackendError.fromLoader(error)
       )
   }
 
-  private createVotesLoader (
-    userId?: string | null
-  ): DataLoader<BrandRequestLoadersKey, VoteInfoRow> {
-    const { votes } = this.services.brands.requests
+  loadUserVote (
+    id: BrandRequestLoadersKey,
+    userId?: string
+  ) {
+    if (userId == null) return okAsync(null)
 
-    return new DataLoader<BrandRequestLoadersKey, VoteInfoRow>(async keys => {
-      const voteInfos = await unwrapOrThrow(
-        votes.findVoteInfo(
-          eb => eb('brandRequestVotes.requestId', 'in', keys),
-          userId
-        )
+    return ResultAsync
+      .fromPromise(
+        this.getUserVoteLoader(userId).load(id),
+        error => BackendError.fromLoader(error)
       )
+  }
 
-      const map = new Map<string, VoteInfoRow>()
+  private getScoreLoader () {
+    const key = this.genKey('score')
+    return this
+      .getLoader(
+        key,
+        () => this.createScoreLoader()
+      )
+  }
 
-      voteInfos.forEach(row => {
-        map.set(row.targetId, row)
-      })
+  private getUserVoteLoader (userId: string) {
+    const key = this.genKey('userVote', userId)
+    return this
+      .getLoader(
+        key,
+        () => this.createUserVoteLoader(userId)
+      )
+  }
 
-      return keys.map(id => {
-        const voteInfo = map.get(id)
+  private createScoreLoader () {
+    const { brands } = this.services
 
-        if (voteInfo != null) return voteInfo
+    return new DataLoader<BrandRequestLoadersKey, BrandRequestScoreRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          brands
+            .requests
+            .scores
+            .findDistinct(
+              eb => eb('requestId', 'in', keys),
+              'requestId'
+            )
+        )
 
-        return {
-          targetId: id,
-          upvotes: 0,
-          downvotes: 0,
-          score: 0,
-          userVote: null
-        }
-      })
-    })
+        const rowMap = new Map<string, BrandRequestScoreRow>()
+
+        rows.forEach(row => {
+          rowMap.set(row.requestId, row)
+        })
+
+        return keys.map(id => rowMap.get(id) ?? null)
+      }
+    )
+  }
+
+  private createUserVoteLoader (userId: string) {
+    const { brands } = this.services
+
+    return new DataLoader<BrandRequestLoadersKey, BrandRequestVoteRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          brands
+            .requests
+            .votes
+            .findDistinct(
+              eb => eb.and([
+                eb('requestId', 'in', keys),
+                eb('userId', '=', userId)
+              ]),
+              'requestId'
+            )
+        )
+
+        const rowMap = new Map<string, BrandRequestVoteRow>()
+
+        rows.forEach(row => {
+          rowMap.set(row.requestId, row)
+        })
+
+        return keys.map(id => rowMap.get(id) ?? null)
+      }
+    )
   }
 }

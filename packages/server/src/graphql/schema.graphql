@@ -122,10 +122,11 @@ enum AvatarStatus {
 }
 
 type Brand {
-  avatar: String!
+  avatar: Asset
   fragrances(input: FragrancePaginationInput): FragranceConnection!
   id: ID!
   name: String!
+  votes: VoteInfo!
   website: String
 }
 
@@ -356,6 +357,7 @@ type Fragrance {
   releaseYear: Int!
   status: FragranceStatus!
   traits: [FragranceTrait!]!
+  votes: VoteInfo!
 }
 
 type FragranceAccord {
@@ -614,7 +616,9 @@ type Mutation {
   updateUser(input: UpdateUserInput!): User!
   updateUserAvatar(input: StageAssetInput!): PresignedUpload!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
+  voteOnBrand(input: VoteOnBrandInput!): Brand!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
+  voteOnFragrance(input: VoteOnFragranceInput!): Fragrance!
   voteOnFragranceAccord(input: VoteOnFragranceAccordInput!): Accord!
   voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
@@ -625,7 +629,7 @@ type Mutation {
 type Note {
   id: ID!
   name: String!
-  thumbnail: String
+  thumbnail: Asset
 }
 
 type NoteConnection {
@@ -986,6 +990,11 @@ input VoteOnAccordRequestInput {
   vote: Int!
 }
 
+input VoteOnBrandInput {
+  brandId: ID!
+  vote: Int!
+}
+
 input VoteOnBrandRequestInput {
   requestId: ID!
   vote: Int!
@@ -994,12 +1003,19 @@ input VoteOnBrandRequestInput {
 input VoteOnFragranceAccordInput {
   accordId: ID!
   fragranceId: ID!
+  vote: Int!
+}
+
+input VoteOnFragranceInput {
+  fragranceId: ID!
+  vote: Int!
 }
 
 input VoteOnFragranceNoteInput {
   fragranceId: ID!
   layer: NoteLayer!
   noteId: ID!
+  vote: Int!
 }
 
 input VoteOnFragranceRequestInput {

@@ -1,7 +1,6 @@
-import { BackendError, throwError } from '@aromi/shared'
+import { unwrapOrThrow } from '@aromi/shared'
 import type { NoteResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { ResultAsync } from 'neverthrow'
 
 export class NoteFieldResolvers extends BaseResolver<NoteResolvers> {
   thumbnail: NoteResolvers['thumbnail'] = async (
@@ -11,25 +10,13 @@ export class NoteFieldResolvers extends BaseResolver<NoteResolvers> {
     info
   ) => {
     const { id } = note
-    const { loaders, services } = context
+    const { loaders } = context
 
-    const { notes } = loaders
-    const { assets } = services
+    const thumbnail = await unwrapOrThrow(
+      loaders.notes.loadThumbnail(id)
+    )
 
-    return await ResultAsync
-      .fromPromise(
-        notes
-          .getThumbnailLoader()
-          .load(id),
-        error => BackendError.fromDatabase(error)
-      )
-      .match(
-        row => {
-          if (row == null) return null
-          return assets.getCdnUrl(row.s3Key)
-        },
-        throwError
-      )
+    return thumbnail
   }
 
   getResolvers (): NoteResolvers {

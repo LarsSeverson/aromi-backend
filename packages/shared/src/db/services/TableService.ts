@@ -1,6 +1,6 @@
 import { errAsync, ResultAsync } from 'neverthrow'
 import { BackendError, throwError } from '@src/utils/error.js'
-import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject } from 'kysely'
+import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject, ReferenceExpression } from 'kysely'
 import type { DataSources } from '@src/datasources/index.js'
 import type { DB } from '@src/db/index.js'
 import type { TablesMatching } from '../types.js'
@@ -164,10 +164,24 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
   find (
     where?: ExpressionOrFactory<DB, T, SqlBool>
   ): ResultAsync<R[], BackendError> {
-
     const query = this
       .Table
       .find(where)
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  findDistinct (
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    distinctOn?: ReferenceExpression<DB, T>
+  ): ResultAsync<R[], BackendError> {
+    const query = this
+      .Table
+      .findDistinct(where, distinctOn)
 
     return ResultAsync
       .fromPromise(
@@ -183,10 +197,7 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
     return this
       .findOne(where)
       .orElse(error => {
-        if (error.status === 404) {
-          return this.createOne(values)
-        }
-
+        if (error.status === 404) return this.createOne(values)
         return errAsync(error)
       })
   }

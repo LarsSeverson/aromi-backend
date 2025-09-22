@@ -1,4 +1,4 @@
-import type { ExpressionOrFactory, SqlBool, ExpressionBuilder, SelectQueryBuilder, InsertObject, InsertQueryBuilder, UpdateQueryBuilder, UpdateObject, OnConflictBuilder, OnConflictUpdateBuilder, OnConflictDatabase, OnConflictTables, OnConflictDoNothingBuilder } from 'kysely'
+import type { ExpressionOrFactory, SqlBool, ExpressionBuilder, SelectQueryBuilder, InsertObject, InsertQueryBuilder, UpdateQueryBuilder, UpdateObject, OnConflictBuilder, OnConflictUpdateBuilder, OnConflictDatabase, OnConflictTables, OnConflictDoNothingBuilder, ReferenceExpression } from 'kysely'
 import type { DB } from '@src/db/index.js'
 import type { DataSources } from '@src/datasources/index.js'
 import type { TablesMatching } from '../types.js'
@@ -76,5 +76,26 @@ export class Table<R, T extends TablesMatching<R> = TablesMatching<R>> {
     return this
       .find(where)
       .limit(1)
+  }
+
+  findDistinct (
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    distinctOn?: ReferenceExpression<DB, T>
+  ) {
+    let query = this
+      .baseQuery
+      .selectAll()
+
+    if (distinctOn != null) {
+      query = query
+        .distinctOn(distinctOn)
+        .orderBy(distinctOn)
+    }
+
+    if (where != null) {
+      query = query.where(where)
+    }
+
+    return query as SelectQueryBuilder<DB, T, R>
   }
 }

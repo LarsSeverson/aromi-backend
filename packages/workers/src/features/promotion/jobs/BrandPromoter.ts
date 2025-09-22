@@ -1,7 +1,7 @@
-import { type AssetUploadRow, BackendError, type BrandRequestRow, type BrandRow, type DataSources, INDEXATION_JOB_NAMES, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidBrand } from '@aromi/shared'
+import { type AssetUploadRow, BackendError, type BrandRequestRow, type BrandRow, type DataSources, INDEXATION_JOB_NAMES, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, unwrapOrThrowSync, ValidBrand } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
-import { err, errAsync, ok } from 'neverthrow'
+import { err, ok } from 'neverthrow'
 
 type JobKey = typeof PROMOTION_JOB_NAMES.PROMOTE_BRAND
 
@@ -14,25 +14,28 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
     const { requestId } = job.data
 
     const brand = await this.withTransactionAsync(
-      async promoter => await promoter.handlePromote(requestId)
+      async promoter => await promoter.promoteRequest(requestId)
     )
 
-    await this.queueIndex(brand.id)
+    await this.enqueueIndex(brand.id)
 
     return brand
   }
 
-  private async handlePromote (requestId: string) {
-    const request = await unwrapOrThrow(this.updateRequest(requestId))
+  private async promoteRequest (requestId: string) {
+    const request = await unwrapOrThrow(this.getRequest(requestId))
+    unwrapOrThrowSync(this.validateRequest(request))
+
+    await unwrapOrThrow(this.updateRequest(requestId))
     const avatar = await unwrapOrThrow(this.getAvatar(request))
 
-    const brand = await unwrapOrThrow(this.createBrand(request))
-    await unwrapOrThrow(this.createThumbnail(avatar, brand))
+    const brand = await unwrapOrThrow(this.migrateRequest(request))
+    await unwrapOrThrow(this.migrateThumbnail(avatar, brand))
 
     return brand
   }
 
-  private queueIndex (brandId: string) {
+  private enqueueIndex (brandId: string) {
     const { context } = this
     const { queues } = context
 
@@ -42,6 +45,15 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
         jobName: INDEXATION_JOB_NAMES.INDEX_BRAND,
         data: { brandId }
       })
+  }
+
+  private getRequest (requestId: string) {
+    const { services } = this.context
+    const { brands } = services
+
+    return brands
+      .requests
+      .findOne(eb => eb('id', '=', requestId))
   }
 
   private updateRequest (requestId: string) {
@@ -56,17 +68,16 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
       )
   }
 
-  private createBrand (row: BrandRequestRow) {
+  private migrateRequest (row: BrandRequestRow) {
     const { services } = this.context
     const { brands } = services
 
-    const validRow = this.validateRequest(row)
-    if (validRow.isErr()) return errAsync(validRow.error)
+    const values = unwrapOrThrowSync(this.validateMigration(row))
 
-    return brands.createOne(validRow.value)
+    return brands.createOne(values)
   }
 
-  private createThumbnail (
+  private migrateThumbnail (
     asset: AssetUploadRow,
     brand: BrandRow
   ) {
@@ -110,6 +121,22 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
   }
 
   private validateRequest (request: BrandRequestRow) {
+    const { requestStatus } = request
+
+    if (requestStatus !== RequestStatus.PENDING) {
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_STATUS',
+          'Only requests with status PENDING can be promoted.',
+          400
+        )
+      )
+    }
+
+    return ok(request)
+  }
+
+  private validateMigration (request: BrandRequestRow) {
     const { data, success, error } = ValidBrand.safeParse(request)
 
     if (!success) {

@@ -5,6 +5,9 @@ export type FragranceRow = Selectable<DB['fragrances']>
 export type FragranceImageRow = Selectable<DB['fragranceImages']>
 export type FragranceEditRow = Selectable<DB['fragranceEdits']>
 
+export type FragranceVoteRow = Selectable<DB['fragranceVotes']>
+export type FragranceScoreRow = Selectable<DB['fragranceScores']>
+
 export type FragranceAccordVoteRow = Selectable<DB['fragranceAccordVotes']>
 export type FragranceAccordScoreRow = Selectable<DB['fragranceAccordScores']>
 

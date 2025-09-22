@@ -44,7 +44,6 @@ export class CreateFragranceRequestResolver extends RequestMutationResolver<Muta
     return this
       .trxService!
       .requests
-      .votes
       .scores
       .createOne({ requestId })
   }

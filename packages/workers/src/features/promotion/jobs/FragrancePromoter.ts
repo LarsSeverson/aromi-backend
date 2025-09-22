@@ -1,7 +1,7 @@
-import { err, errAsync, ok, ResultAsync } from 'neverthrow'
+import { err, ok, ResultAsync } from 'neverthrow'
 import sharp from 'sharp'
 import { Vibrant } from 'node-vibrant/node'
-import { BackendError, type DataSources, type FragranceImageRow, type FragranceRequestRow, type FragranceRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, ValidFragrance } from '@aromi/shared'
+import { BackendError, type DataSources, type FragranceImageRow, type FragranceRequestRow, type FragranceRow, type PROMOTION_JOB_NAMES, type PromotionJobPayload, RequestStatus, RequestType, unwrapOrThrow, unwrapOrThrowSync, ValidFragrance } from '@aromi/shared'
 import { BasePromoter } from './BasePromoter.js'
 import type { Job } from 'bullmq'
 import { INDEXATION_JOB_NAMES } from '@aromi/shared'
@@ -17,18 +17,21 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     const { requestId } = job.data
 
     const { fragrance, image } = await this.withTransactionAsync(
-      async promoter => await promoter.handlePromote(requestId)
+      async promoter => await promoter.promoteRequest(requestId)
     )
 
-    await this.queueIndex(fragrance.id)
+    await this.enqueueIndex(fragrance.id)
     await this.processImage(image)
 
     return fragrance
   }
 
-  private async handlePromote (requestId: string) {
-    const request = await unwrapOrThrow(this.updateRequest(requestId))
-    const fragrance = await unwrapOrThrow(this.migrateFragrance(request))
+  private async promoteRequest (requestId: string) {
+    const request = await unwrapOrThrow(this.getRequest(requestId))
+    unwrapOrThrowSync(this.validateRequest(request))
+
+    await unwrapOrThrow(this.updateRequest(requestId))
+    const fragrance = await unwrapOrThrow(this.migrateRequest(request))
 
     const combined = await Promise.all([
       this.migrateImage(request, fragrance),
@@ -42,7 +45,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     return { fragrance, image, accords, notes, traits }
   }
 
-  private queueIndex (fragranceId: string) {
+  private enqueueIndex (fragranceId: string) {
     const { context } = this
     const { queues } = context
 
@@ -52,6 +55,15 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
         jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
         data: { fragranceId }
       })
+  }
+
+  private getRequest (requestId: string) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    return fragrances
+      .requests
+      .findOne(eb => eb('id', '=', requestId))
   }
 
   private updateRequest (id: string): ResultAsync<FragranceRequestRow, BackendError> {
@@ -66,16 +78,13 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       )
   }
 
-  private migrateFragrance (
-    row: FragranceRequestRow
-  ): ResultAsync<FragranceRow, BackendError> {
-    const validRow = this.validateRow(row)
-    if (validRow.isErr()) return errAsync(validRow.error)
-
+  private migrateRequest (row: FragranceRequestRow): ResultAsync<FragranceRow, BackendError> {
     const { services } = this.context
     const { fragrances } = services
 
-    return fragrances.createOne(validRow.value)
+    const values = unwrapOrThrowSync(this.validateMigration(row))
+
+    return fragrances.createOne(values)
   }
 
   private async migrateImage (
@@ -224,7 +233,21 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
       )
   }
 
-  private validateRow (row: FragranceRequestRow) {
+  private validateRequest (row: FragranceRequestRow) {
+    if (row.requestStatus !== RequestStatus.PENDING) {
+      return err(
+        new BackendError(
+          'INVALID_REQUEST_STATUS',
+          'Only requests with status PENDING can be promoted.',
+          400
+        )
+      )
+    }
+
+    return ok(row)
+  }
+
+  private validateMigration (row: FragranceRequestRow) {
     const { data, success, error } = ValidFragrance.safeParse(row)
     if (!success) {
       return err(

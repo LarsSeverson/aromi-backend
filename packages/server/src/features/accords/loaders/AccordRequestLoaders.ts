@@ -1,52 +1,93 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { AccordRequestLoadersKey } from '../types.js'
-import { unwrapOrThrow, type VoteInfoRow } from '@aromi/shared'
+import { type AccordRequestScoreRow, type AccordRequestVoteRow, BackendError, unwrapOrThrow } from '@aromi/shared'
 import DataLoader from 'dataloader'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 export class AccordRequestLoaders extends BaseLoader<AccordRequestLoadersKey> {
-  getVotesLoader (
-    userId?: string | null
-  ): DataLoader<AccordRequestLoadersKey, VoteInfoRow> {
-    const key = this.genKey('votes')
-    return this
-      .getLoader(
-        key,
-        () => this.createVotesLoader(userId)
+  loadScore (id: AccordRequestLoadersKey) {
+    return ResultAsync
+      .fromPromise(
+        this.getScoreLoader().load(id),
+        error => BackendError.fromLoader(error)
       )
   }
 
-  private createVotesLoader (
-    userId?: string | null
-  ): DataLoader<AccordRequestLoadersKey, VoteInfoRow> {
-    const { votes } = this.services.accords.requests
+  loadUserVote (
+    id: AccordRequestLoadersKey,
+    userId?: string
+  ) {
+    if (userId == null) return okAsync(null)
 
-    return new DataLoader<AccordRequestLoadersKey, VoteInfoRow>(async keys => {
-      const voteInfos = await unwrapOrThrow(
-        votes
-          .findVoteInfo(
-            eb => eb('accordRequestVotes.requestId', 'in', keys),
-            userId
-          )
+    return ResultAsync
+      .fromPromise(
+        this.getUserVoteLoader(userId).load(id),
+        error => BackendError.fromLoader(error)
       )
+  }
 
-      const map = new Map<string, VoteInfoRow>()
+  private getScoreLoader () {
+    const key = this.genKey('score')
+    return this
+      .getLoader(
+        key,
+        () => this.createScoreLoader()
+      )
+  }
 
-      voteInfos.forEach(voteInfo => {
-        map.set(voteInfo.targetId, voteInfo)
-      })
+  private getUserVoteLoader (userId: string) {
+    const key = this.genKey('userVote', userId)
+    return this
+      .getLoader(
+        key,
+        () => this.createUserVoteLoader(userId)
+      )
+  }
 
-      return keys.map(id => {
-        const voteInfo = map.get(id)
-        if (voteInfo != null) return voteInfo
+  private createScoreLoader () {
+    const { accords } = this.services
 
-        return {
-          targetId: id,
-          upvotes: 0,
-          downvotes: 0,
-          score: 0,
-          userVote: null
-        }
-      })
-    })
+    return new DataLoader<AccordRequestLoadersKey, AccordRequestScoreRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          accords
+            .requests
+            .scores
+            .findDistinct(
+              eb => eb('requestId', 'in', keys),
+              'requestId'
+            )
+        )
+
+        const rowMap = new Map(rows.map(r => [r.requestId, r]))
+
+        return keys.map(k => rowMap.get(k) ?? null)
+      }
+    )
+  }
+
+  private createUserVoteLoader (userId: string) {
+    const { accords } = this.services
+
+    return new DataLoader<AccordRequestLoadersKey, AccordRequestVoteRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          accords
+            .requests
+            .votes
+            .findDistinct(
+              eb => eb.and([
+                eb('requestId', 'in', keys),
+                eb('userId', '=', userId)
+              ]),
+              'requestId'
+            )
+        )
+
+        const rowMap = new Map(rows.map(r => [r.requestId, r]))
+
+        return keys.map(k => rowMap.get(k) ?? null)
+      }
+    )
   }
 }

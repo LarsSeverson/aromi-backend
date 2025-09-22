@@ -63,13 +63,38 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
     return await unwrapOrThrow(resolver.resolve())
   }
 
+  votes: FragranceResolvers['votes'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { me, loaders } = context
+
+    const { fragrances } = loaders
+
+    const score = await unwrapOrThrow(fragrances.loadScore(id))
+    const userVote = await unwrapOrThrow(fragrances.loadUserVote(id, me?.id))
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: userVote?.vote
+    }
+
+    return votes
+  }
+
   getResolvers (): FragranceResolvers {
     return {
       brand: this.brand,
       images: this.images,
       accords: this.accords,
       notes: this.notes,
-      traits: this.traits
+      traits: this.traits,
+      votes: this.votes
     }
   }
 }

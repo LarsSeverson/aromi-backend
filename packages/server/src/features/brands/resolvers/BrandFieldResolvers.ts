@@ -7,6 +7,22 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 export class BrandFieldResolvers extends BaseResolver<BrandResolvers> {
   private readonly fragrancePagination = new FragrancePaginationFactory()
 
+  avatar: BrandResolvers['avatar'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { loaders } = context
+
+    const image = await unwrapOrThrow(
+      loaders.brands.loadAvatar(id)
+    )
+
+    return image
+  }
+
   fragrances: BrandResolvers['fragrances'] = async (
     parent,
     args,
@@ -34,9 +50,35 @@ export class BrandFieldResolvers extends BaseResolver<BrandResolvers> {
     return transformed
   }
 
+  votes: BrandResolvers['votes'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { me, loaders } = context
+
+    const { brands } = loaders
+
+    const score = await unwrapOrThrow(brands.loadScore(id))
+    const myVoteRow = await unwrapOrThrow(brands.loadUserVote(id, me?.id))
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: myVoteRow?.vote
+    }
+
+    return votes
+  }
+
   getResolvers (): BrandResolvers {
     return {
-      fragrances: this.fragrances
+      avatar: this.avatar,
+      fragrances: this.fragrances,
+      votes: this.votes
     }
   }
 }

@@ -1,7 +1,7 @@
 import { unwrapOrThrow } from '@aromi/shared'
 import type { BrandRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { BrandRequestVotesResolver } from '../helpers/BrandRequestVotesResolver.js'
+import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
 
 export class BrandRequestFieldResolvers extends BaseResolver<BrandRequestResolvers> {
   avatar: BrandRequestResolvers['avatar'] = async (
@@ -31,14 +31,48 @@ export class BrandRequestFieldResolvers extends BaseResolver<BrandRequestResolve
     context,
     info
   ) => {
-    const resolver = new BrandRequestVotesResolver({ parent, args, context, info })
-    return await resolver.resolve()
+    const { id } = parent
+    const { me, loaders } = context
+
+    const { brandRequests } = loaders
+
+    const score = await unwrapOrThrow(brandRequests.loadScore(id))
+    const myVoteRow = await unwrapOrThrow(brandRequests.loadUserVote(id, me?.id))
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: myVoteRow?.vote
+    }
+
+    return votes
+  }
+
+  user: BrandRequestResolvers['user'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { userId } = parent
+    const { services } = context
+
+    const { users } = services
+
+    const user = await unwrapOrThrow(
+      users
+        .findOne(eb => eb('id', '=', userId))
+    )
+
+    return mapUserRowToUserSummary(user)
   }
 
   getResolvers (): BrandRequestResolvers {
     return {
       avatar: this.avatar,
-      votes: this.votes
+      votes: this.votes,
+      user: this.user
     }
   }
 }

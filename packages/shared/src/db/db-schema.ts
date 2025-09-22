@@ -235,6 +235,23 @@ export interface Brand {
   website: string | null;
 }
 
+export interface BrandScore {
+  brandId: string;
+  downvotes: Generated<number>;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
+export interface BrandVote {
+  brandId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  userId: string;
+  vote: number;
+}
+
 export interface EditJob {
   createdAt: Generated<Timestamp>;
   editId: string;
@@ -275,6 +292,7 @@ export interface FragranceAccordVote {
   id: Generated<string>;
   updatedAt: Generated<Timestamp | null>;
   userId: string;
+  vote: Generated<number>;
 }
 
 export interface FragranceCollection {
@@ -354,6 +372,7 @@ export interface FragranceNoteVote {
   layer: NoteLayerEnum;
   noteId: string;
   userId: string;
+  vote: Generated<number>;
 }
 
 export interface FragranceRequestAccord {
@@ -433,6 +452,14 @@ export interface Fragrance {
   voteScore: Generated<number>;
 }
 
+export interface FragranceScore {
+  downvotes: Generated<number>;
+  fragranceId: string;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface FragranceTraitVote {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -441,6 +468,15 @@ export interface FragranceTraitVote {
   traitOptionId: string;
   traitTypeId: string;
   userId: string;
+}
+
+export interface FragranceVote {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: string;
+  id: Generated<string>;
+  userId: string;
+  vote: number;
 }
 
 export interface NoteEdit {
@@ -563,6 +599,8 @@ export interface DB {
   brandRequestScores: BrandRequestScore;
   brandRequestVotes: BrandRequestVote;
   brands: Brand;
+  brandScores: BrandScore;
+  brandVotes: BrandVote;
   editJobs: EditJob;
   fragranceAccords: FragranceAccord;
   fragranceAccordScores: FragranceAccordScore;
@@ -580,7 +618,9 @@ export interface DB {
   fragranceRequestTraits: FragranceRequestTrait;
   fragranceRequestVotes: FragranceRequestVote;
   fragrances: Fragrance;
+  fragranceScores: FragranceScore;
   fragranceTraitVotes: FragranceTraitVote;
+  fragranceVotes: FragranceVote;
   noteEdits: NoteEdit;
   noteImages: NoteImage;
   noteRequests: NoteRequest;

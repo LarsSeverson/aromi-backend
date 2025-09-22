@@ -1,53 +1,92 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { NoteRequestLoadersKey } from '../types.js'
-import type { VoteInfoRow } from '@aromi/shared'
 import DataLoader from 'dataloader'
-import { unwrapOrThrow } from '@aromi/shared'
+import { BackendError, type NoteRequestScoreRow, type NoteRequestVoteRow, unwrapOrThrow } from '@aromi/shared'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 export class NoteRequestLoaders extends BaseLoader<NoteRequestLoadersKey> {
-  getVotesLoader (
-    userId?: string | null
-  ): DataLoader<NoteRequestLoadersKey, VoteInfoRow> {
-    const key = this.genKey('votes')
-    return this
-      .getLoader(
-        key,
-        () => this.createVotesLoader(userId)
+  loadScore (id: NoteRequestLoadersKey) {
+    return ResultAsync
+      .fromPromise(
+        this.getScoreLoader().load(id),
+        error => BackendError.fromLoader(error)
       )
   }
 
-  private createVotesLoader (
-    userId?: string | null
-  ): DataLoader<NoteRequestLoadersKey, VoteInfoRow> {
-    const { votes } = this.services.notes.requests
-
-    return new DataLoader<NoteRequestLoadersKey, VoteInfoRow>(async keys => {
-      const voteInfos = await unwrapOrThrow(
-        votes.findVoteInfo(
-          eb => eb('noteRequestVotes.requestId', 'in', keys),
-          userId
-        )
+  loadUserVote (
+    id: NoteRequestLoadersKey,
+    userId?: string
+  ) {
+    if (userId == null) return okAsync(null)
+    return ResultAsync
+      .fromPromise(
+        this.getUserVoteLoader(userId).load(id),
+        error => BackendError.fromLoader(error)
       )
+  }
 
-      const map = new Map<string, VoteInfoRow>()
+  private getScoreLoader () {
+    const key = this.genKey('score')
+    return this
+      .getLoader(
+        key,
+        () => this.createScoreLoader()
+      )
+  }
 
-      voteInfos.forEach(row => {
-        map.set(row.targetId, row)
-      })
+  private getUserVoteLoader (userId: string) {
+    const key = this.genKey('userVote', userId)
+    return this
+      .getLoader(
+        key,
+        () => this.createUserVoteLoader(userId)
+      )
+  }
 
-      return keys.map(id => {
-        const voteInfo = map.get(id)
+  private createScoreLoader () {
+    const { notes } = this.services
 
-        if (voteInfo != null) return voteInfo
+    return new DataLoader<NoteRequestLoadersKey, NoteRequestScoreRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          notes
+            .requests
+            .scores
+            .findDistinct(
+              eb => eb('requestId', 'in', keys),
+              'requestId'
+            )
+        )
 
-        return {
-          targetId: id,
-          upvotes: 0,
-          downvotes: 0,
-          score: 0,
-          userVote: null
-        }
-      })
-    })
+        const rowMap = new Map(rows.map(r => [r.requestId, r]))
+
+        return keys.map(k => rowMap.get(k) ?? null)
+      }
+    )
+  }
+
+  private createUserVoteLoader (userId: string) {
+    const { notes } = this.services
+
+    return new DataLoader<NoteRequestLoadersKey, NoteRequestVoteRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          notes
+            .requests
+            .votes
+            .findDistinct(
+              eb => eb.and([
+                eb('requestId', 'in', keys),
+                eb('userId', '=', userId)
+              ]),
+              'requestId'
+            )
+        )
+
+        const rowMap = new Map(rows.map(r => [r.requestId, r]))
+
+        return keys.map(k => rowMap.get(k) ?? null)
+      }
+    )
   }
 }

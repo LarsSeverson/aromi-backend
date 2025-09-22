@@ -1,36 +1,30 @@
-import { type BackendError, unwrapOrThrow, type FragranceNoteVoteRow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES } from '@aromi/shared'
+import { unwrapOrThrow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { mapGQLNoteLayerToDBNoteLayer } from '../utils/mappers.js'
+import { GenericVoteOnEntityInputSchema } from '@src/utils/validation.js'
 
 type Mutation = MutationResolvers['voteOnFragranceNote']
 
 export class VoteOnNoteResolver extends MutationResolver<Mutation> {
-  resolve () {
-    return ResultAsync
-      .fromPromise(
-        this.handleVote(),
-        error => error as BackendError
-      )
-  }
+  async resolve () {
+    const { input } = this.args
+    parseOrThrow(GenericVoteOnEntityInputSchema, input)
 
-  private async handleVote () {
-    const existingVote = await unwrapOrThrow(this.getExistingVote())
-    const vote = await unwrapOrThrow(this.upsertVote(existingVote))
     const note = await unwrapOrThrow(this.getNote())
 
-    await this.queueIndex(vote)
-    await this.queueAggregate(vote)
+    await unwrapOrThrow(this.upsertVote())
+    await this.enqueueAggregation()
+    await this.enqueueIndex()
 
     return note
   }
 
-  private queueIndex (vote: FragranceNoteVoteRow) {
-    const { context } = this
+  private enqueueIndex () {
+    const { context, args } = this
     const { queues } = context
 
-    const { fragranceId } = vote
+    const { fragranceId } = args.input
 
     return queues
       .indexations
@@ -40,60 +34,32 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
       })
   }
 
-  private queueAggregate (vote: FragranceNoteVoteRow) {
-    const { context } = this
+  private enqueueAggregation () {
+    const { context, args } = this
     const { queues } = context
 
-    const { fragranceId, noteId, layer } = vote
+    const { fragranceId, noteId, layer } = args.input
+    const dbLayer = mapGQLNoteLayerToDBNoteLayer(layer)
 
     return queues
       .aggregations
       .enqueue({
         jobName: AGGREGATION_JOB_NAMES.AGGREGATE_NOTE_VOTES,
-        data: { fragranceId, noteId, layer }
+        data: { fragranceId, noteId, layer: dbLayer }
       })
   }
 
-  private getExistingVote () {
+  private upsertVote () {
     const { me, args, context } = this
 
     const { input } = args
     const { services } = context
 
-    const { fragranceId, noteId } = input
-    const { fragrances } = services
+    const { fragranceId, noteId, layer, vote } = input
     const userId = me.id
-
-    return fragrances
-      .notes
-      .votes
-      .findOne(
-        eb => eb.and([
-          eb('fragranceId', '=', fragranceId),
-          eb('noteId', '=', noteId),
-          eb('userId', '=', userId)
-        ])
-      )
-      .orElse(error => {
-        if (error.status === 404) return okAsync(null)
-        return errAsync(error)
-      })
-  }
-
-  private upsertVote (existingVote: FragranceNoteVoteRow | null) {
-    const { me, args, context } = this
-
-    const { input } = args
-    const { services } = context
-
-    const { fragranceId, noteId, layer } = input
-    const { fragrances } = services
-    const userId = me.id
-
     const dbLayer = mapGQLNoteLayerToDBNoteLayer(layer)
-    const deletedAt = existingVote?.deletedAt == null
-      ? new Date().toISOString()
-      : null
+
+    const { fragrances } = services
 
     return fragrances
       .notes
@@ -102,7 +68,7 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
         { fragranceId, userId, noteId, layer: dbLayer },
         oc => oc
           .columns(['fragranceId', 'userId', 'noteId', 'layer'])
-          .doUpdateSet({ deletedAt })
+          .doUpdateSet({ vote })
       )
   }
 

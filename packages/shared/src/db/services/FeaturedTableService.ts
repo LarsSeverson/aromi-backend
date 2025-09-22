@@ -1,4 +1,4 @@
-import type { ExpressionOrFactory, SqlBool } from 'kysely'
+import type { ExpressionOrFactory, ReferenceExpression, SqlBool } from 'kysely'
 import type { CursorPaginationInput, QueryOptions, ServicableTablesMatching } from '../types.js'
 import { TableService } from './TableService.js'
 import type { DB } from '../db-schema.js'
@@ -48,6 +48,21 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
     return ResultAsync
       .fromPromise(
         query.executeTakeFirstOrThrow(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  override findDistinct (
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    distinctOn?: ReferenceExpression<DB, T>
+  ): ResultAsync<R[], BackendError> {
+    const query = this
+      .Table
+      .findDistinct(this.Table.filterDeleted(where), distinctOn)
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
         error => BackendError.fromDatabase(error)
       )
   }

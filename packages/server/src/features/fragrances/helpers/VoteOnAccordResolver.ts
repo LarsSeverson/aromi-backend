@@ -1,35 +1,29 @@
-import { type BackendError, unwrapOrThrow, type FragranceAccordVoteRow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES } from '@aromi/shared'
+import { unwrapOrThrow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { GenericVoteOnEntityInputSchema } from '@src/utils/validation.js'
 
 type Mutation = MutationResolvers['voteOnFragranceAccord']
 
 export class VoteOnAccordResolver extends MutationResolver<Mutation> {
-  resolve () {
-    return ResultAsync
-      .fromPromise(
-        this.handleVote(),
-        error => error as BackendError
-      )
-  }
+  async resolve () {
+    const { input } = this.args
+    parseOrThrow(GenericVoteOnEntityInputSchema, input)
 
-  private async handleVote () {
-    const existingVote = await unwrapOrThrow(this.getExistingVote())
-    const vote = await unwrapOrThrow(this.upsertVote(existingVote))
     const accord = await unwrapOrThrow(this.getAccord())
 
-    await this.queueIndex(vote)
-    await this.queueAggregate(vote)
+    await unwrapOrThrow(this.upsertVote())
+    await this.enqueueIndex()
+    await this.enqueueAggregation()
 
     return accord
   }
 
-  private queueIndex (vote: FragranceAccordVoteRow) {
-    const { context } = this
+  private enqueueIndex () {
+    const { context, args } = this
     const { queues } = context
 
-    const { fragranceId } = vote
+    const { fragranceId } = args.input
 
     return queues
       .indexations
@@ -39,11 +33,11 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
       })
   }
 
-  private queueAggregate (vote: FragranceAccordVoteRow) {
-    const { context } = this
+  private enqueueAggregation () {
+    const { context, args } = this
     const { queues } = context
 
-    const { fragranceId, accordId } = vote
+    const { fragranceId, accordId } = args.input
 
     return queues
       .aggregations
@@ -53,45 +47,16 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
       })
   }
 
-  private getExistingVote () {
+  private upsertVote () {
     const { me, args, context } = this
 
     const { input } = args
     const { services } = context
 
-    const { fragranceId, accordId } = input
-    const { fragrances } = services
+    const { fragranceId, accordId, vote } = input
     const userId = me.id
 
-    return fragrances
-      .accords
-      .votes
-      .findOne(
-        eb => eb.and([
-          eb('fragranceId', '=', fragranceId),
-          eb('accordId', '=', accordId),
-          eb('userId', '=', userId)
-        ])
-      )
-      .orElse(error => {
-        if (error.status === 404) return okAsync(null)
-        return errAsync(error)
-      })
-  }
-
-  private upsertVote (existingVote: FragranceAccordVoteRow | null) {
-    const { me, args, context } = this
-
-    const { input } = args
-    const { services } = context
-
-    const { fragranceId, accordId } = input
     const { fragrances } = services
-    const userId = me.id
-
-    const deletedAt = existingVote?.deletedAt == null
-      ? new Date().toISOString()
-      : null
 
     return fragrances
       .accords
@@ -100,7 +65,7 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
         { fragranceId, userId, accordId },
         oc => oc
           .columns(['fragranceId', 'userId', 'accordId'])
-          .doUpdateSet({ deletedAt })
+          .doUpdateSet({ vote })
       )
   }
 

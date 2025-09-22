@@ -32,6 +32,7 @@ input FragranceAccordPaginationInput {
 input VoteOnFragranceAccordInput {
   fragranceId: ID!
   accordId: ID!
+  vote: Int!
 }
 
 extend type Mutation {

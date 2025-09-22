@@ -9,15 +9,29 @@ export class AccordAggregator extends BaseAggregator<AggregationJobPayload[JobKe
   async aggregate (job: Job<AggregationJobPayload[JobKey]>): Promise<FragranceAccordScoreRow> {
     const { fragranceId, accordId } = job.data
 
-    const scoreRow = await unwrapOrThrow(this.handleUpdateRow(fragranceId, accordId))
+    await unwrapOrThrow(this.getScore(fragranceId, accordId))
+    const score = await unwrapOrThrow(this.updateScore(fragranceId, accordId))
 
-    return scoreRow
+    return score
   }
 
-  handleUpdateRow (
-    fragranceId: string,
-    accordId: string
-  ) {
+  private getScore (fragranceId: string, accordId: string) {
+    const { services } = this.context
+    const { fragrances } = services
+    const { accords } = fragrances
+
+    return accords
+      .scores
+      .findOrCreate(
+        eb => eb.and([
+          eb('fragranceId', '=', fragranceId),
+          eb('accordId', '=', accordId)
+        ]),
+        { fragranceId, accordId }
+      )
+  }
+
+  private updateScore (fragranceId: string, accordId: string) {
     const { services } = this.context
     const { fragrances } = services
     const { accords } = fragrances

@@ -1,4 +1,4 @@
-import { ValidEditReason, ValidFragranceConcentration, ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear, ValidFragranceStatus } from '@aromi/shared'
+import { ValidEditReason, ValidFragranceConcentration, ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear, ValidFragranceStatus, ValidVote } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateFragranceEditSchema = z
@@ -42,5 +42,11 @@ export const StageFragranceRequestImageSchema = z
   .object({
     contentType: ValidFragranceImageType,
     contentSize: ValidFragranceImageSize
+  })
+  .strip()
+
+export const VoteOnFragranceInputSchema = z
+  .object({
+    vote: ValidVote
   })
   .strip()

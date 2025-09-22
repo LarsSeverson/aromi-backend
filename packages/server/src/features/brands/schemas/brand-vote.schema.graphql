@@ -1,0 +1,8 @@
+input VoteOnBrandInput {
+  brandId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnBrand(input: VoteOnBrandInput!): Brand!
+}

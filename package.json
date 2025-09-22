@@ -31,7 +31,8 @@
     "lint:shared": "eslint 'packages/shared/src/**/*.ts'",
     "lint:shared:fix": "eslint 'packages/shared/src/**/*.ts' --fix",
     "search:init": "yarn workspace @aromi/shared init-search",
-    "search:sync": "yarn workspace @aromi/shared sync:search"
+    "search:sync": "yarn workspace @aromi/shared sync:search",
+    "test": "jest"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

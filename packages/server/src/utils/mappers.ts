@@ -1,9 +1,0 @@
-import type { VoteInfoRow } from '@aromi/shared'
-import type { VoteInfo } from '@src/graphql/gql-types.js'
-
-export const mapVoteInfoRowToVoteInfo = (row: VoteInfoRow): VoteInfo => ({
-  upvotes: row.upvotes,
-  downvotes: row.downvotes,
-  score: row.score,
-  myVote: row.userVote
-})

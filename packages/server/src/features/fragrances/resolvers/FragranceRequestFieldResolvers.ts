@@ -4,7 +4,7 @@ import { mapCombinedTraitRowToRequestTrait } from '../utils/mappers.js'
 import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
 import type { FragranceRequestResolvers } from '@src/graphql/gql-types.js'
-import { FragranceRequestVotesResolver } from '../helpers/FragranceRequestVotesResolver.js'
+import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
 
 export class FragranceRequestFieldResolvers extends BaseResolver<FragranceRequestResolvers> {
   brand: FragranceRequestResolvers['brand'] = async (
@@ -157,8 +157,41 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
     context,
     info
   ) => {
-    const resolver = new FragranceRequestVotesResolver({ parent, args, context, info })
-    return await resolver.resolve()
+    const { id } = parent
+    const { me, loaders } = context
+
+    const { fragranceRequests } = loaders
+
+    const score = await unwrapOrThrow(fragranceRequests.loadScore(id))
+    const myVoteRow = await unwrapOrThrow(fragranceRequests.loadUserVote(id, me?.id))
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: myVoteRow?.vote
+    }
+
+    return votes
+  }
+
+  user: FragranceRequestResolvers['user'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { userId } = parent
+    const { services } = context
+
+    const { users } = services
+
+    const user = await unwrapOrThrow(
+      users
+        .findOne(eb => eb('id', '=', userId))
+    )
+
+    return mapUserRowToUserSummary(user)
   }
 
   getResolvers (): FragranceRequestResolvers {
@@ -169,7 +202,8 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
       traits: this.traits,
       accords: this.accords,
       notes: this.notes,
-      votes: this.votes
+      votes: this.votes,
+      user: this.user
     }
   }
 }

@@ -1,5 +1,5 @@
+import type { TableService } from '@src/db/services/TableService.js'
 import type { SomeRequestRow, SomeRequestScoreRow, SomeRequestVoteRow } from '../types.js'
-import type { RequestVoteService } from './RequestVoteService.js'
 import { FeaturedTableService } from '@src/db/services/FeaturedTableService.js'
 
 export abstract class RequestService<
@@ -7,5 +7,6 @@ export abstract class RequestService<
   V extends SomeRequestVoteRow = SomeRequestVoteRow,
   C extends SomeRequestScoreRow = SomeRequestScoreRow
 > extends FeaturedTableService<R> {
-  abstract votes: RequestVoteService<V, C>
+  abstract votes: TableService<V>
+  abstract scores: TableService<C>
 }

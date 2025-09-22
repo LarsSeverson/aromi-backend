@@ -7,6 +7,8 @@ import { AccordRequestAggregator } from '../jobs/AccordRequestAggregator.js'
 import { BrandRequestAggregator } from '../jobs/BrandRequestAggregator.js'
 import { NoteRequestAggregator } from '../jobs/NoteRequestAggregator.js'
 import { FragranceRequestAggregator } from '../jobs/FragranceRequestAggregator.js'
+import { FragranceAggregator } from '../jobs/FragranceAggregator.js'
+import { BrandAggregator } from '../jobs/BrandAggregator.js'
 
 export class AggregationService extends WorkerService<keyof AggregationJobPayload, AggregationJobPayload> {
   constructor (context: WorkerContext) {
@@ -16,10 +18,18 @@ export class AggregationService extends WorkerService<keyof AggregationJobPayloa
 
     this
       .register(
+        AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_VOTES,
+        new FragranceAggregator(sources)
+      )
+      .register(
         AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REQUEST_VOTES,
         new FragranceRequestAggregator(sources)
       )
 
+      .register(
+        AGGREGATION_JOB_NAMES.AGGREGATE_BRAND_VOTES,
+        new BrandAggregator(sources)
+      )
       .register(
         AGGREGATION_JOB_NAMES.AGGREGATE_BRAND_REQUEST_VOTES,
         new BrandRequestAggregator(sources)

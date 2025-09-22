@@ -44,7 +44,6 @@ export class CreateBrandRequestResolver extends RequestMutationResolver<Mutation
     return this
       .trxService!
       .requests
-      .votes
       .scores
       .createOne({ requestId })
   }

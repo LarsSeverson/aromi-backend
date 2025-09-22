@@ -3,15 +3,6 @@ import type { DB, Timestamp } from './db-schema.js'
 
 export type DBConnection = Kysely<DB>
 
-export interface VoteInfoRow {
-  targetId: string
-
-  upvotes: number
-  downvotes: number
-  score: number
-  userVote: number | null
-}
-
 export type PaginationOperator = '>' | '<'
 export type PaginationDirection = 'asc' | 'desc'
 

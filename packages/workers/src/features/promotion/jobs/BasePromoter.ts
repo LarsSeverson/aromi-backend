@@ -1,8 +1,8 @@
-import { BackendError, JobStatus, type RequestJobRow, type RequestType, type DataSources, type PromotionJobData } from '@aromi/shared'
+import { type BackendError, JobStatus, type RequestType, type DataSources, type PromotionJobData, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 
 export interface BasePromoterParams {
   sources: DataSources
@@ -22,19 +22,26 @@ export abstract class BasePromoter<I extends PromotionJobData, O> extends JobHan
   abstract promote (job: Job<I>): Promise<O>
 
   handle (job: Job<I>): ResultAsync<O, BackendError> {
+    return ResultAsync.fromPromise(
+      this.handlePromote(job),
+      error => error as BackendError
+    )
+  }
+
+  async handlePromote (job: Job<I>): Promise<O> {
     const { requestId } = job.data
 
-    return this
-      .startJob(requestId)
-      .andThen(
-        jobRow => ResultAsync
-          .fromPromise(
-            this.promote(job),
-            error => error as BackendError
-          )
-          .orTee(error => this.endJob(jobRow.id, error))
-          .andTee(_ => this.endJob(jobRow.id))
-      )
+    const jobRow = await unwrapOrThrow(this.startJob(requestId))
+
+    const result = await ResultAsync.fromPromise(
+      this.promote(job),
+      error => error as BackendError
+    )
+
+    const error = result.isErr() ? result.error : undefined
+    await unwrapOrThrow(this.endJob(jobRow.id, error))
+
+    return unwrapOrThrowSync(result)
   }
 
   withTransaction<T> (
@@ -60,9 +67,14 @@ export abstract class BasePromoter<I extends PromotionJobData, O> extends JobHan
   }
 
   private startJob (requestId: string) {
-    return this
-      .getJobRow(requestId)
-      .andThen(jobRow => this.markJobProcessing(jobRow.id))
+    const { services } = this.context
+    const { requestJobs } = services
+
+    return requestJobs.createOne({
+      requestId,
+      requestType: this.type,
+      status: JobStatus.PROCESSING
+    })
   }
 
   private endJob (
@@ -71,52 +83,6 @@ export abstract class BasePromoter<I extends PromotionJobData, O> extends JobHan
   ) {
     if (error != null) return this.markJobFailed(jobId, error)
     return this.markJobSuccess(jobId)
-  }
-
-  private getJobRow (requestId: string) {
-    const { services } = this.context
-    const { requestJobs } = services
-
-    return requestJobs
-      .findOne(eb => eb('requestId', '=', requestId))
-      .andThen(jobRow => this.validateJob(jobRow))
-  }
-
-  private validateJob (jobRow: RequestJobRow) {
-    if (jobRow.requestType !== this.type) {
-      return errAsync(
-        new BackendError(
-          'INVALID_JOB_TYPE',
-          `Expected job of type ${this.type} but got ${jobRow.requestType}`,
-          400
-        )
-      )
-    }
-
-    if (jobRow.status !== JobStatus.QUEUED) {
-      return errAsync(
-        new BackendError(
-          'INVALID_JOB_STATUS',
-          'Only requests with queued status can be processed',
-          400
-        )
-      )
-    }
-
-    return okAsync(jobRow)
-  }
-
-  private markJobProcessing (jobId: string) {
-    const { services } = this.context
-    const { requestJobs } = services
-
-    return requestJobs
-      .updateOne(
-        eb => eb('id', '=', jobId),
-        {
-          status: JobStatus.PROCESSING
-        }
-      )
   }
 
   private markJobSuccess (jobId: string) {

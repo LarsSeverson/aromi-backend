@@ -4,12 +4,14 @@ import { FragranceRequestAccordService } from './FragranceRequestAccordService.j
 import { FragranceRequestNoteService } from './FragranceRequestNoteService.js'
 import { FragranceRequestTraitService } from './FragranceRequestTraitService.js'
 import { FragranceRequestVoteService } from './FragranceRequestVoteService.js'
+import { FragranceRequestScoreService } from './FragranceRequestScoreService.js'
 
 export class FragranceRequestService extends FeaturedTableService<FragranceRequestRow> {
   traits: FragranceRequestTraitService
   accords: FragranceRequestAccordService
   notes: FragranceRequestNoteService
   votes: FragranceRequestVoteService
+  scores: FragranceRequestScoreService
   jobs: RequestJobService
 
   constructor (sources: DataSources) {
@@ -19,6 +21,7 @@ export class FragranceRequestService extends FeaturedTableService<FragranceReque
     this.accords = new FragranceRequestAccordService(sources)
     this.notes = new FragranceRequestNoteService(sources)
     this.votes = new FragranceRequestVoteService(sources)
+    this.scores = new FragranceRequestScoreService(sources)
     this.jobs = new RequestJobService(sources)
   }
 }

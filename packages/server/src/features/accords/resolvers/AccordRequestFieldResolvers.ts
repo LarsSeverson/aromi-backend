@@ -2,7 +2,6 @@ import { unwrapOrThrow } from '@aromi/shared'
 import type { AccordRequestResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
-import { AccordRequestVotesResolver } from '../helpers/AccordRequestVotesResolver.js'
 
 export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResolvers> {
   thumbnail: AccordRequestResolvers['thumbnail'] = async (
@@ -32,8 +31,22 @@ export class AccordRequestFieldResolvers extends BaseResolver<AccordRequestResol
     context,
     info
   ) => {
-    const resolver = new AccordRequestVotesResolver({ parent, args, context, info })
-    return await resolver.resolve()
+    const { id } = parent
+    const { me, loaders } = context
+
+    const { accordRequests } = loaders
+
+    const score = await unwrapOrThrow(accordRequests.loadScore(id))
+    const myVoteRow = await unwrapOrThrow(accordRequests.loadUserVote(id, me?.id))
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: myVoteRow?.vote
+    }
+
+    return votes
   }
 
   user: AccordRequestResolvers['user'] = async (
