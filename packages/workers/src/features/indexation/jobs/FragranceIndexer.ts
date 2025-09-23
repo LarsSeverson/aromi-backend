@@ -60,9 +60,8 @@ export class FragranceIndexer extends BaseIndexer<IndexationJobPayload[JobKey], 
 
     return fragrances
       .accords
-      .votes
       .findAccords(
-        eb => eb('fragranceAccordVotes.fragranceId', '=', row.id)
+        eb => eb('fragranceId', '=', row.id)
       )
   }
 
@@ -72,9 +71,8 @@ export class FragranceIndexer extends BaseIndexer<IndexationJobPayload[JobKey], 
 
     return fragrances
       .notes
-      .votes
       .findNotes(
-        eb => eb('fragranceNoteVotes.fragranceId', '=', row.id)
+        eb => eb('fragranceId', '=', row.id)
       )
   }
 }

@@ -1,5 +1,5 @@
 import { BaseAggregator } from './BaseAggregator.js'
-import { type FragranceNoteScoreRow, type NoteLayerEnum, unwrapOrThrow } from '@aromi/shared'
+import { type FragranceNoteScoreRow, INDEXATION_JOB_NAMES, type NoteLayerEnum, unwrapOrThrow } from '@aromi/shared'
 import type { AGGREGATION_JOB_NAMES, AggregationJobPayload } from '@aromi/shared/src/queues/services/aggregation/types.js'
 import type { Job } from 'bullmq'
 
@@ -12,7 +12,20 @@ export class NoteAggregator extends BaseAggregator<AggregationJobPayload[JobKey]
     await unwrapOrThrow(this.getScore(fragranceId, noteId, layer))
     const score = await unwrapOrThrow(this.updateScore(fragranceId, noteId, layer))
 
+    await this.enqueueIndex(score)
+
     return score
+  }
+
+  private enqueueIndex (score: FragranceNoteScoreRow) {
+    const { queues } = this.context
+    const { indexations } = queues
+
+    return indexations
+      .enqueue({
+        jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
+        data: { fragranceId: score.fragranceId }
+      })
   }
 
   private getScore (

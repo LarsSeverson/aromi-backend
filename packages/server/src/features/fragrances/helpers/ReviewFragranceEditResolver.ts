@@ -1,7 +1,7 @@
-import { type FragranceEditRow, unwrapOrThrow, unwrapOrThrowSync, type BackendError, EditStatus, REVISION_JOB_NAMES, EditType } from '@aromi/shared'
+import { type FragranceEditRow, unwrapOrThrow, unwrapOrThrowSync, type BackendError, EditStatus, REVISION_JOB_NAMES } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewFragranceEdit']
 
@@ -18,7 +18,10 @@ export class ReviewFragranceEditResolver extends MutationResolver<Mutation> {
     unwrapOrThrowSync(this.checkAdminAuthorized())
 
     const fragranceEditRow = await unwrapOrThrow(this.updateRow())
-    await unwrapOrThrow(this.handleQueueJob(fragranceEditRow))
+
+    if (fragranceEditRow.status === EditStatus.APPROVED) {
+      await this.enqueueRevision(fragranceEditRow)
+    }
 
     return fragranceEditRow
   }
@@ -48,29 +51,7 @@ export class ReviewFragranceEditResolver extends MutationResolver<Mutation> {
       )
   }
 
-  private handleQueueJob (editRow: FragranceEditRow) {
-    if (editRow.status !== EditStatus.APPROVED) {
-      return okAsync(undefined)
-    }
-
-    return this
-      .createJob(editRow)
-      .andThen(() => this.enqueueJob(editRow))
-  }
-
-  private createJob (editRow: FragranceEditRow) {
-    const { context } = this
-    const { services } = context
-
-    const { fragrances } = services
-
-    return fragrances
-      .edits
-      .jobs
-      .createOne({ editId: editRow.id, editType: EditType.FRAGRANCE })
-  }
-
-  private enqueueJob (editRow: FragranceEditRow) {
+  private enqueueRevision (editRow: FragranceEditRow) {
     const { context } = this
     const { queues } = context
 

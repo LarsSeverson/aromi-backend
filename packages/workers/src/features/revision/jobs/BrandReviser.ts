@@ -14,7 +14,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
     const { editId } = job.data
 
     const { brand, newValues } = await this.withTransactionAsync(
-      async reviser => await reviser.handleRevise(editId)
+      async reviser => await reviser.reviseBrand(editId)
     )
 
     const indexValues = { id: brand.id, ...newValues }
@@ -23,7 +23,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
     return brand
   }
 
-  private async handleRevise (editId: string) {
+  private async reviseBrand (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { brand, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyAvatar(editRow))
@@ -36,7 +36,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.UPDATE_BRAND,
         data
@@ -44,11 +44,12 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
   }
 
   private applyEdit (edit: BrandEditRow) {
+    const values = this.getBrandRevisionValues(edit)
+
     const { context } = this
     const { services } = context
 
     const { brandId } = edit
-    const values = this.getBrandRevisionValues(edit)
     const { brands } = services
 
     return brands
@@ -80,7 +81,11 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
 
     return brands
       .images
-      .createOne(
+      .findOrCreate(
+        eb => eb.and([
+          eb('brandId', '=', brandId),
+          eb('s3Key', '=', s3Key)
+        ]),
         { brandId, s3Key, name, contentType, sizeBytes }
       )
   }

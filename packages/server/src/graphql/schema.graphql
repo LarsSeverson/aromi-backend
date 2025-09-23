@@ -123,6 +123,7 @@ enum AvatarStatus {
 
 type Brand {
   avatar: Asset
+  description: String
   fragrances(input: FragrancePaginationInput): FragranceConnection!
   id: ID!
   name: String!

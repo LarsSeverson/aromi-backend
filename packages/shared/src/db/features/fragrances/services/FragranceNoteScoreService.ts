@@ -12,7 +12,29 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
     super(sources, 'fragranceNoteScores')
   }
 
-  findNotes <C>(
+  findNotes (
+    where?: ExpressionOrFactory<DB, 'fragranceNoteScores' | 'notes', SqlBool>
+  ) {
+    let query = this
+      .Table
+      .baseQuery
+      .innerJoin('notes', 'notes.id', 'fragranceNoteScores.noteId')
+      .select('fragranceNoteScores.layer')
+      .selectAll('notes')
+      .where('notes.deletedAt', 'is', null)
+
+    if (where != null) {
+      query = query.where(where)
+    }
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  findCombinedNotes <C>(
     where?: ExpressionOrFactory<DB, 'fragranceNoteScores', SqlBool>,
     pagination?: CursorPaginationInput<C>
   ): ResultAsync<CombinedFragranceNoteScoreRow[], BackendError> {
@@ -34,7 +56,7 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
     }
 
     if (pagination != null) {
-      query = this.paginatedNotesQuery(pagination, query)
+      query = this.paginatedCombinedNotesQuery(pagination, query)
     }
 
     return ResultAsync
@@ -44,7 +66,7 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
       )
   }
 
-  private paginatedNotesQuery<C, R>(
+  private paginatedCombinedNotesQuery<C, R>(
     input : CursorPaginationInput<C>,
     qb: SelectQueryBuilder<DB, 'fragranceNoteScores' | 'notes', R>
   ) {

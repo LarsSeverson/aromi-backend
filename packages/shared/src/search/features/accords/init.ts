@@ -11,17 +11,8 @@ export const initAccordsIndex = (
     .fromPromise(
       meili
         .client
-        .updateIndex(INDEX_NAMES.ACCORDS, { primaryKey: 'id' }),
+        .createIndex(INDEX_NAMES.ACCORDS, { primaryKey: 'id' }),
       error => BackendError.fromMeili(error)
-    )
-    .orElse(() =>
-      ResultAsync
-        .fromPromise(
-          meili
-            .client
-            .createIndex(INDEX_NAMES.ACCORDS, { primaryKey: 'id' }),
-          error => BackendError.fromMeili(error)
-        )
     )
     .andThen(() => ResultAsync
       .fromPromise(

@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { IAssetResult } from '../features/assets/types.js';
 import { IUserSummary } from '../features/users/types.js';
 import { IFragranceSummary, IFragranceEditSummary, IFragranceRequestSummary } from '../features/fragrances/types.js';
 import { IBrandSummary, IBrandEditSummary, IBrandRequestSummary } from '../features/brands/types.js';
@@ -167,6 +168,7 @@ export type AvatarStatus = typeof AvatarStatus[keyof typeof AvatarStatus];
 export type Brand = {
   __typename?: 'Brand';
   avatar?: Maybe<Asset>;
+  description?: Maybe<Scalars['String']['output']>;
   fragrances: FragranceConnection;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -1679,7 +1681,7 @@ export type ResolversTypes = ResolversObject<{
   AccordRequestEdge: ResolverTypeWrapper<Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversTypes['AccordRequest'] }>>;
   AccordSortBy: ResolverTypeWrapper<Partial<AccordSortBy>>;
   AccordSortInput: ResolverTypeWrapper<Partial<AccordSortInput>>;
-  Asset: ResolverTypeWrapper<Partial<Asset>>;
+  Asset: ResolverTypeWrapper<IAssetResult>;
   AuthCodeDeliveryDetails: ResolverTypeWrapper<Partial<AuthCodeDeliveryDetails>>;
   AuthDeliveryResult: ResolverTypeWrapper<Partial<AuthDeliveryResult>>;
   AuthTokenPayload: ResolverTypeWrapper<Partial<AuthTokenPayload>>;
@@ -1844,7 +1846,7 @@ export type ResolversParentTypes = ResolversObject<{
   AccordRequestConnection: Partial<Omit<AccordRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['AccordRequestEdge']> }>;
   AccordRequestEdge: Partial<Omit<AccordRequestEdge, 'node'> & { node: ResolversParentTypes['AccordRequest'] }>;
   AccordSortInput: Partial<AccordSortInput>;
-  Asset: Partial<Asset>;
+  Asset: IAssetResult;
   AuthCodeDeliveryDetails: Partial<AuthCodeDeliveryDetails>;
   AuthDeliveryResult: Partial<AuthDeliveryResult>;
   AuthTokenPayload: Partial<AuthTokenPayload>;
@@ -2063,6 +2065,7 @@ export type AuthTokenPayloadResolvers<ContextType = ServerContext, ParentType ex
 
 export type BrandResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Brand'] = ResolversParentTypes['Brand']> = ResolversObject<{
   avatar?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<BrandFragrancesArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

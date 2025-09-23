@@ -47,7 +47,7 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
     return fragrances
       .notes
       .scores
-      .findNotes(
+      .findCombinedNotes(
         eb => eb('fragranceId', '=', id),
         pagination
       )

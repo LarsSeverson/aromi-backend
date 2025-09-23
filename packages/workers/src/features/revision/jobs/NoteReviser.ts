@@ -14,7 +14,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
     const { editId } = job.data
 
     const { note, newValues }= await this.withTransactionAsync(
-      async reviser => await reviser.handleRevise(editId)
+      async reviser => await reviser.reviseNote(editId)
     )
 
     const indexValues = { id: note.id, ...newValues }
@@ -23,7 +23,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
     return note
   }
 
-  private async handleRevise (editId: string) {
+  private async reviseNote (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { note, newValues }= await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyThumbnail(editRow))
@@ -36,7 +36,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.UPDATE_NOTE,
         data

@@ -1,4 +1,4 @@
-import { unwrapOrThrow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
+import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '../utils/mappers.js'
@@ -15,23 +15,8 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
 
     await unwrapOrThrow(this.upsertVote())
     await this.enqueueAggregation()
-    await this.enqueueIndex()
 
     return note
-  }
-
-  private enqueueIndex () {
-    const { context, args } = this
-    const { queues } = context
-
-    const { fragranceId } = args.input
-
-    return queues
-      .indexations
-      .enqueue({
-        jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
-        data: { fragranceId }
-      })
   }
 
   private enqueueAggregation () {

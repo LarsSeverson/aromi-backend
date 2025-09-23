@@ -43,7 +43,7 @@ export class BrandEditMutationResolvers extends BaseResolver<MutationResolvers> 
     const { key } = genImageKey('brands', fileName)
     const { assets } = services
 
-    await unwrapOrThrow(
+    const asset = await unwrapOrThrow(
       assets
         .uploads
         .createOne({ name: fileName, s3Key: key, contentType, sizeBytes: String(contentSize) })
@@ -54,7 +54,7 @@ export class BrandEditMutationResolvers extends BaseResolver<MutationResolvers> 
         .getPresignedUrl({ key, contentType, maxSizeBytes: contentSize })
     )
 
-    return payload
+    return { id: asset.id, ...payload }
   }
 
   getResolvers (): MutationResolvers {

@@ -18,9 +18,21 @@ export class AssetFieldResolvers extends BaseResolver<AssetResolvers> {
     return assets.getCdnUrl(s3Key)
   }
 
+  contentSize: AssetResolvers['contentSize'] = (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { sizeBytes } = parent
+    if (sizeBytes == null) return 0
+    return Number(sizeBytes)
+  }
+
   getResolvers (): AssetResolvers {
     return {
-      url: this.url
+      url: this.url,
+      contentSize: this.contentSize
     }
   }
 }

@@ -2,6 +2,7 @@ type Brand {
   id: ID!
   name: String!
   website: String
+  description: String
   avatar: Asset
   votes: VoteInfo!
 

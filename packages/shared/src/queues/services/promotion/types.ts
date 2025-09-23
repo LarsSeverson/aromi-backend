@@ -16,4 +16,4 @@ export interface PromotionJobPayload {
 
 export type PromotionJobData = PromotionJobPayload[keyof PromotionJobPayload]
 
-export const PROMOTION_SCORE_THRESHOLD = 10
+export const PROMOTION_SCORE_THRESHOLD = 1

@@ -11,6 +11,6 @@ export class PromotionQueueService extends MQueueService<PromotionJobName, Promo
     jobName: J,
     data: PromotionJobPayload[J]
   ): string {
-    return `${jobName}:${data.requestId}`
+    return `${jobName}-${data.requestId}`
   }
 }

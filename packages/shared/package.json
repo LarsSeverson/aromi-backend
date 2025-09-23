@@ -32,7 +32,7 @@
     "jwks-rsa": "^3.2.0",
     "kysely": "^0.28.2",
     "meilisearch": "^0.53.0",
-    "nanoid": "^5.1.5",
+    "nanoid": "^5.1.6",
     "neverthrow": "^8.2.0",
     "pg": "^8.13.3",
     "zod": "^4.0.10"

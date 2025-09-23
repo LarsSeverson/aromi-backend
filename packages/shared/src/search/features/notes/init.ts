@@ -10,17 +10,8 @@ export const initNotesIndex = (
     .fromPromise(
       meili
         .client
-        .updateIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
+        .createIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
       error => BackendError.fromMeili(error)
-    )
-    .orElse(() =>
-      ResultAsync
-        .fromPromise(
-          meili
-            .client
-            .createIndex(INDEX_NAMES.NOTES, { primaryKey: 'id' }),
-          error => BackendError.fromMeili(error)
-        )
     )
     .andThen(() =>
       ResultAsync.fromPromise(

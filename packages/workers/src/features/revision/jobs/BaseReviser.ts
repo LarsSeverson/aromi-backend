@@ -1,8 +1,8 @@
-import { BackendError, JobStatus, type DataSources, type EditJobRow, type EditType, type RevisionJobData } from '@aromi/shared'
+import { type BackendError, JobStatus, unwrapOrThrow, unwrapOrThrowSync, type DataSources, type EditType, type RevisionJobData } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 
 export interface BaseReviserParams {
   sources: DataSources
@@ -22,19 +22,26 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
   abstract revise (job: Job<I>): Promise<O>
 
   handle (job: Job<I>): ResultAsync<O, BackendError> {
+    return ResultAsync.fromPromise(
+      this.handleRevise(job),
+      error => error as BackendError
+    )
+  }
+
+  async handleRevise (job: Job<I>): Promise<O> {
     const { editId } = job.data
 
-    return this
-      .startJob(editId)
-      .andThen(
-        jobRow => ResultAsync
-          .fromPromise(
-            this.revise(job),
-            error => error as BackendError
-          )
-          .orTee(error => this.endJob(jobRow.id, error))
-          .andTee(_ => this.endJob(jobRow.id))
-      )
+    const jobRow = await unwrapOrThrow(this.startJob(editId))
+
+    const result = await ResultAsync.fromPromise(
+      this.revise(job),
+      error => error as BackendError
+    )
+
+    const error = result.isErr() ? result.error : undefined
+    await unwrapOrThrow(this.endJob(jobRow.id, error))
+
+    return unwrapOrThrowSync(result)
   }
 
   withTransaction<T> (
@@ -60,9 +67,14 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
   }
 
   private startJob (editId: string) {
-    return this
-      .getJobRow(editId)
-      .andThen(jobRow => this.markJobProcessing(jobRow.id))
+    const { services } = this.context
+    const { editJobs } = services
+
+    return editJobs.createOne({
+      editId,
+      editType: this.type,
+      status: JobStatus.PROCESSING
+    })
   }
 
   private endJob (
@@ -71,52 +83,6 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
   ) {
     if (error != null) return this.markJobFailed(jobId, error)
     return this.markJobSuccess(jobId)
-  }
-
-  private getJobRow (editId: string) {
-    const { services } = this.context
-    const { editJobs } = services
-
-    return editJobs
-      .findOne(eb => eb('editId', '=', editId))
-      .andThen(jobRow => this.validateJob(jobRow))
-  }
-
-  private validateJob (jobRow: EditJobRow) {
-    if (jobRow.editType !== this.type) {
-      return errAsync(
-        new BackendError(
-          'INVALID_JOB_TYPE',
-          `Expected job type ${this.type} but got ${jobRow.editType}`,
-          400
-        )
-      )
-    }
-
-    if (jobRow.status !== JobStatus.QUEUED) {
-      return errAsync(
-        new BackendError(
-          'INVALID_JOB_STATUS',
-          'Only edits with queued status can be processed',
-          400
-        )
-      )
-    }
-
-    return okAsync(jobRow)
-  }
-
-  private markJobProcessing (jobId: string) {
-    const { services } = this.context
-    const { editJobs } = services
-
-    return editJobs
-      .updateOne(
-        eb => eb('id', '=', jobId),
-        {
-          status: JobStatus.PROCESSING
-        }
-      )
   }
 
   private markJobSuccess (jobId: string) {

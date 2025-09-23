@@ -1,9 +1,9 @@
 services:
   redis:
-    image: redis:8
+    image: redis:latest
     container_name: aromi-redis
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
 
   redisinsight:
     image: redis/redisinsight:latest
@@ -12,6 +12,16 @@ services:
       - "5540:5540"
     depends_on:
       - redis
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: aromi-search
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili-data:/meili_data
+    environment:
+      - MEILI_MASTER_KEY=aromi-dev
 
   server:
     build:
@@ -24,6 +34,7 @@ services:
       - ./packages/server/.env.production
     depends_on:
       - redis
+      - meilisearch
 
   workers:
     build:
@@ -34,6 +45,7 @@ services:
       - ./packages/workers/.env.production
     depends_on:
       - redis
+      - meilisearch
 
 volumes:
   meili-data:

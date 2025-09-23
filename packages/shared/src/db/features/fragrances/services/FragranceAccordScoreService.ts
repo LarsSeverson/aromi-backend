@@ -12,7 +12,28 @@ export class FragranceAccordScoreService extends TableService<FragranceAccordSco
     super(sources, 'fragranceAccordScores')
   }
 
-  findAccords <C>(
+  findAccords (
+    where?: ExpressionOrFactory<DB, 'fragranceAccordScores' | 'accords', SqlBool>
+  ) {
+    let query = this
+      .Table
+      .baseQuery
+      .innerJoin('accords', 'accords.id', 'fragranceAccordScores.accordId')
+      .selectAll('accords')
+      .where('accords.deletedAt', 'is', null)
+
+    if (where != null) {
+      query = query.where(where)
+    }
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  findCombinedAccords <C>(
     where?: ExpressionOrFactory<DB, 'fragranceAccordScores', SqlBool>,
     pagination?: CursorPaginationInput<C>
   ): ResultAsync<CombinedFragranceAccordScoreRow[], BackendError> {
@@ -35,7 +56,7 @@ export class FragranceAccordScoreService extends TableService<FragranceAccordSco
     }
 
     if (pagination != null) {
-      query = this.paginatedAccordsQuery(pagination, query)
+      query = this.paginatedCombinedAccordsQuery(pagination, query)
     }
 
     return ResultAsync
@@ -45,7 +66,7 @@ export class FragranceAccordScoreService extends TableService<FragranceAccordSco
       )
   }
 
-  private paginatedAccordsQuery<C, R>(
+  private paginatedCombinedAccordsQuery<C, R>(
     input: CursorPaginationInput<C>,
     qb: SelectQueryBuilder<DB, 'fragranceAccordScores' | 'accords', R>
   ) {

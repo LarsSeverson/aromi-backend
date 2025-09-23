@@ -40,7 +40,7 @@ export class BrandPromoter extends BasePromoter<PromotionJobPayload[JobKey], Bra
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.INDEX_BRAND,
         data: { brandId }

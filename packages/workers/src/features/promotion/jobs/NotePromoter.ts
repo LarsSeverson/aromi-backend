@@ -41,7 +41,7 @@ export class NotePromoter extends BasePromoter<PromotionJobPayload[JobKey], Note
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.INDEX_NOTE,
         data: { noteId }

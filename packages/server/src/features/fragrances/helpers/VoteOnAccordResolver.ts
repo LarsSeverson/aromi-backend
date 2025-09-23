@@ -1,4 +1,4 @@
-import { unwrapOrThrow, INDEXATION_JOB_NAMES, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
+import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { GenericVoteOnEntityInputSchema } from '@src/utils/validation.js'
@@ -13,24 +13,9 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
     const accord = await unwrapOrThrow(this.getAccord())
 
     await unwrapOrThrow(this.upsertVote())
-    await this.enqueueIndex()
     await this.enqueueAggregation()
 
     return accord
-  }
-
-  private enqueueIndex () {
-    const { context, args } = this
-    const { queues } = context
-
-    const { fragranceId } = args.input
-
-    return queues
-      .indexations
-      .enqueue({
-        jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
-        data: { fragranceId }
-      })
   }
 
   private enqueueAggregation () {

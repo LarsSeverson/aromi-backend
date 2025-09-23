@@ -131,7 +131,7 @@ export class BrandLoaders extends BaseLoader<BrandLoadersKey> {
         const rowsMap = new Map<string, BrandImageRow>()
 
         rows.forEach(row => {
-          if (!rowsMap.has(row.id)) rowsMap.set(row.id, row)
+          if (!rowsMap.has(row.brandId)) rowsMap.set(row.brandId, row)
         })
 
         return keys.map(id => rowsMap.get(id) ?? null)

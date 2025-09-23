@@ -44,7 +44,7 @@ export class FragranceAccordsResolver extends RequestResolver<Query> {
     return fragrances
       .accords
       .scores
-      .findAccords(
+      .findCombinedAccords(
         eb => eb('fragranceId', '=', id),
         pagination
       )

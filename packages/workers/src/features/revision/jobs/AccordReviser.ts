@@ -14,7 +14,7 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
     const { editId } = job.data
 
     const { accord, newValues } = await this.withTransactionAsync(
-      async reviser => await reviser.handleRevise(editId)
+      async reviser => await reviser.reviseAccord(editId)
     )
 
     const indexValues = { id: accord.id, ...newValues }
@@ -23,7 +23,7 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
     return accord
   }
 
-  private async handleRevise (editId: string) {
+  private async reviseAccord (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { accord, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
 
@@ -35,7 +35,7 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.UPDATE_ACCORD,
         data

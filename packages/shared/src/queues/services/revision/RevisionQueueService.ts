@@ -11,6 +11,6 @@ export class RevisionQueueService extends MQueueService<RevisionJobName, Revisio
     jobName: K,
     data: RevisionJobPayload[K]
   ): string {
-    return `${jobName}:${data.editId}`
+    return `${jobName}-${data.editId}`
   }
 }

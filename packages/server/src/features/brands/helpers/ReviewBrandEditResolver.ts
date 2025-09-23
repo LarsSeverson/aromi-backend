@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { type BackendError, type BrandEditRow, EditStatus, EditType, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
-import { okAsync, ResultAsync } from 'neverthrow'
+import { type BackendError, type BrandEditRow, EditStatus, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewBrandEdit']
 
@@ -18,19 +18,12 @@ export class ReviewBrandEditResolver extends MutationResolver<Mutation> {
     unwrapOrThrowSync(this.checkAdminAuthorized())
 
     const brandEditRow = await unwrapOrThrow(this.updateRow())
-    await unwrapOrThrow(this.handleQueueJob(brandEditRow))
 
-    return brandEditRow
-  }
-
-  private handleQueueJob (editRow: BrandEditRow) {
-    if (editRow.status !== EditStatus.APPROVED) {
-      return okAsync(undefined)
+    if (brandEditRow.status === EditStatus.APPROVED) {
+      await this.enqueueRevision(brandEditRow)
     }
 
-    return this
-      .createJob(editRow)
-      .andThen(() => this.enqueueJob(editRow))
+    return brandEditRow
   }
 
   private updateRow () {
@@ -58,19 +51,7 @@ export class ReviewBrandEditResolver extends MutationResolver<Mutation> {
       )
   }
 
-  private createJob (editRow: BrandEditRow) {
-    const { context } = this
-    const { services } = context
-
-    const { brands } = services
-
-    return brands
-      .edits
-      .jobs
-      .createOne({ editId: editRow.id, editType: EditType.BRAND })
-  }
-
-  private enqueueJob (editRow: BrandEditRow) {
+  private enqueueRevision (editRow: BrandEditRow) {
     const { context } = this
     const { queues } = context
 

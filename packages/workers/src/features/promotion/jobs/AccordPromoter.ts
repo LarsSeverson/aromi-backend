@@ -40,7 +40,7 @@ export class AccordPromoter extends BasePromoter<PromotionJobPayload[JobKey], Ac
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.INDEX_ACCORD,
         data: { accordId }

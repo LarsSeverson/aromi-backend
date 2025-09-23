@@ -14,7 +14,7 @@ export class FragranceReviser extends BaseReviser<RevisionJobPayload[JobKey], Fr
     const { editId } = job.data
 
     const { fragrance, newValues } = await this.withTransactionAsync(
-      async reviser => await reviser.handleRevise(editId)
+      async reviser => await reviser.reviseFragrance(editId)
     )
 
     const indexValues = { id: fragrance.id, ...newValues }
@@ -23,7 +23,7 @@ export class FragranceReviser extends BaseReviser<RevisionJobPayload[JobKey], Fr
     return fragrance
   }
 
-  private async handleRevise (editId: string) {
+  private async reviseFragrance (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { fragrance, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
     await unwrapOrThrow(this.copyImage(editRow))
@@ -36,7 +36,7 @@ export class FragranceReviser extends BaseReviser<RevisionJobPayload[JobKey], Fr
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.UPDATE_FRAGRANCE,
         data

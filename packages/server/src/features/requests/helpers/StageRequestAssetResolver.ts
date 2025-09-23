@@ -80,7 +80,10 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
       .trxService!
       .updateOne(
         eb => eb('id', '=', entityId),
-        values
+        eb => ({
+          ...values,
+          version: eb('version', '+', 1)
+        })
       )
       .andThen(request => this.authorizeEdit(request))
   }
@@ -90,12 +93,11 @@ export abstract class StageRequestAssetResolver<TR, R extends SomeRequestRow> ex
     const { services } = this.context
     const { assets } = services
 
-    const { entityId, fileName } = input
+    const { fileName } = input
     const { contentType, contentSize } = parseOrThrow(this.schema, input)
     const { key } = genImageKey(this.entity, fileName)
 
     const values = {
-      requestId: entityId,
       name: fileName,
       contentType,
       sizeBytes: String(contentSize),

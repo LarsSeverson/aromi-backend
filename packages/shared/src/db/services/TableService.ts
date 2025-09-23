@@ -124,6 +124,10 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
     where: ExpressionOrFactory<DB, T, SqlBool>,
     values: UpdateObject<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObject<DB, T>)
   ): ResultAsync<R, BackendError> {
+    if (typeof values === 'object' && Object.values(values).length === 0) {
+      return this.findOne(where)
+    }
+
     return ResultAsync
       .fromPromise(
         this

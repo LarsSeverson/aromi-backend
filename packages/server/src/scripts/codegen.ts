@@ -14,6 +14,8 @@ const config: CodegenConfig = {
           JSON: 'Record<string, any>'
         },
         mappers: {
+          Asset: '../features/assets/types.js#IAssetResult',
+
           User: '../features/users/types.js#IUserSummary',
 
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',

@@ -3,10 +3,10 @@ import { IndexationQueueService } from '@aromi/shared'
 
 export class JobQueues {
   promotions: PromotionQueueService
-  indexation: IndexationQueueService
+  indexations: IndexationQueueService
 
   constructor (sources: DataSources) {
     this.promotions = new PromotionQueueService(sources)
-    this.indexation = new IndexationQueueService(sources)
+    this.indexations = new IndexationQueueService(sources)
   }
 }

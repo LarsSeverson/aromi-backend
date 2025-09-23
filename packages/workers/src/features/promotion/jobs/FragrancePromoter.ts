@@ -50,7 +50,7 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     const { queues } = context
 
     return queues
-      .indexation
+      .indexations
       .enqueue({
         jobName: INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
         data: { fragranceId }
