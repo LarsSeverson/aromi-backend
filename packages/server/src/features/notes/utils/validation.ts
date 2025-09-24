@@ -29,7 +29,8 @@ export const CreateNoteRequestSchema = z
 export const UpdateNoteRequestSchema = z
   .object({
     name: ValidNoteName.nullish(),
-    description: ValidNoteDescription.nullish()
+    description: ValidNoteDescription.nullish(),
+    assetId: z.uuid('Asset ID must be a valid UUID').nullish()
   })
   .strip()
 

@@ -5,7 +5,6 @@ import { CreateAccordRequestResolver } from '../helpers/CreateAccordRequestResol
 import { UpdateAccordRequestResolver } from '../helpers/UpdateAccordRequestResolver.js'
 import { DeleteAccordRequestResolver } from '../helpers/DeleteAccordRequestResolver.js'
 import { SubmitAccordRequestResolver } from '../helpers/SubmitAccordRequestResolver.js'
-import { StageAccordRequestThumbnailResolver } from '../helpers/StageAccordRequestThumbnailResolver.js'
 import { VoteOnAccordRequestResolver } from '../helpers/VoteOnAccordRequestResolver.js'
 
 export class AccordRequestMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -49,16 +48,6 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
     return await unwrapOrThrow(resolver.resolve())
   }
 
-  stageAccordRequestThumbnail: MutationResolvers['stageAccordRequestThumbnail'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const resolver = new StageAccordRequestThumbnailResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
-  }
-
   voteOnAccordRequest: MutationResolvers['voteOnAccordRequest'] = async (
     parent,
     args,
@@ -75,7 +64,6 @@ export class AccordRequestMutationResolvers extends BaseResolver<MutationResolve
       updateAccordRequest: this.updateAccordRequest,
       deleteAccordRequest: this.deleteAccordRequest,
       submitAccordRequest: this.submitAccordRequest,
-      stageAccordRequestThumbnail: this.stageAccordRequestThumbnail,
       voteOnAccordRequest: this.voteOnAccordRequest
     }
   }

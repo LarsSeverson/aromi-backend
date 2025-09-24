@@ -5,7 +5,6 @@ type FragranceRequestTrait {
 
 input SetFragranceRequestTraitInput {
   requestId: ID!
-  version: Int!
   score: Int!
   traitType: TraitTypeEnum!
 }

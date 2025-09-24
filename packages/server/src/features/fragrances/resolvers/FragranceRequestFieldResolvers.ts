@@ -1,6 +1,6 @@
 import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { mapCombinedTraitRowToRequestTrait } from '../utils/mappers.js'
+import { mapCombinedTraitRowToRequestTrait, mapDBNoteLayerToGQLNoteLayer } from '../utils/mappers.js'
 import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
 import type { FragranceRequestResolvers } from '@src/graphql/gql-types.js'
@@ -148,7 +148,16 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
         )
     )
 
-    return notes
+    return notes.map(note => ({
+      id: note.id,
+      note: {
+        id: note.id,
+        name: note.name,
+        description: note.description,
+        thumbnailImageId: note.thumbnailImageId
+      },
+      layer: mapDBNoteLayerToGQLNoteLayer(note.layer)
+    }))
   }
 
   votes: FragranceRequestResolvers['votes'] = async (

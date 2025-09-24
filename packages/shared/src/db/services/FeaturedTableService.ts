@@ -1,4 +1,4 @@
-import type { ExpressionOrFactory, ReferenceExpression, SqlBool } from 'kysely'
+import type { ExpressionOrFactory, ReferenceExpression, SqlBool, UpdateObject, ExpressionBuilder } from 'kysely'
 import type { CursorPaginationInput, QueryOptions, ServicableTablesMatching } from '../types.js'
 import { TableService } from './TableService.js'
 import type { DB } from '../db-schema.js'
@@ -63,6 +63,21 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
     return ResultAsync
       .fromPromise(
         query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
+  }
+
+  override updateOne (
+    where: ExpressionOrFactory<DB, T, SqlBool>,
+    values: UpdateObject<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObject<DB, T>)
+  ): ResultAsync<R, BackendError> {
+    const query = this
+      .Table
+      .update(this.Table.filterDeleted(where), values)
+
+    return ResultAsync
+      .fromPromise(
+        query.executeTakeFirstOrThrow(),
         error => BackendError.fromDatabase(error)
       )
   }

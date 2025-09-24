@@ -31,3 +31,10 @@ export const ValidNote = z
     description: ValidNoteDescription.nullish()
   })
   .strip()
+
+export const ValidNoteThumbnail = z
+  .object({
+    contentType: ValidNoteThumbnailType,
+    contentSize: ValidNoteThumbnailSize
+  })
+  .strip()

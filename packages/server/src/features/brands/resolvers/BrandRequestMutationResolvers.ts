@@ -5,7 +5,6 @@ import { CreateBrandRequestResolver } from '../helpers/CreateBrandRequestResolve
 import { UpdateBrandRequestResolver } from '../helpers/UpdateBrandRequestResolver.js'
 import { DeleteBrandRequestResolver } from '../helpers/DeleteBrandRequestResolver.js'
 import { SubmitBrandRequestResolver } from '../helpers/SubmitBrandRequestResolver.js'
-import { StageBrandRequestAvatarResolver } from '../helpers/StageBrandRequestAvatarResolver.js'
 import { VoteOnBrandRequestResolver } from '../helpers/VoteOnBrandRequestRequest.js'
 
 export class BrandRequestMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -49,16 +48,6 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
     return await unwrapOrThrow(resolver.resolve())
   }
 
-  stageBrandRequestAvatar: MutationResolvers['stageBrandRequestAvatar'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const resolver = new StageBrandRequestAvatarResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
-  }
-
   voteOnBrandRequest: MutationResolvers['voteOnBrandRequest'] = async (
     parent,
     args,
@@ -75,7 +64,6 @@ export class BrandRequestMutationResolvers extends BaseResolver<MutationResolver
       updateBrandRequest: this.updateBrandRequest,
       deleteBrandRequest: this.deleteBrandRequest,
       submitBrandRequest: this.submitBrandRequest,
-      stageBrandRequestAvatar: this.stageBrandRequestAvatar,
       voteOnBrandRequest: this.voteOnBrandRequest
     }
   }

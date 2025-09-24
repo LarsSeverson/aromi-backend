@@ -1,4 +1,4 @@
-import { type BackendError, JobStatus, unwrapOrThrow, unwrapOrThrowSync, type DataSources, type EditType, type RevisionJobData } from '@aromi/shared'
+import { BackendError, JobStatus, unwrapOrThrow, unwrapOrThrowSync, type DataSources, type EditType, type RevisionJobData } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
@@ -32,6 +32,14 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
     const { editId } = job.data
 
     const jobRow = await unwrapOrThrow(this.startJob(editId))
+
+    if (jobRow.status === JobStatus.SUCCESS) {
+      throw new BackendError(
+        'JOB_ALREADY_COMPLETED',
+        `Job for edit ${editId} has already been completed succesfully`,
+        400
+      )
+    }
 
     const result = await ResultAsync.fromPromise(
       this.revise(job),
@@ -70,11 +78,19 @@ export abstract class BaseReviser<I extends RevisionJobData, O> extends JobHandl
     const { services } = this.context
     const { editJobs } = services
 
-    return editJobs.createOne({
-      editId,
-      editType: this.type,
-      status: JobStatus.PROCESSING
-    })
+    return editJobs.findOrCreate(
+      eb =>
+        eb.and([
+          eb('editId', '=', editId),
+          eb('editType', '=', this.type),
+          eb('status', '=', JobStatus.SUCCESS)
+        ]),
+      {
+        editId,
+        editType: this.type,
+        status: JobStatus.PROCESSING
+      }
+    )
   }
 
   private endJob (

@@ -25,8 +25,8 @@ export const StageFragranceEditThumbnailSchema = z
 export const CreateFragranceRequestSchema = z
   .object({
     name: ValidFragranceName.nullish(),
-    description: ValidFragranceDescription,
-    releaseYear: ValidFragranceReleaseYear
+    description: ValidFragranceDescription.nullish(),
+    releaseYear: ValidFragranceReleaseYear.nullish()
   })
   .strip()
 
@@ -34,7 +34,8 @@ export const UpdateFragranceRequestSchema = z
   .object({
     name: ValidFragranceName.nullish(),
     description: ValidFragranceDescription.nullish(),
-    releaseYear: ValidFragranceReleaseYear.nullish()
+    releaseYear: ValidFragranceReleaseYear.nullish(),
+    assetId: z.uuid('Asset ID must be a valid UUID').nullish()
   })
   .strip()
 

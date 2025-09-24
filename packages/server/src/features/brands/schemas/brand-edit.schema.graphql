@@ -63,6 +63,4 @@ extend type Query {
 extend type Mutation {
   createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
   reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
-
-  stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
 }

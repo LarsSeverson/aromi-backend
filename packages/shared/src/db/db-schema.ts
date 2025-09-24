@@ -226,6 +226,7 @@ export interface BrandRequestVote {
 }
 
 export interface Brand {
+  avatarId: string | null;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   description: string | null;
@@ -440,21 +441,17 @@ export interface Fragrance {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   description: string | null;
-  dislikesCount: Generated<number>;
   id: Generated<string>;
-  likesCount: Generated<number>;
   name: string;
-  rating: number | null;
   releaseYear: number | null;
-  reviewsCount: Generated<number>;
   status: Generated<FragranceStatus>;
   updatedAt: Generated<Timestamp>;
-  voteScore: Generated<number>;
 }
 
 export interface FragranceScore {
   downvotes: Generated<number>;
   fragranceId: string;
+  rating: number | null;
   score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
@@ -511,6 +508,7 @@ export interface NoteRequest {
   assetId: string | null;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
+  description: string | null;
   id: Generated<string>;
   name: string | null;
   requestStatus: Generated<RequestStatus>;

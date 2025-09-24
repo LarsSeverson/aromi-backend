@@ -69,6 +69,4 @@ extend type Query {
 extend type Mutation {
   createFragranceEdit(input: CreateFragranceEditInput!): FragranceEdit!
   reviewFragranceEdit(input: ReviewFragranceEditInput!): FragranceEdit!
-
-  stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
 }

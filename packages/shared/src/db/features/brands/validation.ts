@@ -35,3 +35,10 @@ export const ValidBrand = z
     website: ValidBrandWebsite.nullish()
   })
   .strip()
+
+export const ValidBrandAvatar = z
+  .object({
+    contentType: ValidBrandAvatarType,
+    contentSize: ValidBrandAvatarSize
+  })
+  .strip()

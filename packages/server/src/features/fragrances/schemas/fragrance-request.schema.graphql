@@ -17,7 +17,7 @@ type FragranceRequest {
 
   accords: [Accord!]!
 
-  notes(layer: NoteLayer!): [Note!]!
+  notes(layer: NoteLayer!): [FragranceRequestNote!]!
 
   votes: VoteInfo!
 
@@ -44,6 +44,7 @@ input CreateFragranceRequestInput {
 
 input UpdateFragranceRequestInput {
   id: ID!
+  assetId: ID
   name: String
   description: String
   releaseYear: Int
@@ -69,5 +70,4 @@ extend type Mutation {
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
   submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
-  stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
 }

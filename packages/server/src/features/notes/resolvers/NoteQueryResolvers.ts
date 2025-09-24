@@ -1,6 +1,6 @@
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { throwError } from '@aromi/shared'
+import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { NoteEditQueryResolvers } from './NoteEditQueryResolvers.js'
@@ -12,6 +12,25 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
 
   private readonly pagination = new NotePaginationFactory()
   private readonly searchPagination = new SearchPaginationFactory()
+
+  note: QueryResolvers['note'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = args
+    const { services } = context
+
+    const { notes } = services
+
+    const note = await unwrapOrThrow(
+      notes
+        .findOne(eb => eb('id', '=', id))
+    )
+
+    return note
+  }
 
   notes: QueryResolvers['notes'] = async (
     _,
@@ -65,6 +84,7 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
 
   getResolvers (): QueryResolvers {
     return {
+      note: this.note,
       notes: this.notes,
       searchNotes: this.searchNotes,
       ...this.edits.getResolvers(),

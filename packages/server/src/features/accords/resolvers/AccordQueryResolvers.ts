@@ -1,6 +1,6 @@
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { throwError } from '@aromi/shared'
+import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { AccordPaginationFactory } from '../factories/AccordPaginationFactory.js'
 import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { AccordEditQueryResolvers } from './AccordEditQueryResolvers.js'
@@ -12,6 +12,24 @@ export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
 
   private readonly pagination = new AccordPaginationFactory()
   private readonly searchPagination = new SearchPaginationFactory()
+
+  accord: QueryResolvers['accord'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = args
+    const { services } = context
+    const { accords } = services
+
+    const accord = await unwrapOrThrow(
+      accords
+        .findOne(eb => eb('id', '=', id))
+    )
+
+    return accord
+  }
 
   accords: QueryResolvers['accords'] = async (
     _,
@@ -65,6 +83,7 @@ export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
 
   getResolvers (): QueryResolvers {
     return {
+      accord: this.accord,
       accords: this.accords,
       searchAccords: this.searchAccords,
       ...this.edits.getResolvers(),

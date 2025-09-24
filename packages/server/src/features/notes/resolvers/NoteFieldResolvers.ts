@@ -9,8 +9,14 @@ export class NoteFieldResolvers extends BaseResolver<NoteResolvers> {
     context,
     info
   ) => {
-    const { id } = note
+    const { id, thumbnailImageId } = note
     const { loaders } = context
+
+    if (thumbnailImageId != null) {
+      return await unwrapOrThrow(
+        loaders.notes.images.load(thumbnailImageId)
+      )
+    }
 
     const thumbnail = await unwrapOrThrow(
       loaders.notes.loadThumbnail(id)

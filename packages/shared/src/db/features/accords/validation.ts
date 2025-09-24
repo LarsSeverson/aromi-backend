@@ -39,3 +39,10 @@ export const ValidAccord = z
     description: ValidAccordDescription.nullish()
   })
   .strip()
+
+export const ValidAccordThumbnail = z
+  .object({
+    contentType: ValidAccordThumbnailType,
+    contentSize: ValidAccordThumbnailSize
+  })
+  .strip()

@@ -39,6 +39,7 @@ export interface CombinedFragranceNoteScoreRow extends FragranceNoteScoreRow {
   noteId: string
   noteName: string
   noteDescription: string | null
+  noteThumbnailImageId: string | null
 }
 
 export type FragranceRequestRow = Selectable<DB['fragranceRequests']>

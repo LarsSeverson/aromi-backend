@@ -1,6 +1,11 @@
+type FragranceRequestNote {
+  id: ID!
+  note: Note!
+  layer: NoteLayer!
+}
+
 input SetFragranceRequestNotesInput {
   requestId: ID!
-  version: Int!
   layer: NoteLayer!
   noteIds: [ID!]!
 }

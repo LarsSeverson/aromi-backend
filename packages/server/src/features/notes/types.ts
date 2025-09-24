@@ -1,6 +1,8 @@
 import type { Note, NoteEdit, NoteRequest } from '@src/graphql/gql-types.js'
 
-export interface INoteSummary extends Omit<Note, 'thumbnail'> {}
+export interface INoteSummary extends Omit<Note, 'thumbnail'> {
+  thumbnailImageId: string | null
+}
 
 export interface INoteEditSummary extends Omit<NoteEdit, 'note' | 'user' | 'reviewedBy'> {
   noteId: string
@@ -15,4 +17,5 @@ export interface INoteRequestSummary extends Omit<NoteRequest, 'image' | 'user' 
 }
 
 export type NoteLoadersKey = string
+export type NoteImageLoadersKey = string
 export type NoteRequestLoadersKey = string

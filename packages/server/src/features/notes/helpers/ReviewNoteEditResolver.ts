@@ -1,7 +1,7 @@
-import { type BackendError, EditStatus, EditType, type NoteEditRow, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { BackendError, EditStatus, type NoteEditRow, REVISION_JOB_NAMES, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { okAsync, ResultAsync } from 'neverthrow'
+import { ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['reviewNoteEdit']
 
@@ -17,10 +17,29 @@ export class ReviewNoteEditResolver extends MutationResolver<Mutation> {
   private async handleReviewNoteEdit () {
     unwrapOrThrowSync(this.checkAdminAuthorized())
 
-    const noteEditRow = await unwrapOrThrow(this.updateRow())
-    await unwrapOrThrow(this.handleQueueJob(noteEditRow))
+    const edit = await unwrapOrThrow(this.getEdit())
+    this.checkCanEdit(edit)
 
-    return noteEditRow
+    const updated = await unwrapOrThrow(this.updateRow())
+
+    if (updated.status === EditStatus.APPROVED) {
+      await this.enqueueRevision(updated)
+    }
+
+    return updated
+  }
+
+  private getEdit () {
+    const { args, context } = this
+    const { services } = context
+    const { notes } = services
+    const { editId } = args.input
+
+    return notes
+      .edits
+      .findOne(
+        eb => eb('id', '=', editId)
+      )
   }
 
   private updateRow () {
@@ -48,29 +67,7 @@ export class ReviewNoteEditResolver extends MutationResolver<Mutation> {
       )
   }
 
-  private handleQueueJob (editRow: NoteEditRow) {
-    if (editRow.status !== EditStatus.APPROVED) {
-      return okAsync(undefined)
-    }
-
-    return this
-      .createJob(editRow)
-      .andThen(() => this.enqueueJob(editRow))
-  }
-
-  private createJob (editRow: NoteEditRow) {
-    const { context } = this
-    const { services } = context
-
-    const { notes } = services
-
-    return notes
-      .edits
-      .jobs
-      .createOne({ editId: editRow.id, editType: EditType.NOTE })
-  }
-
-  private enqueueJob (editRow: NoteEditRow) {
+  private enqueueRevision (editRow: NoteEditRow) {
     const { context } = this
     const { queues } = context
 
@@ -81,5 +78,15 @@ export class ReviewNoteEditResolver extends MutationResolver<Mutation> {
         jobName: REVISION_JOB_NAMES.REVISE_NOTE,
         data: { editId: editRow.id }
       })
+  }
+
+  private checkCanEdit (editRow: NoteEditRow) {
+    if (editRow.status !== EditStatus.PENDING) {
+      throw new BackendError(
+        'CANNOT_REVIEW_EDIT',
+        'Only pending edits can be reviewed',
+        400
+      )
+    }
   }
 }

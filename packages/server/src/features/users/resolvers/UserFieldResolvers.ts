@@ -1,4 +1,4 @@
-import { RequestStatus, unwrapOrThrow } from '@aromi/shared'
+import { INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
@@ -34,7 +34,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
                 eb.and([
                   eb('requestStatus', '=', RequestStatus.DRAFT),
-                  eb('userId', '=', me?.id ?? '')
+                  eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
             ]),
@@ -72,7 +72,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
                 eb.and([
                   eb('requestStatus', '=', RequestStatus.DRAFT),
-                  eb('userId', '=', me?.id ?? '')
+                  eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
             ]),
@@ -110,7 +110,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
                 eb.and([
                   eb('requestStatus', '=', RequestStatus.DRAFT),
-                  eb('userId', '=', me?.id ?? '')
+                  eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
             ]),
@@ -148,7 +148,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
                 eb.and([
                   eb('requestStatus', '=', RequestStatus.DRAFT),
-                  eb('userId', '=', me?.id ?? '')
+                  eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
             ]),

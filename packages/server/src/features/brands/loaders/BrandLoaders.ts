@@ -3,8 +3,17 @@ import type { BrandLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
 import { BackendError, type BrandImageRow, unwrapOrThrow, type BrandRow, type BrandScoreRow, type BrandVoteRow } from '@aromi/shared'
 import { okAsync, ResultAsync } from 'neverthrow'
+import { BrandImageLoaders } from './BrandImageLoaders.js'
+import type { ServerServices } from '@src/services/ServerServices.js'
 
 export class BrandLoaders extends BaseLoader<BrandLoadersKey> {
+  images: BrandImageLoaders
+
+  constructor (services: ServerServices) {
+    super(services)
+    this.images = new BrandImageLoaders(services)
+  }
+
   load (id: BrandLoadersKey) {
     return ResultAsync
       .fromPromise(

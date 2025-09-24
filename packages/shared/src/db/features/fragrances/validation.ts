@@ -57,3 +57,10 @@ export const ValidFragrance = z
       .nonoptional('Fragrance release year is required')
   })
   .strip()
+
+export const ValidFragranceImage = z
+  .object({
+    contentType: ValidFragranceImageType,
+    contentSize: ValidFragranceImageSize
+  })
+  .strip()

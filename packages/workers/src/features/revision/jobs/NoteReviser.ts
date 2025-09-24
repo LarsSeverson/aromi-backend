@@ -1,4 +1,4 @@
-import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, INDEXATION_JOB_NAMES, type NoteEditRow, type NoteIndex, type NoteRow, type PartialWithId, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
+import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, INDEXATION_JOB_NAMES, type NoteEditRow, type NoteImageRow, type NoteIndex, type NoteRow, type PartialWithId, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -18,7 +18,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
     )
 
     const indexValues = { id: note.id, ...newValues }
-    await this.queueIndex(indexValues)
+    await this.enqueueIndex(indexValues)
 
     return note
   }
@@ -26,12 +26,17 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
   private async reviseNote (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { note, newValues }= await unwrapOrThrow(this.applyEdit(editRow))
-    await unwrapOrThrow(this.copyThumbnail(editRow))
+    const thumbnail = await unwrapOrThrow(this.copyThumbnail(editRow))
+
+    if (thumbnail != null) {
+      await unwrapOrThrow(this.linkThumbnail(note, thumbnail))
+      newValues.thumbnailImageId = thumbnail.id
+    }
 
     return { note, newValues }
   }
 
-  private queueIndex (data: PartialWithId<NoteIndex>) {
+  private enqueueIndex (data: PartialWithId<NoteIndex>) {
     const { context } = this
     const { queues } = context
 
@@ -83,6 +88,24 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
       .images
       .createOne(
         { noteId, s3Key, name, contentType, sizeBytes }
+      )
+  }
+
+  private linkThumbnail (
+    note: NoteRow,
+    asset: NoteImageRow
+  ) {
+    const { context } = this
+    const { services } = context
+    const { notes } = services
+
+    const { id: noteId } = note
+    const { id } = asset
+
+    return notes
+      .updateOne(
+        eb => eb('id', '=', noteId),
+        { thumbnailImageId: id }
       )
   }
 

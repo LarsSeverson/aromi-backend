@@ -29,6 +29,7 @@ input CreateAccordRequestInput {
 
 input UpdateAccordRequestInput {
   id: ID!
+  assetId: ID
   name: String
   description: String
   color: String
@@ -52,5 +53,4 @@ extend type Mutation {
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
-  stageAccordRequestThumbnail(input: StageAssetInput!): PresignedUpload!
 }

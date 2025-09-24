@@ -25,7 +25,8 @@ export const UpdateAccordRequestSchema = z
   .object({
     name: ValidAccordName.nullish(),
     description: ValidAccordDescription.nullish(),
-    color: ValidAccordColor.nullish()
+    color: ValidAccordColor.nullish(),
+    assetId: z.uuid('Asset ID must be a valid UUID').nullish()
   })
   .strip()
 

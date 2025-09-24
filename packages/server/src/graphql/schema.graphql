@@ -97,6 +97,13 @@ type Asset {
   url: String
 }
 
+enum AssetKey {
+  ACCORD_IMAGES
+  BRAND_IMAGES
+  FRAGRANCE_IMAGES
+  NOTE_IMAGES
+}
+
 type AuthCodeDeliveryDetails {
   attribute: String
   destination: String
@@ -296,7 +303,6 @@ input CreateNoteEditInput {
 }
 
 input CreateNoteRequestInput {
-  color: String
   description: String
   name: String
 }
@@ -509,7 +515,7 @@ type FragranceRequest {
   id: ID!
   image: Asset
   name: String
-  notes(layer: NoteLayer!): [Note!]!
+  notes(layer: NoteLayer!): [FragranceRequestNote!]!
   releaseYear: Int
   requestStatus: RequestStatus!
   trait(type: TraitTypeEnum!): FragranceRequestTrait!
@@ -527,6 +533,12 @@ type FragranceRequestConnection {
 type FragranceRequestEdge {
   cursor: String!
   node: FragranceRequest!
+}
+
+type FragranceRequestNote {
+  id: ID!
+  layer: NoteLayer!
+  note: Note!
 }
 
 type FragranceRequestTrait {
@@ -575,11 +587,11 @@ type Mutation {
   createAccordEdit(input: CreateAccordEditInput!): AccordEdit!
   createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
-  createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
+  createBrandRequest(input: CreateBrandRequestInput): BrandRequest!
   createFragranceEdit(input: CreateFragranceEditInput!): FragranceEdit!
   createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
-  createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
+  createNoteRequest(input: CreateNoteRequestInput): NoteRequest!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
@@ -599,13 +611,7 @@ type Mutation {
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
   setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
   signUp(input: SignUpInput!): AuthDeliveryResult!
-  stageAccordRequestThumbnail(input: StageAssetInput!): PresignedUpload!
-  stageBrandEditAvatar(input: StageGenericAssetInput!): PresignedUpload!
-  stageBrandRequestAvatar(input: StageAssetInput!): PresignedUpload!
-  stageFragranceEditImage(input: StageAssetInput!): PresignedUpload!
-  stageFragranceRequestImage(input: StageAssetInput!): PresignedUpload!
-  stageNoteEditThumbnail(input: StageGenericAssetInput!): PresignedUpload!
-  stageNoteRequestThumbnail(input: StageAssetInput!): PresignedUpload!
+  stageAsset(input: StageAssetInput!): PresignedUpload!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
   submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
@@ -730,8 +736,8 @@ type PageInfo {
 }
 
 type PresignedUpload {
+  assetId: ID!
   fields: JSON!
-  id: ID!
   url: String!
 }
 
@@ -753,8 +759,9 @@ type Query {
   fragranceEdits(input: FragranceEditPaginationInput): FragranceEditConnection!
   fragranceRequest(id: ID!): FragranceRequest!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
-  fragrances(input: FragrancePaginationInput!): FragranceConnection!
+  fragrances(input: FragrancePaginationInput): FragranceConnection!
   me: User!
+  note(id: ID!): Note!
   noteEdit(id: ID!): NoteEdit!
   noteEdits(input: NoteEditPaginationInput): NoteEditConnection!
   noteRequest(id: ID!): NoteRequest!
@@ -840,27 +847,23 @@ input SearchSortInput {
 input SetFragranceRequestAccordsInput {
   accordIds: [ID!]!
   requestId: ID!
-  version: Int!
 }
 
 input SetFragranceRequestBrandInput {
   brandId: ID
   requestId: ID!
-  version: Int!
 }
 
 input SetFragranceRequestNotesInput {
   layer: NoteLayer!
   noteIds: [ID!]!
   requestId: ID!
-  version: Int!
 }
 
 input SetFragranceRequestTraitInput {
   requestId: ID!
   score: Int!
   traitType: TraitTypeEnum!
-  version: Int!
 }
 
 input SignUpInput {
@@ -876,14 +879,8 @@ enum SortDirection {
 input StageAssetInput {
   contentSize: Int!
   contentType: String!
-  entityId: ID!
   fileName: String!
-}
-
-input StageGenericAssetInput {
-  contentSize: Int!
-  contentType: String!
-  fileName: String!
+  key: AssetKey!
 }
 
 input SubmitAccordRequestInput {
@@ -933,6 +930,7 @@ type TraitVoteDistribution {
 }
 
 input UpdateAccordRequestInput {
+  assetId: ID
   color: String
   description: String
   id: ID!
@@ -940,6 +938,7 @@ input UpdateAccordRequestInput {
 }
 
 input UpdateBrandRequestInput {
+  assetId: ID
   description: String
   id: ID!
   name: String
@@ -947,6 +946,7 @@ input UpdateBrandRequestInput {
 }
 
 input UpdateFragranceRequestInput {
+  assetId: ID
   concentration: Concentration
   description: String
   id: ID!
@@ -956,7 +956,7 @@ input UpdateFragranceRequestInput {
 }
 
 input UpdateNoteRequestInput {
-  color: String
+  assetId: ID
   description: String
   id: ID!
   name: String

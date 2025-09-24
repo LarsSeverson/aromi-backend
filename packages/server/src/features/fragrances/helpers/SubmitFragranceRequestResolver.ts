@@ -23,6 +23,7 @@ export class SubmitFragranceRequestResolver extends SubmitRequestResolver<Mutati
   validateRequest (
     request: FragranceRequestRow
   ): Result<FragranceRequestRow, BackendError> {
-    return parseOrErr(ValidFragrance, request).map(() => request)
+    const values = { ...request, status: request.fragranceStatus }
+    return parseOrErr(ValidFragrance, values).map(() => request)
   }
 }

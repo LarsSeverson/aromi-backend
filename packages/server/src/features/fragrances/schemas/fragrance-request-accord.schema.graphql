@@ -1,6 +1,5 @@
 input SetFragranceRequestAccordsInput {
   requestId: ID!
-  version: Int!
   accordIds: [ID!]!
 }
 

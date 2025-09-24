@@ -13,8 +13,14 @@ export class BrandFieldResolvers extends BaseResolver<BrandResolvers> {
     context,
     info
   ) => {
-    const { id } = parent
+    const { id, avatarId } = parent
     const { loaders } = context
+
+    if (avatarId != null) {
+      return await unwrapOrThrow(
+        loaders.brands.images.load(avatarId)
+      )
+    }
 
     const image = await unwrapOrThrow(
       loaders.brands.loadAvatar(id)

@@ -61,6 +61,4 @@ extend type Query {
 extend type Mutation {
   createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
   reviewNoteEdit(input: ReviewNoteEditInput!): NoteEdit!
-
-  stageNoteEditThumbnail(input: StageGenericAssetInput!): PresignedUpload!
 }

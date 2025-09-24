@@ -126,15 +126,25 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     const accords = await unwrapOrThrow(this.getAccords(request))
     if (accords.length === 0) return []
 
-    const values = accords
-      .map(({ accordId }) => ({ fragranceId, accordId, userId }))
+    const voteValues = accords.map(({ accordId }) => ({ fragranceId, accordId, userId }))
 
-    return await unwrapOrThrow(
+    const votes = await unwrapOrThrow(
       fragrances
         .accords
         .votes
-        .create(values)
+        .create(voteValues)
     )
+
+    const scoreValues = accords.map(({ accordId }) => ({ fragranceId, accordId, upvotes: 1 }))
+
+    await unwrapOrThrow(
+      fragrances
+        .accords
+        .scores
+        .create(scoreValues)
+    )
+
+    return votes
   }
 
   private async migrateNotes (
@@ -150,16 +160,25 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     const notes = await unwrapOrThrow(this.getNotes(request))
     if (notes.length === 0) return []
 
-    const values = notes.map(
-      ({ noteId, layer }) => ({ fragranceId, userId, noteId, layer })
-    )
+    const voteValues = notes.map(({ noteId, layer }) => ({ fragranceId, userId, noteId, layer }))
 
-    return await unwrapOrThrow(
+    const votes = await unwrapOrThrow(
       fragrances
         .notes
         .votes
-        .create(values)
+        .create(voteValues)
     )
+
+    const scoreValues = notes.map(({ noteId, layer }) => ({ fragranceId, noteId, layer, upvotes: 1 }))
+
+    await unwrapOrThrow(
+      fragrances
+        .notes
+        .scores
+        .create(scoreValues)
+    )
+
+    return votes
   }
 
   private async migrateTraits (
@@ -248,7 +267,8 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
   }
 
   private validateMigration (row: FragranceRequestRow) {
-    const { data, success, error } = ValidFragrance.safeParse(row)
+    const input = { ...row, status: row.fragranceStatus }
+    const { data, success, error } = ValidFragrance.safeParse(input)
     if (!success) {
       return err(
         new BackendError(

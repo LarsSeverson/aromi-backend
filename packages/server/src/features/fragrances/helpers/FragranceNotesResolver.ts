@@ -79,7 +79,8 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
 
       noteId,
       noteName,
-      noteDescription
+      noteDescription,
+      noteThumbnailImageId
     } = row
 
     return {
@@ -88,7 +89,8 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
       note: {
         id: noteId,
         name: noteName,
-        description: noteDescription
+        description: noteDescription,
+        thumbnailImageId: noteThumbnailImageId
       },
       votes: {
         upvotes,

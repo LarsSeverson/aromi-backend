@@ -1,6 +1,5 @@
 input SetFragranceRequestBrandInput {
   requestId: ID!
-  version: Int!
   brandId: ID
 }
 

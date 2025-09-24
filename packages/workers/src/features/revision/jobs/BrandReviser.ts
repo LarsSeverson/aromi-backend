@@ -1,4 +1,4 @@
-import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow, type PartialWithId, type BrandIndex, INDEXATION_JOB_NAMES } from '@aromi/shared'
+import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow, type PartialWithId, type BrandIndex, INDEXATION_JOB_NAMES, type BrandImageRow } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -18,7 +18,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
     )
 
     const indexValues = { id: brand.id, ...newValues }
-    await this.queueIndex(indexValues)
+    await this.enqueueIndex(indexValues)
 
     return brand
   }
@@ -26,12 +26,17 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
   private async reviseBrand (editId: string) {
     const editRow = await unwrapOrThrow(this.getEditRow(editId))
     const { brand, newValues } = await unwrapOrThrow(this.applyEdit(editRow))
-    await unwrapOrThrow(this.copyAvatar(editRow))
+    const avatar = await unwrapOrThrow(this.copyAvatar(editRow))
+
+    if (avatar != null) {
+      await unwrapOrThrow(this.linkAvatar(brand, avatar))
+      newValues.avatarId = avatar.id
+    }
 
     return { brand, newValues }
   }
 
-  private queueIndex (data: PartialWithId<BrandIndex>) {
+  private enqueueIndex (data: PartialWithId<BrandIndex>) {
     const { context } = this
     const { queues } = context
 
@@ -87,6 +92,20 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
           eb('s3Key', '=', s3Key)
         ]),
         { brandId, s3Key, name, contentType, sizeBytes }
+      )
+  }
+
+  private linkAvatar (
+    brand: BrandRow,
+    avatar: BrandImageRow
+  ) {
+    const { services } = this.context
+    const { brands } = services
+
+    return brands
+      .updateOne(
+        eb => eb('id', '=', brand.id),
+        { avatarId: avatar.id }
       )
   }
 

@@ -29,6 +29,7 @@ input CreateBrandRequestInput {
 
 input UpdateBrandRequestInput {
   id: ID!
+  assetId: ID
   name: String
   description: String
   website: String
@@ -48,9 +49,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  createBrandRequest(input: CreateBrandRequestInput!): BrandRequest!
+  createBrandRequest(input: CreateBrandRequestInput): BrandRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
-  stageBrandRequestAvatar(input: StageAssetInput!): PresignedUpload!
 }

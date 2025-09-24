@@ -5,7 +5,6 @@ import { CreateNoteRequestResolver } from '../helpers/CreateNoteRequestResolver.
 import { UpdateNoteRequestResolver } from '../helpers/UpdateNoteRequestResolver.js'
 import { DeleteNoteRequestResolver } from '../helpers/DeleteNoteRequestResolver.js'
 import { SubmitNoteRequestResolver } from '../helpers/SubmitNoteRequestResolver.js'
-import { StageNoteRequestThumbnailResolver } from '../helpers/StageNoteRequestThumbnailResolver.js'
 import { VoteOnNoteRequestResolver } from '../helpers/VoteOnNoteRequestResolver.js'
 
 export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -49,16 +48,6 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
     return await unwrapOrThrow(resolver.resolve())
   }
 
-  stageNoteRequestThumbnail: MutationResolvers['stageNoteRequestThumbnail'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const resolver = new StageNoteRequestThumbnailResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
-  }
-
   voteOnNoteRequest: MutationResolvers['voteOnNoteRequest'] = async (
     parent,
     args,
@@ -75,7 +64,6 @@ export class NoteRequestMutationResolvers extends BaseResolver<MutationResolvers
       updateNoteRequest: this.updateNoteRequest,
       deleteNoteRequest: this.deleteNoteRequest,
       submitNoteRequest: this.submitNoteRequest,
-      stageNoteRequestThumbnail: this.stageNoteRequestThumbnail,
       voteOnNoteRequest: this.voteOnNoteRequest
     }
   }

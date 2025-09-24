@@ -23,14 +23,13 @@ type NoteRequestConnection {
 input CreateNoteRequestInput {
   name: String
   description: String
-  color: String
 }
 
 input UpdateNoteRequestInput {
   id: ID!
+  assetId: ID
   name: String
   description: String
-  color: String
 }
 
 input DeleteNoteRequestInput {
@@ -47,9 +46,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  createNoteRequest(input: CreateNoteRequestInput!): NoteRequest!
+  createNoteRequest(input: CreateNoteRequestInput): NoteRequest!
   updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
   submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
-  stageNoteRequestThumbnail(input: StageAssetInput!): PresignedUpload!
 }

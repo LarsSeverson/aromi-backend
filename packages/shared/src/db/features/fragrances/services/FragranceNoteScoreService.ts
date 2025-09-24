@@ -1,11 +1,11 @@
-import type { DB } from '@src/db/db-schema.js'
+import type { DB, NoteLayerEnum } from '@src/db/db-schema.js'
 import type { CombinedFragranceNoteScoreRow, FragranceNoteScoreRow } from '../types.js'
 import type { DataSources } from '@src/datasources/DataSources.js'
 import { TableService } from '@src/db/services/TableService.js'
 import type { CursorPaginationInput } from '@src/db/types.js'
 import type { SelectQueryBuilder, ReferenceExpression, ExpressionOrFactory, SqlBool } from 'kysely'
 import { ResultAsync } from 'neverthrow'
-import { BackendError } from '@src/utils/error.js'
+import { BackendError, unwrapOrThrow } from '@src/utils/error.js'
 
 export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRow> {
   constructor (sources: DataSources) {
@@ -47,7 +47,8 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
         'notes.id as id',
         'notes.id as noteId',
         'notes.name as noteName',
-        'notes.description as noteDescription'
+        'notes.description as noteDescription',
+        'notes.thumbnailImageId as noteThumbnailImageId'
       ])
       .where('notes.deletedAt', 'is', null)
 
@@ -90,5 +91,73 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
       .orderBy(parsedColumn, direction)
       .orderBy(idColumn, direction)
       .limit(first + 1)
+  }
+
+  async aggregate (
+    fragranceId: string,
+    noteId: string,
+    layer: NoteLayerEnum
+  ) {
+    await unwrapOrThrow(
+      this.findOrCreate(
+        eb => eb('fragranceId', '=', fragranceId),
+        { fragranceId, noteId, layer }
+      ))
+
+    const score = await unwrapOrThrow(
+      this.updateOne(
+        eb => eb
+          .and([
+            eb('fragranceId', '=', fragranceId),
+            eb('noteId', '=', noteId),
+            eb('layer', '=', layer)
+          ]),
+        eb => ({
+          upvotes: eb
+            .selectFrom('fragranceNoteVotes')
+            .select(eb =>
+              eb
+                .fn
+                .coalesce(
+                  eb.fn.sum<number>(
+                    eb.case()
+                      .when('vote', '=', 1)
+                      .then(1)
+                      .else(0)
+                      .end()
+                  ),
+                  eb.val(0)
+                )
+                .as('upvotes')
+            )
+            .where('fragranceNoteVotes.fragranceId', '=', fragranceId)
+            .where('fragranceNoteVotes.noteId', '=', noteId)
+            .where('fragranceNoteVotes.layer', '=', layer),
+          downvotes: eb
+            .selectFrom('fragranceNoteVotes')
+            .select(eb =>
+              eb
+                .fn
+                .coalesce(
+                  eb.fn.sum<number>(
+                    eb.case()
+                      .when('vote', '=', -1)
+                      .then(1)
+                      .else(0)
+                      .end()
+                  ),
+                  eb.val(0)
+                )
+                .as('downvotes')
+            )
+            .where('fragranceNoteVotes.fragranceId', '=', fragranceId)
+            .where('fragranceNoteVotes.noteId', '=', noteId)
+            .where('fragranceNoteVotes.layer', '=', layer),
+          updatedAt: new Date().toISOString()
+        })
+      )
+    )
+
+    return score
   }
 }

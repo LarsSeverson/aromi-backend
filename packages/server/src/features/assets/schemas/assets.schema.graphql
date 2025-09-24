@@ -1,3 +1,10 @@
+enum AssetKey {
+  FRAGRANCE_IMAGES
+  BRAND_IMAGES
+  ACCORD_IMAGES
+  NOTE_IMAGES
+}
+
 type Asset {
   id: ID!
   name: String!
@@ -8,22 +15,16 @@ type Asset {
 }
 
 type PresignedUpload {
-  id: ID!
+  assetId: ID!
   url: String!
   fields: JSON!
 }
 
 input StageAssetInput {
-  entityId: ID!
   fileName: String!
   contentType: String!
   contentSize: Int!
-}
-
-input StageGenericAssetInput {
-  fileName: String!
-  contentType: String!
-  contentSize: Int!
+  key: AssetKey!
 }
 
 input DeleteAssetInput {
@@ -31,5 +32,6 @@ input DeleteAssetInput {
 }
 
 extend type Mutation {
+  stageAsset(input: StageAssetInput!): PresignedUpload!
   deleteAsset(input: DeleteAssetInput!): Boolean!
 }

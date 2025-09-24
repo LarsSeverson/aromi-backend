@@ -32,7 +32,8 @@ export const UpdateBrandRequestSchema = z
   .object({
     name: ValidBrandName.nullish(),
     description: ValidBrandDescription.nullish(),
-    website: ValidBrandWebsite.nullish()
+    website: ValidBrandWebsite.nullish(),
+    assetId: z.uuid('Asset ID must be a valid UUID').nullish()
   })
   .strip()
 

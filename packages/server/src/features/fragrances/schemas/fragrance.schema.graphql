@@ -61,6 +61,6 @@ input FragrancePaginationInput {
 
 extend type Query {
   fragrance(id: ID!): Fragrance!
-  fragrances(input: FragrancePaginationInput!): FragranceConnection!
+  fragrances(input: FragrancePaginationInput): FragranceConnection!
   searchFragrances(input: SearchInput): [Fragrance!]!
 }

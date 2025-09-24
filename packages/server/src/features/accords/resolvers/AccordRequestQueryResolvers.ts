@@ -1,4 +1,4 @@
-import { BackendError, RequestStatus, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapAccordRequestRowToAccordRequestSummary } from '../utils/mappers.js'
@@ -59,7 +59,7 @@ export class AccordRequestQueryResolvers extends BaseResolver<QueryResolvers> {
               eb
                 .and([
                   eb('requestStatus', '=', RequestStatus.DRAFT),
-                  eb('userId', '=', me?.id ?? '')
+                  eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
             ]),
           { pagination }

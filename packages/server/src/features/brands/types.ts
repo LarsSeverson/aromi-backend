@@ -1,6 +1,8 @@
 import type { Brand, BrandEdit, BrandRequest } from '@src/graphql/gql-types.js'
 
-export interface IBrandSummary extends Omit<Brand, 'avatar' | 'fragrances' | 'votes'> {}
+export interface IBrandSummary extends Omit<Brand, 'avatar' | 'fragrances' | 'votes'> {
+  avatarId: string | null
+}
 
 export interface IBrandEditSummary extends Omit<BrandEdit, 'brand' | 'user' | 'reviewedBy' | 'propsedAvatar'> {
   brandId: string
@@ -15,4 +17,5 @@ export interface IBrandRequestSummary extends Omit<BrandRequest, 'image' | 'user
 }
 
 export type BrandLoadersKey = string
+export type BrandImageLoadersKey = string
 export type BrandRequestLoadersKey = string

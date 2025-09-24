@@ -5,7 +5,7 @@ import type { ExpressionOrFactory, SelectQueryBuilder, SqlBool, ReferenceExpress
 import type { DB } from '@src/db/db-schema.js'
 import type { CursorPaginationInput } from '@src/db/types.js'
 import { ResultAsync } from 'neverthrow'
-import { BackendError } from '@src/utils/error.js'
+import { BackendError, unwrapOrThrow } from '@src/utils/error.js'
 
 export class FragranceAccordScoreService extends TableService<FragranceAccordScoreRow> {
   constructor (sources: DataSources) {
@@ -90,5 +90,77 @@ export class FragranceAccordScoreService extends TableService<FragranceAccordSco
       .orderBy(parsedColumn, direction)
       .orderBy(idColumn, direction)
       .limit(first)
+  }
+
+  async aggregate (fragranceId: string, accordId: string) {
+    await unwrapOrThrow(
+      this.findOrCreate(
+        eb => eb.and([
+          eb('fragranceId', '=', fragranceId),
+          eb('accordId', '=', accordId)
+        ]),
+        { fragranceId, accordId }
+      )
+    )
+
+    const score = await unwrapOrThrow(
+      this.updateOne(
+        eb => eb.and([
+          eb('fragranceId', '=', fragranceId),
+          eb('accordId', '=', accordId)
+        ]),
+        eb => ({
+          upvotes: eb
+            .selectFrom('fragranceAccordVotes')
+            .select(eb =>
+              eb
+                .fn
+                .coalesce(
+                  eb.fn.sum<number>(
+                    eb.case()
+                      .when('vote', '=', 1)
+                      .then(1)
+                      .else(0)
+                      .end()
+                  ),
+                  eb.val(0)
+                )
+                .as('upvotes')
+            )
+            .where(eb =>
+              eb.and([
+                eb('fragranceAccordVotes.fragranceId', '=', fragranceId),
+                eb('fragranceAccordVotes.accordId', '=', accordId)
+              ])
+            ),
+          downvotes: eb
+            .selectFrom('fragranceAccordVotes')
+            .select(eb =>
+              eb
+                .fn
+                .coalesce(
+                  eb.fn.sum<number>(
+                    eb.case()
+                      .when('vote', '=', -1)
+                      .then(1)
+                      .else(0)
+                      .end()
+                  ),
+                  eb.val(0)
+                )
+                .as('downvotes')
+            )
+            .where(eb =>
+              eb.and([
+                eb('fragranceAccordVotes.fragranceId', '=', fragranceId),
+                eb('fragranceAccordVotes.accordId', '=', accordId)
+              ])
+            ),
+          updatedAt: new Date().toISOString()
+        })
+      )
+    )
+
+    return score
   }
 }
