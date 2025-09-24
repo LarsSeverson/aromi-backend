@@ -10,6 +10,28 @@ import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
 
+  avatar: UserResolvers['avatar'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { avatarId } = parent
+    const { services } = context
+
+    if (avatarId == null) return null
+
+    const { users } = services
+
+    const image = await unwrapOrThrow(
+      users
+        .images
+        .findOne(eb => eb('id', '=', avatarId))
+    )
+
+    return image
+  }
+
   fragranceRequests: UserResolvers['fragranceRequests'] = async (
     parent,
     args,

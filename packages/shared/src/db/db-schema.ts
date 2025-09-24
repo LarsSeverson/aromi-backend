@@ -10,13 +10,6 @@ export enum AssetStatus {
   STAGED = "staged",
 }
 
-export enum AvatarStatus {
-  FAILED = "FAILED",
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  READY = "READY",
-}
-
 export enum EditStatus {
   APPROVED = "APPROVED",
   PENDING = "PENDING",
@@ -567,12 +560,18 @@ export interface TraitType {
   name: string;
 }
 
+export interface UserImage {
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  name: string;
+  s3Key: string;
+  sizeBytes: Int8;
+  userId: string;
+}
+
 export interface User {
-  avatarError: string | null;
-  avatarS3Key: string | null;
-  avatarStatus: Generated<AvatarStatus>;
-  avatarUpdatedAt: Generated<Timestamp>;
-  avatarUrl: string | null;
+  avatarId: string | null;
   cognitoSub: string;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -628,5 +627,6 @@ export interface DB {
   requestJobs: RequestJob;
   traitOptions: TraitOption;
   traitTypes: TraitType;
+  userImages: UserImage;
   users: User;
 }

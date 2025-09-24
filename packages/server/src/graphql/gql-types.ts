@@ -141,7 +141,8 @@ export const AssetKey = {
   AccordImages: 'ACCORD_IMAGES',
   BrandImages: 'BRAND_IMAGES',
   FragranceImages: 'FRAGRANCE_IMAGES',
-  NoteImages: 'NOTE_IMAGES'
+  NoteImages: 'NOTE_IMAGES',
+  UserImages: 'USER_IMAGES'
 } as const;
 
 export type AssetKey = typeof AssetKey[keyof typeof AssetKey];
@@ -718,6 +719,7 @@ export type Mutation = {
   setFragranceRequestBrand: FragranceRequest;
   setFragranceRequestNotes: FragranceRequest;
   setFragranceRequestTrait: FragranceRequest;
+  setUserAvatar: User;
   signUp: AuthDeliveryResult;
   stageAsset: PresignedUpload;
   submitAccordRequest: AccordRequest;
@@ -729,7 +731,6 @@ export type Mutation = {
   updateFragranceRequest: FragranceRequest;
   updateNoteRequest: NoteRequest;
   updateUser: User;
-  updateUserAvatar: PresignedUpload;
   voteOnAccordRequest: AccordRequest;
   voteOnBrand: Brand;
   voteOnBrandRequest: BrandRequest;
@@ -872,6 +873,11 @@ export type MutationSetFragranceRequestTraitArgs = {
 };
 
 
+export type MutationSetUserAvatarArgs = {
+  input: SetUserAvatarInput;
+};
+
+
 export type MutationSignUpArgs = {
   input: SignUpInput;
 };
@@ -924,11 +930,6 @@ export type MutationUpdateNoteRequestArgs = {
 
 export type MutationUpdateUserArgs = {
   input: UpdateUserInput;
-};
-
-
-export type MutationUpdateUserAvatarArgs = {
-  input: StageAssetInput;
 };
 
 
@@ -1372,6 +1373,11 @@ export type SetFragranceRequestTraitInput = {
   traitType: TraitTypeEnum;
 };
 
+export type SetUserAvatarInput = {
+  assetId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
+};
+
 export type SignUpInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -1482,8 +1488,7 @@ export type UpdateUserInput = {
 export type User = {
   __typename?: 'User';
   accordRequests: AccordRequestConnection;
-  avatarSrc?: Maybe<Scalars['String']['output']>;
-  avatarStatus: AvatarStatus;
+  avatar?: Maybe<Asset>;
   brandRequests: BrandRequestConnection;
   email: Scalars['String']['output'];
   fragranceRequests: FragranceRequestConnection;
@@ -1778,6 +1783,7 @@ export type ResolversTypes = ResolversObject<{
   SetFragranceRequestBrandInput: ResolverTypeWrapper<Partial<SetFragranceRequestBrandInput>>;
   SetFragranceRequestNotesInput: ResolverTypeWrapper<Partial<SetFragranceRequestNotesInput>>;
   SetFragranceRequestTraitInput: ResolverTypeWrapper<Partial<SetFragranceRequestTraitInput>>;
+  SetUserAvatarInput: ResolverTypeWrapper<Partial<SetUserAvatarInput>>;
   SignUpInput: ResolverTypeWrapper<Partial<SignUpInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   StageAssetInput: ResolverTypeWrapper<Partial<StageAssetInput>>;
@@ -1926,6 +1932,7 @@ export type ResolversParentTypes = ResolversObject<{
   SetFragranceRequestBrandInput: Partial<SetFragranceRequestBrandInput>;
   SetFragranceRequestNotesInput: Partial<SetFragranceRequestNotesInput>;
   SetFragranceRequestTraitInput: Partial<SetFragranceRequestTraitInput>;
+  SetUserAvatarInput: Partial<SetUserAvatarInput>;
   SignUpInput: Partial<SignUpInput>;
   StageAssetInput: Partial<StageAssetInput>;
   String: Partial<Scalars['String']['output']>;
@@ -2300,6 +2307,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   setFragranceRequestBrand?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestBrandArgs, 'input'>>;
   setFragranceRequestNotes?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestNotesArgs, 'input'>>;
   setFragranceRequestTrait?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestTraitArgs, 'input'>>;
+  setUserAvatar?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserAvatarArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   stageAsset?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageAssetArgs, 'input'>>;
   submitAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationSubmitAccordRequestArgs, 'input'>>;
@@ -2311,7 +2319,6 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   updateFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationUpdateFragranceRequestArgs, 'input'>>;
   updateNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationUpdateNoteRequestArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
-  updateUserAvatar?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationUpdateUserAvatarArgs, 'input'>>;
   voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;
   voteOnBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationVoteOnBrandArgs, 'input'>>;
   voteOnBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationVoteOnBrandRequestArgs, 'input'>>;
@@ -2451,8 +2458,7 @@ export type TraitVoteDistributionResolvers<ContextType = ServerContext, ParentTy
 
 export type UserResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   accordRequests?: Resolver<ResolversTypes['AccordRequestConnection'], ParentType, ContextType, Partial<UserAccordRequestsArgs>>;
-  avatarSrc?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  avatarStatus?: Resolver<ResolversTypes['AvatarStatus'], ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType>;
   brandRequests?: Resolver<ResolversTypes['BrandRequestConnection'], ParentType, ContextType, Partial<UserBrandRequestsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<UserFragranceRequestsArgs>>;

@@ -102,6 +102,7 @@ enum AssetKey {
   BRAND_IMAGES
   FRAGRANCE_IMAGES
   NOTE_IMAGES
+  USER_IMAGES
 }
 
 type AuthCodeDeliveryDetails {
@@ -610,6 +611,7 @@ type Mutation {
   setFragranceRequestBrand(input: SetFragranceRequestBrandInput!): FragranceRequest!
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
   setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
+  setUserAvatar(input: SetUserAvatarInput!): User!
   signUp(input: SignUpInput!): AuthDeliveryResult!
   stageAsset(input: StageAssetInput!): PresignedUpload!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
@@ -621,7 +623,6 @@ type Mutation {
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
   updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
   updateUser(input: UpdateUserInput!): User!
-  updateUserAvatar(input: StageAssetInput!): PresignedUpload!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
   voteOnBrand(input: VoteOnBrandInput!): Brand!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
@@ -866,6 +867,11 @@ input SetFragranceRequestTraitInput {
   traitType: TraitTypeEnum!
 }
 
+input SetUserAvatarInput {
+  assetId: ID!
+  userId: ID!
+}
+
 input SignUpInput {
   email: String!
   password: String!
@@ -969,8 +975,7 @@ input UpdateUserInput {
 
 type User {
   accordRequests(input: RequestPaginationInput): AccordRequestConnection!
-  avatarSrc: String
-  avatarStatus: AvatarStatus!
+  avatar: Asset
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   email: String!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!

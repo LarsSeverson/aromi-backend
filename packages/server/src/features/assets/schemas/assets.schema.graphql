@@ -3,6 +3,7 @@ enum AssetKey {
   BRAND_IMAGES
   ACCORD_IMAGES
   NOTE_IMAGES
+  USER_IMAGES
 }
 
 type Asset {

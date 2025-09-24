@@ -22,6 +22,8 @@
     "build:shared": "yarn workspace @aromi/shared build",
     "gen:gql": "yarn workspace @aromi/server gen:gql",
     "gen:db": "yarn workspace @aromi/shared gen:db",
+    "copy:db": "yarn workspace @aromi/shared copy:db",
+    "init:db": "yarn workspace @aromi/shared init:db",
     "lint": "eslint 'packages/*/src/**/*.ts'",
     "lint:fix": "eslint 'packages/*/src/**/*.ts' --fix",
     "lint:server": "eslint 'packages/server/src/**/*.ts'",

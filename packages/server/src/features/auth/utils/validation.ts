@@ -1,17 +1,5 @@
+import { ValidUserEmail, ValidUserPassowrd } from '@aromi/shared'
 import z from 'zod'
-
-export const ValidEmail = z
-  .string()
-  .nonempty('Email is required')
-  .regex(
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    'Please enter a valid email address'
-  )
-
-export const ValidPassword = z
-  .string()
-  .nonempty('Password is required')
-  .min(8, 'Password must be at least 8 characters long')
 
 export const ValidConfirmationCode = z
   .string()
@@ -21,35 +9,35 @@ export const ValidConfirmationCode = z
 
 export const LogInSchema = z
   .object({
-    email: ValidEmail,
-    password: ValidPassword
+    email: ValidUserEmail,
+    password: ValidUserPassowrd
   })
 
 export const SignUpSchema = z
   .object({
-    email: ValidEmail,
-    password: ValidPassword
+    email: ValidUserEmail,
+    password: ValidUserPassowrd
   })
 
 export const ConfirmSignUpSchema = z
   .object({
-    email: ValidEmail,
+    email: ValidUserEmail,
     code: ValidConfirmationCode
   })
 
 export const ResendSignUpCodeSchema = z
   .object({
-    email: ValidEmail
+    email: ValidUserEmail
   })
 
 export const ForgotPasswordSchema = z
   .object({
-    email: ValidEmail
+    email: ValidUserEmail
   })
 
 export const ConfirmForgotPasswordSchema = z
   .object({
-    email: ValidEmail,
+    email: ValidUserEmail,
     code: ValidConfirmationCode,
-    password: ValidPassword
+    password: ValidUserPassowrd
   })

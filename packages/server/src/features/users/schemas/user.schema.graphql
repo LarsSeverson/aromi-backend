@@ -9,9 +9,7 @@ type User {
   id: ID!
   email: String!
   username: String!
-
-  avatarSrc: String
-  avatarStatus: AvatarStatus!
+  avatar: Asset 
 
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
@@ -24,6 +22,11 @@ input UpdateUserInput {
   username: String
 }
 
+input SetUserAvatarInput {
+  userId: ID!
+  assetId: ID!
+}
+
 extend type Query {
   me: User!
   user(id: ID!): User!
@@ -31,5 +34,5 @@ extend type Query {
 
 extend type Mutation {
   updateUser(input: UpdateUserInput!): User!
-  updateUserAvatar(input: StageAssetInput!): PresignedUpload!
+  setUserAvatar(input: SetUserAvatarInput!): User!
 }

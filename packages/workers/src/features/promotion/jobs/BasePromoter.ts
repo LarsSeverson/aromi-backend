@@ -1,4 +1,4 @@
-import { type BackendError, JobStatus, type RequestType, type DataSources, type PromotionJobData, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
+import { BackendError, JobStatus, type RequestType, type DataSources, type PromotionJobData, unwrapOrThrow, unwrapOrThrowSync } from '@aromi/shared'
 import type { JobContext } from '@src/jobs/JobContext.js'
 import { JobHandler } from '@src/jobs/JobHandler.js'
 import type { Job } from 'bullmq'
@@ -32,6 +32,14 @@ export abstract class BasePromoter<I extends PromotionJobData, O> extends JobHan
     const { requestId } = job.data
 
     const jobRow = await unwrapOrThrow(this.startJob(requestId))
+
+    if (jobRow.status === JobStatus.SUCCESS) {
+      throw new BackendError(
+        'JOB_ALREADY_COMPLETED',
+        `Job for request ${requestId} has already been completed succesfully`,
+        400
+      )
+    }
 
     const result = await ResultAsync.fromPromise(
       this.promote(job),
@@ -70,11 +78,19 @@ export abstract class BasePromoter<I extends PromotionJobData, O> extends JobHan
     const { services } = this.context
     const { requestJobs } = services
 
-    return requestJobs.createOne({
-      requestId,
-      requestType: this.type,
-      status: JobStatus.PROCESSING
-    })
+    return requestJobs.findOrCreate(
+      eb =>
+        eb.and([
+          eb('requestId', '=', requestId),
+          eb('requestType', '=', this.type),
+          eb('status', '!=', JobStatus.SUCCESS)
+        ]),
+      {
+        requestId,
+        requestType: this.type,
+        status: JobStatus.PROCESSING
+      }
+    )
   }
 
   private endJob (

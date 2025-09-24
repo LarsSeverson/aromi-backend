@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { AvatarStatus, BackendError, genAvatarUploadKey, parseOrThrow, throwError } from '@aromi/shared'
+import { BackendError, parseOrThrow, throwError, unwrapOrThrow } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateUser: MutationResolvers['updateUser'] = async (
@@ -41,45 +41,62 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       )
   }
 
-  updateUserAvatar: MutationResolvers['updateUserAvatar'] = async (
-    _,
+  setUserAvatar: MutationResolvers['setUserAvatar'] = async (
+    parent,
     args,
     context,
     info
   ) => {
     const { input } = args
-    const { contentType, contentSize } = input
-    const { me, services } = context
-    const { assets, users } = services
+    const { services } = context
+    const me = this.checkAuthenticated(context)
 
-    if (me == null) {
+    const { userId, assetId } = input
+    const { users, assets } = services
+
+    if (me.id !== userId) {
       throw new BackendError(
         'NOT_AUTHORIZED',
-        'You need to log in or sign up before updating your avatar',
+        'You are not authorized to edit this users info',
         403
       )
     }
 
-    const { id, key } = genAvatarUploadKey(me.id)
+    const asset = await unwrapOrThrow(
+      assets
+        .uploads
+        .findOne(eb => eb('id', '=', assetId))
+    )
 
-    return await users
-      .updateOne(
-        eb => eb('id', '=', me.id),
-        { avatarStatus: AvatarStatus.PENDING }
-      )
-      .andThen(() => assets
-        .getPresignedUrl({ key, contentType, maxSizeBytes: contentSize })
-      )
-      .match(
-        presigned => ({ ...presigned, id }),
-        throwError
-      )
+    const user = await unwrapOrThrow(users.withTransactionAsync(
+      async trx => {
+        const { name, s3Key, contentType, sizeBytes } = asset
+
+        const image = await unwrapOrThrow(
+          trx
+            .images
+            .createOne({ name, s3Key, contentType, sizeBytes, userId })
+        )
+
+        const updated = await unwrapOrThrow(
+          trx
+            .updateOne(
+              eb => eb('id', '=', userId),
+              { avatarId: image.id }
+            )
+        )
+
+        return updated
+      })
+    )
+
+    return mapUserRowToUserSummary(user)
   }
 
   getResolvers (): MutationResolvers {
     return {
       updateUser: this.updateUser,
-      updateUserAvatar: this.updateUserAvatar
+      setUserAvatar: this.setUserAvatar
     }
   }
 }

@@ -15,20 +15,6 @@ type AuthDeliveryResult {
   delivery: AuthCodeDeliveryDetails
 }
 
-extend type Mutation {
-  refresh: AuthTokenPayload
-
-  logIn(input: LogInInput!): AuthTokenPayload!
-  logOut: Boolean!
-
-  signUp(input: SignUpInput!): AuthDeliveryResult!
-  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
-  resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
-
-  forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
-  confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
-}
-
 input LogInInput {
   email: String!
   password: String!
@@ -56,4 +42,18 @@ input ConfirmForgotPasswordInput {
   email: String!
   code: String!
   password: String!
+}
+
+extend type Mutation {
+  refresh: AuthTokenPayload
+
+  logIn(input: LogInInput!): AuthTokenPayload!
+  logOut: Boolean!
+
+  signUp(input: SignUpInput!): AuthDeliveryResult!
+  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
+
+  forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
+  confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
 }
