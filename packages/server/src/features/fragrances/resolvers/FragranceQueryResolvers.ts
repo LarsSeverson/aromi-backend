@@ -77,7 +77,12 @@ export class FragranceQueryResolvers extends BaseResolver<QueryResolvers> {
         })
     )
 
-    return hits.map(mapFragranceRowToFragranceSummary)
+    const connection = this.searchPageFactory.paginate(
+      hits.map(mapFragranceRowToFragranceSummary),
+      offsetPagination
+    )
+
+    return connection
   }
 
   getResolvers (): QueryResolvers {

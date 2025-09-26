@@ -23,6 +23,22 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
     return row
   }
 
+  thumbnail: FragranceResolvers['thumbnail'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { loaders } = context
+
+    const { fragrances } = loaders
+
+    const image = await unwrapOrThrow(fragrances.loadThumbnail(id))
+
+    return image
+  }
+
   images: FragranceResolvers['images'] = async (
     parent,
     args,
@@ -90,6 +106,7 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
   getResolvers (): FragranceResolvers {
     return {
       brand: this.brand,
+      thumbnail: this.thumbnail,
       images: this.images,
       accords: this.accords,
       notes: this.notes,

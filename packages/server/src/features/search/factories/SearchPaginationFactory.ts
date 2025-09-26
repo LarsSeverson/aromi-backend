@@ -4,7 +4,6 @@ import { OffsetPaginationFactory, type OffsetSortSpec } from '@src/factories/Off
 export class SearchPaginationFactory extends OffsetPaginationFactory<SearchSortInput> {
   protected resolveSort (sort?: SearchSortInput | null): OffsetSortSpec {
     return {
-      column: undefined,
       direction: sort?.direction ?? SortDirection.Descending
     }
   }

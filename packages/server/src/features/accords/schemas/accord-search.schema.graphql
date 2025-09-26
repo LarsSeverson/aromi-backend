@@ -1,0 +1,13 @@
+type SearchAccordEdge {
+  node: Accord!
+  offset: Int!
+}
+
+type SearchAccordConnection {
+  edges: [SearchAccordEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchAccords(input: SearchInput): SearchAccordConnection!
+}

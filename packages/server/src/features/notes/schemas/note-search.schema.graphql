@@ -1,0 +1,13 @@
+type SearchNoteEdge {
+  node: Note!
+  offset: Int!
+}
+
+type SearchNoteConnection {
+  edges: [SearchNoteEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchNotes(input: SearchInput): SearchNoteConnection!
+}

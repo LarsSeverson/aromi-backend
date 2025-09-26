@@ -5,6 +5,14 @@ import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, ty
 import { okAsync, ResultAsync } from 'neverthrow'
 
 export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
+  loadThumbnail (id: FragranceLoadersKey) {
+    return ResultAsync
+      .fromPromise(
+        this.getThumbnailLoader().load(id),
+        error => BackendError.fromLoader(error)
+      )
+  }
+
   loadImages (id: FragranceLoadersKey) {
     return ResultAsync
       .fromPromise(
@@ -83,6 +91,15 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
+  private getThumbnailLoader () {
+    const key = this.genKey('thumbnail')
+    return this
+      .getLoader(
+        key,
+        () => this.createThumbnailLoader()
+      )
+  }
+
   private getImagesLoader () {
     const key = this.genKey('images')
     return this
@@ -153,6 +170,31 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
         key,
         () => this.createMyNoteVotesLoader(userId)
       )
+  }
+
+  private createThumbnailLoader () {
+    const { fragrances } = this.services
+
+    return new DataLoader<FragranceLoadersKey, FragranceImageRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          fragrances
+            .images
+            .findDistinct(
+              eb => eb('fragranceId', 'in', keys),
+              'fragranceId'
+            )
+        )
+
+        const rowsMap = new Map<string, FragranceImageRow>()
+
+        rows.forEach(row => {
+          rowsMap.set(row.fragranceId, row)
+        })
+
+        return keys.map(id => rowsMap.get(id) ?? null)
+      }
+    )
   }
 
   private createImagesLoader () {

@@ -69,16 +69,21 @@ export class BrandQueryResolvers extends BaseResolver<QueryResolvers> {
 
     const { search } = services
 
-    return await search
-      .brands
-      .search({
-        term,
-        pagination: offsetPagination
-      })
-      .match(
-        ({ hits }) => hits,
-        throwError
-      )
+    const { hits } = await unwrapOrThrow(
+      search
+        .brands
+        .search({
+          term: term ?? '',
+          pagination: offsetPagination
+        })
+    )
+
+    const connection = this.searchPageFactory.paginate(
+      hits,
+      offsetPagination
+    )
+
+    return connection
   }
 
   getResolvers (): QueryResolvers {

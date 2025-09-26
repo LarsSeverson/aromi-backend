@@ -25,6 +25,7 @@ type Fragrance {
   status: FragranceStatus!
   votes: VoteInfo!
 
+  thumbnail: FragranceImage
   images: [FragranceImage!]!
 
   accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
@@ -62,5 +63,4 @@ input FragrancePaginationInput {
 extend type Query {
   fragrance(id: ID!): Fragrance!
   fragrances(input: FragrancePaginationInput): FragranceConnection!
-  searchFragrances(input: SearchInput): [Fragrance!]!
 }

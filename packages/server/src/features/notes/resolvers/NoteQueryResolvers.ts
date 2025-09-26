@@ -70,16 +70,18 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
 
     const { search } = services
 
-    return await search
-      .notes
-      .search({
-        term,
-        pagination: offsetPagination
-      })
-      .match(
-        ({ hits }) => hits,
-        throwError
-      )
+    const { hits } = await unwrapOrThrow(
+      search
+        .notes
+        .search({
+          term,
+          pagination: offsetPagination
+        })
+    )
+
+    const connection = this.searchPageFactory.paginate(hits, offsetPagination)
+
+    return connection
   }
 
   getResolvers (): QueryResolvers {

@@ -1,0 +1,13 @@
+type SearchBrandEdge {
+  node: Brand!
+  offset: Int!
+}
+
+type SearchBrandConnection {
+  edges: [SearchBrandEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchBrands(input: SearchInput): SearchBrandConnection!
+}

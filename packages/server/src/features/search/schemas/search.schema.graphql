@@ -1,3 +1,11 @@
+type SearchPageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startOffset: Int!
+  endOffset: Int!
+  pageSize: Int!
+}
+
 enum SearchSortBy {
   RELEVANCE
 }

@@ -428,6 +428,7 @@ export type Fragrance = {
   notes: FragranceNoteConnection;
   releaseYear: Scalars['Int']['output'];
   status: FragranceStatus;
+  thumbnail?: Maybe<FragranceImage>;
   traits: Array<FragranceTrait>;
   votes: VoteInfo;
 };
@@ -1126,10 +1127,10 @@ export type Query = {
   noteRequest: NoteRequest;
   noteRequests: NoteRequestConnection;
   notes: NoteConnection;
-  searchAccords: Array<Accord>;
-  searchBrands: Array<Brand>;
-  searchFragrances: Array<Fragrance>;
-  searchNotes: Array<Note>;
+  searchAccords: SearchAccordConnection;
+  searchBrands: SearchBrandConnection;
+  searchFragrances: SearchFragranceConnection;
+  searchNotes: SearchNoteConnection;
   user: User;
 };
 
@@ -1330,9 +1331,66 @@ export type ReviewNoteEditInput = {
   status: EditStatus;
 };
 
+export type SearchAccordConnection = {
+  __typename?: 'SearchAccordConnection';
+  edges: Array<SearchAccordEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchAccordEdge = {
+  __typename?: 'SearchAccordEdge';
+  node: Accord;
+  offset: Scalars['Int']['output'];
+};
+
+export type SearchBrandConnection = {
+  __typename?: 'SearchBrandConnection';
+  edges: Array<SearchBrandEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchBrandEdge = {
+  __typename?: 'SearchBrandEdge';
+  node: Brand;
+  offset: Scalars['Int']['output'];
+};
+
+export type SearchFragranceConnection = {
+  __typename?: 'SearchFragranceConnection';
+  edges: Array<SearchFragranceEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchFragranceEdge = {
+  __typename?: 'SearchFragranceEdge';
+  node: Fragrance;
+  offset: Scalars['Int']['output'];
+};
+
 export type SearchInput = {
   pagination?: InputMaybe<SearchPaginationInput>;
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SearchNoteConnection = {
+  __typename?: 'SearchNoteConnection';
+  edges: Array<SearchNoteEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchNoteEdge = {
+  __typename?: 'SearchNoteEdge';
+  node: Note;
+  offset: Scalars['Int']['output'];
+};
+
+export type SearchPageInfo = {
+  __typename?: 'SearchPageInfo';
+  endOffset: Scalars['Int']['output'];
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  pageSize: Scalars['Int']['output'];
+  startOffset: Scalars['Int']['output'];
 };
 
 export type SearchPaginationInput = {
@@ -1775,7 +1833,16 @@ export type ResolversTypes = ResolversObject<{
   ReviewBrandEditInput: ResolverTypeWrapper<Partial<ReviewBrandEditInput>>;
   ReviewFragranceEditInput: ResolverTypeWrapper<Partial<ReviewFragranceEditInput>>;
   ReviewNoteEditInput: ResolverTypeWrapper<Partial<ReviewNoteEditInput>>;
+  SearchAccordConnection: ResolverTypeWrapper<Partial<SearchAccordConnection>>;
+  SearchAccordEdge: ResolverTypeWrapper<Partial<SearchAccordEdge>>;
+  SearchBrandConnection: ResolverTypeWrapper<Partial<Omit<SearchBrandConnection, 'edges'> & { edges: Array<ResolversTypes['SearchBrandEdge']> }>>;
+  SearchBrandEdge: ResolverTypeWrapper<Partial<Omit<SearchBrandEdge, 'node'> & { node: ResolversTypes['Brand'] }>>;
+  SearchFragranceConnection: ResolverTypeWrapper<Partial<Omit<SearchFragranceConnection, 'edges'> & { edges: Array<ResolversTypes['SearchFragranceEdge']> }>>;
+  SearchFragranceEdge: ResolverTypeWrapper<Partial<Omit<SearchFragranceEdge, 'node'> & { node: ResolversTypes['Fragrance'] }>>;
   SearchInput: ResolverTypeWrapper<Partial<SearchInput>>;
+  SearchNoteConnection: ResolverTypeWrapper<Partial<Omit<SearchNoteConnection, 'edges'> & { edges: Array<ResolversTypes['SearchNoteEdge']> }>>;
+  SearchNoteEdge: ResolverTypeWrapper<Partial<Omit<SearchNoteEdge, 'node'> & { node: ResolversTypes['Note'] }>>;
+  SearchPageInfo: ResolverTypeWrapper<Partial<SearchPageInfo>>;
   SearchPaginationInput: ResolverTypeWrapper<Partial<SearchPaginationInput>>;
   SearchSortBy: ResolverTypeWrapper<Partial<SearchSortBy>>;
   SearchSortInput: ResolverTypeWrapper<Partial<SearchSortInput>>;
@@ -1925,7 +1992,16 @@ export type ResolversParentTypes = ResolversObject<{
   ReviewBrandEditInput: Partial<ReviewBrandEditInput>;
   ReviewFragranceEditInput: Partial<ReviewFragranceEditInput>;
   ReviewNoteEditInput: Partial<ReviewNoteEditInput>;
+  SearchAccordConnection: Partial<SearchAccordConnection>;
+  SearchAccordEdge: Partial<SearchAccordEdge>;
+  SearchBrandConnection: Partial<Omit<SearchBrandConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchBrandEdge']> }>;
+  SearchBrandEdge: Partial<Omit<SearchBrandEdge, 'node'> & { node: ResolversParentTypes['Brand'] }>;
+  SearchFragranceConnection: Partial<Omit<SearchFragranceConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchFragranceEdge']> }>;
+  SearchFragranceEdge: Partial<Omit<SearchFragranceEdge, 'node'> & { node: ResolversParentTypes['Fragrance'] }>;
   SearchInput: Partial<SearchInput>;
+  SearchNoteConnection: Partial<Omit<SearchNoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchNoteEdge']> }>;
+  SearchNoteEdge: Partial<Omit<SearchNoteEdge, 'node'> & { node: ResolversParentTypes['Note'] }>;
+  SearchPageInfo: Partial<SearchPageInfo>;
   SearchPaginationInput: Partial<SearchPaginationInput>;
   SearchSortInput: Partial<SearchSortInput>;
   SetFragranceRequestAccordsInput: Partial<SetFragranceRequestAccordsInput>;
@@ -2134,6 +2210,7 @@ export type FragranceResolvers<ContextType = ServerContext, ParentType extends R
   notes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, Partial<FragranceNotesArgs>>;
   releaseYear?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['FragranceStatus'], ParentType, ContextType>;
+  thumbnail?: Resolver<Maybe<ResolversTypes['FragranceImage']>, ParentType, ContextType>;
   traits?: Resolver<Array<ResolversTypes['FragranceTrait']>, ParentType, ContextType>;
   votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
 }>;
@@ -2428,11 +2505,59 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   noteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
-  searchAccords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
-  searchBrands?: Resolver<Array<ResolversTypes['Brand']>, ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;
-  searchFragrances?: Resolver<Array<ResolversTypes['Fragrance']>, ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
-  searchNotes?: Resolver<Array<ResolversTypes['Note']>, ParentType, ContextType, Partial<QuerySearchNotesArgs>>;
+  searchAccords?: Resolver<ResolversTypes['SearchAccordConnection'], ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
+  searchBrands?: Resolver<ResolversTypes['SearchBrandConnection'], ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;
+  searchFragrances?: Resolver<ResolversTypes['SearchFragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
+  searchNotes?: Resolver<ResolversTypes['SearchNoteConnection'], ParentType, ContextType, Partial<QuerySearchNotesArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
+}>;
+
+export type SearchAccordConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchAccordConnection'] = ResolversParentTypes['SearchAccordConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchAccordEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchAccordEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchAccordEdge'] = ResolversParentTypes['SearchAccordEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['Accord'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchBrandConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchBrandConnection'] = ResolversParentTypes['SearchBrandConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchBrandEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchBrandEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchBrandEdge'] = ResolversParentTypes['SearchBrandEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['Brand'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchFragranceConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchFragranceConnection'] = ResolversParentTypes['SearchFragranceConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchFragranceEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchFragranceEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchFragranceEdge'] = ResolversParentTypes['SearchFragranceEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchNoteConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchNoteConnection'] = ResolversParentTypes['SearchNoteConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchNoteEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchNoteEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchNoteEdge'] = ResolversParentTypes['SearchNoteEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['Note'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchPageInfoResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchPageInfo'] = ResolversParentTypes['SearchPageInfo']> = ResolversObject<{
+  endOffset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  pageSize?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startOffset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 }>;
 
 export type TraitOptionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitOption'] = ResolversParentTypes['TraitOption']> = ResolversObject<{
@@ -2534,6 +2659,15 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   PageInfo?: PageInfoResolvers<ContextType>;
   PresignedUpload?: PresignedUploadResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  SearchAccordConnection?: SearchAccordConnectionResolvers<ContextType>;
+  SearchAccordEdge?: SearchAccordEdgeResolvers<ContextType>;
+  SearchBrandConnection?: SearchBrandConnectionResolvers<ContextType>;
+  SearchBrandEdge?: SearchBrandEdgeResolvers<ContextType>;
+  SearchFragranceConnection?: SearchFragranceConnectionResolvers<ContextType>;
+  SearchFragranceEdge?: SearchFragranceEdgeResolvers<ContextType>;
+  SearchNoteConnection?: SearchNoteConnectionResolvers<ContextType>;
+  SearchNoteEdge?: SearchNoteEdgeResolvers<ContextType>;
+  SearchPageInfo?: SearchPageInfoResolvers<ContextType>;
   TraitOption?: TraitOptionResolvers<ContextType>;
   TraitStats?: TraitStatsResolvers<ContextType>;
   TraitVote?: TraitVoteResolvers<ContextType>;

@@ -6,12 +6,10 @@ export const MAX_LIMIT = 44
 export interface OffsetPaginationInput {
   first: number
   offset: number
-  column?: string
   direction: SortDirection
 }
 
 export interface OffsetSortSpec {
-  column?: string
   direction: SortDirection
 }
 
@@ -50,13 +48,12 @@ export abstract class OffsetPaginationFactory<S> {
     const {
       first,
       offset,
-      sort: { column, direction }
+      sort: { direction }
     } = this.normalize(raw)
 
     return {
       first,
       offset,
-      column,
       direction
     }
   }

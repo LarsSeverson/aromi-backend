@@ -1,0 +1,13 @@
+type SearchFragranceEdge {
+  node: Fragrance!
+  offset: Int!
+}
+
+type SearchFragranceConnection {
+  edges: [SearchFragranceEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchFragrances(input: SearchInput): SearchFragranceConnection!
+}

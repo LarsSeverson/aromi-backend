@@ -33,7 +33,7 @@ export abstract class SearchService<T extends BaseSearchIndex> {
             term,
             {
               limit: first,
-              offset
+              offset: offset + 1
             }
           ),
         error => BackendError.fromMeili(error)

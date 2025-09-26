@@ -364,6 +364,7 @@ type Fragrance {
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
   status: FragranceStatus!
+  thumbnail: FragranceImage
   traits: [FragranceTrait!]!
   votes: VoteInfo!
 }
@@ -768,10 +769,10 @@ type Query {
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
-  searchAccords(input: SearchInput): [Accord!]!
-  searchBrands(input: SearchInput): [Brand!]!
-  searchFragrances(input: SearchInput): [Fragrance!]!
-  searchNotes(input: SearchInput): [Note!]!
+  searchAccords(input: SearchInput): SearchAccordConnection!
+  searchBrands(input: SearchInput): SearchBrandConnection!
+  searchFragrances(input: SearchInput): SearchFragranceConnection!
+  searchNotes(input: SearchInput): SearchNoteConnection!
   user(id: ID!): User!
 }
 
@@ -825,9 +826,57 @@ input ReviewNoteEditInput {
   status: EditStatus!
 }
 
+type SearchAccordConnection {
+  edges: [SearchAccordEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchAccordEdge {
+  node: Accord!
+  offset: Int!
+}
+
+type SearchBrandConnection {
+  edges: [SearchBrandEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchBrandEdge {
+  node: Brand!
+  offset: Int!
+}
+
+type SearchFragranceConnection {
+  edges: [SearchFragranceEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchFragranceEdge {
+  node: Fragrance!
+  offset: Int!
+}
+
 input SearchInput {
   pagination: SearchPaginationInput
   term: String
+}
+
+type SearchNoteConnection {
+  edges: [SearchNoteEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchNoteEdge {
+  node: Note!
+  offset: Int!
+}
+
+type SearchPageInfo {
+  endOffset: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  pageSize: Int!
+  startOffset: Int!
 }
 
 input SearchPaginationInput {
