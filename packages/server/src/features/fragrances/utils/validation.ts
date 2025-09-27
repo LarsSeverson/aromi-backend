@@ -26,7 +26,8 @@ export const CreateFragranceRequestSchema = z
   .object({
     name: ValidFragranceName.nullish(),
     description: ValidFragranceDescription.nullish(),
-    releaseYear: ValidFragranceReleaseYear.nullish()
+    releaseYear: ValidFragranceReleaseYear.nullish(),
+    assetId: z.uuid('Asset ID must be a valid UUID').nullish()
   })
   .strip()
 

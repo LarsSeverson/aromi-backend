@@ -35,6 +35,7 @@ type FragranceRequestConnection {
 }
 
 input CreateFragranceRequestInput {
+  assetId: ID
   name: String
   description: String
   releaseYear: Int

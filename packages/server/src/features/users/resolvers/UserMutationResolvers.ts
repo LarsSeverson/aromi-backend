@@ -2,47 +2,11 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, parseOrThrow, throwError, unwrapOrThrow } from '@aromi/shared'
+import { parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
-  updateUser: MutationResolvers['updateUser'] = async (
+  updateMe: MutationResolvers['updateMe'] = async (
     _,
-    args,
-    context,
-    info
-  ) => {
-    const { input } = args
-    const { id, username } = input
-    const { me, services } = context
-    const { users } = services
-
-    parseOrThrow(UpdateUserSchema, input)
-
-    if (me?.id !== id) {
-      throw new BackendError(
-        'NOT_AUTHORIZED',
-        'You are not authorized to edit this users info',
-        403
-      )
-    }
-
-    if (username == null) return me
-
-    return await users
-      .updateOne(
-        eb => eb('id', '=', id),
-        {
-          username
-        }
-      )
-      .match(
-        mapUserRowToUserSummary,
-        throwError
-      )
-  }
-
-  setUserAvatar: MutationResolvers['setUserAvatar'] = async (
-    parent,
     args,
     context,
     info
@@ -51,16 +15,37 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     const { services } = context
     const me = this.checkAuthenticated(context)
 
-    const { userId, assetId } = input
-    const { users, assets } = services
+    const { username } = input
+    const { users } = services
 
-    if (me.id !== userId) {
-      throw new BackendError(
-        'NOT_AUTHORIZED',
-        'You are not authorized to edit this users info',
-        403
+    parseOrThrow(UpdateUserSchema, input)
+
+    if (username == null) return me
+
+    const user = await unwrapOrThrow(
+      users.updateOne(
+        eb => eb('id', '=', me.id),
+        {
+          username
+        }
       )
-    }
+    )
+
+    return mapUserRowToUserSummary(user)
+  }
+
+  setMyAvatar: MutationResolvers['setMyAvatar'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+    const me = this.checkAuthenticated(context)
+
+    const { assetId } = input
+    const { users, assets } = services
 
     const asset = await unwrapOrThrow(
       assets
@@ -75,13 +60,13 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
         const image = await unwrapOrThrow(
           trx
             .images
-            .createOne({ name, s3Key, contentType, sizeBytes, userId })
+            .createOne({ name, s3Key, contentType, sizeBytes, userId: me.id })
         )
 
         const updated = await unwrapOrThrow(
           trx
             .updateOne(
-              eb => eb('id', '=', userId),
+              eb => eb('id', '=', me.id),
               { avatarId: image.id }
             )
         )
@@ -95,8 +80,8 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
 
   getResolvers (): MutationResolvers {
     return {
-      updateUser: this.updateUser,
-      setUserAvatar: this.setUserAvatar
+      updateMe: this.updateMe,
+      setMyAvatar: this.setMyAvatar
     }
   }
 }

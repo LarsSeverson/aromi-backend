@@ -17,13 +17,11 @@ type User {
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
 }
 
-input UpdateUserInput {
-  id: ID!
+input UpdateMeInput {
   username: String
 }
 
-input SetUserAvatarInput {
-  userId: ID!
+input SetMyAvatarInput {
   assetId: ID!
 }
 
@@ -33,6 +31,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  updateUser(input: UpdateUserInput!): User!
-  setUserAvatar(input: SetUserAvatarInput!): User!
+  updateMe(input: UpdateMeInput!): User!
+  setMyAvatar(input: SetMyAvatarInput!): User!
 }

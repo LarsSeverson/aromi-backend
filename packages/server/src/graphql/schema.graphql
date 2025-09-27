@@ -288,6 +288,7 @@ input CreateFragranceEditInput {
 }
 
 input CreateFragranceRequestInput {
+  assetId: ID
   concentration: Concentration
   description: String
   name: String
@@ -612,7 +613,7 @@ type Mutation {
   setFragranceRequestBrand(input: SetFragranceRequestBrandInput!): FragranceRequest!
   setFragranceRequestNotes(input: SetFragranceRequestNotesInput!): FragranceRequest!
   setFragranceRequestTrait(input: SetFragranceRequestTraitInput!): FragranceRequest!
-  setUserAvatar(input: SetUserAvatarInput!): User!
+  setMyAvatar(input: SetMyAvatarInput!): User!
   signUp(input: SignUpInput!): AuthDeliveryResult!
   stageAsset(input: StageAssetInput!): PresignedUpload!
   submitAccordRequest(input: SubmitAccordRequestInput!): AccordRequest!
@@ -622,8 +623,8 @@ type Mutation {
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
+  updateMe(input: UpdateMeInput!): User!
   updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
-  updateUser(input: UpdateUserInput!): User!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
   voteOnBrand(input: VoteOnBrandInput!): Brand!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
@@ -780,6 +781,7 @@ input RequestPaginationInput {
   after: String
   first: Int
   sort: RequestSortInput
+  status: RequestStatus
 }
 
 enum RequestSortBy {
@@ -916,9 +918,8 @@ input SetFragranceRequestTraitInput {
   traitType: TraitTypeEnum!
 }
 
-input SetUserAvatarInput {
+input SetMyAvatarInput {
   assetId: ID!
-  userId: ID!
 }
 
 input SignUpInput {
@@ -1010,16 +1011,15 @@ input UpdateFragranceRequestInput {
   status: FragranceStatus
 }
 
+input UpdateMeInput {
+  username: String
+}
+
 input UpdateNoteRequestInput {
   assetId: ID
   description: String
   id: ID!
   name: String
-}
-
-input UpdateUserInput {
-  id: ID!
-  username: String
 }
 
 type User {

@@ -15,6 +15,7 @@ input RequestSortInput {
 }
 
 input RequestPaginationInput {
+  status: RequestStatus
   first: Int
   after: String
   sort: RequestSortInput

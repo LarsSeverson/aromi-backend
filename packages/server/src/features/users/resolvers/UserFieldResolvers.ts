@@ -43,14 +43,23 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { me, services } = context
 
     const { fragrances } = services
+    const { status } = input ?? {}
     const pagination = this.requestPagination.parse(input)
 
     const requests = await unwrapOrThrow(
       fragrances
         .requests
         .find(
-          eb => eb
-            .and([
+          eb => {
+            if (status === RequestStatus.DRAFT) {
+              return eb.and([
+                eb('userId', '=', id),
+                eb('requestStatus', '=', RequestStatus.DRAFT),
+                eb('userId', '=', me?.id ?? INVALID_ID)
+              ])
+            }
+
+            return eb.and([
               eb('userId', '=', id),
               eb.or([
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
@@ -59,7 +68,8 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                   eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
-            ]),
+            ])
+          },
           { pagination }
         )
     )
@@ -81,14 +91,23 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { me, services } = context
 
     const { brands } = services
+    const { status } = input ?? {}
     const pagination = this.requestPagination.parse(input)
 
     const requests = await unwrapOrThrow(
       brands
         .requests
         .find(
-          eb => eb
-            .and([
+          eb => {
+            if (status === RequestStatus.DRAFT) {
+              return eb.and([
+                eb('userId', '=', id),
+                eb('requestStatus', '=', RequestStatus.DRAFT),
+                eb('userId', '=', me?.id ?? INVALID_ID)
+              ])
+            }
+
+            return eb.and([
               eb('userId', '=', id),
               eb.or([
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
@@ -97,7 +116,8 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                   eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
-            ]),
+            ])
+          },
           { pagination }
         )
     )
@@ -119,14 +139,23 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { me, services } = context
 
     const { accords } = services
+    const { status } = input ?? {}
     const pagination = this.requestPagination.parse(input)
 
     const requests = await unwrapOrThrow(
       accords
         .requests
         .find(
-          eb => eb
-            .and([
+          eb => {
+            if (status === RequestStatus.DRAFT) {
+              return eb.and([
+                eb('userId', '=', id),
+                eb('requestStatus', '=', RequestStatus.DRAFT),
+                eb('userId', '=', me?.id ?? INVALID_ID)
+              ])
+            }
+
+            return eb.and([
               eb('userId', '=', id),
               eb.or([
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
@@ -135,7 +164,8 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                   eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
-            ]),
+            ])
+          },
           { pagination }
         )
     )
@@ -157,14 +187,23 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { me, services } = context
 
     const { notes } = services
+    const { status } = input ?? {}
     const pagination = this.requestPagination.parse(input)
 
     const requests = await unwrapOrThrow(
       notes
         .requests
         .find(
-          eb => eb
-            .and([
+          eb => {
+            if (status === RequestStatus.DRAFT) {
+              return eb.and([
+                eb('userId', '=', id),
+                eb('requestStatus', '=', RequestStatus.DRAFT),
+                eb('userId', '=', me?.id ?? INVALID_ID)
+              ])
+            }
+
+            return eb.and([
               eb('userId', '=', id),
               eb.or([
                 eb('requestStatus', '!=', RequestStatus.DRAFT),
@@ -173,7 +212,8 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
                   eb('userId', '=', me?.id ?? INVALID_ID)
                 ])
               ])
-            ]),
+            ])
+          },
           { pagination }
         )
     )
@@ -186,6 +226,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
 
   getResolvers (): UserResolvers {
     return {
+      avatar: this.avatar,
       fragranceRequests: this.fragranceRequests,
       brandRequests: this.brandRequests,
       accordRequests: this.accordRequests,

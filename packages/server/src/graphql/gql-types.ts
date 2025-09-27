@@ -350,6 +350,7 @@ export type CreateFragranceEditInput = {
 };
 
 export type CreateFragranceRequestInput = {
+  assetId?: InputMaybe<Scalars['ID']['input']>;
   concentration?: InputMaybe<Concentration>;
   description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -720,7 +721,7 @@ export type Mutation = {
   setFragranceRequestBrand: FragranceRequest;
   setFragranceRequestNotes: FragranceRequest;
   setFragranceRequestTrait: FragranceRequest;
-  setUserAvatar: User;
+  setMyAvatar: User;
   signUp: AuthDeliveryResult;
   stageAsset: PresignedUpload;
   submitAccordRequest: AccordRequest;
@@ -730,8 +731,8 @@ export type Mutation = {
   updateAccordRequest: AccordRequest;
   updateBrandRequest: BrandRequest;
   updateFragranceRequest: FragranceRequest;
+  updateMe: User;
   updateNoteRequest: NoteRequest;
-  updateUser: User;
   voteOnAccordRequest: AccordRequest;
   voteOnBrand: Brand;
   voteOnBrandRequest: BrandRequest;
@@ -874,8 +875,8 @@ export type MutationSetFragranceRequestTraitArgs = {
 };
 
 
-export type MutationSetUserAvatarArgs = {
-  input: SetUserAvatarInput;
+export type MutationSetMyAvatarArgs = {
+  input: SetMyAvatarInput;
 };
 
 
@@ -924,13 +925,13 @@ export type MutationUpdateFragranceRequestArgs = {
 };
 
 
-export type MutationUpdateNoteRequestArgs = {
-  input: UpdateNoteRequestInput;
+export type MutationUpdateMeArgs = {
+  input: UpdateMeInput;
 };
 
 
-export type MutationUpdateUserArgs = {
-  input: UpdateUserInput;
+export type MutationUpdateNoteRequestArgs = {
+  input: UpdateNoteRequestInput;
 };
 
 
@@ -1283,6 +1284,7 @@ export type RequestPaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<RequestSortInput>;
+  status?: InputMaybe<RequestStatus>;
 };
 
 export const RequestSortBy = {
@@ -1431,9 +1433,8 @@ export type SetFragranceRequestTraitInput = {
   traitType: TraitTypeEnum;
 };
 
-export type SetUserAvatarInput = {
+export type SetMyAvatarInput = {
   assetId: Scalars['ID']['input'];
-  userId: Scalars['ID']['input'];
 };
 
 export type SignUpInput = {
@@ -1531,16 +1532,15 @@ export type UpdateFragranceRequestInput = {
   status?: InputMaybe<FragranceStatus>;
 };
 
+export type UpdateMeInput = {
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateNoteRequestInput = {
   assetId?: InputMaybe<Scalars['ID']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateUserInput = {
-  id: Scalars['ID']['input'];
-  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
@@ -1850,7 +1850,7 @@ export type ResolversTypes = ResolversObject<{
   SetFragranceRequestBrandInput: ResolverTypeWrapper<Partial<SetFragranceRequestBrandInput>>;
   SetFragranceRequestNotesInput: ResolverTypeWrapper<Partial<SetFragranceRequestNotesInput>>;
   SetFragranceRequestTraitInput: ResolverTypeWrapper<Partial<SetFragranceRequestTraitInput>>;
-  SetUserAvatarInput: ResolverTypeWrapper<Partial<SetUserAvatarInput>>;
+  SetMyAvatarInput: ResolverTypeWrapper<Partial<SetMyAvatarInput>>;
   SignUpInput: ResolverTypeWrapper<Partial<SignUpInput>>;
   SortDirection: ResolverTypeWrapper<Partial<SortDirection>>;
   StageAssetInput: ResolverTypeWrapper<Partial<StageAssetInput>>;
@@ -1867,8 +1867,8 @@ export type ResolversTypes = ResolversObject<{
   UpdateAccordRequestInput: ResolverTypeWrapper<Partial<UpdateAccordRequestInput>>;
   UpdateBrandRequestInput: ResolverTypeWrapper<Partial<UpdateBrandRequestInput>>;
   UpdateFragranceRequestInput: ResolverTypeWrapper<Partial<UpdateFragranceRequestInput>>;
+  UpdateMeInput: ResolverTypeWrapper<Partial<UpdateMeInput>>;
   UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
-  UpdateUserInput: ResolverTypeWrapper<Partial<UpdateUserInput>>;
   User: ResolverTypeWrapper<IUserSummary>;
   VoteInfo: ResolverTypeWrapper<Partial<VoteInfo>>;
   VoteOnAccordRequestInput: ResolverTypeWrapper<Partial<VoteOnAccordRequestInput>>;
@@ -2008,7 +2008,7 @@ export type ResolversParentTypes = ResolversObject<{
   SetFragranceRequestBrandInput: Partial<SetFragranceRequestBrandInput>;
   SetFragranceRequestNotesInput: Partial<SetFragranceRequestNotesInput>;
   SetFragranceRequestTraitInput: Partial<SetFragranceRequestTraitInput>;
-  SetUserAvatarInput: Partial<SetUserAvatarInput>;
+  SetMyAvatarInput: Partial<SetMyAvatarInput>;
   SignUpInput: Partial<SignUpInput>;
   StageAssetInput: Partial<StageAssetInput>;
   String: Partial<Scalars['String']['output']>;
@@ -2023,8 +2023,8 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateAccordRequestInput: Partial<UpdateAccordRequestInput>;
   UpdateBrandRequestInput: Partial<UpdateBrandRequestInput>;
   UpdateFragranceRequestInput: Partial<UpdateFragranceRequestInput>;
+  UpdateMeInput: Partial<UpdateMeInput>;
   UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
-  UpdateUserInput: Partial<UpdateUserInput>;
   User: IUserSummary;
   VoteInfo: Partial<VoteInfo>;
   VoteOnAccordRequestInput: Partial<VoteOnAccordRequestInput>;
@@ -2384,7 +2384,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   setFragranceRequestBrand?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestBrandArgs, 'input'>>;
   setFragranceRequestNotes?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestNotesArgs, 'input'>>;
   setFragranceRequestTrait?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSetFragranceRequestTraitArgs, 'input'>>;
-  setUserAvatar?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserAvatarArgs, 'input'>>;
+  setMyAvatar?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetMyAvatarArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   stageAsset?: Resolver<ResolversTypes['PresignedUpload'], ParentType, ContextType, RequireFields<MutationStageAssetArgs, 'input'>>;
   submitAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationSubmitAccordRequestArgs, 'input'>>;
@@ -2394,8 +2394,8 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   updateAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationUpdateAccordRequestArgs, 'input'>>;
   updateBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationUpdateBrandRequestArgs, 'input'>>;
   updateFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationUpdateFragranceRequestArgs, 'input'>>;
+  updateMe?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
   updateNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationUpdateNoteRequestArgs, 'input'>>;
-  updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;
   voteOnBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationVoteOnBrandArgs, 'input'>>;
   voteOnBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationVoteOnBrandRequestArgs, 'input'>>;
