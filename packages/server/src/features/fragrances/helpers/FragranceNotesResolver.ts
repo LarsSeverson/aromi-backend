@@ -1,9 +1,9 @@
-import type { FragranceResolvers } from '@src/graphql/gql-types.js'
+import type { FragranceResolvers, NoteLayer } from '@src/graphql/gql-types.js'
 import { RequestResolver } from '@src/resolvers/RequestResolver.js'
 import { type BackendError, unwrapOrThrow, type CombinedFragranceNoteScoreRow, type CursorPaginationInput, type FragranceNoteVoteRow } from '@aromi/shared'
 import { PageFactory } from '@src/factories/PageFactory.js'
 import { type FNCursorType, FNPaginationFactory } from '../factories/FNPaginationFactory.js'
-import { mapDBNoteLayerToGQLNoteLayer } from '../utils/mappers.js'
+import { mapDBNoteLayerToGQLNoteLayer, mapGQLNoteLayerToDBNoteLayer } from '../utils/mappers.js'
 import { okAsync, ResultAsync } from 'neverthrow'
 
 type Field = FragranceResolvers['notes']
@@ -23,9 +23,10 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
   async handleGetNotes () {
     const { input } = this.args
 
+    const { layer } = input ?? {}
     const pagination = this.pagination.parse(input)
 
-    const scoreRows = await unwrapOrThrow(this.getScoreRows(pagination))
+    const scoreRows = await unwrapOrThrow(this.getScoreRows(pagination, layer))
     const myVoteRows = await unwrapOrThrow(this.getMyVoteRows())
 
     const myVoteRowsMap = new Map(myVoteRows.map(v => [v.noteId, v]))
@@ -37,18 +38,23 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
   }
 
   getScoreRows (
-    pagination: CursorPaginationInput<FNCursorType>
+    pagination: CursorPaginationInput<FNCursorType>,
+    layer?: NoteLayer | null
   ) {
     const { id } = this.parent
     const { services } = this.context
 
+    const dbLayer = mapGQLNoteLayerToDBNoteLayer(layer ?? 'TOP')
     const { fragrances } = services
 
     return fragrances
       .notes
       .scores
       .findCombinedNotes(
-        eb => eb('fragranceId', '=', id),
+        eb => eb.and([
+          eb('fragranceId', '=', id),
+          eb('layer', '=', dbLayer)
+        ]),
         pagination
       )
   }

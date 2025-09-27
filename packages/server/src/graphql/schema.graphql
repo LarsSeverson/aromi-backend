@@ -489,7 +489,7 @@ type FragranceNoteEdge {
 input FragranceNotePaginationInput {
   after: String
   first: Int
-  layer: NoteLayer!
+  layer: NoteLayer
   sort: FragranceNoteSortInput
 }
 

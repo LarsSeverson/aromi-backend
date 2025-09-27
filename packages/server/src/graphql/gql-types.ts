@@ -579,7 +579,7 @@ export type FragranceNoteEdge = {
 export type FragranceNotePaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  layer: NoteLayer;
+  layer?: InputMaybe<NoteLayer>;
   sort?: InputMaybe<FragranceNoteSortInput>;
 };
 
