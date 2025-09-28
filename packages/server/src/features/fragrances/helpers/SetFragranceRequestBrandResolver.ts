@@ -26,7 +26,7 @@ export class SetFragranceRequestBrandResolver extends RequestMutationResolver<Mu
     const { requestId, brandId } = this.args.input
 
     const values = {
-      brandId,
+      brandId: brandId ?? null,
       updatedAt: new Date().toISOString()
     }
 
