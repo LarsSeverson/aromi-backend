@@ -18,13 +18,13 @@ export class FragranceSearchService extends SearchService<FragranceIndex> {
   fromRow (params: FromRowParams): FragranceIndex {
     const { fragrance, brand, accords = [], notes = [] } = params
 
-    const docBrand = brand != null
-      ?
+    const docBrand = brand == null
+      ? null
+      :
       {
         id: brand.id,
         name: brand.name
       }
-      : null
 
     const docAccords = accords.map(({ id, name }) => ({ id, name }))
     const docNotes = notes.map(({ id, name, layer }) => ({ id, name, layer }))

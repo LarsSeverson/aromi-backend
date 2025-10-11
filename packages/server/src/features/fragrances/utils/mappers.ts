@@ -111,8 +111,8 @@ export const mapFragranceRequestRowToFragranceRequest = (
   } = row
 
   const mappedRequestStatus = dbRequestStatus as RequestStatus
-  const mappedFragranceStatus = dbFragranceStatus != null ? mapDBStatusToGQLStatus(dbFragranceStatus) : null
-  const mappedConcentration = dbConcentration != null ? mapDBConcentrationToGQLConcentration(dbConcentration) : null
+  const mappedFragranceStatus = dbFragranceStatus == null ? null : mapDBStatusToGQLStatus(dbFragranceStatus)
+  const mappedConcentration = dbConcentration == null ? null : mapDBConcentrationToGQLConcentration(dbConcentration)
 
   return {
     brandId,

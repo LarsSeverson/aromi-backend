@@ -16,6 +16,13 @@ export type FragranceNoteScoreRow = Selectable<DB['fragranceNoteScores']>
 
 export type FragranceTraitVoteRow = Selectable<DB['fragranceTraitVotes']>
 
+export type FragranceReviewRow = Selectable<DB['fragranceReviews']>
+export type FragranceReviewVoteRow = Selectable<DB['fragranceReviewVotes']>
+export type FragranceReviewScoreRow = Selectable<DB['fragranceReviewScores']>
+
+export type FragranceCollectionRow = Selectable<DB['fragranceCollections']>
+export type FragranceCollectionItemRow = Selectable<DB['fragranceCollectionItems']>
+
 export interface AggFragranceTraitVoteRow {
   fragranceId: string
   traitOptionId: string

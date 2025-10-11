@@ -91,7 +91,7 @@ export const syncFragrances = (
           return fragrances
             .map(fragrance => ({
               ...fragrance,
-              brand: fragrance.brandId != null ? brandMap.get(fragrance.brandId) ?? null : null,
+              brand: fragrance.brandId == null ? null : brandMap.get(fragrance.brandId) ?? null,
               accords: accordsByFragrance.get(fragrance.id) ?? [],
               notes: notesByFragrance.get(fragrance.id) ?? []
             }))

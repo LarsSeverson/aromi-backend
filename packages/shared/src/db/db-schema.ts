@@ -79,6 +79,8 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
+export type Numeric = ColumnType<string, number | string, number | string>;
+
 export type Timestamp = ColumnType<string, string, string>;
 
 export interface AccordEdit {
@@ -289,6 +291,16 @@ export interface FragranceAccordVote {
   vote: Generated<number>;
 }
 
+export interface FragranceCollectionItem {
+  collectionId: string;
+  createdAt: Generated<Timestamp | null>;
+  deletedAt: Timestamp | null;
+  fragranceId: string;
+  id: Generated<string>;
+  rank: number;
+  updatedAt: Generated<Timestamp | null>;
+}
+
 export interface FragranceCollection {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -424,6 +436,36 @@ export interface FragranceRequestVote {
   createdAt: Generated<Timestamp>;
   id: Generated<string>;
   requestId: string;
+  userId: string;
+  vote: number;
+}
+
+export interface FragranceReview {
+  body: string | null;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: string;
+  id: Generated<string>;
+  rating: Numeric;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface FragranceReviewScore {
+  deletedAt: Timestamp | null;
+  downvotes: Generated<number>;
+  reviewId: string;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
+export interface FragranceReviewVote {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  reviewId: string;
+  updatedAt: Generated<Timestamp>;
   userId: string;
   vote: number;
 }
@@ -602,6 +644,7 @@ export interface DB {
   fragranceAccords: FragranceAccord;
   fragranceAccordScores: FragranceAccordScore;
   fragranceAccordVotes: FragranceAccordVote;
+  fragranceCollectionItems: FragranceCollectionItem;
   fragranceCollections: FragranceCollection;
   fragranceEdits: FragranceEdit;
   fragranceImages: FragranceImage;
@@ -614,6 +657,9 @@ export interface DB {
   fragranceRequestScores: FragranceRequestScore;
   fragranceRequestTraits: FragranceRequestTrait;
   fragranceRequestVotes: FragranceRequestVote;
+  fragranceReviews: FragranceReview;
+  fragranceReviewScores: FragranceReviewScore;
+  fragranceReviewVotes: FragranceReviewVote;
   fragrances: Fragrance;
   fragranceScores: FragranceScore;
   fragranceTraitVotes: FragranceTraitVote;

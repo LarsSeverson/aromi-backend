@@ -29,9 +29,7 @@ type Fragrance {
   images: [FragranceImage!]!
 
   accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
-
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
-
   traits: [FragranceTrait!]!
 }
 

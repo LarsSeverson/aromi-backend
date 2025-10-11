@@ -1,6 +1,6 @@
 import { errAsync, ResultAsync } from 'neverthrow'
 import { BackendError, throwError } from '@src/utils/error.js'
-import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject, ReferenceExpression } from 'kysely'
+import type { ExpressionOrFactory, SqlBool, UpdateObject, ExpressionBuilder, InsertObject, ReferenceExpression, SelectQueryBuilder } from 'kysely'
 import type { DataSources } from '@src/datasources/index.js'
 import type { DB } from '@src/db/index.js'
 import type { TablesMatching } from '../types.js'
@@ -153,24 +153,35 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
   }
 
   findOne (
-    where?: ExpressionOrFactory<DB, T, SqlBool>
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    extend?: (qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>
   ): ResultAsync<R, BackendError> {
+    let query = this
+      .Table
+      .find(where)
+
+    if (extend != null) {
+      query = extend(query)
+    }
+
     return ResultAsync
       .fromPromise(
-        this
-          .Table
-          .findOne(where)
-          .executeTakeFirstOrThrow(),
+        query.executeTakeFirstOrThrow(),
         error => BackendError.fromDatabase(error)
       )
   }
 
   find (
-    where?: ExpressionOrFactory<DB, T, SqlBool>
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    extend?: (qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>
   ): ResultAsync<R[], BackendError> {
-    const query = this
+    let query = this
       .Table
       .find(where)
+
+    if (extend != null) {
+      query = extend(query)
+    }
 
     return ResultAsync
       .fromPromise(

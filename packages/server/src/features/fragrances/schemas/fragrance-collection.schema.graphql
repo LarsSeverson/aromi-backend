@@ -1,0 +1,45 @@
+type FragranceCollection {
+  id: ID!
+  name: String!
+  items(input: FragranceCollectionItemSortInput): FragranceCollectionItemConnection!
+  hasFragrance(fragranceId: ID!): Boolean!
+  user: User!
+}
+
+type FragranceCollectionEdge {
+  node: FragranceCollection!
+  cursor: String!
+}
+
+type FragranceCollectionConnection {
+  edges: [FragranceCollectionEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceCollectionSortBy {
+  RECENT
+}
+
+input FragranceCollectionSortInput {
+  direction: SortDirection
+  by: FragranceCollectionSortBy
+}
+
+input FragranceCollectionPaginationInput {
+  first: Int
+  after: String
+  sort: FragranceCollectionSortInput
+}
+
+input CreateFragranceCollectionInput {
+  name: String!
+}
+
+input DeleteFragranceCollectionInput {
+  collectionId: ID!
+}
+
+extend type Mutation {
+  createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!
+}

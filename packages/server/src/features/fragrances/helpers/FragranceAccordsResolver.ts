@@ -65,7 +65,7 @@ export class FragranceAccordsResolver extends RequestResolver<Query> {
     row: CombinedFragranceAccordScoreRow,
     myVotesMap: Map<string, FragranceAccordVoteRow>
   ) {
-    const myVote = myVotesMap.get(row.accordId) != null ? 1 : null
+    const myVote = myVotesMap.get(row.accordId) == null ? null : 1
 
     const {
       id,

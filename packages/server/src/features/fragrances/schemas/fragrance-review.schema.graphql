@@ -1,0 +1,38 @@
+type FragranceReview {
+  id: ID!
+  rating: Float!
+  body: String
+
+  author: User!
+  fragrance: Fragrance!
+  votes: VoteInfo!
+}
+
+type FragranceReviewEdge {
+  node: FragranceReview!
+  cursor: String!
+}
+
+type FragranceReviewConnection {
+  edges: [FragranceReviewEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceReviewSortBy {
+  RECENT
+}
+
+input FragranceReviewSortInput {
+  direction: SortDirection
+  by: FragranceReviewSortBy
+}
+
+input CreateFragranceReviewInput {
+  fragranceId: ID!
+  rating: Float!
+  body: String
+}
+
+extend type Mutation {
+  createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+}

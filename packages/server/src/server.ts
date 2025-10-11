@@ -68,9 +68,11 @@ export const startServer = async (): Promise<string> => {
       })
     )
 
-  return await new Promise(resolve =>
-    httpServer.listen({ host, port }, () => {
-      resolve(`http://${host}:${port}/graphql`)
-    })
+  return await new Promise(
+    resolve => {
+      httpServer.listen({ host, port }, () => {
+        resolve(`http://${host}:${port}/graphql`)
+      })
+    }
   )
 }

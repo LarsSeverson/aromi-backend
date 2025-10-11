@@ -1,4 +1,4 @@
-import type { Generated, Kysely, Selectable } from 'kysely'
+import type { Generated, Kysely, Selectable, SelectQueryBuilder } from 'kysely'
 import type { DB, Timestamp } from './db-schema.js'
 
 export type DBConnection = Kysely<DB>
@@ -22,8 +22,9 @@ export interface CursorPaginationInput<C> {
   cursor: DBCursor<C>
 }
 
-export interface QueryOptions<C> {
+export interface QueryOptions<C, T extends keyof DB, R> {
   pagination?: CursorPaginationInput<C>
+  extend?: (qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>
 }
 
 export type RowOf<T extends keyof DB> = Selectable<DB[T]>

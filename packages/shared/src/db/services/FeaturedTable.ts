@@ -44,11 +44,11 @@ export class FeaturedTable<R, T extends ServicableTablesMatching<R> = Servicable
   ) {
     const check = `${this.tableName}.deletedAt` as ReferenceExpression<DB, T>
     return (eb: ExpressionBuilder<DB, T>) =>
-      where != null
-        ? eb.and([
+      where == null
+        ? eb(check, 'is', null)
+        : eb.and([
           eb(check, 'is', null),
           typeof where === 'function' ? where(eb) : where
         ])
-        : eb(check, 'is', null)
   }
 }

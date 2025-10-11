@@ -1,4 +1,4 @@
-import type { ExpressionOrFactory, ReferenceExpression, SqlBool, UpdateObject, ExpressionBuilder } from 'kysely'
+import type { ExpressionOrFactory, ReferenceExpression, SqlBool, UpdateObject, ExpressionBuilder, SelectQueryBuilder } from 'kysely'
 import type { CursorPaginationInput, QueryOptions, ServicableTablesMatching } from '../types.js'
 import { TableService } from './TableService.js'
 import type { DB } from '../db-schema.js'
@@ -18,17 +18,37 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
     this.Table = new FeaturedTable(sources.db, tableName)
   }
 
+  override find (
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    extend?: (qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>
+  ): ResultAsync<R[], BackendError>
+
   override find<C>(
     where?: ExpressionOrFactory<DB, T, SqlBool>,
-    options?: QueryOptions<C>
+    options?: QueryOptions<C, T, R>
+  ): ResultAsync<R[], BackendError>
+
+  override find<C>(
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    second?: QueryOptions<C, T, R> | ((qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>)
   ): ResultAsync<R[], BackendError> {
-    const { pagination } = options ?? {}
+    const options = typeof second === 'function' ?
+      {
+        extend: second
+      }
+      : second ?? {}
+
+    const { pagination, extend } = options
 
     let query = this.Table
       .find(this.Table.filterDeleted(where))
 
     if (pagination != null) {
       query = this.Table.paginatedQuery(pagination, query)
+    }
+
+    if (extend != null) {
+      query = extend(query)
     }
 
     return ResultAsync
@@ -39,11 +59,16 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
   }
 
   override findOne (
-    where?: ExpressionOrFactory<DB, T, SqlBool>
+    where?: ExpressionOrFactory<DB, T, SqlBool>,
+    extend?: (qb: SelectQueryBuilder<DB, T, R>) => SelectQueryBuilder<DB, T, R>
   ): ResultAsync<R, BackendError> {
-    const query = this
+    let query = this
       .Table
       .findOne(this.Table.filterDeleted(where))
+
+    if (extend != null) {
+      query = extend(query)
+    }
 
     return ResultAsync
       .fromPromise(

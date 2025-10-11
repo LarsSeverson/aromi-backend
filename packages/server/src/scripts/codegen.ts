@@ -21,6 +21,8 @@ const config: CodegenConfig = {
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
           FragranceEdit: '../features/fragrances/types.js#IFragranceEditSummary',
           FragranceRequest: '../features/fragrances/types.js#IFragranceRequestSummary',
+          FragranceCollection: '../features/fragrances/types.js#IFragranceCollectionSummary',
+          FragranceCollectionItem: '../features/fragrances/types.js#IFragranceCollectionItemSummary',
 
           Brand: '../features/brands/types.js#IBrandSummary',
           BrandEdit: '../features/brands/types.js#IBrandEditSummary',

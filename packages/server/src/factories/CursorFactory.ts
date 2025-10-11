@@ -29,9 +29,11 @@ export class CursorFactory {
   ): ApiCursor<T> {
     const { value: rawValue, lastId } = this.decodeRawCursor(eCursor)
 
-    const value = (decoder != null
-      ? decoder(rawValue)
-      : rawValue) as T
+    const value = (
+      decoder == null
+        ? rawValue
+        : decoder(rawValue)
+    ) as T
 
     const isValid = value != null && lastId != null
 

@@ -7,6 +7,9 @@ export const MAX_FRAGRANCE_NAME_LENGTH = 100
 export const MAX_FRAGRANCE_DESCRIPTION_LENGTH = 3000
 export const MAX_FRAGRANCE_IMAGE_SIZE = 5_000_000 // 5 MB
 
+export const MIN_FRAGRANCE_COLLECTION_NAME_LENGTH = 1
+export const MAX_FRAGRANCE_COLLECTION_NAME_LENGTH = 100
+
 export const ValidFragranceName = z
   .string()
   .trim()
@@ -62,5 +65,17 @@ export const ValidFragranceImage = z
   .object({
     contentType: ValidFragranceImageType,
     contentSize: ValidFragranceImageSize
+  })
+  .strip()
+
+export const ValidFragranceCollectionName = z
+  .string('Collection name must be a string')
+  .trim()
+  .min(MIN_FRAGRANCE_COLLECTION_NAME_LENGTH, 'Collection name must not be empty')
+  .max(MAX_FRAGRANCE_COLLECTION_NAME_LENGTH, `Collection name cannot exceed ${MAX_FRAGRANCE_COLLECTION_NAME_LENGTH} characters`)
+
+export const ValidFragranceCollection = z
+  .object({
+    name: ValidFragranceCollectionName.nonoptional('Collection name is required')
   })
   .strip()
