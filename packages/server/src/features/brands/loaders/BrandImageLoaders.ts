@@ -4,7 +4,7 @@ import { ResultAsync } from 'neverthrow'
 import DataLoader from 'dataloader'
 import { BackendError, type BrandImageRow, unwrapOrThrow } from '@aromi/shared'
 
-export class BrandImageLoaders extends BaseLoader<BrandImageLoadersKey> {
+export class BrandImageLoaders extends BaseLoader {
   load (id: BrandImageLoadersKey) {
     return ResultAsync
       .fromPromise(

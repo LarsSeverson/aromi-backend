@@ -1,7 +1,7 @@
-import { type NoteLayerEnum, type FragranceStatus as DBFragranceStatus, type FragranceConcentration, type FragranceRow, type FragranceImageRow, parseOrThrow, removeNullish, type CombinedTraitRow, type FragranceRequestRow } from '@aromi/shared'
+import { type NoteLayerEnum, type FragranceStatus as DBFragranceStatus, type FragranceConcentration, type FragranceRow, type FragranceImageRow, parseOrThrow, removeNullish, type CombinedTraitRow, type FragranceRequestRow, type FragranceReviewRow } from '@aromi/shared'
 import type { FragranceStatus, Concentration, NoteLayer, FragranceImage, CreateFragranceRequestInput, FragranceRequestTrait, RequestStatus, TraitTypeEnum, UpdateFragranceRequestInput } from '@src/graphql/gql-types.js'
 import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from './validation.js'
-import type { IFragranceRequestSummary, IFragranceSummary } from '../types.js'
+import type { IFragranceRequestSummary, IFragranceReviewSummary, IFragranceSummary } from '../types.js'
 
 export const mapGQLConcentrationToDBConcentration = (
   concentration: Concentration | null
@@ -135,5 +135,12 @@ export const mapCombinedTraitRowToRequestTrait = (
       label: traitOption.label,
       score: traitOption.score
     }
+  }
+}
+
+export const mapFragranceReviewRowToFragranceReview = (row: FragranceReviewRow): IFragranceReviewSummary => {
+  return {
+    ...row,
+    rating: Number(row.rating)
   }
 }

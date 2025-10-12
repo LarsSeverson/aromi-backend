@@ -4,7 +4,7 @@ import { BackendError, type BrandRequestScoreRow, type BrandRequestVoteRow, unwr
 import DataLoader from 'dataloader'
 import { okAsync, ResultAsync } from 'neverthrow'
 
-export class BrandRequestLoaders extends BaseLoader<BrandRequestLoadersKey> {
+export class BrandRequestLoaders extends BaseLoader {
   loadScore (id: BrandRequestLoadersKey) {
     return ResultAsync
       .fromPromise(

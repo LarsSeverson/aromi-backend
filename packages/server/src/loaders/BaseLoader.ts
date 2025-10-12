@@ -1,7 +1,7 @@
 import type { ServerServices } from '@src/services/ServerServices.js'
 import type DataLoader from 'dataloader'
 
-export abstract class BaseLoader<K> {
+export abstract class BaseLoader<K = string> {
   protected readonly cache = new Map<string, DataLoader<K, unknown>>()
   protected readonly services: ServerServices
 

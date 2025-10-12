@@ -4,7 +4,7 @@ import { ResultAsync } from 'neverthrow'
 import { type AssetUploadRow, BackendError, unwrapOrThrow } from '@aromi/shared'
 import DataLoader from 'dataloader'
 
-export class AssetLoaders extends BaseLoader<AssetLoaderKey> {
+export class AssetLoaders extends BaseLoader {
   load (id: AssetLoaderKey) {
     return ResultAsync
       .fromPromise(

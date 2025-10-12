@@ -4,7 +4,7 @@ import { BackendError, type NoteImageRow, unwrapOrThrow } from '@aromi/shared'
 import DataLoader from 'dataloader'
 import type { NoteImageLoadersKey } from '../types.js'
 
-export class NoteImageLoaders extends BaseLoader<NoteImageLoadersKey> {
+export class NoteImageLoaders extends BaseLoader {
   load (id: NoteImageLoadersKey) {
     return ResultAsync
       .fromPromise(

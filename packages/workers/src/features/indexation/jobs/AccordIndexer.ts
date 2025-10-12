@@ -1,11 +1,11 @@
-import { unwrapOrThrow, type AccordIndex, type AccordRow, type INDEXATION_JOB_NAMES, type IndexationJobPayload } from '@aromi/shared'
+import { unwrapOrThrow, type AccordDoc, type AccordRow, type INDEXATION_JOB_NAMES, type IndexationJobPayload } from '@aromi/shared'
 import { BaseIndexer } from './BaseIndexer.js'
 import type { Job } from 'bullmq'
 
 type JobKey = typeof INDEXATION_JOB_NAMES.INDEX_ACCORD
 
-export class AccordIndexer extends BaseIndexer<IndexationJobPayload[JobKey], AccordIndex> {
-  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<AccordIndex> {
+export class AccordIndexer extends BaseIndexer<IndexationJobPayload[JobKey], AccordDoc> {
+  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<AccordDoc> {
     const { accordId } = job.data
 
     const row = await unwrapOrThrow(this.getAccordRow(accordId))

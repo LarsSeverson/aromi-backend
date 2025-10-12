@@ -1,4 +1,4 @@
-import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow, type PartialWithId, type BrandIndex, INDEXATION_JOB_NAMES, type BrandImageRow } from '@aromi/shared'
+import { type DataSources, EditType, type BrandRow, type REVISION_JOB_NAMES, type RevisionJobPayload, type BrandEditRow, BackendError, EditStatus, removeNullish, type AssetUploadRow, unwrapOrThrow, type PartialWithId, type BrandDoc, INDEXATION_JOB_NAMES, type BrandImageRow } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -36,7 +36,7 @@ export class BrandReviser extends BaseReviser<RevisionJobPayload[JobKey], BrandR
     return { brand, newValues }
   }
 
-  private enqueueIndex (data: PartialWithId<BrandIndex>) {
+  private enqueueIndex (data: PartialWithId<BrandDoc>) {
     const { context } = this
     const { queues } = context
 

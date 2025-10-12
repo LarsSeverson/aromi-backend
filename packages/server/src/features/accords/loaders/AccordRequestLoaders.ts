@@ -4,7 +4,7 @@ import { type AccordRequestScoreRow, type AccordRequestVoteRow, BackendError, un
 import DataLoader from 'dataloader'
 import { okAsync, ResultAsync } from 'neverthrow'
 
-export class AccordRequestLoaders extends BaseLoader<AccordRequestLoadersKey> {
+export class AccordRequestLoaders extends BaseLoader {
   loadScore (id: AccordRequestLoadersKey) {
     return ResultAsync
       .fromPromise(

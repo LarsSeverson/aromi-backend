@@ -40,7 +40,7 @@ input MoveFragranceCollectionItemsInput {
   rangeLength: Int
 }
 
-input RemoveFragranceCollectionItemInput {
+input DeleteFragranceCollectionItemInput {
   collectionId: ID!
   itemId: ID!
 }
@@ -48,5 +48,5 @@ input RemoveFragranceCollectionItemInput {
 extend type Mutation {
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   moveFragranceCollectionItems(input: MoveFragranceCollectionItemsInput!): [FragranceCollectionItem!]!
-  removeFragranceCollectionItem(input: RemoveFragranceCollectionItemInput!): FragranceCollectionItem!
+  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): FragranceCollectionItem!
 }

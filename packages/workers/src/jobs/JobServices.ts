@@ -1,7 +1,9 @@
-import { AccordService, AssetService, BrandService, type DataSources, EditJobService, FragranceService, NoteService, RequestJobService, SearchServices } from '@aromi/shared'
+import { AccordService, AssetService, BrandService, type DataSources, EditJobService, FragranceService, NoteService, RequestJobService, SearchServices, UserService } from '@aromi/shared'
 
 export class JobServices {
   assets: AssetService
+
+  users: UserService
 
   fragrances: FragranceService
   brands: BrandService
@@ -14,6 +16,8 @@ export class JobServices {
 
   constructor (sources: DataSources) {
     this.assets = new AssetService(sources)
+
+    this.users = new UserService(sources)
 
     this.fragrances = new FragranceService(sources)
     this.brands = new BrandService(sources)

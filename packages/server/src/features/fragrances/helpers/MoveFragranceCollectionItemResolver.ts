@@ -69,7 +69,10 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
     const { args } = this
     const { collectionId } = args.input
 
-    return this.trxService!.items.find(where => where('collectionId', '=', collectionId))
+    return this.trxService!.items.find(
+      where => where('collectionId', '=', collectionId),
+      qb => qb.orderBy('rank', 'desc')
+    )
   }
 
   private async updateRanks (moving: FragranceCollectionItemRow[], baseRank: number) {
@@ -143,8 +146,8 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
 
   private getBaseRank (before: FragranceCollectionItemRow | undefined, after: FragranceCollectionItemRow | undefined) {
     if (before != null && after != null) return (before.rank + after.rank) / 2
-    if (before != null && after == null) return before.rank + MoveFragranceCollectionItemsResolver.DEFAULT_GAP
-    if (before == null && after != null) return after.rank - MoveFragranceCollectionItemsResolver.DEFAULT_GAP
+    if (before != null && after == null) return before.rank - MoveFragranceCollectionItemsResolver.DEFAULT_GAP
+    if (before == null && after != null) return after.rank + MoveFragranceCollectionItemsResolver.DEFAULT_GAP
     return MoveFragranceCollectionItemsResolver.DEFAULT_RANK
   }
 

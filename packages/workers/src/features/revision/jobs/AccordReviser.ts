@@ -1,4 +1,4 @@
-import { type AccordEditRow, BackendError, EditStatus, type AccordRow, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow, type DataSources, EditType, removeNullish, INDEXATION_JOB_NAMES, type PartialWithId, type AccordIndex } from '@aromi/shared'
+import { type AccordEditRow, BackendError, EditStatus, type AccordRow, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow, type DataSources, EditType, removeNullish, INDEXATION_JOB_NAMES, type PartialWithId, type AccordDoc } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import type { Job } from 'bullmq'
 import { errAsync, okAsync } from 'neverthrow'
@@ -30,7 +30,7 @@ export class AccordReviser extends BaseReviser<RevisionJobPayload[JobKey], Accor
     return { accord, newValues }
   }
 
-  private queueIndex (data: PartialWithId<AccordIndex>) {
+  private queueIndex (data: PartialWithId<AccordDoc>) {
     const { context } = this
     const { queues } = context
 

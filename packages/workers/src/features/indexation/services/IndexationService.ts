@@ -10,6 +10,7 @@ import { FragranceUpdater } from '../jobs/FragranceUpdater.js'
 import { BrandUpdater } from '../jobs/BrandUpdater.js'
 import { AccordUpdater } from '../jobs/AccordUpdater.js'
 import { NoteUpdater } from '../jobs/NoteUpdater.js'
+import { UserIndexer } from '../jobs/UserIndexer.js'
 
 export class IndexationService extends WorkerService<keyof IndexationJobPayload, IndexationJobPayload> {
   constructor (context: WorkerContext) {
@@ -52,6 +53,11 @@ export class IndexationService extends WorkerService<keyof IndexationJobPayload,
       .register(
         INDEXATION_JOB_NAMES.UPDATE_NOTE,
         new NoteUpdater(sources)
+      )
+
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_USER,
+        new UserIndexer(sources)
       )
   }
 }

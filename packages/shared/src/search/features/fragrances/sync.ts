@@ -1,7 +1,7 @@
 import { BackendError } from '@src/utils/error.js'
 import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
-import type { FragranceIndexAccord, FragranceIndexNote } from '@aromi/shared/src/search/features/fragrances/types.js'
+import type { FragranceDocAccord, FragranceDocNote } from '@aromi/shared/src/search/features/fragrances/types.js'
 
 export const syncFragrances = (
   meili: DataSources['meili'],
@@ -70,7 +70,7 @@ export const syncFragrances = (
 
               return acc
             },
-            new Map<string, FragranceIndexAccord[]>()
+            new Map<string, FragranceDocAccord[]>()
           )
 
           const notesByFragrance = notes.reduce(
@@ -85,7 +85,7 @@ export const syncFragrances = (
 
               return acc
             },
-            new Map<string, FragranceIndexNote[]>()
+            new Map<string, FragranceDocNote[]>()
           )
 
           return fragrances

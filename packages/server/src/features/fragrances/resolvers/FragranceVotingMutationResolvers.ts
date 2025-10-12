@@ -5,6 +5,7 @@ import { unwrapOrThrow } from '@aromi/shared'
 import { VoteOnAccordResolver } from '../helpers/VoteOnAccordResolver.js'
 import { VoteOnNoteResolver } from '../helpers/VoteOnNoteResolver.js'
 import { VoteOnFragranceResolver } from '../helpers/VoteOnFragranceResolver.js'
+import { VoteOnFragranceReviewResolver } from '../helpers/VoteOnFragranceReviewResolver.js'
 
 export class FragranceVotingMutationResolvers extends BaseResolver<MutationResolvers> {
   voteOnFragrance: MutationResolvers['voteOnFragrance'] = async (
@@ -47,12 +48,23 @@ export class FragranceVotingMutationResolvers extends BaseResolver<MutationResol
     return await resolver.resolve()
   }
 
+  voteOnFragranceReview: MutationResolvers['voteOnFragranceReview'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const resolver = new VoteOnFragranceReviewResolver({ parent, args, context, info })
+    return await resolver.resolve()
+  }
+
   getResolvers (): MutationResolvers {
     return {
       voteOnFragrance: this.voteOnFragrance,
       voteOnFragranceTrait: this.voteOnFragranceTrait,
       voteOnFragranceAccord: this.voteOnFragranceAccord,
-      voteOnFragranceNote: this.voteOnFragranceNote
+      voteOnFragranceNote: this.voteOnFragranceNote,
+      voteOnFragranceReview: this.voteOnFragranceReview
     }
   }
 }

@@ -1,7 +1,7 @@
 import { BackendError } from '@src/utils/error.js'
 import type { DataSources } from '@src/datasources/index.js'
 import { ResultAsync } from 'neverthrow'
-import type { AccordIndex } from './types.js'
+import type { AccordDoc } from './types.js'
 import { INDEX_NAMES } from '../../types.js'
 
 export const initAccordsIndex = (
@@ -18,7 +18,7 @@ export const initAccordsIndex = (
       .fromPromise(
         meili
           .client
-          .index<AccordIndex>(INDEX_NAMES.ACCORDS)
+          .index<AccordDoc>(INDEX_NAMES.ACCORDS)
           .updateSettings({
             searchableAttributes: ['name'],
             sortableAttributes: ['createdAt', 'updatedAt']

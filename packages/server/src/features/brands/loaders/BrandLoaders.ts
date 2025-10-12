@@ -6,7 +6,7 @@ import { okAsync, ResultAsync } from 'neverthrow'
 import { BrandImageLoaders } from './BrandImageLoaders.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 
-export class BrandLoaders extends BaseLoader<BrandLoadersKey> {
+export class BrandLoaders extends BaseLoader {
   images: BrandImageLoaders
 
   constructor (services: ServerServices) {

@@ -1,0 +1,13 @@
+type SearchUserEdge {
+  node: User!
+  offset: Int!
+}
+
+type SearchUserConnection {
+  edges: [SearchUserEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchUsers(input: SearchInput): SearchUserConnection!
+}

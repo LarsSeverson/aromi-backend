@@ -27,12 +27,24 @@ input FragranceReviewSortInput {
   by: FragranceReviewSortBy
 }
 
+input FragranceReviewPaginationInput {
+  first: Int
+  after: String
+  sort: FragranceReviewSortInput
+}
+
 input CreateFragranceReviewInput {
   fragranceId: ID!
   rating: Float!
   body: String
 }
 
+input VoteOnFragranceReviewInput {
+  reviewId: ID!
+  vote: Int!
+}
+
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
 }

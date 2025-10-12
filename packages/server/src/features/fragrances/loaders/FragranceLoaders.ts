@@ -1,10 +1,30 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { FragranceLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
-import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, type FragranceImageRow, unwrapOrThrow, type FragranceTraitVoteRow, type FragranceAccordVoteRow, type FragranceNoteVoteRow, type FragranceScoreRow, type FragranceVoteRow } from '@aromi/shared'
+import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, type FragranceImageRow, unwrapOrThrow, type FragranceTraitVoteRow, type FragranceAccordVoteRow, type FragranceNoteVoteRow, type FragranceScoreRow, type FragranceVoteRow, type FragranceRow } from '@aromi/shared'
 import { okAsync, ResultAsync } from 'neverthrow'
+import { FragranceCollectionLoaders } from './FragranceCollectionLoaders.js'
+import type { ServerServices } from '@src/services/ServerServices.js'
+import { FragranceReviewLoaders } from './FragranceReviewLoaders.js'
 
-export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
+export class FragranceLoaders extends BaseLoader {
+  collections: FragranceCollectionLoaders
+  reviews: FragranceReviewLoaders
+
+  constructor (services: ServerServices) {
+    super(services)
+    this.collections = new FragranceCollectionLoaders(services)
+    this.reviews = new FragranceReviewLoaders(services)
+  }
+
+  load (id: FragranceLoadersKey) {
+    return ResultAsync
+      .fromPromise(
+        this.getFragranceLoader().load(id),
+        error => BackendError.fromLoader(error)
+      )
+  }
+
   loadThumbnail (id: FragranceLoadersKey) {
     return ResultAsync
       .fromPromise(
@@ -91,6 +111,15 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
+  private getFragranceLoader () {
+    const key = this.genKey('fragrance')
+    return this
+      .getLoader(
+        key,
+        () => this.createFragranceLoader()
+      )
+  }
+
   private getThumbnailLoader () {
     const key = this.genKey('thumbnail')
     return this
@@ -172,6 +201,30 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
       )
   }
 
+  private createFragranceLoader () {
+    const { fragrances } = this.services
+
+    return new DataLoader<FragranceLoadersKey, FragranceRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          fragrances
+            .findDistinct(
+              eb => eb('id', 'in', keys),
+              'id'
+            )
+        )
+
+        const rowsMap = new Map<string, FragranceRow>()
+
+        rows.forEach(row => {
+          rowsMap.set(row.id, row)
+        })
+
+        return keys.map(id => rowsMap.get(id) ?? null)
+      }
+    )
+  }
+
   private createThumbnailLoader () {
     const { fragrances } = this.services
 
@@ -205,10 +258,7 @@ export class FragranceLoaders extends BaseLoader<FragranceLoadersKey> {
         const rows = await unwrapOrThrow(
           fragrances
             .images
-            .findDistinct(
-              eb => eb('fragranceId', 'in', keys),
-              'fragranceId'
-            )
+            .find(eb => eb('fragranceId', 'in', keys))
         )
 
         const rowsMap = new Map<string, FragranceImageRow[]>()

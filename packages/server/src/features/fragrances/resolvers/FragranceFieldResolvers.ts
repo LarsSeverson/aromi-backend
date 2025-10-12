@@ -5,8 +5,12 @@ import { FragranceImagesResolver } from '../helpers/FragranceImagesResolver.js'
 import { FragranceAccordsResolver } from '../helpers/FragranceAccordsResolver.js'
 import { FragranceNotesResolver } from '../helpers/FragranceNotesResolver.js'
 import { FragranceTraitsResolver } from '../helpers/FragranceTraitsResolver.js'
+import { FragranceReviewPaginationFactory } from '../factories/FragranceReviewPaginationFactory.js'
+import { mapFragranceReviewRowToFragranceReview } from '../utils/mappers.js'
 
 export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
+  private readonly reviewPagination = new FragranceReviewPaginationFactory()
+
   brand: FragranceResolvers['brand'] = async (
     parent,
     args,
@@ -79,6 +83,34 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
     return await unwrapOrThrow(resolver.resolve())
   }
 
+  reviews: FragranceResolvers['reviews'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const pagination = this.reviewPagination.parse(input)
+    const { fragrances } = services
+
+    const reviews = await unwrapOrThrow(
+      fragrances
+        .reviews
+        .find(
+          where => where('fragranceId', '=', id),
+          { pagination }
+        )
+    )
+
+    const connection = this.pageFactory.paginate(reviews, pagination)
+    const transformed = this.pageFactory.transform(connection, mapFragranceReviewRowToFragranceReview)
+
+    return transformed
+  }
+
   votes: FragranceResolvers['votes'] = async (
     parent,
     args,
@@ -111,6 +143,7 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
       accords: this.accords,
       notes: this.notes,
       traits: this.traits,
+      reviews: this.reviews,
       votes: this.votes
     }
   }

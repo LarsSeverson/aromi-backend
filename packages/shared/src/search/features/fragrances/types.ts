@@ -1,16 +1,16 @@
 import type { FragranceRow, NoteLayerEnum } from '@src/db/index.js'
 
-export interface FragranceIndexBrand {
+export interface FragranceDocBrand {
   id: string
   name: string
 }
 
-export interface FragranceIndexAccord {
+export interface FragranceDocAccord {
   id: string
   name: string
 }
 
-export interface FragranceIndexNote {
+export interface FragranceDocNote {
   id: string
   name: string
   layer: NoteLayerEnum
@@ -18,8 +18,8 @@ export interface FragranceIndexNote {
 
 // Traits maybe
 
-export interface FragranceIndex extends FragranceRow {
-  brand: FragranceIndexBrand | null
-  accords: FragranceIndexAccord[]
-  notes: FragranceIndexNote[]
+export interface FragranceDoc extends FragranceRow {
+  brand: FragranceDocBrand | null
+  accords: FragranceDocAccord[]
+  notes: FragranceDocNote[]
 }

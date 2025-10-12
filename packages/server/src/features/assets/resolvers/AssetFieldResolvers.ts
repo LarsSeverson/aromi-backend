@@ -18,7 +18,7 @@ export class AssetFieldResolvers extends BaseResolver<AssetResolvers> {
     return assets.getCdnUrl(s3Key)
   }
 
-  contentSize: AssetResolvers['contentSize'] = (
+  sizeBytes: AssetResolvers['sizeBytes'] = (
     parent,
     args,
     context,
@@ -32,7 +32,7 @@ export class AssetFieldResolvers extends BaseResolver<AssetResolvers> {
   getResolvers (): AssetResolvers {
     return {
       url: this.url,
-      contentSize: this.contentSize
+      sizeBytes: this.sizeBytes
     }
   }
 }

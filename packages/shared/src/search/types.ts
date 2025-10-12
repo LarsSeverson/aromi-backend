@@ -24,7 +24,8 @@ export const INDEX_NAMES = {
   FRAGRANCES: 'fragrances',
   BRANDS: 'brands',
   ACCORDS: 'accords',
-  NOTES: 'notes'
+  NOTES: 'notes',
+  USERS: 'users'
 } as const
 
 export type IndexName = (typeof INDEX_NAMES)[keyof typeof INDEX_NAMES]

@@ -4,19 +4,22 @@ import { FragranceVotingMutationResolvers } from './FragranceVotingMutationResol
 import { FragranceEditMutationResolvers } from './FragranceEditMutationResolvers.js'
 import { FragranceRequestMutationResolvers } from './FragranceRequestMutationResolvers.js'
 import { FragranceCollectionMutationResolvers } from './FragranceCollectionMutationResolvers.js'
+import { FragranceReviewMutationResolvers } from './FragranceReviewMutationResolvers.js'
 
 export class FragranceMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly edits = new FragranceEditMutationResolvers()
   private readonly requests = new FragranceRequestMutationResolvers()
   private readonly votes = new FragranceVotingMutationResolvers()
   private readonly collections = new FragranceCollectionMutationResolvers()
+  private readonly reviews = new FragranceReviewMutationResolvers()
 
   getResolvers (): MutationResolvers {
     return {
       ...this.votes.getResolvers(),
       ...this.requests.getResolvers(),
       ...this.edits.getResolvers(),
-      ...this.collections.getResolvers()
+      ...this.collections.getResolvers(),
+      ...this.reviews.getResolvers()
     }
   }
 }

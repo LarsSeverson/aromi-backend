@@ -2,13 +2,30 @@ import { INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
-import { mapFragranceRequestRowToFragranceRequest } from '@src/features/fragrances/utils/mappers.js'
+import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview } from '@src/features/fragrances/utils/mappers.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/utils/mappers.js'
 import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords/utils/mappers.js'
 import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
+import { FragranceCollectionPaginationFactory, FragranceReviewPaginationFactory } from '@src/features/fragrances/index.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
+  private readonly collectionPagination = new FragranceCollectionPaginationFactory()
+  private readonly reviewPagination = new FragranceReviewPaginationFactory()
+
+  email: UserResolvers['email'] = (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id, email } = parent
+    const { me } = context
+
+    if (me?.id !== id) return null
+
+    return email ?? null
+  }
 
   avatar: UserResolvers['avatar'] = async (
     parent,
@@ -17,19 +34,118 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     info
   ) => {
     const { avatarId } = parent
-    const { services } = context
+    const { loaders } = context
 
     if (avatarId == null) return null
 
-    const { users } = services
+    const { users } = loaders
 
-    const image = await unwrapOrThrow(
-      users
-        .images
-        .findOne(eb => eb('id', '=', avatarId))
-    )
+    const image = await unwrapOrThrow(users.images.load(avatarId))
 
     return image
+  }
+
+  collection: UserResolvers['collection'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { id: collectionId } = args
+    const { services } = context
+
+    const { users } = services
+
+    const collection = await unwrapOrThrow(
+      users.collections.findOne(
+        where => where.and([
+          where('id', '=', collectionId),
+          where('userId', '=', id)
+        ])
+      )
+    )
+
+    return collection
+  }
+
+  collections: UserResolvers['collections'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { users } = services
+    const pagination = this.collectionPagination.parse(input)
+
+    const collections = await unwrapOrThrow(
+      users
+        .collections
+        .find(
+          eb => eb('userId', '=', id),
+          { pagination }
+        )
+    )
+
+    const connection = this.pageFactory.paginate(collections, pagination)
+
+    return connection
+  }
+
+  review: UserResolvers['review'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { id: reviewId } = args
+    const { services } = context
+
+    const { users } = services
+
+    const review = await unwrapOrThrow(
+      users.reviews.findOne(
+        where => where.and([
+          where('id', '=', reviewId),
+          where('userId', '=', id)
+        ])
+      )
+    )
+
+    return mapFragranceReviewRowToFragranceReview(review)
+  }
+
+  reviews: UserResolvers['reviews'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { users } = services
+    const pagination = this.reviewPagination.parse(input)
+
+    const reviews = await unwrapOrThrow(
+      users
+        .reviews
+        .find(
+          eb => eb('userId', '=', id),
+          { pagination }
+        )
+    )
+
+    const connection = this.pageFactory.paginate(reviews, pagination)
+    const transformed = this.pageFactory.transform(connection, mapFragranceReviewRowToFragranceReview)
+
+    return transformed
   }
 
   fragranceRequests: UserResolvers['fragranceRequests'] = async (
@@ -226,7 +342,10 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
 
   getResolvers (): UserResolvers {
     return {
+      email: this.email,
       avatar: this.avatar,
+      collection: this.collection,
+      collections: this.collections,
       fragranceRequests: this.fragranceRequests,
       brandRequests: this.brandRequests,
       accordRequests: this.accordRequests,

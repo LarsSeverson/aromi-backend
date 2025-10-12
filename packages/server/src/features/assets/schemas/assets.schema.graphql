@@ -10,7 +10,7 @@ type Asset {
   id: ID!
   name: String!
   contentType: String!
-  contentSize: Int!
+  sizeBytes: Int!
   s3Key: String!
   url: String
 }

@@ -20,7 +20,9 @@ const jobKeyBuilders = {
   [INDEXATION_JOB_NAMES.UPDATE_ACCORD]:
     (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_ACCORD]) => data.id,
   [INDEXATION_JOB_NAMES.UPDATE_NOTE]:
-    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_NOTE]) => data.id
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_NOTE]) => data.id,
+  [INDEXATION_JOB_NAMES.INDEX_USER]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.INDEX_USER]) => data.userId
 }
 
 export class IndexationQueueService extends MQueueService<IndexationJobName, IndexationJobPayload> {

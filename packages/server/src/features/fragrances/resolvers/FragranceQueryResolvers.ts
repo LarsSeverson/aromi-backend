@@ -3,7 +3,6 @@ import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapFragranceRowToFragranceSummary } from '../utils/mappers.js'
 import { FragrancePaginationFactory } from '../factories/FragrancePaginationFactory.js'
-import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { FragranceEditQueryResolvers } from './FragranceEditQueryResolvers.js'
 import { FragranceRequestQueryResolvers } from './FragranceRequestQueryResolvers.js'
 
@@ -12,7 +11,6 @@ export class FragranceQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly requests = new FragranceRequestQueryResolvers()
 
   private readonly pagination = new FragrancePaginationFactory()
-  private readonly searchPagination = new SearchPaginationFactory()
 
   fragrance: QueryResolvers['fragrance'] = async (
     parent,

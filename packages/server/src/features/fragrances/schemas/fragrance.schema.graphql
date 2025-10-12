@@ -31,6 +31,8 @@ type Fragrance {
   accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   traits: [FragranceTrait!]!
+
+  reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
 }
 
 type FragranceEdge {

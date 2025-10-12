@@ -3,7 +3,7 @@ import type { Response } from 'express'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { generateFromEmail } from 'unique-username-generator'
 import type { AuthDeliveryResult, AuthTokenPayload, MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseOrThrow, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError } from '@aromi/shared'
+import { BackendError, type AuthDeliveryResultSummary, IS_APP_PRODUCTION, parseOrThrow, type RawAuthTokenPayload, REFRESH_TOKEN_COOKIE, REFRESH_TOKEN_PATH, throwError, unwrapOrThrow, INDEXATION_JOB_NAMES } from '@aromi/shared'
 
 export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
   refresh: MutationResolvers['refresh'] = async (
@@ -109,20 +109,22 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
     parseOrThrow(ConfirmSignUpSchema, input)
 
     const { email } = input
-    const { services } = context
+    const { queues, services } = context
+
+    const { indexations } = queues
     const { auth, users } = services
 
     const username = generateFromEmail(email)
 
-    return await auth
-      .confirmSignUp(input)
-      .andThen(({ sub }) => users
-        .createOne({ email, username, cognitoSub: sub })
-      )
-      .match(
-        () => true,
-        throwError
-      )
+    const { sub } = await unwrapOrThrow(auth.confirmSignUp(input))
+    const user = await unwrapOrThrow(users.createOne({ email, username, cognitoSub: sub }))
+
+    await indexations.enqueue({
+      jobName: INDEXATION_JOB_NAMES.INDEX_USER,
+      data: { userId: user.id }
+    })
+
+    return user
   }
 
   resendSignUpCode: MutationResolvers['resendSignUpCode'] = async (

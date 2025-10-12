@@ -1,4 +1,4 @@
-import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, INDEXATION_JOB_NAMES, type NoteEditRow, type NoteImageRow, type NoteIndex, type NoteRow, type PartialWithId, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
+import { type AssetUploadRow, BackendError, type DataSources, EditStatus, EditType, INDEXATION_JOB_NAMES, type NoteEditRow, type NoteImageRow, type NoteDoc, type NoteRow, type PartialWithId, removeNullish, type REVISION_JOB_NAMES, type RevisionJobPayload, unwrapOrThrow } from '@aromi/shared'
 import { BaseReviser } from './BaseReviser.js'
 import { errAsync, okAsync } from 'neverthrow'
 import type { Job } from 'bullmq'
@@ -36,7 +36,7 @@ export class NoteReviser extends BaseReviser<RevisionJobPayload[JobKey], NoteRow
     return { note, newValues }
   }
 
-  private enqueueIndex (data: PartialWithId<NoteIndex>) {
+  private enqueueIndex (data: PartialWithId<NoteDoc>) {
     const { context } = this
     const { queues } = context
 

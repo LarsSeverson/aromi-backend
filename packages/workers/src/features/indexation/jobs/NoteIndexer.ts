@@ -1,11 +1,11 @@
-import { type NoteRow, unwrapOrThrow, type INDEXATION_JOB_NAMES, type IndexationJobPayload, type NoteIndex } from '@aromi/shared'
+import { type NoteRow, unwrapOrThrow, type INDEXATION_JOB_NAMES, type IndexationJobPayload, type NoteDoc } from '@aromi/shared'
 import { BaseIndexer } from './BaseIndexer.js'
 import type { Job } from 'bullmq'
 
 type JobKey = typeof INDEXATION_JOB_NAMES.INDEX_NOTE
 
-export class NoteIndexer extends BaseIndexer<IndexationJobPayload[JobKey], NoteIndex> {
-  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<NoteIndex> {
+export class NoteIndexer extends BaseIndexer<IndexationJobPayload[JobKey], NoteDoc> {
+  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<NoteDoc> {
     const { noteId } = job.data
 
     const row = await unwrapOrThrow(this.getNoteRow(noteId))

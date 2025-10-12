@@ -2,7 +2,7 @@ import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { MoveFragranceCollectionItemsResolver } from '../helpers/MoveFragranceCollectionItemResolver.js'
 import { CreateFragranceCollectionItemResolver } from '../helpers/CreateFragranceCollectionItemResolver.js'
-import { RemoveFragranceCollectionItemResolver } from '../helpers/RemoveFragranceCollectionItemResolver.js'
+import { DeleteFragranceCollectionItemResolver } from '../helpers/DeleteFragranceCollectionItemResolver.js'
 
 export class FragranceCollectionItemMutationResolvers extends BaseResolver<MutationResolvers> {
   createFragranceCollectionItem: MutationResolvers['createFragranceCollectionItem'] = async (
@@ -25,13 +25,13 @@ export class FragranceCollectionItemMutationResolvers extends BaseResolver<Mutat
     return await resolver.resolve()
   }
 
-  removeFragranceCollectionItem: MutationResolvers['removeFragranceCollectionItem'] = async (
+  deleteFragranceCollectionItem: MutationResolvers['deleteFragranceCollectionItem'] = async (
     parent,
     args,
     context,
     info
   ) => {
-    const resolver = new RemoveFragranceCollectionItemResolver({ parent, args, context, info })
+    const resolver = new DeleteFragranceCollectionItemResolver({ parent, args, context, info })
     return await resolver.resolve()
   }
 
@@ -39,7 +39,7 @@ export class FragranceCollectionItemMutationResolvers extends BaseResolver<Mutat
     return {
       createFragranceCollectionItem: this.createFragranceCollectionItem,
       moveFragranceCollectionItems: this.moveFragranceCollectionItems,
-      removeFragranceCollectionItem: this.removeFragranceCollectionItem
+      deleteFragranceCollectionItem: this.deleteFragranceCollectionItem
     }
   }
 }

@@ -2,7 +2,6 @@ import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { BrandPaginationFactory } from '../factories/BrandPaginationFactory.js'
-import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { BrandEditQueryResolvers } from './BrandEditQueryResolvers.js'
 import { BrandRequestQueryResolvers } from './BrandRequestQueryResolvers.js'
 
@@ -11,7 +10,6 @@ export class BrandQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly requests = new BrandRequestQueryResolvers()
 
   private readonly pagination = new BrandPaginationFactory()
-  private readonly searchPagination = new SearchPaginationFactory()
 
   brand: QueryResolvers['brand'] = async (
     _,

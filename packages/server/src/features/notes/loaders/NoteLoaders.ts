@@ -6,7 +6,7 @@ import { ResultAsync } from 'neverthrow'
 import { NoteImageLoaders } from './NoteImageLoaders.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 
-export class NoteLoaders extends BaseLoader<NoteLoadersKey> {
+export class NoteLoaders extends BaseLoader {
   images: NoteImageLoaders
 
   constructor (services: ServerServices) {

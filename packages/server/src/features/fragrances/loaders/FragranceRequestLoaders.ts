@@ -4,7 +4,7 @@ import DataLoader from 'dataloader'
 import { BackendError, type FragranceRequestScoreRow, type FragranceRequestVoteRow, unwrapOrThrow } from '@aromi/shared'
 import { okAsync, ResultAsync } from 'neverthrow'
 
-export class FragranceRequestLoaders extends BaseLoader<FragranceRequestLoadersKey> {
+export class FragranceRequestLoaders extends BaseLoader {
   loadScore (id: FragranceRequestLoadersKey) {
     return ResultAsync
       .fromPromise(

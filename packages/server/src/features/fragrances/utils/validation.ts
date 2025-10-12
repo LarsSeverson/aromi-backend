@@ -1,4 +1,4 @@
-import { ValidEditReason, ValidFragranceCollectionName, ValidFragranceConcentration, ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear, ValidFragranceStatus, ValidVote } from '@aromi/shared'
+import { ValidEditReason, ValidFragranceCollectionName, ValidFragranceConcentration, ValidFragranceDescription, ValidFragranceImageSize, ValidFragranceImageType, ValidFragranceName, ValidFragranceReleaseYear, ValidFragranceReview, ValidFragranceStatus, ValidVote } from '@aromi/shared'
 import z from 'zod'
 
 export const CreateFragranceEditSchema = z
@@ -77,3 +77,5 @@ export const MoveFragranceCollectionItemInputSchema = z
     'Insert before cannot be the same as range start'
   )
   .strip()
+
+export const CreateFragranceReviewInputSchema = ValidFragranceReview

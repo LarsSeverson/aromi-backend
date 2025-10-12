@@ -89,11 +89,11 @@ input AccordSortInput {
 }
 
 type Asset {
-  contentSize: Int!
   contentType: String!
   id: ID!
   name: String!
   s3Key: String!
+  sizeBytes: Int!
   url: String
 }
 
@@ -342,6 +342,11 @@ input DeleteFragranceCollectionInput {
   collectionId: ID!
 }
 
+input DeleteFragranceCollectionItemInput {
+  collectionId: ID!
+  itemId: ID!
+}
+
 input DeleteFragranceRequestInput {
   id: ID!
 }
@@ -383,6 +388,7 @@ type Fragrance {
   name: String!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
+  reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
   status: FragranceStatus!
   thumbnail: FragranceImage
   traits: [FragranceTrait!]!
@@ -423,8 +429,9 @@ input FragranceAccordSortInput {
 type FragranceCollection {
   hasFragrance(fragranceId: ID!): Boolean!
   id: ID!
-  items(input: FragranceCollectionItemSortInput): FragranceCollectionItemConnection!
+  items: [FragranceCollectionItem!]!
   name: String!
+  previewItems: [FragranceCollectionItem!]!
   user: User!
 }
 
@@ -650,6 +657,12 @@ type FragranceReviewEdge {
   node: FragranceReview!
 }
 
+input FragranceReviewPaginationInput {
+  after: String
+  first: Int
+  sort: FragranceReviewSortInput
+}
+
 enum FragranceReviewSortBy {
   RECENT
 }
@@ -703,7 +716,7 @@ input MoveFragranceCollectionItemsInput {
 
 type Mutation {
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
-  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  confirmSignUp(input: ConfirmSignUpInput!): User!
   createAccordEdit(input: CreateAccordEditInput!): AccordEdit!
   createAccordRequest(input: CreateAccordRequestInput): AccordRequest!
   createBrandEdit(input: CreateBrandEditInput!): BrandEdit!
@@ -719,6 +732,7 @@ type Mutation {
   deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
   deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!
+  deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): FragranceCollectionItem!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
@@ -726,7 +740,6 @@ type Mutation {
   logOut: Boolean!
   moveFragranceCollectionItems(input: MoveFragranceCollectionItemsInput!): [FragranceCollectionItem!]!
   refresh: AuthTokenPayload
-  removeFragranceCollectionItem(input: RemoveFragranceCollectionItemInput!): FragranceCollectionItem!
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
   reviewAccordEdit(input: ReviewAccordEditInput!): AccordEdit!
   reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
@@ -755,6 +768,7 @@ type Mutation {
   voteOnFragranceAccord(input: VoteOnFragranceAccordInput!): Accord!
   voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
+  voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
   voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
 }
@@ -897,12 +911,8 @@ type Query {
   searchBrands(input: SearchInput): SearchBrandConnection!
   searchFragrances(input: SearchInput): SearchFragranceConnection!
   searchNotes(input: SearchInput): SearchNoteConnection!
+  searchUsers(input: SearchInput): SearchUserConnection!
   user(id: ID!): User!
-}
-
-input RemoveFragranceCollectionItemInput {
-  collectionId: ID!
-  itemId: ID!
 }
 
 input RequestPaginationInput {
@@ -1022,6 +1032,16 @@ enum SearchSortBy {
 input SearchSortInput {
   by: SearchSortBy
   direction: SortDirection
+}
+
+type SearchUserConnection {
+  edges: [SearchUserEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchUserEdge {
+  node: User!
+  offset: Int!
 }
 
 input SetFragranceRequestAccordsInput {
@@ -1154,11 +1174,14 @@ type User {
   accordRequests(input: RequestPaginationInput): AccordRequestConnection!
   avatar: Asset
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
+  collection(id: ID!): FragranceCollection!
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
-  email: String!
+  email: String
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
+  review(id: ID!): FragranceReview!
+  reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
   username: String!
 }
 
@@ -1204,6 +1227,11 @@ input VoteOnFragranceNoteInput {
 
 input VoteOnFragranceRequestInput {
   requestId: ID!
+  vote: Int!
+}
+
+input VoteOnFragranceReviewInput {
+  reviewId: ID!
   vote: Int!
 }
 

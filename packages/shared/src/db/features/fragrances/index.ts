@@ -3,3 +3,4 @@ export * from './validation.js'
 
 export * from './services/FragranceService.js'
 export * from './services/FragranceCollectionService.js'
+export * from './services/FragranceReviewService.js'

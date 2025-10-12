@@ -7,9 +7,12 @@ import { NoteRequestLoaders } from '@src/features/notes/loaders/NoteRequestLoade
 import { NoteLoaders } from '@src/features/notes/loaders/NoteLoaders.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 import { AssetLoaders } from '@src/features/assets/loaders/AssetLoaders.js'
+import { UserLoaders } from '@src/features/users/index.js'
 
 export class ServerLoaders {
   assets: AssetLoaders
+
+  users: UserLoaders
 
   fragrances: FragranceLoaders
   brands: BrandLoaders
@@ -22,6 +25,8 @@ export class ServerLoaders {
 
   constructor (services: ServerServices) {
     this.assets = new AssetLoaders(services)
+
+    this.users = new UserLoaders(services)
 
     this.fragrances = new FragranceLoaders(services)
     this.brands = new BrandLoaders(services)

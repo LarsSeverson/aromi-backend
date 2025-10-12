@@ -1,12 +1,12 @@
-import { type FragranceIndex, unwrapOrThrow, type AccordRow, type BackendError, type BrandRow, type FragranceRow, type LayerNoteRow, type IndexationJobPayload, type INDEXATION_JOB_NAMES } from '@aromi/shared'
+import { type FragranceDoc, unwrapOrThrow, type AccordRow, type BackendError, type BrandRow, type FragranceRow, type LayerNoteRow, type IndexationJobPayload, type INDEXATION_JOB_NAMES } from '@aromi/shared'
 import { BaseIndexer } from './BaseIndexer.js'
 import type { Job } from 'bullmq'
 import { okAsync, ResultAsync } from 'neverthrow'
 
 type JobKey = typeof INDEXATION_JOB_NAMES.INDEX_FRAGRANCE
 
-export class FragranceIndexer extends BaseIndexer<IndexationJobPayload[JobKey], FragranceIndex> {
-  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<FragranceIndex> {
+export class FragranceIndexer extends BaseIndexer<IndexationJobPayload[JobKey], FragranceDoc> {
+  async index (job: Job<IndexationJobPayload[JobKey]>): Promise<FragranceDoc> {
     const { services } = this.context
     const { search } = services
 

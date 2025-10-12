@@ -2,7 +2,6 @@ import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory.js'
-import { SearchPaginationFactory } from '@src/features/search/factories/SearchPaginationFactory.js'
 import { NoteEditQueryResolvers } from './NoteEditQueryResolvers.js'
 import { NoteRequestQueryResolvers } from './NoteRequestQueryResolvers.js'
 
@@ -11,7 +10,6 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly requests = new NoteRequestQueryResolvers()
 
   private readonly pagination = new NotePaginationFactory()
-  private readonly searchPagination = new SearchPaginationFactory()
 
   note: QueryResolvers['note'] = async (
     _,

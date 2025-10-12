@@ -10,6 +10,10 @@ export const MAX_FRAGRANCE_IMAGE_SIZE = 5_000_000 // 5 MB
 export const MIN_FRAGRANCE_COLLECTION_NAME_LENGTH = 1
 export const MAX_FRAGRANCE_COLLECTION_NAME_LENGTH = 100
 
+export const MAX_REVIEW_BODY_LENGTH = 5000
+export const MIN_REVIEW_RATING = 0
+export const MAX_REVIEW_RATING = 5
+
 export const ValidFragranceName = z
   .string()
   .trim()
@@ -77,5 +81,22 @@ export const ValidFragranceCollectionName = z
 export const ValidFragranceCollection = z
   .object({
     name: ValidFragranceCollectionName.nonoptional('Collection name is required')
+  })
+  .strip()
+
+export const ValidFragranceReviewBody = z
+  .string()
+  .trim()
+  .max(MAX_REVIEW_BODY_LENGTH, `Review body cannot exceed ${MAX_REVIEW_BODY_LENGTH} characters`)
+
+export const ValidFragranceReviewRating = z
+  .number('Review rating must be a number')
+  .min(MIN_REVIEW_RATING, `Review rating must be at least ${MIN_REVIEW_RATING}`)
+  .max(MAX_REVIEW_RATING, `Review rating cannot exceed ${MAX_REVIEW_RATING}`)
+
+export const ValidFragranceReview = z
+  .object({
+    rating: ValidFragranceReviewRating,
+    body: ValidFragranceReviewBody.nullish()
   })
   .strip()

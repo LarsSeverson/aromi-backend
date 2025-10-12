@@ -2,9 +2,9 @@ import { BackendError, type FragranceCollectionRow, type FragranceCollectionServ
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 
-type Mutation = MutationResolvers['removeFragranceCollectionItem']
+type Mutation = MutationResolvers['deleteFragranceCollectionItem']
 
-export class RemoveFragranceCollectionItemResolver extends MutationResolver<Mutation> {
+export class DeleteFragranceCollectionItemResolver extends MutationResolver<Mutation> {
   private trxService?: FragranceCollectionService
 
   async resolve () {

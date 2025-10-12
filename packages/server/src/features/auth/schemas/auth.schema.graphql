@@ -51,7 +51,7 @@ extend type Mutation {
   logOut: Boolean!
 
   signUp(input: SignUpInput!): AuthDeliveryResult!
-  confirmSignUp(input: ConfirmSignUpInput!): Boolean!
+  confirmSignUp(input: ConfirmSignUpInput!): User!
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
 
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!

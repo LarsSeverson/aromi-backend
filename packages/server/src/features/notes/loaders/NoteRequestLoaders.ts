@@ -4,7 +4,7 @@ import DataLoader from 'dataloader'
 import { BackendError, type NoteRequestScoreRow, type NoteRequestVoteRow, unwrapOrThrow } from '@aromi/shared'
 import { okAsync, ResultAsync } from 'neverthrow'
 
-export class NoteRequestLoaders extends BaseLoader<NoteRequestLoadersKey> {
+export class NoteRequestLoaders extends BaseLoader {
   loadScore (id: NoteRequestLoadersKey) {
     return ResultAsync
       .fromPromise(

@@ -1,7 +1,8 @@
 type FragranceCollection {
   id: ID!
   name: String!
-  items(input: FragranceCollectionItemSortInput): FragranceCollectionItemConnection!
+  items: [FragranceCollectionItem!]!
+  previewItems: [FragranceCollectionItem!]!
   hasFragrance(fragranceId: ID!): Boolean!
   user: User!
 }
