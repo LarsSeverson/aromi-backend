@@ -51,9 +51,10 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
     const { before, after } = this.getNeighbors(remaining, insertIndex)
     const baseRank = this.getBaseRank(before, after)
 
-    const updated = await this.updateRanks(moving, baseRank)
-
+    await this.updateRanks(moving, baseRank)
     await unwrapOrThrow(this.updateCollection())
+
+    const updated = await unwrapOrThrow(this.getItems())
 
     return updated
   }

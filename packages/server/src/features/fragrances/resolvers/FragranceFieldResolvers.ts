@@ -83,6 +83,33 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
     return await unwrapOrThrow(resolver.resolve())
   }
 
+  myReview: FragranceResolvers['myReview'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { me, services } = context
+
+    if (me == null) return null
+
+    const { fragrances } = services
+
+    const review = await unwrapOrThrow(
+      fragrances.reviews.findOne(
+        where => where.and([
+          where('fragranceId', '=', id),
+          where('userId', '=', me.id)
+        ])
+      )
+    )
+
+    if (review == null) return null
+
+    return mapFragranceReviewRowToFragranceReview(review)
+  }
+
   reviews: FragranceResolvers['reviews'] = async (
     parent,
     args,
@@ -143,6 +170,7 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
       accords: this.accords,
       notes: this.notes,
       traits: this.traits,
+      myReview: this.myReview,
       reviews: this.reviews,
       votes: this.votes
     }

@@ -351,6 +351,10 @@ input DeleteFragranceRequestInput {
   id: ID!
 }
 
+input DeleteFragranceReviewInput {
+  reviewId: ID!
+}
+
 input DeleteNoteRequestInput {
   id: ID!
 }
@@ -385,6 +389,7 @@ type Fragrance {
   description: String
   id: ID!
   images: [FragranceImage!]!
+  myReview: FragranceReview
   name: String!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
@@ -734,6 +739,7 @@ type Mutation {
   deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): FragranceCollectionItem!
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
@@ -895,6 +901,8 @@ type Query {
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   brands(input: BrandPaginationInput): BrandConnection!
   fragrance(id: ID!): Fragrance!
+  fragranceCollection(id: ID!): FragranceCollection!
+  fragranceCollections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
   fragranceEdit(id: ID!): FragranceEdit!
   fragranceEdits(input: FragranceEditPaginationInput): FragranceEditConnection!
   fragranceRequest(id: ID!): FragranceRequest!

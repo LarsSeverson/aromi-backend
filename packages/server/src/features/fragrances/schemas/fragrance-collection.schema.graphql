@@ -40,6 +40,11 @@ input DeleteFragranceCollectionInput {
   collectionId: ID!
 }
 
+extend type Query {
+  fragranceCollection(id: ID!): FragranceCollection!
+  fragranceCollections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
+}
+
 extend type Mutation {
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!

@@ -39,6 +39,10 @@ input CreateFragranceReviewInput {
   body: String
 }
 
+input DeleteFragranceReviewInput {
+  reviewId: ID!
+}
+
 input VoteOnFragranceReviewInput {
   reviewId: ID!
   vote: Int!
@@ -46,5 +50,6 @@ input VoteOnFragranceReviewInput {
 
 extend type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
+  deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
 }

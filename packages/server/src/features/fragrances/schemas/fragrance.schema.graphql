@@ -32,6 +32,7 @@ type Fragrance {
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   traits: [FragranceTrait!]!
 
+  myReview: FragranceReview
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
 }
 
