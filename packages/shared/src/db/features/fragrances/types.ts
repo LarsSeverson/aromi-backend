@@ -23,6 +23,8 @@ export type FragranceReviewScoreRow = Selectable<DB['fragranceReviewScores']>
 export type FragranceCollectionRow = Selectable<DB['fragranceCollections']>
 export type FragranceCollectionItemRow = Selectable<DB['fragranceCollectionItems']>
 
+export const PREVIEW_ITEMS_LIMIT = 4
+
 export interface AggFragranceTraitVoteRow {
   fragranceId: string
   traitOptionId: string

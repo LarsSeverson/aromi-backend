@@ -44,21 +44,13 @@ export class FragranceCollectionFieldResolvers extends BaseResolver<FragranceCol
   ) => {
     const { id } = parent
     const { fragranceId } = args
-    const { services } = context
+    const { loaders } = context
 
-    const { users } = services
+    const { fragrances } = loaders
 
-    const res = await users
-      .collections
-      .items
-      .findFragrances(
-        where => where.and([
-          where('collectionId', '=', id),
-          where('fragranceId', '=', fragranceId)
-        ])
-      )
+    const hasFragrance = await unwrapOrThrow(fragrances.collections.loadHasFragrance(id, fragranceId))
 
-    return res.isOk() && res.value.length > 0
+    return hasFragrance
   }
 
   user: FragranceCollectionResolvers['user'] = async (

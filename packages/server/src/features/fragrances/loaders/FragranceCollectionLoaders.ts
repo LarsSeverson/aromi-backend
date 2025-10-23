@@ -20,6 +20,14 @@ export class FragranceCollectionLoaders extends BaseLoader {
       )
   }
 
+  loadHasFragrance (id: string, fragranceId: string) {
+    return ResultAsync
+      .fromPromise(
+        this.getHasFragranceLoader(fragranceId).load(id),
+        error => BackendError.fromLoader(error)
+      )
+  }
+
   private getItemsLoader () {
     const key = this.genKey('items')
     return this
@@ -35,6 +43,15 @@ export class FragranceCollectionLoaders extends BaseLoader {
       .getLoader(
         key,
         () => this.createPreviewItemsLoader()
+      )
+  }
+
+  private getHasFragranceLoader (fragranceId: string) {
+    const key = this.genKey('hasFragrance')
+    return this
+      .getLoader(
+        key,
+        () => this.createHasFragranceLoader(fragranceId)
       )
   }
 
@@ -69,9 +86,8 @@ export class FragranceCollectionLoaders extends BaseLoader {
     return new DataLoader<string, FragranceCollectionItemRow[]>(
       async ids => {
         const rows = await unwrapOrThrow(
-          collections.items.find(
-            where => where('collectionId', 'in', ids),
-            qb => qb.orderBy('rank', 'desc').limit(4)
+          collections.findPreviewItems(
+            where => where('fragranceCollections.id', 'in', ids)
           )
         )
 
@@ -84,6 +100,24 @@ export class FragranceCollectionLoaders extends BaseLoader {
         })
 
         return ids.map(id => rowsMap.get(id) ?? [])
+      }
+    )
+  }
+
+  private createHasFragranceLoader (fragranceId: string) {
+    const { collections } = this.services.users
+
+    return new DataLoader<string, boolean>(
+      async ids => {
+        const rows = await unwrapOrThrow(
+          collections.hasFragranceInCollections(
+            ids as string[],
+            fragranceId
+          )
+        )
+
+        const found = new Set<string>(rows.map(r => r.collectionId))
+        return ids.map(id => found.has(id))
       }
     )
   }
