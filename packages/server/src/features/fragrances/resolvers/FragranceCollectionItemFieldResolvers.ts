@@ -28,9 +28,34 @@ export class FragranceCollectionItemFieldResolvers extends BaseResolver<Fragranc
     return mapFragranceRowToFragranceSummary(row)
   }
 
+  collection: FragranceCollectionItemResolvers['collection'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { collectionId } = parent
+    const { loaders } = context
+
+    const { fragrances } = loaders
+
+    const row = await unwrapOrThrow(fragrances.collections.load(collectionId))
+
+    if (row == null) {
+      throw new BackendError(
+        'COLLECTION_NOT_FOUND',
+        `Collection with ID ${collectionId} not found`,
+        404
+      )
+    }
+
+    return row
+  }
+
   getResolvers (): FragranceCollectionItemResolvers {
     return {
-      fragrance: this.fragrance
+      fragrance: this.fragrance,
+      collection: this.collection
     }
   }
 }

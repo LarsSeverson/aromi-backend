@@ -36,9 +36,9 @@ export class DeleteFragranceCollectionItemResolver extends MutationResolver<Muta
 
   private deleteItem () {
     const { args } = this
-    const { itemId } = args.input
+    const { fragranceId } = args.input
 
-    return this.trxService!.items.softDeleteOne(where => where('id', '=', itemId))
+    return this.trxService!.items.softDeleteOne(where => where('fragranceId', '=', fragranceId))
   }
 
   private getCollection () {

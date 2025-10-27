@@ -1,6 +1,7 @@
 type FragranceCollectionItem {
   id: ID!
   fragrance: Fragrance!
+  collection: FragranceCollection!
 }
 
 type FragranceCollectionItemEdge {
@@ -42,11 +43,24 @@ input MoveFragranceCollectionItemsInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: ID!
-  itemId: ID!
+  fragranceId: ID!
+}
+
+input AddFragranceToCollectionsInput {
+  collectionIds: [ID!]!
+  fragranceId: ID!
+}
+
+input RemoveFragranceFromCollectionsInput {
+  collectionIds: [ID!]!
+  fragranceId: ID!
 }
 
 extend type Mutation {
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   moveFragranceCollectionItems(input: MoveFragranceCollectionItemsInput!): [FragranceCollectionItem!]!
   deleteFragranceCollectionItem(input: DeleteFragranceCollectionItemInput!): FragranceCollectionItem!
+
+  addFragranceToCollections(input: AddFragranceToCollectionsInput!): [FragranceCollectionItem!]!
+  removeFragranceFromCollections(input: RemoveFragranceFromCollectionsInput!): [FragranceCollectionItem!]!
 }

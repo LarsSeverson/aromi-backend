@@ -1,9 +1,17 @@
-import { BackendError, type FragranceCollectionItemRow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, type FragranceCollectionItemRow, type FragranceCollectionRow, unwrapOrThrow } from '@aromi/shared'
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import DataLoader from 'dataloader'
 import { ResultAsync } from 'neverthrow'
 
 export class FragranceCollectionLoaders extends BaseLoader {
+  load (id: string) {
+    return ResultAsync
+      .fromPromise(
+        this.getCollectionLoader().load(id),
+        error => BackendError.fromLoader(error)
+      )
+  }
+
   loadItems (id: string) {
     return ResultAsync
       .fromPromise(
@@ -28,6 +36,15 @@ export class FragranceCollectionLoaders extends BaseLoader {
       )
   }
 
+  private getCollectionLoader () {
+    const key = this.genKey('collection')
+    return this
+      .getLoader(
+        key,
+        () => this.createCollectionLoader()
+      )
+  }
+
   private getItemsLoader () {
     const key = this.genKey('items')
     return this
@@ -47,12 +64,33 @@ export class FragranceCollectionLoaders extends BaseLoader {
   }
 
   private getHasFragranceLoader (fragranceId: string) {
-    const key = this.genKey('hasFragrance')
+    const key = this.genKey('hasFragrance-', fragranceId)
     return this
       .getLoader(
         key,
         () => this.createHasFragranceLoader(fragranceId)
       )
+  }
+
+  private createCollectionLoader () {
+    const { collections } = this.services.users
+
+    return new DataLoader<string, FragranceCollectionRow | null>(
+      async ids => {
+        const rows = await unwrapOrThrow(
+          collections.find(
+            where => where('id', 'in', ids)
+          )
+        )
+
+        const rowsMap = new Map<string, FragranceCollectionRow>()
+        rows.forEach(row => {
+          rowsMap.set(row.id, row)
+        })
+
+        return ids.map(id => rowsMap.get(id) ?? null)
+      }
+    )
   }
 
   private createItemsLoader () {

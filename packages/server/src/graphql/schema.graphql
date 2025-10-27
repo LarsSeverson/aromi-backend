@@ -88,6 +88,11 @@ input AccordSortInput {
   direction: SortDirection
 }
 
+input AddFragranceToCollectionsInput {
+  collectionIds: [ID!]!
+  fragranceId: ID!
+}
+
 type Asset {
   contentType: String!
   id: ID!
@@ -344,7 +349,7 @@ input DeleteFragranceCollectionInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: ID!
-  itemId: ID!
+  fragranceId: ID!
 }
 
 input DeleteFragranceRequestInput {
@@ -451,6 +456,7 @@ type FragranceCollectionEdge {
 }
 
 type FragranceCollectionItem {
+  collection: FragranceCollection!
   fragrance: Fragrance!
   id: ID!
 }
@@ -720,6 +726,7 @@ input MoveFragranceCollectionItemsInput {
 }
 
 type Mutation {
+  addFragranceToCollections(input: AddFragranceToCollectionsInput!): [FragranceCollectionItem!]!
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
   confirmSignUp(input: ConfirmSignUpInput!): User!
   createAccordEdit(input: CreateAccordEditInput!): AccordEdit!
@@ -746,6 +753,7 @@ type Mutation {
   logOut: Boolean!
   moveFragranceCollectionItems(input: MoveFragranceCollectionItemsInput!): [FragranceCollectionItem!]!
   refresh: AuthTokenPayload
+  removeFragranceFromCollections(input: RemoveFragranceFromCollectionsInput!): [FragranceCollectionItem!]!
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
   reviewAccordEdit(input: ReviewAccordEditInput!): AccordEdit!
   reviewBrandEdit(input: ReviewBrandEditInput!): BrandEdit!
@@ -921,6 +929,11 @@ type Query {
   searchNotes(input: SearchInput): SearchNoteConnection!
   searchUsers(input: SearchInput): SearchUserConnection!
   user(id: ID!): User!
+}
+
+input RemoveFragranceFromCollectionsInput {
+  collectionIds: [ID!]!
+  fragranceId: ID!
 }
 
 input RequestPaginationInput {
