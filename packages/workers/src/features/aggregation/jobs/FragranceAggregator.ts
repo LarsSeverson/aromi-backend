@@ -8,8 +8,8 @@ export class FragranceAggregator extends BaseAggregator<AggregationJobPayload[Jo
   async aggregate (job: Job<AggregationJobPayload[JobKey]>): Promise<FragranceScoreRow> {
     const { fragranceId } = job.data
 
-    await unwrapOrThrow(this.getScore(fragranceId))
-    const score = await unwrapOrThrow(this.updateScore(fragranceId))
+    await unwrapOrThrow(this.getScore(fragranceId).orTee(console.log))
+    const score = await unwrapOrThrow(this.updateScore(fragranceId).orTee(console.log))
 
     return score
   }

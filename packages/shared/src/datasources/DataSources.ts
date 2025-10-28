@@ -1,5 +1,5 @@
 import type { JwksClient } from 'jwks-rsa'
-import type { Kysely } from 'kysely'
+import { sql, type Kysely } from 'kysely'
 import { type CognitoWrapper, createCognitoWrapper } from './cognito/index.js'
 import { createS3Wrapper, type S3Wrapper } from './s3/index.js'
 import { type CdnWrapper, createCdnWrapper } from './cdn/index.js'
@@ -8,6 +8,7 @@ import { createRedisWrapper, type RedisWrapper } from './redis/index.js'
 import { createDB } from './db/index.js'
 import { createJwksClient } from './jwks/index.js'
 import type { DB } from '@src/db/db-schema.js'
+import { unwrapOrThrowSync } from '@src/utils/error.js'
 
 export class DataSources {
   db: Kysely<DB>
@@ -20,34 +21,21 @@ export class DataSources {
   redis: RedisWrapper
 
   constructor () {
-    const db = createDB()
-    if (db.isErr()) throw db.error
+    const db = unwrapOrThrowSync(createDB())
+    const jwks = unwrapOrThrowSync(createJwksClient())
+    const cognito = unwrapOrThrowSync(createCognitoWrapper())
+    const s3 = unwrapOrThrowSync(createS3Wrapper())
+    const cdn = unwrapOrThrowSync(createCdnWrapper())
+    const meili = unwrapOrThrowSync(createMeiliSearchWrapper())
+    const redis = unwrapOrThrowSync(createRedisWrapper())
 
-    const jwks = createJwksClient()
-    if (jwks.isErr()) throw jwks.error
-
-    const cognito = createCognitoWrapper()
-    if (cognito.isErr()) throw cognito.error
-
-    const s3 = createS3Wrapper()
-    if (s3.isErr()) throw s3.error
-
-    const cdn = createCdnWrapper()
-    if (cdn.isErr()) throw cdn.error
-
-    const meili = createMeiliSearchWrapper()
-    if (meili.isErr()) throw meili.error
-
-    const redis = createRedisWrapper()
-    if (redis.isErr()) throw redis.error
-
-    this.db = db.value
-    this.jwks = jwks.value
-    this.cognito = cognito.value
-    this.s3 = s3.value
-    this.cdn = cdn.value
-    this.meili = meili.value
-    this.redis = redis.value
+    this.db = db
+    this.jwks = jwks
+    this.cognito = cognito
+    this.s3 = s3
+    this.cdn = cdn
+    this.meili = meili
+    this.redis = redis
   }
 
   with (overrides: Partial<DataSources>): DataSources {
@@ -56,5 +44,15 @@ export class DataSources {
       this,
       overrides
     )
+  }
+
+  async healthCheck (): Promise<void> {
+    await Promise.all([
+      this.healthCheckDB()
+    ])
+  }
+
+  async healthCheckDB () {
+    return await sql`SELECT 1`.execute(this.db)
   }
 }

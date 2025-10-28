@@ -6,4 +6,8 @@ export class WorkerContext {
   constructor () {
     this.sources = new DataSources()
   }
+
+  async healthCheck () {
+    await this.sources.healthCheck()
+  }
 }
