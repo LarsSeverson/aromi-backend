@@ -11,6 +11,7 @@ import { FragranceVoteService } from './FragranceVoteService.js'
 import { FragranceScoreService } from './FragranceScoreService.js'
 import { FragranceCollectionService } from './FragranceCollectionService.js'
 import { FragranceReviewService } from './FragranceReviewService.js'
+import { FragranceReportService } from './FragranceReportService.js'
 
 export class FragranceService extends FeaturedTableService<FragranceRow> {
   images: FragranceImageService
@@ -23,6 +24,7 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
   votes: FragranceVoteService
   scores: FragranceScoreService
   collections: FragranceCollectionService
+  reports: FragranceReportService
 
   constructor (sources: DataSources) {
     super(sources, 'fragrances')
@@ -37,5 +39,6 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
     this.votes = new FragranceVoteService(sources)
     this.scores = new FragranceScoreService(sources)
     this.collections = new FragranceCollectionService(sources)
+    this.reports = new FragranceReportService(sources)
   }
 }

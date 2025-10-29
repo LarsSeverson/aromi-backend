@@ -3,6 +3,8 @@ import type { FragranceReviewRow } from '../types.js'
 import type { DataSources } from '@src/datasources/DataSources.js'
 import { FragranceReviewVoteService } from './FragranceReviewVoteService.js'
 import { FragranceReviewScoreService } from './FragranceReviewScoreService.js'
+import { ResultAsync } from 'neverthrow'
+import { BackendError } from '@src/utils/error.js'
 
 export class FragranceReviewService extends FeaturedTableService<FragranceReviewRow> {
   votes: FragranceReviewVoteService
@@ -12,5 +14,22 @@ export class FragranceReviewService extends FeaturedTableService<FragranceReview
     super(sources, 'fragranceReviews')
     this.votes = new FragranceReviewVoteService(sources)
     this.scores = new FragranceReviewScoreService(sources)
+  }
+
+  distrbution (fragranceId: string) {
+    const db = this.db
+
+    const query = db
+      .selectFrom('fragranceReviews')
+      .where('fragranceId', '=', fragranceId)
+      .select(['rating'])
+      .select(({ fn }) => fn.countAll<number>().as('count'))
+      .groupBy('rating')
+      .orderBy('rating', 'desc')
+
+    return ResultAsync.fromPromise(
+      query.execute(),
+      error => BackendError.fromDatabase(error)
+    )
   }
 }

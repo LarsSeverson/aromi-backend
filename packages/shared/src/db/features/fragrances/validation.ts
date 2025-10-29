@@ -14,6 +14,9 @@ export const MAX_REVIEW_BODY_LENGTH = 5000
 export const MIN_REVIEW_RATING = 0
 export const MAX_REVIEW_RATING = 5
 
+export const MIN_REPORT_BODY_LENGTH = 1
+export const MAX_REPORT_BODY_LENGTH = 2000
+
 export const ValidFragranceName = z
   .string()
   .trim()
@@ -98,5 +101,17 @@ export const ValidFragranceReview = z
   .object({
     rating: ValidFragranceReviewRating,
     body: ValidFragranceReviewBody.nullish()
+  })
+  .strip()
+
+export const ValidFragranceReportBody = z
+  .string()
+  .trim()
+  .min(MIN_REPORT_BODY_LENGTH, 'Report body must not be empty')
+  .max(MAX_REPORT_BODY_LENGTH, `Report body cannot exceed ${MAX_REPORT_BODY_LENGTH} characters`)
+
+export const ValidFragranceReport = z
+  .object({
+    body: ValidFragranceReportBody.nonoptional('Report body is required')
   })
   .strip()

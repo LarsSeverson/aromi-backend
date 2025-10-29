@@ -301,6 +301,11 @@ input CreateFragranceEditInput {
   reason: String
 }
 
+input CreateFragranceReportInput {
+  body: String
+  fragranceId: ID!
+}
+
 input CreateFragranceRequestInput {
   assetId: ID
   concentration: Concentration
@@ -398,6 +403,7 @@ type Fragrance {
   name: String!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
+  reviewInfo: FragranceReviewInfo!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
   status: FragranceStatus!
   thumbnail: FragranceImage
@@ -609,6 +615,11 @@ input FragrancePaginationInput {
   sort: FragranceSortInput
 }
 
+type FragranceReport {
+  body: String
+  id: ID!
+}
+
 type FragranceRequest {
   accords: [Accord!]!
   brand: Brand
@@ -666,6 +677,17 @@ type FragranceReviewConnection {
 type FragranceReviewEdge {
   cursor: String!
   node: FragranceReview!
+}
+
+type FragranceReviewInfo {
+  averageRating: Float
+  count: Int!
+  distribution: [FragranceReviewInfoDistribution!]!
+}
+
+type FragranceReviewInfoDistribution {
+  count: Int!
+  rating: Int!
 }
 
 input FragranceReviewPaginationInput {
@@ -736,6 +758,7 @@ type Mutation {
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   createFragranceCollectionItem(input: CreateFragranceCollectionItemInput!): FragranceCollectionItem!
   createFragranceEdit(input: CreateFragranceEditInput!): FragranceEdit!
+  createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
   createFragranceRequest(input: CreateFragranceRequestInput): FragranceRequest!
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   createNoteEdit(input: CreateNoteEditInput!): NoteEdit!

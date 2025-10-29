@@ -8,6 +8,17 @@ type FragranceReview {
   votes: VoteInfo!
 }
 
+type FragranceReviewInfo {
+  count: Int!
+  averageRating: Float
+  distribution: [FragranceReviewInfoDistribution!]! 
+}
+
+type FragranceReviewInfoDistribution {
+  rating: Int!
+  count: Int!
+}
+
 type FragranceReviewEdge {
   node: FragranceReview!
   cursor: String!

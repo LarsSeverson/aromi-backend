@@ -1,6 +1,7 @@
 import type { NoteLayerEnum } from '@src/db/db-schema.js'
 
 export const AGGREGATION_JOB_NAMES = {
+  AGGREGATE_FRAGRANCE_REVIEWS: 'aggregate-fragrance-reviews',
   AGGREGATE_FRAGRANCE_VOTES: 'aggregate-fragrance-votes',
   AGGREGATE_FRAGRANCE_REQUEST_VOTES: 'aggregate-fragrance-request-votes',
 
@@ -19,6 +20,7 @@ export const AGGREGATION_JOB_NAMES = {
 export type AggregationJobName = (typeof AGGREGATION_JOB_NAMES)[keyof typeof AGGREGATION_JOB_NAMES]
 
 export interface AggregationJobPayload {
+  [AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REVIEWS]: { fragranceId: string }
   [AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_VOTES]: { fragranceId: string }
   [AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REQUEST_VOTES]: { requestId: string }
 

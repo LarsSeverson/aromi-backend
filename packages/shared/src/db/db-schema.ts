@@ -79,8 +79,6 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
-export type Numeric = ColumnType<string, number | string, number | string>;
-
 export type Timestamp = ColumnType<string, string, string>;
 
 export interface AccordEdit {
@@ -381,6 +379,15 @@ export interface FragranceNoteVote {
   vote: Generated<number>;
 }
 
+export interface FragranceReport {
+  body: string;
+  createdAt: Generated<Timestamp>;
+  fragranceId: string;
+  id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
 export interface FragranceRequestAccord {
   accordId: string;
   createdAt: Generated<Timestamp>;
@@ -446,7 +453,7 @@ export interface FragranceReview {
   deletedAt: Timestamp | null;
   fragranceId: string;
   id: Generated<string>;
-  rating: Numeric;
+  rating: number;
   updatedAt: Generated<Timestamp>;
   userId: string;
 }
@@ -484,9 +491,10 @@ export interface Fragrance {
 }
 
 export interface FragranceScore {
+  averageRating: number | null;
   downvotes: Generated<number>;
   fragranceId: string;
-  rating: number | null;
+  reviewCount: Generated<number>;
   score: Generated<number>;
   updatedAt: Generated<Timestamp>;
   upvotes: Generated<number>;
@@ -651,6 +659,7 @@ export interface DB {
   fragranceNotes: FragranceNote;
   fragranceNoteScores: FragranceNoteScore;
   fragranceNoteVotes: FragranceNoteVote;
+  fragranceReports: FragranceReport;
   fragranceRequestAccords: FragranceRequestAccord;
   fragranceRequestNotes: FragranceRequestNote;
   fragranceRequests: FragranceRequest;

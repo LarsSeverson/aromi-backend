@@ -363,6 +363,11 @@ export type CreateFragranceEditInput = {
   reason?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateFragranceReportInput = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  fragranceId: Scalars['ID']['input'];
+};
+
 export type CreateFragranceRequestInput = {
   assetId?: InputMaybe<Scalars['ID']['input']>;
   concentration?: InputMaybe<Concentration>;
@@ -462,6 +467,7 @@ export type Fragrance = {
   name: Scalars['String']['output'];
   notes: FragranceNoteConnection;
   releaseYear: Scalars['Int']['output'];
+  reviewInfo: FragranceReviewInfo;
   reviews: FragranceReviewConnection;
   status: FragranceStatus;
   thumbnail?: Maybe<FragranceImage>;
@@ -718,6 +724,12 @@ export type FragrancePaginationInput = {
   sort?: InputMaybe<FragranceSortInput>;
 };
 
+export type FragranceReport = {
+  __typename?: 'FragranceReport';
+  body?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+};
+
 export type FragranceRequest = {
   __typename?: 'FragranceRequest';
   accords: Array<Accord>;
@@ -795,6 +807,19 @@ export type FragranceReviewEdge = {
   node: FragranceReview;
 };
 
+export type FragranceReviewInfo = {
+  __typename?: 'FragranceReviewInfo';
+  averageRating?: Maybe<Scalars['Float']['output']>;
+  count: Scalars['Int']['output'];
+  distribution: Array<FragranceReviewInfoDistribution>;
+};
+
+export type FragranceReviewInfoDistribution = {
+  __typename?: 'FragranceReviewInfoDistribution';
+  count: Scalars['Int']['output'];
+  rating: Scalars['Int']['output'];
+};
+
 export type FragranceReviewPaginationInput = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -866,6 +891,7 @@ export type Mutation = {
   createFragranceCollection: FragranceCollection;
   createFragranceCollectionItem: FragranceCollectionItem;
   createFragranceEdit: FragranceEdit;
+  createFragranceReport: FragranceReport;
   createFragranceRequest: FragranceRequest;
   createFragranceReview: FragranceReview;
   createNoteEdit: NoteEdit;
@@ -965,6 +991,11 @@ export type MutationCreateFragranceCollectionItemArgs = {
 
 export type MutationCreateFragranceEditArgs = {
   input: CreateFragranceEditInput;
+};
+
+
+export type MutationCreateFragranceReportArgs = {
+  input: CreateFragranceReportInput;
 };
 
 
@@ -2041,6 +2072,7 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceCollectionInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionInput>>;
   CreateFragranceCollectionItemInput: ResolverTypeWrapper<Partial<CreateFragranceCollectionItemInput>>;
   CreateFragranceEditInput: ResolverTypeWrapper<Partial<CreateFragranceEditInput>>;
+  CreateFragranceReportInput: ResolverTypeWrapper<Partial<CreateFragranceReportInput>>;
   CreateFragranceRequestInput: ResolverTypeWrapper<Partial<CreateFragranceRequestInput>>;
   CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   CreateNoteEditInput: ResolverTypeWrapper<Partial<CreateNoteEditInput>>;
@@ -2096,6 +2128,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceNoteSortBy: ResolverTypeWrapper<Partial<FragranceNoteSortBy>>;
   FragranceNoteSortInput: ResolverTypeWrapper<Partial<FragranceNoteSortInput>>;
   FragrancePaginationInput: ResolverTypeWrapper<Partial<FragrancePaginationInput>>;
+  FragranceReport: ResolverTypeWrapper<Partial<FragranceReport>>;
   FragranceRequest: ResolverTypeWrapper<IFragranceRequestSummary>;
   FragranceRequestConnection: ResolverTypeWrapper<Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceRequestEdge']> }>>;
   FragranceRequestEdge: ResolverTypeWrapper<Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversTypes['FragranceRequest'] }>>;
@@ -2104,6 +2137,8 @@ export type ResolversTypes = ResolversObject<{
   FragranceReview: ResolverTypeWrapper<IFragranceReviewSummary>;
   FragranceReviewConnection: ResolverTypeWrapper<Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceReviewEdge']> }>>;
   FragranceReviewEdge: ResolverTypeWrapper<Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversTypes['FragranceReview'] }>>;
+  FragranceReviewInfo: ResolverTypeWrapper<Partial<FragranceReviewInfo>>;
+  FragranceReviewInfoDistribution: ResolverTypeWrapper<Partial<FragranceReviewInfoDistribution>>;
   FragranceReviewPaginationInput: ResolverTypeWrapper<Partial<FragranceReviewPaginationInput>>;
   FragranceReviewSortBy: ResolverTypeWrapper<Partial<FragranceReviewSortBy>>;
   FragranceReviewSortInput: ResolverTypeWrapper<Partial<FragranceReviewSortInput>>;
@@ -2242,6 +2277,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceCollectionInput: Partial<CreateFragranceCollectionInput>;
   CreateFragranceCollectionItemInput: Partial<CreateFragranceCollectionItemInput>;
   CreateFragranceEditInput: Partial<CreateFragranceEditInput>;
+  CreateFragranceReportInput: Partial<CreateFragranceReportInput>;
   CreateFragranceRequestInput: Partial<CreateFragranceRequestInput>;
   CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   CreateNoteEditInput: Partial<CreateNoteEditInput>;
@@ -2290,6 +2326,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceNotePaginationInput: Partial<FragranceNotePaginationInput>;
   FragranceNoteSortInput: Partial<FragranceNoteSortInput>;
   FragrancePaginationInput: Partial<FragrancePaginationInput>;
+  FragranceReport: Partial<FragranceReport>;
   FragranceRequest: IFragranceRequestSummary;
   FragranceRequestConnection: Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceRequestEdge']> }>;
   FragranceRequestEdge: Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversParentTypes['FragranceRequest'] }>;
@@ -2298,6 +2335,8 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceReview: IFragranceReviewSummary;
   FragranceReviewConnection: Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceReviewEdge']> }>;
   FragranceReviewEdge: Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversParentTypes['FragranceReview'] }>;
+  FragranceReviewInfo: Partial<FragranceReviewInfo>;
+  FragranceReviewInfoDistribution: Partial<FragranceReviewInfoDistribution>;
   FragranceReviewPaginationInput: Partial<FragranceReviewPaginationInput>;
   FragranceReviewSortInput: Partial<FragranceReviewSortInput>;
   FragranceSortInput: Partial<FragranceSortInput>;
@@ -2554,6 +2593,7 @@ export type FragranceResolvers<ContextType = ServerContext, ParentType extends R
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, Partial<FragranceNotesArgs>>;
   releaseYear?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reviewInfo?: Resolver<ResolversTypes['FragranceReviewInfo'], ParentType, ContextType>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<FragranceReviewsArgs>>;
   status?: Resolver<ResolversTypes['FragranceStatus'], ParentType, ContextType>;
   thumbnail?: Resolver<Maybe<ResolversTypes['FragranceImage']>, ParentType, ContextType>;
@@ -2683,6 +2723,11 @@ export type FragranceNoteEdgeResolvers<ContextType = ServerContext, ParentType e
   node?: Resolver<ResolversTypes['FragranceNote'], ParentType, ContextType>;
 }>;
 
+export type FragranceReportResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceReport'] = ResolversParentTypes['FragranceReport']> = ResolversObject<{
+  body?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+}>;
+
 export type FragranceRequestResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequest'] = ResolversParentTypes['FragranceRequest']> = ResolversObject<{
   accords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
   brand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType>;
@@ -2742,6 +2787,17 @@ export type FragranceReviewEdgeResolvers<ContextType = ServerContext, ParentType
   node?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType>;
 }>;
 
+export type FragranceReviewInfoResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceReviewInfo'] = ResolversParentTypes['FragranceReviewInfo']> = ResolversObject<{
+  averageRating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  distribution?: Resolver<Array<ResolversTypes['FragranceReviewInfoDistribution']>, ParentType, ContextType>;
+}>;
+
+export type FragranceReviewInfoDistributionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceReviewInfoDistribution'] = ResolversParentTypes['FragranceReviewInfoDistribution']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rating?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
 export type FragranceTraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   myVote?: Resolver<Maybe<ResolversTypes['TraitVote']>, ParentType, ContextType>;
@@ -2766,6 +2822,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   createFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionArgs, 'input'>>;
   createFragranceCollectionItem?: Resolver<ResolversTypes['FragranceCollectionItem'], ParentType, ContextType, RequireFields<MutationCreateFragranceCollectionItemArgs, 'input'>>;
   createFragranceEdit?: Resolver<ResolversTypes['FragranceEdit'], ParentType, ContextType, RequireFields<MutationCreateFragranceEditArgs, 'input'>>;
+  createFragranceReport?: Resolver<ResolversTypes['FragranceReport'], ParentType, ContextType, RequireFields<MutationCreateFragranceReportArgs, 'input'>>;
   createFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, Partial<MutationCreateFragranceRequestArgs>>;
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   createNoteEdit?: Resolver<ResolversTypes['NoteEdit'], ParentType, ContextType, RequireFields<MutationCreateNoteEditArgs, 'input'>>;
@@ -3072,6 +3129,7 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   FragranceNote?: FragranceNoteResolvers<ContextType>;
   FragranceNoteConnection?: FragranceNoteConnectionResolvers<ContextType>;
   FragranceNoteEdge?: FragranceNoteEdgeResolvers<ContextType>;
+  FragranceReport?: FragranceReportResolvers<ContextType>;
   FragranceRequest?: FragranceRequestResolvers<ContextType>;
   FragranceRequestConnection?: FragranceRequestConnectionResolvers<ContextType>;
   FragranceRequestEdge?: FragranceRequestEdgeResolvers<ContextType>;
@@ -3080,6 +3138,8 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   FragranceReview?: FragranceReviewResolvers<ContextType>;
   FragranceReviewConnection?: FragranceReviewConnectionResolvers<ContextType>;
   FragranceReviewEdge?: FragranceReviewEdgeResolvers<ContextType>;
+  FragranceReviewInfo?: FragranceReviewInfoResolvers<ContextType>;
+  FragranceReviewInfoDistribution?: FragranceReviewInfoDistributionResolvers<ContextType>;
   FragranceTrait?: FragranceTraitResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;

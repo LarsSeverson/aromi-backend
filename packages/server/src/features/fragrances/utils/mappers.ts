@@ -139,8 +139,5 @@ export const mapCombinedTraitRowToRequestTrait = (
 }
 
 export const mapFragranceReviewRowToFragranceReview = (row: FragranceReviewRow): IFragranceReviewSummary => {
-  return {
-    ...row,
-    rating: Number(row.rating)
-  }
+  return row
 }

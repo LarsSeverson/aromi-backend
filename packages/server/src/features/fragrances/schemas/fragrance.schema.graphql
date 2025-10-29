@@ -34,6 +34,7 @@ type Fragrance {
 
   myReview: FragranceReview
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
+  reviewInfo: FragranceReviewInfo!
 }
 
 type FragranceEdge {

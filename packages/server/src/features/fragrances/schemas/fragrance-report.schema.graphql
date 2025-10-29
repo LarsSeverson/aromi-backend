@@ -1,0 +1,13 @@
+type FragranceReport {
+  id: ID!
+  body: String
+}
+
+input CreateFragranceReportInput {
+  fragranceId: ID!
+  body: String
+}
+
+extend type Mutation {
+  createFragranceReport(input: CreateFragranceReportInput!): FragranceReport!
+}

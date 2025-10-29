@@ -1,4 +1,4 @@
-import { BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
+import { AGGREGATION_JOB_NAMES, BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 import type { FragranceReviewResolvers, MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { CreateFragranceReviewInputSchema } from '../utils/validation.js'
@@ -12,12 +12,14 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     info
   ) => {
     const { input } = args
-    const { services } = context
+    const { services, queues } = context
     const me = this.checkAuthenticated(context)
 
     const { fragranceId } = input
     const parsed = parseOrThrow(CreateFragranceReviewInputSchema, input)
+
     const { fragrances } = services
+    const { aggregations } = queues
 
     const values = {
       ...parsed,
@@ -26,6 +28,11 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     }
 
     const review = await unwrapOrThrow(fragrances.reviews.createOne(values))
+
+    await aggregations.enqueue({
+      jobName: AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REVIEWS,
+      data: { fragranceId }
+    })
 
     return mapFragranceReviewRowToFragranceReview(review)
   }
@@ -38,13 +45,14 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
   ) => {
     const { input } = args
     const { reviewId } = input
-    const { services } = context
+    const { services, queues } = context
     const me = this.checkAuthenticated(context)
 
     const { fragrances } = services
+    const { aggregations } = queues
 
     const existing = await unwrapOrThrow(
-      fragrances.reviews.findOne(eb => eb('id', '=', reviewId))
+      fragrances.reviews.findOne(where => where('id', '=', reviewId))
     )
 
     if (existing.userId !== me.id) {
@@ -56,8 +64,13 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     }
 
     const deleted = await unwrapOrThrow(
-      fragrances.reviews.softDeleteOne(eb => eb('id', '=', reviewId))
+      fragrances.reviews.softDeleteOne(where => where('id', '=', reviewId))
     )
+
+    await aggregations.enqueue({
+      jobName: AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REVIEWS,
+      data: { fragranceId: deleted.fragranceId }
+    })
 
     return mapFragranceReviewRowToFragranceReview(deleted)
   }
