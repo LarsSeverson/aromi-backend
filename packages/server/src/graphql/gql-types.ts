@@ -859,7 +859,7 @@ export type FragranceTrait = {
   myVote?: Maybe<TraitVote>;
   name: Scalars['String']['output'];
   options: Array<TraitOption>;
-  stats?: Maybe<TraitStats>;
+  stats: TraitStats;
   type: TraitTypeEnum;
 };
 
@@ -2803,7 +2803,7 @@ export type FragranceTraitResolvers<ContextType = ServerContext, ParentType exte
   myVote?: Resolver<Maybe<ResolversTypes['TraitVote']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   options?: Resolver<Array<ResolversTypes['TraitOption']>, ParentType, ContextType>;
-  stats?: Resolver<Maybe<ResolversTypes['TraitStats']>, ParentType, ContextType>;
+  stats?: Resolver<ResolversTypes['TraitStats'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
 }>;
 

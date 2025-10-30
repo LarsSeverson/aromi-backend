@@ -725,7 +725,7 @@ type FragranceTrait {
   myVote: TraitVote
   name: String!
   options: [TraitOption!]!
-  stats: TraitStats
+  stats: TraitStats!
   type: TraitTypeEnum!
 }
 
