@@ -789,6 +789,7 @@ export type FragranceReview = {
   __typename?: 'FragranceReview';
   author: User;
   body?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
   fragrance: Fragrance;
   id: Scalars['ID']['output'];
   rating: Scalars['Float']['output'];
@@ -2771,6 +2772,7 @@ export type FragranceRequestTraitResolvers<ContextType = ServerContext, ParentTy
 export type FragranceReviewResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   body?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   rating?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;

@@ -663,6 +663,7 @@ type FragranceRequestTrait {
 type FragranceReview {
   author: User!
   body: String
+  createdAt: String!
   fragrance: Fragrance!
   id: ID!
   rating: Float!

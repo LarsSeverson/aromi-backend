@@ -6,6 +6,8 @@ type FragranceReview {
   author: User!
   fragrance: Fragrance!
   votes: VoteInfo!
+
+  createdAt: String!
 }
 
 type FragranceReviewInfo {
