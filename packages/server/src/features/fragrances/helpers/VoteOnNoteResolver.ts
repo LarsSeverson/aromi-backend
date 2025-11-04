@@ -1,8 +1,11 @@
-import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
+import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow, BackendError } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '../utils/mappers.js'
 import { GenericVoteOnEntityInputSchema } from '@src/utils/validation.js'
+import { errAsync, okAsync } from 'neverthrow'
+import { MAX_NOTE_VOTES } from '../utils/constants.js'
+import { VOTE_TYPES } from '@src/utils/constants.js'
 
 type Mutation = MutationResolvers['voteOnFragranceNote']
 
@@ -13,7 +16,9 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
 
     const note = await unwrapOrThrow(this.getNote())
 
+    await unwrapOrThrow(this.checkCanVote())
     await unwrapOrThrow(this.upsertVote())
+
     await this.enqueueAggregation()
 
     return note
@@ -50,7 +55,7 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
       .notes
       .votes
       .upsert(
-        { fragranceId, userId, noteId, layer: dbLayer },
+        { fragranceId, userId, noteId, vote, layer: dbLayer },
         oc => oc
           .columns(['fragranceId', 'userId', 'noteId', 'layer'])
           .doUpdateSet({ vote })
@@ -70,5 +75,48 @@ export class VoteOnNoteResolver extends MutationResolver<Mutation> {
       .findOne(
         eb => eb('id', '=', noteId)
       )
+  }
+
+  private getCount () {
+    const { me, args, context } = this
+
+    const { input } = args
+    const { services } = context
+
+    const { id } = me
+    const { fragranceId, layer } = input
+    const { fragrances } = services
+
+    return fragrances
+      .notes
+      .votes
+      .count(
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('userId', '=', id),
+          where('layer', '=', mapGQLNoteLayerToDBNoteLayer(layer)),
+          where('vote', '=', 1)
+        ])
+      )
+  }
+
+  private checkCanVote () {
+    const { vote } = this.args.input
+
+    return this
+      .getCount()
+      .andThen(count => {
+        if (count >= MAX_NOTE_VOTES && vote === VOTE_TYPES.UPVOTE) {
+          return errAsync(
+            new BackendError(
+              'MAX_VOTES_REACHED',
+              `You can only vote for ${MAX_NOTE_VOTES} notes per fragrance.`,
+              400
+            )
+          )
+        }
+
+        return okAsync(count)
+      })
   }
 }

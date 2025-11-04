@@ -1,6 +1,6 @@
 import type { AggFragranceTraitVoteRow, CombinedTraitRow2, FragranceTraitVoteRow } from '@aromi/shared'
 import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers.js'
-import type { FragranceResolvers, TraitVote, TraitVoteDistribution } from '@src/graphql/gql-types.js'
+import type { FragranceResolvers, FragranceTraitVote, TraitVoteDistribution } from '@src/graphql/gql-types.js'
 import { RequestResolver } from '@src/resolvers/RequestResolver.js'
 import type { ResolverReturn } from '@src/utils/types.js'
 import { okAsync, ResultAsync } from 'neverthrow'
@@ -170,7 +170,7 @@ export class FragranceTraitsResolver extends RequestResolver<Query> {
     traitId: string,
     group: CombinedTraitRow2[],
     myVotesMap: Map<string, string>
-  ): TraitVote | null {
+  ): FragranceTraitVote | null {
     const optionId = myVotesMap.get(traitId)
     if (optionId == null) return null
 
@@ -178,6 +178,8 @@ export class FragranceTraitsResolver extends RequestResolver<Query> {
     if (option == null) return null
 
     return {
+      id: option.optionId,
+      type: DBTraitToGQLTrait[option.name],
       option: {
         id: option.optionId,
         label: option.optionLabel,

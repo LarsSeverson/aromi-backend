@@ -98,4 +98,20 @@ export class Table<R, T extends TablesMatching<R> = TablesMatching<R>> {
 
     return query as SelectQueryBuilder<DB, T, R>
   }
+
+  count (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
+  ) {
+    let query = this
+      .db
+      .selectFrom(this.tableName) as unknown as SelectQueryBuilder<DB, T, R>
+
+    query = query.select(eb => eb.fn.count<number>('id' as ReferenceExpression<DB, T>).as('count'))
+
+    if (where != null) {
+      query = query.where(where)
+    }
+
+    return query as SelectQueryBuilder<DB, T, { count: number }>
+  }
 }

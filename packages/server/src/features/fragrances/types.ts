@@ -1,7 +1,11 @@
 import type { FragranceService } from '@aromi/shared'
 import type { Fragrance, FragranceCollection, FragranceCollectionItem, FragranceEdit, FragranceRequest, FragranceReview } from '@src/graphql/gql-types.js'
 
-export interface IFragranceSummary extends Omit<Fragrance, 'brand' | 'images' | 'accords' | 'notes' | 'traits' | 'trait' | 'votes' | 'reviews' | 'reviewInfo'> {
+export interface IFragranceSummary extends Omit<
+  Fragrance,
+  'brand' | 'images' | 'accords' | 'notes' | 'traits' | 'trait' | 'votes' | 'reviews' | 'reviewInfo'
+ | 'myAccords' | 'myNotes' | 'myTraits' | 'myReview'
+> {
   brandId: string
 }
 

@@ -179,7 +179,7 @@ export class FragranceLoaders extends BaseLoader {
     return this
       .getLoader(
         key,
-        () => this.createMyTraitVoteLoader(userId)
+        () => this.createUserTraitVoteLoader(userId)
       )
   }
 
@@ -188,7 +188,7 @@ export class FragranceLoaders extends BaseLoader {
     return this
       .getLoader(
         key,
-        () => this.createMyAccordVotesLoader(userId)
+        () => this.createUserAccordVotesLoader(userId)
       )
   }
 
@@ -364,7 +364,7 @@ export class FragranceLoaders extends BaseLoader {
     )
   }
 
-  private createMyTraitVoteLoader (userId: string) {
+  private createUserTraitVoteLoader (userId: string) {
     const { fragrances } = this.services
 
     return new DataLoader<FragranceLoadersKey, FragranceTraitVoteRow[]>(
@@ -393,7 +393,7 @@ export class FragranceLoaders extends BaseLoader {
     )
   }
 
-  private createMyAccordVotesLoader (userId: string) {
+  private createUserAccordVotesLoader (userId: string) {
     const { fragrances } = this.services
 
     return new DataLoader<FragranceLoadersKey, FragranceAccordVoteRow[]>(

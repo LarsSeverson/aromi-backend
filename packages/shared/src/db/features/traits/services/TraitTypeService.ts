@@ -28,6 +28,8 @@ export class TraitTypeService extends TableService<TraitTypeRow> {
       query = query.where(where)
     }
 
+    query = query.orderBy('traitOptions.score', 'asc')
+
     return ResultAsync
       .fromPromise(
         query.execute(),

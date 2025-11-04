@@ -17,7 +17,7 @@ input SearchSortInput {
 
 input SearchPaginationInput {
   first: Int
-  offset: Int
+  after: Int
   sort: SearchSortInput
 }
 

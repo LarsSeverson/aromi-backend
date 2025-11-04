@@ -1,5 +1,6 @@
-import { type BackendError, unwrapOrThrow, type FragranceTraitVoteRow, type TraitOptionRow } from '@aromi/shared'
-import type { MutationResolvers, TraitVote } from '@src/graphql/gql-types.js'
+import { type BackendError, unwrapOrThrow, type FragranceTraitVoteRow } from '@aromi/shared'
+import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers.js'
+import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 
@@ -12,25 +13,21 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
         this.handleVote(),
         error => error as BackendError
       )
-      .map(row => this.mapToOutput(row))
-  }
-
-  private mapToOutput (row: TraitOptionRow | null): TraitVote | null {
-    if (row == null) return null
-
-    return {
-      option: row
-    }
+      .map(({ traitRow, optionRow }) => ({
+        id: traitRow.id,
+        type: DBTraitToGQLTrait[traitRow.name],
+        option: optionRow
+      }))
   }
 
   private async handleVote () {
     const existingVote = await unwrapOrThrow(this.getExistingVote())
+    const newVote = await unwrapOrThrow(this.upsertVote(existingVote))
 
-    await unwrapOrThrow(this.upsertVote(existingVote))
+    const traitRow = await unwrapOrThrow(this.getTraitRow(newVote.traitTypeId))
+    const optionRow = await unwrapOrThrow(this.getOptionRow())
 
-    const optionRow = await unwrapOrThrow(this.getOptionRow(existingVote))
-
-    return optionRow
+    return { traitRow, optionRow }
   }
 
   private getExistingVote () {
@@ -82,7 +79,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
       )
   }
 
-  private getOptionRow (existingVote: FragranceTraitVoteRow | null) {
+  private getOptionRow () {
     const { args, context } = this
 
     const { input } = args
@@ -91,13 +88,21 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { traitTypeId, traitOptionId } = input
     const { traits } = services
 
-    if (existingVote?.traitOptionId === traitOptionId) return okAsync(null)
-
     return traits
       .options
       .findOne(eb => eb.and([
         eb('id', '=', traitOptionId),
         eb('traitTypeId', '=', traitTypeId)
       ]))
+  }
+
+  private getTraitRow (traitTypeId: string) {
+    const { context } = this
+    const { services } = context
+    const { traits } = services
+
+    return traits
+      .types
+      .findOne(eb => eb('id', '=', traitTypeId))
   }
 }

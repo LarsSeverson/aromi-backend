@@ -399,7 +399,10 @@ type Fragrance {
   description: String
   id: ID!
   images: [FragranceImage!]!
+  myAccords: [Accord!]!
+  myNotes(layer: NoteLayer!): [Note!]!
   myReview: FragranceReview
+  myTraits: [FragranceTraitVote!]!
   name: String!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
@@ -723,7 +726,7 @@ enum FragranceStatus {
 
 type FragranceTrait {
   id: ID!
-  myVote: TraitVote
+  myVote: FragranceTraitVote
   name: String!
   options: [TraitOption!]!
   stats: TraitStats!
@@ -731,6 +734,12 @@ type FragranceTrait {
 }
 
 input FragranceTraitInput {
+  type: TraitTypeEnum!
+}
+
+type FragranceTraitVote {
+  id: ID!
+  option: TraitOption!
   type: TraitTypeEnum!
 }
 
@@ -807,7 +816,7 @@ type Mutation {
   voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
   voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
-  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
 }
 
@@ -1065,8 +1074,8 @@ type SearchPageInfo {
 }
 
 input SearchPaginationInput {
+  after: Int
   first: Int
-  offset: Int
   sort: SearchSortInput
 }
 
@@ -1167,10 +1176,6 @@ enum TraitTypeEnum {
   GENDER
   LONGEVITY
   PROJECTION
-}
-
-type TraitVote {
-  option: TraitOption!
 }
 
 type TraitVoteDistribution {

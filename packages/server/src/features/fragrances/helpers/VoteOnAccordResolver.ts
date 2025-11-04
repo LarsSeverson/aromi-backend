@@ -1,7 +1,10 @@
-import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow } from '@aromi/shared'
+import { unwrapOrThrow, AGGREGATION_JOB_NAMES, parseOrThrow, BackendError } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { GenericVoteOnEntityInputSchema } from '@src/utils/validation.js'
+import { MAX_ACCORD_VOTES } from '../utils/constants.js'
+import { errAsync, okAsync } from 'neverthrow'
+import { VOTE_TYPES } from '@src/utils/constants.js'
 
 type Mutation = MutationResolvers['voteOnFragranceAccord']
 
@@ -12,7 +15,9 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
 
     const accord = await unwrapOrThrow(this.getAccord())
 
+    await unwrapOrThrow(this.checkCanVote())
     await unwrapOrThrow(this.upsertVote())
+
     await this.enqueueAggregation()
 
     return accord
@@ -47,7 +52,7 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
       .accords
       .votes
       .upsert(
-        { fragranceId, userId, accordId },
+        { fragranceId, userId, accordId, vote },
         oc => oc
           .columns(['fragranceId', 'userId', 'accordId'])
           .doUpdateSet({ vote })
@@ -67,5 +72,47 @@ export class VoteOnAccordResolver extends MutationResolver<Mutation> {
       .findOne(
         eb => eb('id', '=', accordId)
       )
+  }
+
+  private getCount () {
+    const { me, args, context } = this
+
+    const { input } = args
+    const { services } = context
+
+    const { id } = me
+    const { fragranceId } = input
+    const { fragrances } = services
+
+    return fragrances
+      .accords
+      .votes
+      .count(
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('userId', '=', id),
+          where('vote', '=', VOTE_TYPES.UPVOTE)
+        ])
+      )
+  }
+
+  private checkCanVote () {
+    const { vote } = this.args.input
+
+    return this
+      .getCount()
+      .andThen(count => {
+        if (count >= MAX_ACCORD_VOTES && vote === VOTE_TYPES.UPVOTE) {
+          return errAsync(
+            new BackendError(
+              'MAX_VOTES_REACHED',
+              `You can only vote for ${MAX_ACCORD_VOTES} accords per fragrance.`,
+              400
+            )
+          )
+        }
+
+        return okAsync(count)
+      })
   }
 }

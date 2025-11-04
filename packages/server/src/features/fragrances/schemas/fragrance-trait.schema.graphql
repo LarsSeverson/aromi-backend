@@ -4,7 +4,13 @@ type FragranceTrait {
   name: String!
   options: [TraitOption!]!
   stats: TraitStats!
-  myVote: TraitVote
+  myVote: FragranceTraitVote
+}
+
+type FragranceTraitVote {
+  id: ID!
+  type: TraitTypeEnum!
+  option: TraitOption!
 }
 
 input FragranceTraitInput {
@@ -18,5 +24,5 @@ input VoteOnFragranceTraitInput {
 }
 
 extend type Mutation {
-  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): TraitVote
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
 }

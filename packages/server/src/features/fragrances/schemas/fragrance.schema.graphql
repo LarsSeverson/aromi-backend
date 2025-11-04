@@ -28,8 +28,13 @@ type Fragrance {
   thumbnail: FragranceImage
   images: [FragranceImage!]!
 
+  myAccords: [Accord!]!
   accords(input: FragranceAccordPaginationInput): FragranceAccordConnection!
+
+  myNotes(layer: NoteLayer!): [Note!]!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
+
+  myTraits: [FragranceTraitVote!]!
   traits: [FragranceTrait!]!
 
   myReview: FragranceReview

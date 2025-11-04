@@ -23,7 +23,3 @@ type TraitVoteDistribution {
   option: TraitOption!
   votes: Int!
 }
-
-type TraitVote {
-  option: TraitOption!
-}

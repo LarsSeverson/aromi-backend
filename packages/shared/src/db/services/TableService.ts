@@ -217,6 +217,20 @@ export abstract class TableService<R, T extends TablesMatching<R> = TablesMatchi
       })
   }
 
+  count (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
+  ): ResultAsync<number, BackendError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .Table
+          .count(where)
+          .executeTakeFirstOrThrow(),
+        error => BackendError.fromDatabase(error)
+      )
+      .map(res => res.count)
+  }
+
   private createTrxService (trx: DataSources['db']): this {
     const Ctor = this.constructor as new (sources: DataSources, table: T) => this
     const sources = this.sources.with({ db: trx })

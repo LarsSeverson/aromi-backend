@@ -92,6 +92,21 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
       )
   }
 
+  override count (
+    where?: ExpressionOrFactory<DB, T, SqlBool>
+  ): ResultAsync<number, BackendError> {
+    const query = this
+      .Table
+      .count(this.Table.filterDeleted(where))
+
+    return ResultAsync
+      .fromPromise(
+        query.executeTakeFirstOrThrow(),
+        error => BackendError.fromDatabase(error)
+      )
+      .map(result => result.count)
+  }
+
   override updateOne (
     where: ExpressionOrFactory<DB, T, SqlBool>,
     values: UpdateObject<DB, T> | ((eb: ExpressionBuilder<DB, T>) => UpdateObject<DB, T>)

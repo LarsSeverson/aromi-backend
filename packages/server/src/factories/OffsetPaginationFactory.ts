@@ -21,7 +21,7 @@ export interface NormalizedOffsetInput {
 
 export interface RawOffsetPaginationArgs<S> {
   first?: number | null
-  offset?: number | null
+  after?: number | null
   sort?: S | null
 }
 
@@ -31,14 +31,14 @@ export abstract class OffsetPaginationFactory<S> {
   }
 
   protected clampOffset (num?: number | null): number {
-    return Math.max(0, num ?? 0)
+    return Math.max(0, (num == null ? 0 : num + 1))
   }
 
   protected abstract resolveSort (sort?: S | null): OffsetSortSpec
 
   normalize (raw?: RawOffsetPaginationArgs<S> | null): NormalizedOffsetInput {
     const first = this.clampFirst(raw?.first)
-    const offset = this.clampOffset(raw?.offset)
+    const offset = this.clampOffset(raw?.after)
     const sort = this.resolveSort(raw?.sort)
 
     return { first, offset, sort }
