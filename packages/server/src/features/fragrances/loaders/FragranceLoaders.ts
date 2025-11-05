@@ -197,7 +197,7 @@ export class FragranceLoaders extends BaseLoader {
     return this
       .getLoader(
         key,
-        () => this.createMyNoteVotesLoader(userId)
+        () => this.createUserNoteVotesLoader(userId)
       )
   }
 
@@ -423,7 +423,7 @@ export class FragranceLoaders extends BaseLoader {
     )
   }
 
-  private createMyNoteVotesLoader (userId: string) {
+  private createUserNoteVotesLoader (userId: string) {
     const { fragrances } = this.services
 
     return new DataLoader<FragranceLoadersKey, FragranceNoteVoteRow[]>(

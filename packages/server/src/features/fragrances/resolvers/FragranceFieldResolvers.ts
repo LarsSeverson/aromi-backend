@@ -81,6 +81,8 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
         )
     )
 
+    if (votes.length === 0) return []
+
     const myAccords = await unwrapOrThrow(
       accords.find(where => where('id', 'in', votes.map(v => v.accordId)))
     )
@@ -125,6 +127,8 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
           ])
         )
     )
+
+    if (votes.length === 0) return []
 
     const myNotes = await unwrapOrThrow(
       notes.find(where => where('id', 'in', votes.map(v => v.noteId)))

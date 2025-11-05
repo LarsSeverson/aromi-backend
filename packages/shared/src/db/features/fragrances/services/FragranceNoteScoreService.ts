@@ -100,9 +100,14 @@ export class FragranceNoteScoreService extends TableService<FragranceNoteScoreRo
   ) {
     await unwrapOrThrow(
       this.findOrCreate(
-        eb => eb('fragranceId', '=', fragranceId),
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('noteId', '=', noteId),
+          where('layer', '=', layer)
+        ]),
         { fragranceId, noteId, layer }
-      ))
+      )
+    )
 
     const score = await unwrapOrThrow(
       this.updateOne(

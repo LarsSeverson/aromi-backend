@@ -739,7 +739,7 @@ input FragranceTraitInput {
 
 type FragranceTraitVote {
   id: ID!
-  option: TraitOption!
+  option: TraitOption
   type: TraitTypeEnum!
 }
 
@@ -1287,7 +1287,7 @@ input VoteOnFragranceReviewInput {
 
 input VoteOnFragranceTraitInput {
   fragranceId: ID!
-  traitOptionId: ID!
+  traitOptionId: ID
   traitTypeId: ID!
 }
 

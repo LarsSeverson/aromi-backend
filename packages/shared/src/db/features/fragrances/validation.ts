@@ -10,12 +10,13 @@ export const MAX_FRAGRANCE_IMAGE_SIZE = 5_000_000 // 5 MB
 export const MIN_FRAGRANCE_COLLECTION_NAME_LENGTH = 1
 export const MAX_FRAGRANCE_COLLECTION_NAME_LENGTH = 100
 
+export const MIN_REVIEW_BODY_LENGTH = 45
 export const MAX_REVIEW_BODY_LENGTH = 5000
 export const MIN_REVIEW_RATING = 0
 export const MAX_REVIEW_RATING = 5
 
-export const MIN_REPORT_BODY_LENGTH = 1
-export const MAX_REPORT_BODY_LENGTH = 2000
+export const MIN_REPORT_BODY_LENGTH = 45
+export const MAX_REPORT_BODY_LENGTH = 3000
 
 export const ValidFragranceName = z
   .string()
@@ -90,7 +91,8 @@ export const ValidFragranceCollection = z
 export const ValidFragranceReviewBody = z
   .string()
   .trim()
-  .max(MAX_REVIEW_BODY_LENGTH, `Review body cannot exceed ${MAX_REVIEW_BODY_LENGTH} characters`)
+  .min(MIN_REVIEW_BODY_LENGTH, `Review must be at least ${MIN_REVIEW_BODY_LENGTH} characters`)
+  .max(MAX_REVIEW_BODY_LENGTH, `Review cannot exceed ${MAX_REVIEW_BODY_LENGTH} characters`)
 
 export const ValidFragranceReviewRating = z
   .number('Review rating must be a number')
@@ -100,14 +102,14 @@ export const ValidFragranceReviewRating = z
 export const ValidFragranceReview = z
   .object({
     rating: ValidFragranceReviewRating,
-    body: ValidFragranceReviewBody.nullish()
+    body: ValidFragranceReviewBody
   })
   .strip()
 
 export const ValidFragranceReportBody = z
   .string()
   .trim()
-  .min(MIN_REPORT_BODY_LENGTH, 'Report body must not be empty')
+  .min(MIN_REPORT_BODY_LENGTH, `Report body must be at least ${MIN_REPORT_BODY_LENGTH} characters`)
   .max(MAX_REPORT_BODY_LENGTH, `Report body cannot exceed ${MAX_REPORT_BODY_LENGTH} characters`)
 
 export const ValidFragranceReport = z

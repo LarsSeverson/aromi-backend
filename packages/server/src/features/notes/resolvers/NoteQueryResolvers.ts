@@ -1,9 +1,10 @@
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { throwError, unwrapOrThrow } from '@aromi/shared'
+import { parseOrThrow, throwError, unwrapOrThrow } from '@aromi/shared'
 import { NotePaginationFactory } from '../factories/NotePaginationFactory.js'
 import { NoteEditQueryResolvers } from './NoteEditQueryResolvers.js'
 import { NoteRequestQueryResolvers } from './NoteRequestQueryResolvers.js'
+import { SearchInputSchema } from '@src/features/search/utils/validation.js'
 
 export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly edits = new NoteEditQueryResolvers()
@@ -63,7 +64,8 @@ export class NoteQueryResolvers extends BaseResolver<QueryResolvers> {
     const { input } = args
     const { services } = context
 
-    const { term, pagination } = input ?? {}
+    const { term } = parseOrThrow(SearchInputSchema, input)
+    const { pagination } = input ?? {}
     const offsetPagination = this.searchPagination.parse(pagination)
 
     const { search } = services

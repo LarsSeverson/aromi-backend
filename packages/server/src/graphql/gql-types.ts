@@ -879,7 +879,7 @@ export type FragranceTraitInput = {
 export type FragranceTraitVote = {
   __typename?: 'FragranceTraitVote';
   id: Scalars['ID']['output'];
-  option: TraitOption;
+  option?: Maybe<TraitOption>;
   type: TraitTypeEnum;
 };
 
@@ -1952,7 +1952,7 @@ export type VoteOnFragranceReviewInput = {
 
 export type VoteOnFragranceTraitInput = {
   fragranceId: Scalars['ID']['input'];
-  traitOptionId: Scalars['ID']['input'];
+  traitOptionId?: InputMaybe<Scalars['ID']['input']>;
   traitTypeId: Scalars['ID']['input'];
 };
 
@@ -2824,7 +2824,7 @@ export type FragranceTraitResolvers<ContextType = ServerContext, ParentType exte
 
 export type FragranceTraitVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTraitVote'] = ResolversParentTypes['FragranceTraitVote']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  option?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
+  option?: Resolver<Maybe<ResolversTypes['TraitOption']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
 }>;
 

@@ -1,8 +1,8 @@
-import { type BackendError, unwrapOrThrow, type FragranceTraitVoteRow } from '@aromi/shared'
+import { type BackendError, unwrapOrThrow } from '@aromi/shared'
 import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { errAsync, okAsync, ResultAsync } from 'neverthrow'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 type Mutation = MutationResolvers['voteOnFragranceTrait']
 
@@ -21,16 +21,22 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
   }
 
   private async handleVote () {
-    const existingVote = await unwrapOrThrow(this.getExistingVote())
-    const newVote = await unwrapOrThrow(this.upsertVote(existingVote))
+    const { args } = this
+    const { input } = args
 
-    const traitRow = await unwrapOrThrow(this.getTraitRow(newVote.traitTypeId))
+    const { traitTypeId, traitOptionId } = input
+    const shouldDeleteVote = traitOptionId == null
+
+    if (shouldDeleteVote) await unwrapOrThrow(this.deleteExistingVote())
+    else await unwrapOrThrow(this.upsertVote(traitOptionId))
+
+    const traitRow = await unwrapOrThrow(this.getTraitRow(traitTypeId))
     const optionRow = await unwrapOrThrow(this.getOptionRow())
 
     return { traitRow, optionRow }
   }
 
-  private getExistingVote () {
+  private upsertVote (traitOptionId: string) {
     const { me, args, context } = this
 
     const { input } = args
@@ -42,40 +48,11 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
 
     return fragrances
       .traitVotes
-      .findOne(
-        eb => eb.and([
-          eb('fragranceId', '=', fragranceId),
-          eb('userId', '=', userId),
-          eb('traitTypeId', '=', traitTypeId)
-        ])
-      )
-      .orElse(error => {
-        if (error.status === 404) return okAsync(null)
-        return errAsync(error)
-      })
-  }
-
-  private upsertVote (existingVote: FragranceTraitVoteRow | null) {
-    const { me, args, context } = this
-
-    const { input } = args
-    const { services } = context
-
-    const { fragranceId, traitTypeId, traitOptionId } = input
-    const { fragrances } = services
-    const userId = me.id
-
-    const deletedAt = existingVote?.traitOptionId === traitOptionId
-      ? new Date().toISOString()
-      : null
-
-    return fragrances
-      .traitVotes
       .upsert(
         { fragranceId, userId, traitTypeId, traitOptionId },
         oc => oc
           .columns(['fragranceId', 'userId', 'traitTypeId'])
-          .doUpdateSet({ deletedAt, traitOptionId })
+          .doUpdateSet({ traitOptionId })
       )
   }
 
@@ -87,6 +64,8 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
 
     const { traitTypeId, traitOptionId } = input
     const { traits } = services
+
+    if (traitOptionId == null) return okAsync(null)
 
     return traits
       .options
@@ -104,5 +83,47 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     return traits
       .types
       .findOne(eb => eb('id', '=', traitTypeId))
+  }
+
+  private getExistingVote () {
+    const { me, args, context } = this
+
+    const { input } = args
+    const { services } = context
+
+    const { fragranceId, traitTypeId } = input
+    const { fragrances } = services
+    const userId = me.id
+
+    return fragrances
+      .traitVotes
+      .findOne(
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('userId', '=', userId),
+          where('traitTypeId', '=', traitTypeId)
+        ])
+      )
+  }
+
+  private deleteExistingVote () {
+    const { me, args, context } = this
+
+    const { input } = args
+    const { services } = context
+
+    const { fragranceId, traitTypeId } = input
+    const { fragrances } = services
+    const userId = me.id
+
+    return fragrances
+      .traitVotes
+      .softDeleteOne(
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('userId', '=', userId),
+          where('traitTypeId', '=', traitTypeId)
+        ])
+      )
   }
 }

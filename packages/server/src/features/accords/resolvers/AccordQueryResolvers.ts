@@ -1,9 +1,10 @@
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { throwError, unwrapOrThrow } from '@aromi/shared'
+import { parseOrThrow, throwError, unwrapOrThrow } from '@aromi/shared'
 import { AccordPaginationFactory } from '../factories/AccordPaginationFactory.js'
 import { AccordEditQueryResolvers } from './AccordEditQueryResolvers.js'
 import { AccordRequestQueryResolvers } from './AccordRequestQueryResolvers.js'
+import { SearchInputSchema } from '@src/features/search/utils/validation.js'
 
 export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly edits = new AccordEditQueryResolvers()
@@ -62,7 +63,8 @@ export class AccordQueryResolvers extends BaseResolver<QueryResolvers> {
     const { input } = args
     const { services } = context
 
-    const { term, pagination } = input ?? {}
+    const { term } = parseOrThrow(SearchInputSchema, input)
+    const { pagination } = input ?? {}
     const offsetPagination = this.searchPagination.parse(pagination)
 
     const { search } = services

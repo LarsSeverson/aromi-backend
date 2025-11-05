@@ -51,9 +51,10 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
       .notes
       .scores
       .findCombinedNotes(
-        eb => eb.and([
-          eb('fragranceId', '=', id),
-          eb('layer', '=', dbLayer)
+        where => where.and([
+          where('fragranceId', '=', id),
+          where('layer', '=', dbLayer),
+          where('score', '>', 0)
         ]),
         pagination
       )
