@@ -79,3 +79,4 @@ export const MoveFragranceCollectionItemInputSchema = z
   .strip()
 
 export const CreateFragranceReviewInputSchema = ValidFragranceReview
+export const UpdateFragranceReviewInputSchema = ValidFragranceReview

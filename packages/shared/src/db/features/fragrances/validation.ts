@@ -12,7 +12,7 @@ export const MAX_FRAGRANCE_COLLECTION_NAME_LENGTH = 100
 
 export const MIN_REVIEW_BODY_LENGTH = 45
 export const MAX_REVIEW_BODY_LENGTH = 5000
-export const MIN_REVIEW_RATING = 0
+export const MIN_REVIEW_RATING = 1
 export const MAX_REVIEW_RATING = 5
 
 export const MIN_REPORT_BODY_LENGTH = 45

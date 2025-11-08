@@ -378,7 +378,7 @@ export type CreateFragranceRequestInput = {
 };
 
 export type CreateFragranceReviewInput = {
-  body?: InputMaybe<Scalars['String']['input']>;
+  body: Scalars['String']['input'];
   fragranceId: Scalars['ID']['input'];
   rating: Scalars['Float']['input'];
 };
@@ -945,6 +945,7 @@ export type Mutation = {
   updateAccordRequest: AccordRequest;
   updateBrandRequest: BrandRequest;
   updateFragranceRequest: FragranceRequest;
+  updateFragranceReview: FragranceReview;
   updateMe: User;
   updateNoteRequest: NoteRequest;
   voteOnAccordRequest: AccordRequest;
@@ -1187,6 +1188,11 @@ export type MutationUpdateBrandRequestArgs = {
 
 export type MutationUpdateFragranceRequestArgs = {
   input: UpdateFragranceRequestInput;
+};
+
+
+export type MutationUpdateFragranceReviewArgs = {
+  input: UpdateFragranceReviewInput;
 };
 
 
@@ -1832,6 +1838,12 @@ export type UpdateFragranceRequestInput = {
   status?: InputMaybe<FragranceStatus>;
 };
 
+export type UpdateFragranceReviewInput = {
+  body: Scalars['String']['input'];
+  rating?: InputMaybe<Scalars['Float']['input']>;
+  reviewId: Scalars['ID']['input'];
+};
+
 export type UpdateMeInput = {
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2229,6 +2241,7 @@ export type ResolversTypes = ResolversObject<{
   UpdateAccordRequestInput: ResolverTypeWrapper<Partial<UpdateAccordRequestInput>>;
   UpdateBrandRequestInput: ResolverTypeWrapper<Partial<UpdateBrandRequestInput>>;
   UpdateFragranceRequestInput: ResolverTypeWrapper<Partial<UpdateFragranceRequestInput>>;
+  UpdateFragranceReviewInput: ResolverTypeWrapper<Partial<UpdateFragranceReviewInput>>;
   UpdateMeInput: ResolverTypeWrapper<Partial<UpdateMeInput>>;
   UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
   User: ResolverTypeWrapper<IUserSummary>;
@@ -2416,6 +2429,7 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateAccordRequestInput: Partial<UpdateAccordRequestInput>;
   UpdateBrandRequestInput: Partial<UpdateBrandRequestInput>;
   UpdateFragranceRequestInput: Partial<UpdateFragranceRequestInput>;
+  UpdateFragranceReviewInput: Partial<UpdateFragranceReviewInput>;
   UpdateMeInput: Partial<UpdateMeInput>;
   UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
   User: IUserSummary;
@@ -2881,6 +2895,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   updateAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationUpdateAccordRequestArgs, 'input'>>;
   updateBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationUpdateBrandRequestArgs, 'input'>>;
   updateFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationUpdateFragranceRequestArgs, 'input'>>;
+  updateFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationUpdateFragranceReviewArgs, 'input'>>;
   updateMe?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
   updateNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationUpdateNoteRequestArgs, 'input'>>;
   voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;

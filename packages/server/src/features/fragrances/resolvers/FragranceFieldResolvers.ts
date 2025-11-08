@@ -1,4 +1,4 @@
-import { unwrapOrThrow } from '@aromi/shared'
+import { INVALID_ID, unwrapOrThrow } from '@aromi/shared'
 import type { FragranceResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { FragranceImagesResolver } from '../helpers/FragranceImagesResolver.js'
@@ -244,7 +244,7 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
   ) => {
     const { id } = parent
     const { input } = args
-    const { services } = context
+    const { me, services } = context
 
     const pagination = this.reviewPagination.parse(input)
     const { fragrances } = services
@@ -253,7 +253,10 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
       fragrances
         .reviews
         .find(
-          where => where('fragranceId', '=', id),
+          where => where.and([
+            where('fragranceId', '=', id),
+            where('userId', '!=', me?.id ?? INVALID_ID)
+          ]),
           { pagination }
         )
     )

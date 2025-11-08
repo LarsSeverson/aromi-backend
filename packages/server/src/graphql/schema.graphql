@@ -316,7 +316,7 @@ input CreateFragranceRequestInput {
 }
 
 input CreateFragranceReviewInput {
-  body: String
+  body: String!
   fragranceId: ID!
   rating: Float!
 }
@@ -806,6 +806,7 @@ type Mutation {
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
+  updateFragranceReview(input: UpdateFragranceReviewInput!): FragranceReview!
   updateMe(input: UpdateMeInput!): User!
   updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
@@ -1207,6 +1208,12 @@ input UpdateFragranceRequestInput {
   name: String
   releaseYear: Int
   status: FragranceStatus
+}
+
+input UpdateFragranceReviewInput {
+  body: String!
+  rating: Float
+  reviewId: ID!
 }
 
 input UpdateMeInput {

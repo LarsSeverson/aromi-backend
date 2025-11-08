@@ -8,10 +8,10 @@ export class FragranceReviewsAggregator extends BaseAggregator<AggregationJobPay
   async aggregate (job: Job<AggregationJobPayload[JobKey]>): Promise<FragranceScoreRow> {
     const { fragranceId } = job.data
 
+    const score = await unwrapOrThrow(this.getScore(fragranceId))
+
     await unwrapOrThrow(this.updateReviewCount(fragranceId))
     await unwrapOrThrow(this.updateAverageRating(fragranceId))
-
-    const score = await unwrapOrThrow(this.getScore(fragranceId))
 
     return score
   }
@@ -40,7 +40,7 @@ export class FragranceReviewsAggregator extends BaseAggregator<AggregationJobPay
           .selectFrom('fragranceReviews')
           .where('fragranceId', '=', fragranceId)
           .where('deletedAt', 'is', null)
-          .select(({ fn }) => fn.countAll<number>().as('count'))
+          .select(({ fn }) => fn.countAll<number>().as('reviewCount'))
       })
     )
   }
@@ -57,7 +57,7 @@ export class FragranceReviewsAggregator extends BaseAggregator<AggregationJobPay
           .selectFrom('fragranceReviews')
           .where('fragranceId', '=', fragranceId)
           .where('deletedAt', 'is', null)
-          .select(({ fn }) => fn.avg<number>('rating').as('avgRating'))
+          .select(({ fn }) => fn.avg<number>('rating').as('averageRating'))
       })
     )
   }
