@@ -24,13 +24,16 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     const values = {
       ...parsed,
       fragranceId,
-      userId: me.id
+      userId: me.id,
+      deletedAt: null
     }
 
     const review = await unwrapOrThrow(
       fragrances.reviews.upsert(
         values,
-        oc => oc.columns(['fragranceId', 'userId']).doUpdateSet(values)
+        oc => oc
+          .columns(['fragranceId', 'userId'])
+          .doUpdateSet(values)
       )
     )
 

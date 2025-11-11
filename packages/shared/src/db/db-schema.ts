@@ -626,6 +626,8 @@ export interface User {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   email: string;
+  followerCount: Generated<number>;
+  followingCount: Generated<number>;
   id: Generated<string>;
   role: Generated<UserRole>;
   updatedAt: Generated<Timestamp>;

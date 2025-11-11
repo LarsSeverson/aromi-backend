@@ -21,7 +21,12 @@ export class FragranceReviewService extends FeaturedTableService<FragranceReview
 
     const query = db
       .selectFrom('fragranceReviews')
-      .where('fragranceId', '=', fragranceId)
+      .where(
+        where => where.and([
+          where('fragranceId', '=', fragranceId),
+          where('deletedAt', 'is', null)
+        ])
+      )
       .select(['rating'])
       .select(({ fn }) => fn.countAll<number>().as('count'))
       .groupBy('rating')

@@ -1234,8 +1234,11 @@ type User {
   collection(id: ID!): FragranceCollection!
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
   email: String
+  followerCount: Int!
+  followingCount: Int!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
+  likes(input: FragrancePaginationInput): FragranceConnection!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!

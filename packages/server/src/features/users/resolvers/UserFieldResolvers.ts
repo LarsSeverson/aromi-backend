@@ -2,7 +2,7 @@ import { INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import type { UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
-import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview } from '@src/features/fragrances/utils/mappers.js'
+import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview, mapFragranceRowToFragranceSummary } from '@src/features/fragrances/utils/mappers.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/utils/mappers.js'
 import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords/utils/mappers.js'
 import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
@@ -94,6 +94,29 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const connection = this.pageFactory.paginate(collections, pagination)
 
     return connection
+  }
+
+  likes: UserResolvers['likes'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { fragrances } = services
+    const pagination = this.collectionPagination.parse(input)
+
+    const likedFragrances = await unwrapOrThrow(
+      fragrances.findLikedFragrances(id, { pagination })
+    )
+
+    const connection = this.pageFactory.paginate(likedFragrances, pagination)
+    const transformed = this.pageFactory.transform(connection, mapFragranceRowToFragranceSummary)
+
+    return transformed
   }
 
   review: UserResolvers['review'] = async (
@@ -346,6 +369,9 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
       avatar: this.avatar,
       collection: this.collection,
       collections: this.collections,
+      likes: this.likes,
+      review: this.review,
+      reviews: this.reviews,
       fragranceRequests: this.fragranceRequests,
       brandRequests: this.brandRequests,
       accordRequests: this.accordRequests,

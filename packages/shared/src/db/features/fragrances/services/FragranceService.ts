@@ -12,6 +12,11 @@ import { FragranceScoreService } from './FragranceScoreService.js'
 import { FragranceCollectionService } from './FragranceCollectionService.js'
 import { FragranceReviewService } from './FragranceReviewService.js'
 import { FragranceReportService } from './FragranceReportService.js'
+import type { SelectQueryBuilder } from 'kysely'
+import type { DB } from '@src/db/db-schema.js'
+import type { QueryOptions } from '@src/db/types.js'
+import { ResultAsync } from 'neverthrow'
+import { BackendError } from '@src/utils/error.js'
 
 export class FragranceService extends FeaturedTableService<FragranceRow> {
   images: FragranceImageService
@@ -40,5 +45,37 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
     this.scores = new FragranceScoreService(sources)
     this.collections = new FragranceCollectionService(sources)
     this.reports = new FragranceReportService(sources)
+  }
+
+  findLikedFragrances <C>(
+    userId: string,
+    options?: QueryOptions<C, 'fragrances', FragranceRow>
+  ) {
+    const { pagination, extend } = options ?? {}
+
+    let query = this.db
+      .selectFrom('fragrances')
+      .selectAll('fragrances')
+      .innerJoin('fragranceVotes', join =>
+        join
+          .onRef('fragrances.id', '=', 'fragranceVotes.fragranceId')
+          .on('fragranceVotes.userId', '=', userId)
+          .on('fragranceVotes.vote', '=', 1)
+          .on('fragranceVotes.deletedAt', 'is', null)
+      ) as SelectQueryBuilder<DB, 'fragrances', FragranceRow>
+
+    if (pagination != null) {
+      query = this.Table.paginatedQuery(pagination, query)
+    }
+
+    if (extend != null) {
+      query = extend(query)
+    }
+
+    return ResultAsync
+      .fromPromise(
+        query.execute(),
+        error => BackendError.fromDatabase(error)
+      )
   }
 }

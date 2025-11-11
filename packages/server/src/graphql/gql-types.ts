@@ -1863,8 +1863,11 @@ export type User = {
   collection: FragranceCollection;
   collections: FragranceCollectionConnection;
   email?: Maybe<Scalars['String']['output']>;
+  followerCount: Scalars['Int']['output'];
+  followingCount: Scalars['Int']['output'];
   fragranceRequests: FragranceRequestConnection;
   id: Scalars['ID']['output'];
+  likes: FragranceConnection;
   noteRequests: NoteRequestConnection;
   review: FragranceReview;
   reviews: FragranceReviewConnection;
@@ -1894,6 +1897,11 @@ export type UserCollectionsArgs = {
 
 export type UserFragranceRequestsArgs = {
   input?: InputMaybe<RequestPaginationInput>;
+};
+
+
+export type UserLikesArgs = {
+  input?: InputMaybe<FragrancePaginationInput>;
 };
 
 
@@ -3100,8 +3108,11 @@ export type UserResolvers<ContextType = ServerContext, ParentType extends Resolv
   collection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<UserCollectionArgs, 'id'>>;
   collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  followingCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<UserFragranceRequestsArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<UserNoteRequestsArgs>>;
   review?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<UserReviewArgs, 'id'>>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<UserReviewsArgs>>;

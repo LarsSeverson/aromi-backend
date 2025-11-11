@@ -11,6 +11,9 @@ type User {
   username: String!
   avatar: Asset 
 
+  followerCount: Int!
+  followingCount: Int!
+
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   brandRequests(input: RequestPaginationInput): BrandRequestConnection!
   accordRequests(input: RequestPaginationInput): AccordRequestConnection!
@@ -18,6 +21,8 @@ type User {
 
   collection(id: ID!): FragranceCollection!
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
+
+  likes(input: FragrancePaginationInput): FragranceConnection!
 
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
