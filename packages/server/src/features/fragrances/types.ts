@@ -23,7 +23,7 @@ export interface IFragranceRequestSummary extends Omit<FragranceRequest, 'brand'
   userId: string
 }
 
-export interface IFragranceCollectionSummary extends Omit<FragranceCollection, 'user' | 'items' | 'previewItems' | 'hasFragrance'> {
+export interface IFragranceCollectionSummary extends Omit<FragranceCollection, 'user' | 'items' | 'previewItems' | 'hasFragrance' | 'info'> {
   userId: string
 }
 

@@ -448,7 +448,8 @@ input FragranceAccordSortInput {
 type FragranceCollection {
   hasFragrance(fragranceId: ID!): Boolean!
   id: ID!
-  items: [FragranceCollectionItem!]!
+  info: FragranceCollectionInfo!
+  items(input: FragranceCollectionItemPaginationInput): FragranceCollectionItemConnection!
   name: String!
   previewItems: [FragranceCollectionItem!]!
   user: User!
@@ -462,6 +463,10 @@ type FragranceCollectionConnection {
 type FragranceCollectionEdge {
   cursor: String!
   node: FragranceCollection!
+}
+
+type FragranceCollectionInfo {
+  itemCount: Int!
 }
 
 type FragranceCollectionItem {
@@ -805,6 +810,7 @@ type Mutation {
   submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
+  updateFragranceCollection(input: UpdateFragranceCollectionInput!): FragranceCollection!
   updateFragranceRequest(input: UpdateFragranceRequestInput!): FragranceRequest!
   updateFragranceReview(input: UpdateFragranceReviewInput!): FragranceReview!
   updateMe(input: UpdateMeInput!): User!
@@ -1198,6 +1204,11 @@ input UpdateBrandRequestInput {
   id: ID!
   name: String
   website: String
+}
+
+input UpdateFragranceCollectionInput {
+  collectionId: ID!
+  name: String!
 }
 
 input UpdateFragranceRequestInput {

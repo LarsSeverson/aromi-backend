@@ -1,10 +1,15 @@
 type FragranceCollection {
   id: ID!
   name: String!
-  items: [FragranceCollectionItem!]!
+  items(input: FragranceCollectionItemPaginationInput): FragranceCollectionItemConnection!
   previewItems: [FragranceCollectionItem!]!
   hasFragrance(fragranceId: ID!): Boolean!
   user: User!
+  info: FragranceCollectionInfo!
+}
+
+type FragranceCollectionInfo {
+  itemCount: Int!
 }
 
 type FragranceCollectionEdge {
@@ -36,6 +41,11 @@ input CreateFragranceCollectionInput {
   name: String!
 }
 
+input UpdateFragranceCollectionInput {
+  collectionId: ID!
+  name: String!
+}
+
 input DeleteFragranceCollectionInput {
   collectionId: ID!
 }
@@ -47,5 +57,6 @@ extend type Query {
 
 extend type Mutation {
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
+  updateFragranceCollection(input: UpdateFragranceCollectionInput!): FragranceCollection!
   deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!
 }

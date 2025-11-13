@@ -59,6 +59,13 @@ export const CreateCollectionInputSchema = z
   })
   .strip()
 
+export const UpdateCollectionInputSchema = z
+  .object({
+    name: ValidFragranceCollectionName
+      .nonoptional('Collection name is required')
+  })
+  .strip()
+
 export const MoveFragranceCollectionItemInputSchema = z
   .object({
     insertBefore: z

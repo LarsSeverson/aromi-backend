@@ -33,7 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "kysely": "^0.28.2",
-    "meilisearch": "^0.53.0",
+    "meilisearch": "^0.54.0",
     "nanoid": "^5.1.6",
     "neverthrow": "^8.2.0",
     "pg": "^8.13.3",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.9",
     "@types/pg": "^8.11.11",
-    "dotenv-cli": "^10.0.0",
+    "dotenv-cli": "^11.0.0",
     "kysely-codegen": "^0.19.0",
     "nodemon": "^3.1.10",
     "sql-formatter": "^15.6.9",

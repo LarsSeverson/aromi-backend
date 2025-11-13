@@ -2,8 +2,11 @@ import { BackendError, unwrapOrThrow } from '@aromi/shared'
 import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
 import type { FragranceCollectionResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
+import { FragranceCollectionItemPaginationFactory } from '../factories/FragranceCollectionItemPaginationFactory.js'
 
 export class FragranceCollectionFieldResolvers extends BaseResolver<FragranceCollectionResolvers> {
+  private readonly pagination = new FragranceCollectionItemPaginationFactory()
+
   items: FragranceCollectionResolvers['items'] = async (
     parent,
     args,
@@ -11,13 +14,22 @@ export class FragranceCollectionFieldResolvers extends BaseResolver<FragranceCol
     info
   ) => {
     const { id } = parent
-    const { loaders } = context
+    const { input } = args
+    const { services } = context
 
-    const { fragrances } = loaders
+    const { fragrances } = services
+    const pagination = this.pagination.parse(input)
 
-    const rows = await unwrapOrThrow(fragrances.collections.loadItems(id))
+    const rows = await unwrapOrThrow(
+      fragrances.collections.items.find(
+        where => where('collectionId', '=', id),
+        { pagination }
+      )
+    )
 
-    return rows
+    const connection = this.pageFactory.paginate(rows, pagination)
+
+    return connection
   }
 
   previewItems: FragranceCollectionResolvers['previewItems'] = async (
@@ -77,12 +89,35 @@ export class FragranceCollectionFieldResolvers extends BaseResolver<FragranceCol
     return mapUserRowToUserSummary(user)
   }
 
+  info: FragranceCollectionResolvers['info'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { services } = context
+
+    const { fragrances } = services
+
+    const itemCount = await unwrapOrThrow(
+      fragrances.collections.items.count(
+        where => where('collectionId', '=', id)
+      )
+    )
+
+    return {
+      itemCount
+    }
+  }
+
   getResolvers (): FragranceCollectionResolvers {
     return {
       items: this.items,
       previewItems: this.previewItems,
       hasFragrance: this.hasFragrance,
-      user: this.user
+      user: this.user,
+      info: this.info
     }
   }
 }
