@@ -354,7 +354,7 @@ input DeleteFragranceCollectionInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: ID!
-  fragranceId: ID!
+  itemId: ID!
 }
 
 input DeleteFragranceRequestInput {

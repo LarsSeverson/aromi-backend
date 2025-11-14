@@ -46,15 +46,13 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
       )
     }
 
-    const { moving, remaining } = this.getSplitRange(items, parsedInput)
-    const insertIndex = this.getInsertIndex(remaining, parsedInput)
+    const { startIndex, moving, remaining } = this.getSplitRange(items, parsedInput)
+    const insertIndex = this.getInsertIndex(items, parsedInput, startIndex)
     const { before, after } = this.getNeighbors(remaining, insertIndex)
     const baseRank = this.getBaseRank(before, after)
 
-    await this.updateRanks(moving, baseRank)
+    const updated = await this.updateRanks(moving, baseRank)
     await unwrapOrThrow(this.updateCollection())
-
-    const updated = await unwrapOrThrow(this.getItems())
 
     return updated
   }
@@ -115,19 +113,21 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
     const moving = items.slice(startIndex, startIndex + rangeLength)
     const remaining = items.filter(i => !moving.includes(i))
 
-    return { moving, remaining }
+    return { startIndex, moving, remaining }
   }
 
-  private getInsertIndex (items: FragranceCollectionItemRow[], input: z.infer<typeof MoveFragranceCollectionItemInputSchema>) {
-    const { insertBefore } = input
+  private getInsertIndex (
+    items: FragranceCollectionItemRow[],
+    input: z.infer<typeof MoveFragranceCollectionItemInputSchema>,
+    startIndex: number
+  ) {
+    const { insertBefore, rangeLength } = input
 
-    if (insertBefore == null) {
-      return items.length
-    }
+    const rawIndex = insertBefore == null
+      ? items.length
+      : items.findIndex(i => i.id === insertBefore)
 
-    const insertIndex = items.findIndex(i => i.id === insertBefore)
-
-    if (insertIndex === -1) {
+    if (rawIndex === -1) {
       throw new BackendError(
         'INVALID_INSERT_BEFORE',
         'The insertBefore item does not exist in this collection.',
@@ -135,20 +135,23 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
       )
     }
 
-    return insertIndex
+    return rawIndex > startIndex ? rawIndex - rangeLength : rawIndex
   }
 
   private getNeighbors (items: FragranceCollectionItemRow[], insertIndex: number) {
-    const before = items.at(insertIndex - 1)
-    const after = items.at(insertIndex)
+    const before = insertIndex > 0 ? items.at(insertIndex - 1) : undefined
+    const after = insertIndex < items.length ? items.at(insertIndex) : undefined
 
     return { before, after }
   }
 
   private getBaseRank (before: FragranceCollectionItemRow | undefined, after: FragranceCollectionItemRow | undefined) {
+    const gap = MoveFragranceCollectionItemsResolver.DEFAULT_GAP
+
     if (before != null && after != null) return (before.rank + after.rank) / 2
-    if (before != null && after == null) return before.rank - MoveFragranceCollectionItemsResolver.DEFAULT_GAP
-    if (before == null && after != null) return after.rank + MoveFragranceCollectionItemsResolver.DEFAULT_GAP
+    if (before != null && after == null) return before.rank - gap
+    if (before == null && after != null) return after.rank + gap
+
     return MoveFragranceCollectionItemsResolver.DEFAULT_RANK
   }
 

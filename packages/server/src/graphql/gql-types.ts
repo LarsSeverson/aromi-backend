@@ -414,7 +414,7 @@ export type DeleteFragranceCollectionInput = {
 
 export type DeleteFragranceCollectionItemInput = {
   collectionId: Scalars['ID']['input'];
-  fragranceId: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
 };
 
 export type DeleteFragranceRequestInput = {

@@ -28,6 +28,7 @@ export class FragranceCollectionService extends FeaturedTableService<FragranceCo
           .selectAll('fragranceCollectionItems')
           .whereRef('fragranceCollectionItems.collectionId', '=', 'fragranceCollections.id')
           .where('fragranceCollectionItems.deletedAt', 'is', null)
+          .orderBy('fragranceCollectionItems.rank', 'desc')
           .limit(PREVIEW_ITEMS_LIMIT)
           .as('i'),
         join => join.onTrue()

@@ -43,7 +43,7 @@ input MoveFragranceCollectionItemsInput {
 
 input DeleteFragranceCollectionItemInput {
   collectionId: ID!
-  fragranceId: ID!
+  itemId: ID!
 }
 
 input AddFragranceToCollectionsInput {
