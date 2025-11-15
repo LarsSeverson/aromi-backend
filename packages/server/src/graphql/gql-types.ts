@@ -290,6 +290,11 @@ export type BrandSortInput = {
   direction?: InputMaybe<SortDirection>;
 };
 
+export type ChangePasswordInput = {
+  newPassword: Scalars['String']['input'];
+  oldPassword: Scalars['String']['input'];
+};
+
 export const Concentration = {
   BodyMist: 'BODY_MIST',
   EauFraiche: 'EAU_FRAICHE',
@@ -909,6 +914,7 @@ export type MoveFragranceCollectionItemsInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addFragranceToCollections: Array<FragranceCollectionItem>;
+  changePassword: Scalars['Boolean']['output'];
   confirmForgotPassword: Scalars['Boolean']['output'];
   confirmSignUp: User;
   createAccordEdit: AccordEdit;
@@ -975,6 +981,11 @@ export type Mutation = {
 
 export type MutationAddFragranceToCollectionsArgs = {
   input: AddFragranceToCollectionsInput;
+};
+
+
+export type MutationChangePasswordArgs = {
+  input: ChangePasswordInput;
 };
 
 
@@ -2115,6 +2126,7 @@ export type ResolversTypes = ResolversObject<{
   BrandRequestEdge: ResolverTypeWrapper<Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversTypes['BrandRequest'] }>>;
   BrandSortBy: ResolverTypeWrapper<Partial<BrandSortBy>>;
   BrandSortInput: ResolverTypeWrapper<Partial<BrandSortInput>>;
+  ChangePasswordInput: ResolverTypeWrapper<Partial<ChangePasswordInput>>;
   Concentration: ResolverTypeWrapper<Partial<Concentration>>;
   ConfirmForgotPasswordInput: ResolverTypeWrapper<Partial<ConfirmForgotPasswordInput>>;
   ConfirmSignUpInput: ResolverTypeWrapper<Partial<ConfirmSignUpInput>>;
@@ -2324,6 +2336,7 @@ export type ResolversParentTypes = ResolversObject<{
   BrandRequestConnection: Partial<Omit<BrandRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['BrandRequestEdge']> }>;
   BrandRequestEdge: Partial<Omit<BrandRequestEdge, 'node'> & { node: ResolversParentTypes['BrandRequest'] }>;
   BrandSortInput: Partial<BrandSortInput>;
+  ChangePasswordInput: Partial<ChangePasswordInput>;
   ConfirmForgotPasswordInput: Partial<ConfirmForgotPasswordInput>;
   ConfirmSignUpInput: Partial<ConfirmSignUpInput>;
   CreateAccordEditInput: Partial<CreateAccordEditInput>;
@@ -2887,6 +2900,7 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addFragranceToCollections?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationAddFragranceToCollectionsArgs, 'input'>>;
+  changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'input'>>;
   confirmForgotPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmForgotPasswordArgs, 'input'>>;
   confirmSignUp?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationConfirmSignUpArgs, 'input'>>;
   createAccordEdit?: Resolver<ResolversTypes['AccordEdit'], ParentType, ContextType, RequireFields<MutationCreateAccordEditArgs, 'input'>>;

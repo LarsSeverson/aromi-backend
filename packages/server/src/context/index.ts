@@ -11,6 +11,8 @@ export interface ServerContext extends ExpressContextFunctionArgument {
   services: ServerServices
   loaders: ServerLoaders
   queues: ServerQueues
+
+  accessToken?: string
 }
 
 export interface GetContextParams {
@@ -35,9 +37,10 @@ export const getContext = async (params: GetContextParams): Promise<ServerContex
     queues
   }
 
-  const me = await getMyContext(context).unwrapOr(undefined)
+  const { user: me, accessToken } = await getMyContext(context).unwrapOr(undefined) ?? {}
 
   context.me = me
+  context.accessToken = accessToken
 
   return context
 }

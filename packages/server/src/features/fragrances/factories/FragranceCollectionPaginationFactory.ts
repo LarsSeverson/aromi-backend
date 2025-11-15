@@ -6,7 +6,7 @@ export class FragranceCollectionPaginationFactory extends CursorPaginationFactor
     switch (sort?.by) {
       default:
         return {
-          column: 'createdAt',
+          column: 'updatedAt',
           direction: sort?.direction ?? SortDirection.Descending,
           decoder: v => String(v)
         }

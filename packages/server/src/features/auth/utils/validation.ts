@@ -41,3 +41,11 @@ export const ConfirmForgotPasswordSchema = z
     code: ValidConfirmationCode,
     password: ValidUserPassowrd
   })
+
+
+export const ChangePasswordSchema = z
+  .object({
+    oldPassword: ValidUserPassowrd,
+    newPassword: ValidUserPassowrd
+  })
+  .strip()

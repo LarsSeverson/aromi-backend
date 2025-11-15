@@ -1,4 +1,4 @@
-import { ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation.js'
+import { ChangePasswordSchema, ConfirmForgotPasswordSchema, ConfirmSignUpSchema, ForgotPasswordSchema, LogInSchema, ResendSignUpCodeSchema, SignUpSchema } from '../utils/validation.js'
 import type { Response } from 'express'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { generateFromEmail } from 'unique-username-generator'
@@ -190,6 +190,35 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
       )
   }
 
+  changePassword: MutationResolvers['changePassword'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services, accessToken } = context
+    this.checkAuthenticated(context)
+
+    if (accessToken == null) {
+      throw new BackendError(
+        'NOT_AUTHENTICATED',
+        'You are not authenticated',
+        401
+      )
+    }
+
+    const { oldPassword, newPassword } = parseOrThrow(ChangePasswordSchema, input)
+
+    const { auth } = services
+
+    const result = await unwrapOrThrow(
+      auth.changePassword(accessToken, oldPassword, newPassword)
+    )
+
+    return result
+  }
+
   getResolvers (): MutationResolvers {
     return {
       refresh: this.refresh,
@@ -202,7 +231,8 @@ export class AuthMutationResolvers extends BaseResolver<MutationResolvers> {
       resendSignUpCode: this.resendSignUpCode,
 
       forgotPassword: this.forgotPassword,
-      confirmForgotPassword: this.confirmForgotPassword
+      confirmForgotPassword: this.confirmForgotPassword,
+      changePassword: this.changePassword
     }
   }
 

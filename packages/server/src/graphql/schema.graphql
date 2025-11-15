@@ -229,6 +229,11 @@ input BrandSortInput {
   direction: SortDirection
 }
 
+input ChangePasswordInput {
+  newPassword: String!
+  oldPassword: String!
+}
+
 enum Concentration {
   BODY_MIST
   EAU_FRAICHE
@@ -764,6 +769,7 @@ input MoveFragranceCollectionItemsInput {
 
 type Mutation {
   addFragranceToCollections(input: AddFragranceToCollectionsInput!): [FragranceCollectionItem!]!
+  changePassword(input: ChangePasswordInput!): Boolean!
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
   confirmSignUp(input: ConfirmSignUpInput!): User!
   createAccordEdit(input: CreateAccordEditInput!): AccordEdit!

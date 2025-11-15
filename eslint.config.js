@@ -28,7 +28,6 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: ['./tsconfig.json'],
         tsconfigRootDir: import.meta.dirname
       },
       globals: {

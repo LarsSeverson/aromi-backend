@@ -10,12 +10,19 @@ export class BackendError extends GraphQLError {
   readonly details?: unknown
 
   constructor (code: string, message: string, status: number, details?: unknown) {
-    super(message, { extensions: { code, status, details } })
+    const parsedDetails = details instanceof Error
+      ? { name: details.name, message: details.message, stack: details.stack }
+      : typeof details === 'object'
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        ? JSON.parse(JSON.stringify(details, (_, v) => (typeof v === 'object' ? undefined : v))) as unknown
+        : details
+
+    super(message, { extensions: { code, status, details: parsedDetails } })
 
     this.code = code
     this.message = message
     this.status = status
-    this.details = details
+    this.details = parsedDetails
   }
 
   static fromDatabase (error: unknown): BackendError {

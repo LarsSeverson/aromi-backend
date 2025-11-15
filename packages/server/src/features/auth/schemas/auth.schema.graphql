@@ -44,6 +44,11 @@ input ConfirmForgotPasswordInput {
   password: String!
 }
 
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
+}
+
 extend type Mutation {
   refresh: AuthTokenPayload
 
@@ -56,4 +61,5 @@ extend type Mutation {
 
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   confirmForgotPassword(input: ConfirmForgotPasswordInput!): Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
 }

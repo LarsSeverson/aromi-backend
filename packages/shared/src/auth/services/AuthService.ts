@@ -2,7 +2,7 @@ import { err, errAsync, ok, okAsync, type Result, ResultAsync } from 'neverthrow
 import { BackendError } from '@src/utils/error.js'
 import type { DataSources } from '@src/datasources/index.js'
 import type { JwtPayload } from 'jsonwebtoken'
-import { AdminGetUserCommand, type AdminGetUserCommandOutput, type AuthenticationResultType, type CodeDeliveryDetailsType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider'
+import { AdminGetUserCommand, type AdminGetUserCommandOutput, type AuthenticationResultType, ChangePasswordCommand, type CodeDeliveryDetailsType, ConfirmForgotPasswordCommand, ConfirmSignUpCommand, ForgotPasswordCommand, InitiateAuthCommand, ResendConfirmationCodeCommand, RevokeTokenCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider'
 import { type LogInParams, type AuthDeliveryResultSummary, type RawAuthTokenPayload, type SignUpParams, type ConfirmSignUpParams, type ResendSignUpCodeParams, type ForgotPasswordParams, type ConfirmForgotPasswordParams, REFRESH_TOKEN_MAX_AGE } from '../types.js'
 import { type UserRow, UserService } from '@src/db/index.js'
 import { NOW } from '@src/utils/constants.js'
@@ -224,6 +224,27 @@ export class AuthService {
               Password: password
             })
           ),
+        error => BackendError.fromCognito(error)
+      )
+      .map(() => true)
+  }
+
+  changePassword (
+    accessToken: string,
+    oldPassword: string,
+    newPassword: string
+  ): ResultAsync<boolean, BackendError> {
+    const { client } = this.cognito
+
+    const command = new ChangePasswordCommand({
+      AccessToken: accessToken,
+      PreviousPassword: oldPassword,
+      ProposedPassword: newPassword
+    })
+
+    return ResultAsync
+      .fromPromise(
+        client.send(command),
         error => BackendError.fromCognito(error)
       )
       .map(() => true)
