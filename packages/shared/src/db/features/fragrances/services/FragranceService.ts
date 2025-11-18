@@ -51,7 +51,7 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
     userId: string,
     options?: QueryOptions<C, 'fragrances', FragranceRow>
   ) {
-    const { pagination, extend } = options ?? {}
+    const { pagination } = options ?? {}
 
     let query = this.db
       .selectFrom('fragrances')
@@ -62,14 +62,25 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
           .on('fragranceVotes.userId', '=', userId)
           .on('fragranceVotes.vote', '=', 1)
           .on('fragranceVotes.deletedAt', 'is', null)
-      ) as SelectQueryBuilder<DB, 'fragrances', FragranceRow>
+      ) as unknown as SelectQueryBuilder<DB, 'fragrances' | 'fragranceVotes', FragranceRow>
 
     if (pagination != null) {
-      query = this.Table.paginatedQuery(pagination, query)
-    }
-
-    if (extend != null) {
-      query = extend(query)
+      const { first, operator, direction, cursor } = pagination
+      query = query
+        .$if(cursor.isValid, qb =>
+          qb.where(w =>
+            w.or([
+              w.eb('fragranceVotes.createdAt', operator, cursor.value as string),
+              w.and([
+                w.eb('fragranceVotes.createdAt', '=', cursor.value as string),
+                w.eb('fragrances.id', operator, cursor.lastId)
+              ])
+            ])
+          )
+        )
+        .orderBy('fragranceVotes.createdAt', direction)
+        .orderBy('fragrances.id', direction)
+        .limit(first + 1)
     }
 
     return ResultAsync

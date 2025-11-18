@@ -7,9 +7,11 @@ import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/ut
 import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords/utils/mappers.js'
 import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
 import { FragranceCollectionPaginationFactory, FragranceReviewPaginationFactory } from '@src/features/fragrances/index.js'
+import { FragrancePaginationFactory } from '@src/features/fragrances/factories/FragrancePaginationFactory.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
+  private readonly fragrancePagination = new FragrancePaginationFactory()
   private readonly collectionPagination = new FragranceCollectionPaginationFactory()
   private readonly reviewPagination = new FragranceReviewPaginationFactory()
 
@@ -107,7 +109,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { services } = context
 
     const { fragrances } = services
-    const pagination = this.collectionPagination.parse(input)
+    const pagination = this.fragrancePagination.parse(input)
 
     const likedFragrances = await unwrapOrThrow(
       fragrances.findLikedFragrances(id, { pagination })
