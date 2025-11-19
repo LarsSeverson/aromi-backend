@@ -12,8 +12,6 @@ import { FragranceScoreService } from './FragranceScoreService.js'
 import { FragranceCollectionService } from './FragranceCollectionService.js'
 import { FragranceReviewService } from './FragranceReviewService.js'
 import { FragranceReportService } from './FragranceReportService.js'
-import type { SelectQueryBuilder } from 'kysely'
-import type { DB } from '@src/db/db-schema.js'
 import type { QueryOptions } from '@src/db/types.js'
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
@@ -62,7 +60,7 @@ export class FragranceService extends FeaturedTableService<FragranceRow> {
           .on('fragranceVotes.userId', '=', userId)
           .on('fragranceVotes.vote', '=', 1)
           .on('fragranceVotes.deletedAt', 'is', null)
-      ) as unknown as SelectQueryBuilder<DB, 'fragrances' | 'fragranceVotes', FragranceRow>
+      )
 
     if (pagination != null) {
       const { first, operator, direction, cursor } = pagination
