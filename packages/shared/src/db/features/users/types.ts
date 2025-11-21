@@ -3,3 +3,4 @@ import type { Selectable } from 'kysely'
 
 export type UserRow = Selectable<DB['users']>
 export type UserImageRow = Selectable<DB['userImages']>
+export type UserFollowRow = Selectable<DB['userFollows']>

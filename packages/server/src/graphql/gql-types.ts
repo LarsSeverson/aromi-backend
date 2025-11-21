@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IAssetResult } from '../features/assets/types.js';
-import { IUserSummary } from '../features/users/types.js';
+import { IUserSummary, IUserFollowSummary } from '../features/users/types.js';
 import { IFragranceSummary, IFragranceEditSummary, IFragranceRequestSummary, IFragranceCollectionSummary, IFragranceCollectionItemSummary, IFragranceReviewSummary } from '../features/fragrances/types.js';
 import { IBrandSummary, IBrandEditSummary, IBrandRequestSummary } from '../features/brands/types.js';
 import { IAccordEditSummary, IAccordRequestSummary } from '../features/accords/types.js';
@@ -456,6 +456,10 @@ export const EditStatus = {
 } as const;
 
 export type EditStatus = typeof EditStatus[keyof typeof EditStatus];
+export type FollowUserInput = {
+  userId: Scalars['ID']['input'];
+};
+
 export type ForgotPasswordInput = {
   email: Scalars['String']['input'];
 };
@@ -937,6 +941,7 @@ export type Mutation = {
   deleteFragranceRequest: FragranceRequest;
   deleteFragranceReview: FragranceReview;
   deleteNoteRequest: NoteRequest;
+  follow: User;
   forgotPassword: AuthDeliveryResult;
   logIn: AuthTokenPayload;
   logOut: Scalars['Boolean']['output'];
@@ -959,6 +964,7 @@ export type Mutation = {
   submitBrandRequest: BrandRequest;
   submitFragranceRequest: FragranceRequest;
   submitNoteRequest: NoteRequest;
+  unfollow: User;
   updateAccordRequest: AccordRequest;
   updateBrandRequest: BrandRequest;
   updateFragranceCollection: FragranceCollection;
@@ -1099,6 +1105,11 @@ export type MutationDeleteNoteRequestArgs = {
 };
 
 
+export type MutationFollowArgs = {
+  input: FollowUserInput;
+};
+
+
 export type MutationForgotPasswordArgs = {
   input: ForgotPasswordInput;
 };
@@ -1196,6 +1207,11 @@ export type MutationSubmitFragranceRequestArgs = {
 
 export type MutationSubmitNoteRequestArgs = {
   input: SubmitNoteRequestInput;
+};
+
+
+export type MutationUnfollowArgs = {
+  input: UnfollowUserInput;
 };
 
 
@@ -1602,6 +1618,14 @@ export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
 
+export const RelationshipStatus = {
+  Follower: 'FOLLOWER',
+  Following: 'FOLLOWING',
+  Mutual: 'MUTUAL',
+  None: 'NONE'
+} as const;
+
+export type RelationshipStatus = typeof RelationshipStatus[keyof typeof RelationshipStatus];
 export type RemoveFragranceFromCollectionsInput = {
   collectionIds: Array<Scalars['ID']['input']>;
   fragranceId: Scalars['ID']['input'];
@@ -1840,6 +1864,10 @@ export type TraitVoteDistribution = {
   votes: Scalars['Int']['output'];
 };
 
+export type UnfollowUserInput = {
+  userId: Scalars['ID']['input'];
+};
+
 export type UpdateAccordRequestInput = {
   assetId?: InputMaybe<Scalars['ID']['input']>;
   color?: InputMaybe<Scalars['String']['input']>;
@@ -1897,11 +1925,14 @@ export type User = {
   collections: FragranceCollectionConnection;
   email?: Maybe<Scalars['String']['output']>;
   followerCount: Scalars['Int']['output'];
+  followers: UserFollowConnection;
+  following: UserFollowConnection;
   followingCount: Scalars['Int']['output'];
   fragranceRequests: FragranceRequestConnection;
   id: Scalars['ID']['output'];
   likes: FragranceConnection;
   noteRequests: NoteRequestConnection;
+  relationship: RelationshipStatus;
   review: FragranceReview;
   reviews: FragranceReviewConnection;
   username: Scalars['String']['output'];
@@ -1928,6 +1959,16 @@ export type UserCollectionsArgs = {
 };
 
 
+export type UserFollowersArgs = {
+  input?: InputMaybe<UserFollowPaginationInput>;
+};
+
+
+export type UserFollowingArgs = {
+  input?: InputMaybe<UserFollowPaginationInput>;
+};
+
+
 export type UserFragranceRequestsArgs = {
   input?: InputMaybe<RequestPaginationInput>;
 };
@@ -1950,6 +1991,40 @@ export type UserReviewArgs = {
 
 export type UserReviewsArgs = {
   input?: InputMaybe<FragranceReviewPaginationInput>;
+};
+
+export type UserFollow = {
+  __typename?: 'UserFollow';
+  id: Scalars['ID']['output'];
+  user: User;
+};
+
+export type UserFollowConnection = {
+  __typename?: 'UserFollowConnection';
+  edges: Array<UserFollowEdge>;
+  pageInfo: PageInfo;
+};
+
+export type UserFollowEdge = {
+  __typename?: 'UserFollowEdge';
+  cursor: Scalars['String']['output'];
+  node: UserFollow;
+};
+
+export type UserFollowPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<UserFollowSortInput>;
+};
+
+export const UserFollowSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type UserFollowSortBy = typeof UserFollowSortBy[keyof typeof UserFollowSortBy];
+export type UserFollowSortInput = {
+  by?: InputMaybe<UserFollowSortBy>;
+  direction?: InputMaybe<SortDirection>;
 };
 
 export type VoteInfo = {
@@ -2155,6 +2230,7 @@ export type ResolversTypes = ResolversObject<{
   EditJobStatus: ResolverTypeWrapper<Partial<EditJobStatus>>;
   EditStatus: ResolverTypeWrapper<Partial<EditStatus>>;
   Float: ResolverTypeWrapper<Partial<Scalars['Float']['output']>>;
+  FollowUserInput: ResolverTypeWrapper<Partial<FollowUserInput>>;
   ForgotPasswordInput: ResolverTypeWrapper<Partial<ForgotPasswordInput>>;
   Fragrance: ResolverTypeWrapper<IFragranceSummary>;
   FragranceAccord: ResolverTypeWrapper<Partial<FragranceAccord>>;
@@ -2239,6 +2315,7 @@ export type ResolversTypes = ResolversObject<{
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
   PresignedUpload: ResolverTypeWrapper<Partial<PresignedUpload>>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  RelationshipStatus: ResolverTypeWrapper<Partial<RelationshipStatus>>;
   RemoveFragranceFromCollectionsInput: ResolverTypeWrapper<Partial<RemoveFragranceFromCollectionsInput>>;
   RequestPaginationInput: ResolverTypeWrapper<Partial<RequestPaginationInput>>;
   RequestSortBy: ResolverTypeWrapper<Partial<RequestSortBy>>;
@@ -2281,6 +2358,7 @@ export type ResolversTypes = ResolversObject<{
   TraitStats: ResolverTypeWrapper<Partial<TraitStats>>;
   TraitTypeEnum: ResolverTypeWrapper<Partial<TraitTypeEnum>>;
   TraitVoteDistribution: ResolverTypeWrapper<Partial<TraitVoteDistribution>>;
+  UnfollowUserInput: ResolverTypeWrapper<Partial<UnfollowUserInput>>;
   UpdateAccordRequestInput: ResolverTypeWrapper<Partial<UpdateAccordRequestInput>>;
   UpdateBrandRequestInput: ResolverTypeWrapper<Partial<UpdateBrandRequestInput>>;
   UpdateFragranceCollectionInput: ResolverTypeWrapper<Partial<UpdateFragranceCollectionInput>>;
@@ -2289,6 +2367,12 @@ export type ResolversTypes = ResolversObject<{
   UpdateMeInput: ResolverTypeWrapper<Partial<UpdateMeInput>>;
   UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
   User: ResolverTypeWrapper<IUserSummary>;
+  UserFollow: ResolverTypeWrapper<IUserFollowSummary>;
+  UserFollowConnection: ResolverTypeWrapper<Partial<Omit<UserFollowConnection, 'edges'> & { edges: Array<ResolversTypes['UserFollowEdge']> }>>;
+  UserFollowEdge: ResolverTypeWrapper<Partial<Omit<UserFollowEdge, 'node'> & { node: ResolversTypes['UserFollow'] }>>;
+  UserFollowPaginationInput: ResolverTypeWrapper<Partial<UserFollowPaginationInput>>;
+  UserFollowSortBy: ResolverTypeWrapper<Partial<UserFollowSortBy>>;
+  UserFollowSortInput: ResolverTypeWrapper<Partial<UserFollowSortInput>>;
   VoteInfo: ResolverTypeWrapper<Partial<VoteInfo>>;
   VoteOnAccordRequestInput: ResolverTypeWrapper<Partial<VoteOnAccordRequestInput>>;
   VoteOnBrandInput: ResolverTypeWrapper<Partial<VoteOnBrandInput>>;
@@ -2362,6 +2446,7 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteNoteRequestInput: Partial<DeleteNoteRequestInput>;
   EditJob: Partial<EditJob>;
   Float: Partial<Scalars['Float']['output']>;
+  FollowUserInput: Partial<FollowUserInput>;
   ForgotPasswordInput: Partial<ForgotPasswordInput>;
   Fragrance: IFragranceSummary;
   FragranceAccord: Partial<FragranceAccord>;
@@ -2472,6 +2557,7 @@ export type ResolversParentTypes = ResolversObject<{
   TraitOption: Partial<TraitOption>;
   TraitStats: Partial<TraitStats>;
   TraitVoteDistribution: Partial<TraitVoteDistribution>;
+  UnfollowUserInput: Partial<UnfollowUserInput>;
   UpdateAccordRequestInput: Partial<UpdateAccordRequestInput>;
   UpdateBrandRequestInput: Partial<UpdateBrandRequestInput>;
   UpdateFragranceCollectionInput: Partial<UpdateFragranceCollectionInput>;
@@ -2480,6 +2566,11 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateMeInput: Partial<UpdateMeInput>;
   UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
   User: IUserSummary;
+  UserFollow: IUserFollowSummary;
+  UserFollowConnection: Partial<Omit<UserFollowConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserFollowEdge']> }>;
+  UserFollowEdge: Partial<Omit<UserFollowEdge, 'node'> & { node: ResolversParentTypes['UserFollow'] }>;
+  UserFollowPaginationInput: Partial<UserFollowPaginationInput>;
+  UserFollowSortInput: Partial<UserFollowSortInput>;
   VoteInfo: Partial<VoteInfo>;
   VoteOnAccordRequestInput: Partial<VoteOnAccordRequestInput>;
   VoteOnBrandInput: Partial<VoteOnBrandInput>;
@@ -2923,6 +3014,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   deleteFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationDeleteFragranceRequestArgs, 'input'>>;
   deleteFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationDeleteFragranceReviewArgs, 'input'>>;
   deleteNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestArgs, 'input'>>;
+  follow?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationFollowArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthTokenPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2945,6 +3037,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   submitBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationSubmitBrandRequestArgs, 'input'>>;
   submitFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationSubmitFragranceRequestArgs, 'input'>>;
   submitNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationSubmitNoteRequestArgs, 'input'>>;
+  unfollow?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnfollowArgs, 'input'>>;
   updateAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationUpdateAccordRequestArgs, 'input'>>;
   updateBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationUpdateBrandRequestArgs, 'input'>>;
   updateFragranceCollection?: Resolver<ResolversTypes['FragranceCollection'], ParentType, ContextType, RequireFields<MutationUpdateFragranceCollectionArgs, 'input'>>;
@@ -3155,14 +3248,32 @@ export type UserResolvers<ContextType = ServerContext, ParentType extends Resolv
   collections?: Resolver<ResolversTypes['FragranceCollectionConnection'], ParentType, ContextType, Partial<UserCollectionsArgs>>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  followers?: Resolver<ResolversTypes['UserFollowConnection'], ParentType, ContextType, Partial<UserFollowersArgs>>;
+  following?: Resolver<ResolversTypes['UserFollowConnection'], ParentType, ContextType, Partial<UserFollowingArgs>>;
   followingCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<UserFragranceRequestsArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   likes?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<UserNoteRequestsArgs>>;
+  relationship?: Resolver<ResolversTypes['RelationshipStatus'], ParentType, ContextType>;
   review?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<UserReviewArgs, 'id'>>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<UserReviewsArgs>>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+}>;
+
+export type UserFollowResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['UserFollow'] = ResolversParentTypes['UserFollow']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+}>;
+
+export type UserFollowConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['UserFollowConnection'] = ResolversParentTypes['UserFollowConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['UserFollowEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+}>;
+
+export type UserFollowEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['UserFollowEdge'] = ResolversParentTypes['UserFollowEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['UserFollow'], ParentType, ContextType>;
 }>;
 
 export type VoteInfoResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['VoteInfo'] = ResolversParentTypes['VoteInfo']> = ResolversObject<{
@@ -3261,6 +3372,9 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   TraitStats?: TraitStatsResolvers<ContextType>;
   TraitVoteDistribution?: TraitVoteDistributionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserFollow?: UserFollowResolvers<ContextType>;
+  UserFollowConnection?: UserFollowConnectionResolvers<ContextType>;
+  UserFollowEdge?: UserFollowEdgeResolvers<ContextType>;
   VoteInfo?: VoteInfoResolvers<ContextType>;
 }>;
 

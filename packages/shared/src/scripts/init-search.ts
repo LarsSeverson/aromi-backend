@@ -5,6 +5,7 @@ import { initBrandsIndex } from '../search/features/brands/init.js'
 import { initAccordsIndex } from '../search/features/accords/init.js'
 import { initNotesIndex } from '../search/features/notes/init.js'
 import { initFragrancesIndex } from '@src/search/features/fragrances/init.js'
+import { initUsersIndex } from '@src/search/features/users/init.js'
 
 export const initSearch = (): ResultAsync<undefined, BackendError> => {
   return createMeiliSearchWrapper()
@@ -13,7 +14,8 @@ export const initSearch = (): ResultAsync<undefined, BackendError> => {
         initBrandsIndex(meili),
         initAccordsIndex(meili),
         initNotesIndex(meili),
-        initFragrancesIndex(meili)
+        initFragrancesIndex(meili),
+        initUsersIndex(meili)
       ]))
     .map(() => undefined)
 }

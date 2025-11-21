@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { parseOrThrow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateMe: MutationResolvers['updateMe'] = async (
@@ -78,10 +78,86 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     return mapUserRowToUserSummary(user)
   }
 
+  follow: MutationResolvers['follow'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+    const me = this.checkAuthenticated(context)
+
+    const { userId } = input
+    const { users } = services
+
+    if (me.id === userId) {
+      throw new BackendError(
+        'BAD_REQUEST',
+        'You cannot follow yourself.',
+        400
+      )
+    }
+
+    await unwrapOrThrow(
+      users.follows.upsert(
+        { followerId: me.id, followedId: userId },
+        oc => oc
+          .columns(['followerId', 'followedId'])
+          .doUpdateSet({ deletedAt: null, updatedAt: new Date().toISOString() })
+      )
+    )
+
+    const user = await unwrapOrThrow(
+      users.findOne(eb => eb('id', '=', userId))
+    )
+
+    return mapUserRowToUserSummary(user)
+  }
+
+  unfollow: MutationResolvers['unfollow'] = async (
+    _,
+    args,
+    context,
+    info
+  ) => {
+    const { input } = args
+    const { services } = context
+    const me = this.checkAuthenticated(context)
+
+    const { userId } = input
+    const { users } = services
+
+    if (me.id === userId) {
+      throw new BackendError(
+        'BAD_REQUEST',
+        'You cannot unfollow yourself.',
+        400
+      )
+    }
+
+    await unwrapOrThrow(
+      users.follows.softDeleteOne(
+        where => where.and([
+          where('followerId', '=', me.id),
+          where('followedId', '=', userId)
+        ])
+      )
+    )
+
+    const user = await unwrapOrThrow(
+      users.findOne(eb => eb('id', '=', userId))
+    )
+
+    return mapUserRowToUserSummary(user)
+  }
+
   getResolvers (): MutationResolvers {
     return {
       updateMe: this.updateMe,
-      setMyAvatar: this.setMyAvatar
+      setMyAvatar: this.setMyAvatar,
+      follow: this.follow,
+      unfollow: this.unfollow
     }
   }
 }

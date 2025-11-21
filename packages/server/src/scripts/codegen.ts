@@ -17,6 +17,7 @@ const config: CodegenConfig = {
           Asset: '../features/assets/types.js#IAssetResult',
 
           User: '../features/users/types.js#IUserSummary',
+          UserFollow: '../features/users/types.js#IUserFollowSummary',
 
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
           FragranceEdit: '../features/fragrances/types.js#IFragranceEditSummary',

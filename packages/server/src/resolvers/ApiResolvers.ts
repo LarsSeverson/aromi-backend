@@ -1,7 +1,7 @@
 import type { Resolvers } from '@src/graphql/gql-types.js'
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
 import { AuthMutationResolvers } from '@src/features/auth/index.js'
-import { UserFieldResolvers, UserMutationResolvers, UserQueryResolvers } from '@src/features/users/index.js'
+import { UserFieldResolvers, UserFollowFieldResolvers, UserMutationResolvers, UserQueryResolvers } from '@src/features/users/index.js'
 import { BrandEditFieldResolvers, BrandFieldResolvers, BrandMutationResolvers, BrandQueryResolvers, BrandRequestFieldResolvers } from '@src/features/brands/index.js'
 import { AccordEditFieldResolvers, AccordMutationResolvers, AccordQueryResolvers, AccordRequestFieldResolvers } from '@src/features/accords/index.js'
 import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, NoteQueryResolvers, NoteRequestFieldResolvers } from '@src/features/notes/index.js'
@@ -14,6 +14,7 @@ const assetFieldResolvers = new AssetFieldResolvers()
 
 const userQueries = new UserQueryResolvers()
 const userFieldQueries = new UserFieldResolvers()
+const userFollowFieldResolvers = new UserFollowFieldResolvers()
 const userMutations = new UserMutationResolvers()
 
 const fragranceQueries = new FragranceQueryResolvers()
@@ -79,6 +80,10 @@ export const ApiResolvers: Resolvers = {
 
   User: {
     ...userFieldQueries.getResolvers()
+  },
+
+  UserFollow: {
+    ...userFollowFieldResolvers.getResolvers()
   },
 
   Fragrance: {

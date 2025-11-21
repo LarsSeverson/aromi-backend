@@ -1,6 +1,6 @@
 import { INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import type { UserResolvers } from '@src/graphql/gql-types.js'
+import { RelationshipStatus, type UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
 import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview, mapFragranceRowToFragranceSummary } from '@src/features/fragrances/utils/mappers.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/utils/mappers.js'
@@ -8,12 +8,14 @@ import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords
 import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
 import { FragranceCollectionPaginationFactory, FragranceReviewPaginationFactory } from '@src/features/fragrances/index.js'
 import { FragrancePaginationFactory } from '@src/features/fragrances/factories/FragrancePaginationFactory.js'
+import { UserFollowPaginationFactory } from '../factories/UserPaginationFactory.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
   private readonly fragrancePagination = new FragrancePaginationFactory()
   private readonly collectionPagination = new FragranceCollectionPaginationFactory()
   private readonly reviewPagination = new FragranceReviewPaginationFactory()
+  private readonly userFollowPagination = new UserFollowPaginationFactory()
 
   email: UserResolvers['email'] = (
     parent,
@@ -45,6 +47,38 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const image = await unwrapOrThrow(users.images.load(avatarId))
 
     return image
+  }
+
+  followerCount: UserResolvers['followerCount'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { loaders } = context
+
+    const count = await unwrapOrThrow(
+      loaders.users.loadFollowerCount(id)
+    )
+
+    return count
+  }
+
+  followingCount: UserResolvers['followingCount'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { loaders } = context
+
+    const count = await unwrapOrThrow(
+      loaders.users.loadFollowingCount(id)
+    )
+
+    return count
   }
 
   collection: UserResolvers['collection'] = async (
@@ -365,10 +399,87 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     return transformed
   }
 
+  followers: UserResolvers['followers'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { users } = services
+    const pagination = this.userFollowPagination.parse(input)
+
+    const followers = await unwrapOrThrow(
+      users.follows.find(where => where('followedId', '=', id), { pagination })
+    )
+
+    const connection = this.pageFactory.paginate(followers, pagination)
+    const transformed = this.pageFactory.transform(connection, follow => ({
+      ...follow,
+      userId: follow.followerId
+    }))
+
+    return transformed
+  }
+
+  following: UserResolvers['following'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { users } = services
+    const pagination = this.userFollowPagination.parse(input)
+
+    const following = await unwrapOrThrow(
+      users.follows.find(where => where('followerId', '=', id), { pagination })
+    )
+
+    const connection = this.pageFactory.paginate(following, pagination)
+    const transformed = this.pageFactory.transform(connection, follow => ({
+      ...follow,
+      userId: follow.followedId
+    }))
+
+    return transformed
+  }
+
+  relationship: UserResolvers['relationship'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id: targetUserId } = parent
+    const { me, loaders } = context
+    const { users } = loaders
+
+    if (me == null || me.id === targetUserId) return RelationshipStatus.None
+
+    const { isFollowing, isFollowedBy } = await unwrapOrThrow(
+      users.loadRelationship(me.id, targetUserId)
+    )
+
+    if (isFollowing && isFollowedBy) return RelationshipStatus.Mutual
+    if (isFollowing) return RelationshipStatus.Following
+    if (isFollowedBy) return RelationshipStatus.Follower
+
+    return RelationshipStatus.None
+  }
+
   getResolvers (): UserResolvers {
     return {
       email: this.email,
       avatar: this.avatar,
+      followerCount: this.followerCount,
+      followingCount: this.followingCount,
       collection: this.collection,
       collections: this.collections,
       likes: this.likes,
@@ -377,7 +488,10 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
       fragranceRequests: this.fragranceRequests,
       brandRequests: this.brandRequests,
       accordRequests: this.accordRequests,
-      noteRequests: this.noteRequests
+      noteRequests: this.noteRequests,
+      followers: this.followers,
+      following: this.following,
+      relationship: this.relationship
     }
   }
 }

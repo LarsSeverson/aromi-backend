@@ -393,6 +393,10 @@ enum EditStatus {
   REJECTED
 }
 
+input FollowUserInput {
+  userId: ID!
+}
+
 input ForgotPasswordInput {
   email: String!
 }
@@ -792,6 +796,7 @@ type Mutation {
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
   deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
+  follow(input: FollowUserInput!): User!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
@@ -814,6 +819,7 @@ type Mutation {
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
   submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
   submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
+  unfollow(input: UnfollowUserInput!): User!
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
   updateFragranceCollection(input: UpdateFragranceCollectionInput!): FragranceCollection!
@@ -975,6 +981,13 @@ type Query {
   searchNotes(input: SearchInput): SearchNoteConnection!
   searchUsers(input: SearchInput): SearchUserConnection!
   user(id: ID!): User!
+}
+
+enum RelationshipStatus {
+  FOLLOWER
+  FOLLOWING
+  MUTUAL
+  NONE
 }
 
 input RemoveFragranceFromCollectionsInput {
@@ -1196,6 +1209,10 @@ type TraitVoteDistribution {
   votes: Int!
 }
 
+input UnfollowUserInput {
+  userId: ID!
+}
+
 input UpdateAccordRequestInput {
   assetId: ID
   color: String
@@ -1252,14 +1269,47 @@ type User {
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
   email: String
   followerCount: Int!
+  followers(input: UserFollowPaginationInput): UserFollowConnection!
+  following(input: UserFollowPaginationInput): UserFollowConnection!
   followingCount: Int!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
   likes(input: FragrancePaginationInput): FragranceConnection!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
+  relationship: RelationshipStatus!
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
   username: String!
+}
+
+type UserFollow {
+  id: ID!
+  user: User!
+}
+
+type UserFollowConnection {
+  edges: [UserFollowEdge!]!
+  pageInfo: PageInfo!
+}
+
+type UserFollowEdge {
+  cursor: String!
+  node: UserFollow!
+}
+
+input UserFollowPaginationInput {
+  after: String
+  first: Int
+  sort: UserFollowSortInput
+}
+
+enum UserFollowSortBy {
+  RECENT
+}
+
+input UserFollowSortInput {
+  by: UserFollowSortBy
+  direction: SortDirection
 }
 
 type VoteInfo {

@@ -26,6 +26,10 @@ type User {
 
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
+
+  followers(input: UserFollowPaginationInput): UserFollowConnection!
+  following(input: UserFollowPaginationInput): UserFollowConnection!
+  relationship: RelationshipStatus!
 }
 
 input UpdateMeInput {
@@ -36,6 +40,14 @@ input SetMyAvatarInput {
   assetId: ID!
 }
 
+input FollowUserInput {
+  userId: ID!
+}
+
+input UnfollowUserInput {
+  userId: ID!
+}
+
 extend type Query {
   me: User!
   user(id: ID!): User!
@@ -44,4 +56,7 @@ extend type Query {
 extend type Mutation {
   updateMe(input: UpdateMeInput!): User!
   setMyAvatar(input: SetMyAvatarInput!): User!
+
+  follow(input: FollowUserInput!): User!
+  unfollow(input: UnfollowUserInput!): User!
 }

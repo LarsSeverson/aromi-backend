@@ -1,0 +1,36 @@
+enum RelationshipStatus {
+  NONE
+  FOLLOWING
+  FOLLOWER
+  MUTUAL
+}
+
+type UserFollow {
+  id: ID!
+  user: User!
+}
+
+type UserFollowEdge {
+  node: UserFollow!
+  cursor: String!
+}
+
+type UserFollowConnection {
+  edges: [UserFollowEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum UserFollowSortBy {
+  RECENT
+}
+
+input UserFollowSortInput {
+  direction: SortDirection
+  by: UserFollowSortBy
+}
+
+input UserFollowPaginationInput {
+  first: Int
+  after: String
+  sort: UserFollowSortInput
+}

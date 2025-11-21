@@ -610,6 +610,15 @@ export interface TraitType {
   name: string;
 }
 
+export interface UserFollow {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  followedId: string;
+  followerId: string;
+  id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface UserImage {
   contentType: string;
   createdAt: Generated<Timestamp>;
@@ -684,6 +693,7 @@ export interface DB {
   requestJobs: RequestJob;
   traitOptions: TraitOption;
   traitTypes: TraitType;
+  userFollows: UserFollow;
   userImages: UserImage;
   users: User;
 }
