@@ -1,5 +1,7 @@
 enum TraitTypeEnum {
   GENDER
+  TIME
+  SEASON
   LONGEVITY
   PROJECTION
   COMPLEXITY
