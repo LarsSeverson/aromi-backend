@@ -23,18 +23,18 @@ services:
     environment:
       - MEILI_MASTER_KEY=aromi-dev
 
-  # server:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/server.Dockerfile
-  #   container_name: aromi-server
-  #   ports:
-  #     - "${SERVER_PORT:-8080}:8080"
-  #   env_file:
-  #     - ./packages/server/.env.production
-  #   depends_on:
-  #     - redis
-  #     - meilisearch
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    container_name: aromi-server
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    env_file:
+      - ./packages/server/.env.production
+    depends_on:
+      - redis
+      - meilisearch
 
   workers:
     build:

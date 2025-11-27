@@ -7,7 +7,9 @@ CREATE TABLE public.users (
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone,
   role public.user_role DEFAULT 'USER'::public.user_role NOT NULL,
-  avatar_id uuid
+  avatar_id uuid,
+  follower_count integer DEFAULT 0 NOT NULL,
+  following_count integer DEFAULT 0 NOT NULL
 );
 
 ALTER TABLE ONLY public.users

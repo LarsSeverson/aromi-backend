@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ZiK7HBdjTi2cGmXnOzRkhDWPIGb1VC7wLoREmOFGPb27QTzu6buqnr1SCF6ugeE
+\restrict b1XTiAXFPxRJr3KYQEIPUwL2sUxDTYDfAbarjxTXGWR6HaLP3EUxSXVYhH3q91g
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6 (Homebrew)
@@ -495,6 +495,21 @@ CREATE TABLE public.fragrance_accords (
 
 
 --
+-- Name: fragrance_collection_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fragrance_collection_items (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    collection_id uuid NOT NULL,
+    fragrance_id uuid NOT NULL,
+    rank double precision NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    deleted_at timestamp with time zone
+);
+
+
+--
 -- Name: fragrance_collections; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -606,6 +621,20 @@ CREATE TABLE public.fragrance_notes (
 
 
 --
+-- Name: fragrance_reports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fragrance_reports (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    fragrance_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    body text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: fragrance_request_accords; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -696,6 +725,53 @@ CREATE TABLE public.fragrance_requests (
 
 
 --
+-- Name: fragrance_review_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fragrance_review_scores (
+    review_id uuid NOT NULL,
+    upvotes integer DEFAULT 0 NOT NULL,
+    downvotes integer DEFAULT 0 NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    score integer GENERATED ALWAYS AS ((upvotes - downvotes)) STORED NOT NULL
+);
+
+
+--
+-- Name: fragrance_review_votes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fragrance_review_votes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    review_id uuid NOT NULL,
+    vote smallint NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    CONSTRAINT fragrance_review_votes_vote_check CHECK ((vote = ANY (ARRAY['-1'::integer, 0, 1])))
+);
+
+
+--
+-- Name: fragrance_reviews; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fragrance_reviews (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    fragrance_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    body text,
+    rating smallint NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    CONSTRAINT fragrance_reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
+);
+
+
+--
 -- Name: fragrance_scores; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -705,7 +781,8 @@ CREATE TABLE public.fragrance_scores (
     downvotes integer DEFAULT 0 NOT NULL,
     score integer GENERATED ALWAYS AS ((upvotes - downvotes)) STORED NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    rating real
+    average_rating real,
+    review_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -895,6 +972,21 @@ CREATE TABLE public.trait_types (
 
 
 --
+-- Name: user_follows; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_follows (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    follower_id uuid NOT NULL,
+    followed_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    CONSTRAINT user_follows_check CHECK ((follower_id <> followed_id))
+);
+
+
+--
 -- Name: user_images; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -922,7 +1014,9 @@ CREATE TABLE public.users (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp with time zone,
     role public.user_role DEFAULT 'USER'::public.user_role NOT NULL,
-    avatar_id uuid
+    avatar_id uuid,
+    follower_count integer DEFAULT 0 NOT NULL,
+    following_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -1143,6 +1237,14 @@ ALTER TABLE ONLY public.fragrance_accords
 
 
 --
+-- Name: fragrance_collection_items fragrance_collection_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_collection_items
+    ADD CONSTRAINT fragrance_collection_items_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: fragrance_collections fragrance_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1204,6 +1306,14 @@ ALTER TABLE ONLY public.fragrance_note_votes
 
 ALTER TABLE ONLY public.fragrance_notes
     ADD CONSTRAINT fragrance_notes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fragrance_reports fragrance_reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reports
+    ADD CONSTRAINT fragrance_reports_pkey PRIMARY KEY (id);
 
 
 --
@@ -1284,6 +1394,46 @@ ALTER TABLE ONLY public.fragrance_requests
 
 ALTER TABLE ONLY public.fragrance_request_traits
     ADD CONSTRAINT fragrance_requests_traits_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fragrance_review_scores fragrance_review_vote_counts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_scores
+    ADD CONSTRAINT fragrance_review_vote_counts_pkey PRIMARY KEY (review_id);
+
+
+--
+-- Name: fragrance_review_votes fragrance_review_votes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_votes
+    ADD CONSTRAINT fragrance_review_votes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fragrance_review_votes fragrance_review_votes_user_id_review_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_votes
+    ADD CONSTRAINT fragrance_review_votes_user_id_review_id_key UNIQUE (user_id, review_id);
+
+
+--
+-- Name: fragrance_reviews fragrance_reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reviews
+    ADD CONSTRAINT fragrance_reviews_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fragrance_reviews fragrance_reviews_unique_user_fragrance; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reviews
+    ADD CONSTRAINT fragrance_reviews_unique_user_fragrance UNIQUE (fragrance_id, user_id);
 
 
 --
@@ -1476,6 +1626,22 @@ ALTER TABLE ONLY public.fragrance_notes
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT unqiue_email UNIQUE (email);
+
+
+--
+-- Name: user_follows user_follows_follower_id_followed_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_follows
+    ADD CONSTRAINT user_follows_follower_id_followed_id_key UNIQUE (follower_id, followed_id);
+
+
+--
+-- Name: user_follows user_follows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_follows
+    ADD CONSTRAINT user_follows_pkey PRIMARY KEY (id);
 
 
 --
@@ -1763,6 +1929,22 @@ ALTER TABLE ONLY public.fragrance_accord_votes
 
 
 --
+-- Name: fragrance_collection_items fragrance_collection_items_collection_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_collection_items
+    ADD CONSTRAINT fragrance_collection_items_collection_id_fkey FOREIGN KEY (collection_id) REFERENCES public.fragrance_collections(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_collection_items fragrance_collection_items_fragrance_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_collection_items
+    ADD CONSTRAINT fragrance_collection_items_fragrance_id_fkey FOREIGN KEY (fragrance_id) REFERENCES public.fragrances(id) ON DELETE CASCADE;
+
+
+--
 -- Name: fragrance_collections fragrance_collections_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1856,6 +2038,22 @@ ALTER TABLE ONLY public.fragrance_note_votes
 
 ALTER TABLE ONLY public.fragrance_note_votes
     ADD CONSTRAINT fragrance_note_votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_reports fragrance_reports_fragrance_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reports
+    ADD CONSTRAINT fragrance_reports_fragrance_id_fkey FOREIGN KEY (fragrance_id) REFERENCES public.fragrances(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_reports fragrance_reports_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reports
+    ADD CONSTRAINT fragrance_reports_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -1960,6 +2158,46 @@ ALTER TABLE ONLY public.fragrance_requests
 
 ALTER TABLE ONLY public.fragrance_requests
     ADD CONSTRAINT fragrance_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: fragrance_review_scores fragrance_review_vote_counts_review_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_scores
+    ADD CONSTRAINT fragrance_review_vote_counts_review_id_fkey FOREIGN KEY (review_id) REFERENCES public.fragrance_reviews(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_review_votes fragrance_review_votes_review_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_votes
+    ADD CONSTRAINT fragrance_review_votes_review_id_fkey FOREIGN KEY (review_id) REFERENCES public.fragrance_reviews(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_review_votes fragrance_review_votes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_review_votes
+    ADD CONSTRAINT fragrance_review_votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_reviews fragrance_reviews_fragrance_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reviews
+    ADD CONSTRAINT fragrance_reviews_fragrance_id_fkey FOREIGN KEY (fragrance_id) REFERENCES public.fragrances(id) ON DELETE CASCADE;
+
+
+--
+-- Name: fragrance_reviews fragrance_reviews_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fragrance_reviews
+    ADD CONSTRAINT fragrance_reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -2131,6 +2369,22 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: user_follows user_follows_followed_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_follows
+    ADD CONSTRAINT user_follows_followed_id_fkey FOREIGN KEY (followed_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_follows user_follows_follower_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_follows
+    ADD CONSTRAINT user_follows_follower_id_fkey FOREIGN KEY (follower_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: user_images user_images_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2142,5 +2396,5 @@ ALTER TABLE ONLY public.user_images
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ZiK7HBdjTi2cGmXnOzRkhDWPIGb1VC7wLoREmOFGPb27QTzu6buqnr1SCF6ugeE
+\unrestrict b1XTiAXFPxRJr3KYQEIPUwL2sUxDTYDfAbarjxTXGWR6HaLP3EUxSXVYhH3q91g
 

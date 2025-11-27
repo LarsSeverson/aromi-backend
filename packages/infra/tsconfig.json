@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "."
+  },
+  "include": [
+    "bin",
+    "lib",
+    "env"
+  ],
+  "exclude": [
+    "node_modules",
+    "cdk.out"
+  ]
+}

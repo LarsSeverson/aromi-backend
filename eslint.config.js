@@ -99,5 +99,9 @@ export default [
 
   {
     files: ['packages/workers/**/*.ts']
+  },
+
+  {
+    files: ['packages/infra/**/*.ts']
   }
 ]

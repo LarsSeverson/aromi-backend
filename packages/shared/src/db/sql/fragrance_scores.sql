@@ -4,7 +4,8 @@ CREATE TABLE public.fragrance_scores (
   downvotes integer DEFAULT 0 NOT NULL,
   score integer GENERATED ALWAYS AS ((upvotes - downvotes)) STORED NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
-  rating real
+  average_rating real,
+  review_count integer DEFAULT 0 NOT NULL
 );
 
 ALTER TABLE ONLY public.fragrance_scores
