@@ -3,30 +3,37 @@ import type { NetworkStackProps } from './types.js'
 import { InfraStack } from './InfraStack.js'
 
 export class NetworkStack extends InfraStack {
-  vpc: Vpc
+  static readonly MAX_AZS = 2
+  static readonly PUBLIC_MASK = 24
+  static readonly PRIVATE_MASK = 24
+  static readonly NAT_GATEWAYS = 1
+
+  readonly vpc: Vpc
+  readonly vpcId: string
 
   constructor (props: NetworkStackProps) {
-    super(props)
+    const { app } = props
 
-    const vpcId = `${this.prefix}-vpc`
+    super({ app, stackName: 'network' })
 
-    this.vpc = new Vpc(this, vpcId, {
-      maxAzs: 2,
+    this.vpcId = `${this.prefix}-vpc`
+    this.vpc = new Vpc(this, this.vpcId, {
+      maxAzs: NetworkStack.MAX_AZS,
 
       subnetConfiguration: [
         {
-          name: `${this.prefix}-public`,
+          name: `${this.stackName}-public`,
           subnetType: SubnetType.PUBLIC,
-          cidrMask: 24
+          cidrMask: NetworkStack.PUBLIC_MASK
         },
         {
-          name: `${this.prefix}-private`,
+          name: `${this.stackName}-private`,
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-          cidrMask: 24
+          cidrMask: NetworkStack.PRIVATE_MASK
         }
       ],
 
-      natGateways: 1
+      natGateways: NetworkStack.NAT_GATEWAYS
     })
   }
 }

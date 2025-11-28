@@ -12,6 +12,7 @@
     "cdk:destroy": "cdk destroy"
   },
   "dependencies": {
+    "@aromi/shared": "*",
     "aws-cdk-lib": "^2.230.0",
     "constructs": "^10.4.3"
   },

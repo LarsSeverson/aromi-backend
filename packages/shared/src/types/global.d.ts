@@ -1,5 +1,6 @@
 export interface Env {
-  NODE_ENV: 'development' | 'production' | 'test'
+  APP_NAME: string
+  NODE_ENV: 'development' | 'production'
 
   SERVER_HOST: string
   SERVER_PORT: string
