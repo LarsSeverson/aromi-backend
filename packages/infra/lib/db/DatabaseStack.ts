@@ -1,6 +1,6 @@
 import { AuroraCapacityUnit, AuroraPostgresEngineVersion, Credentials, DatabaseClusterEngine, ServerlessCluster } from 'aws-cdk-lib/aws-rds'
 import type { DatabaseStackProps } from './types.js'
-import { InfraStack } from './InfraStack.js'
+import { InfraStack } from '../InfraStack.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib'
 import { requiredEnv, unwrapOrThrowSync } from '@aromi/shared'
@@ -17,7 +17,7 @@ export class DatabaseStack extends InfraStack {
   readonly clusterId: string
 
   constructor (props: DatabaseStackProps) {
-    const { app, vpc } = props
+    const { app, network } = props
     super({ app, stackName: 'database' })
 
     const dbUser = unwrapOrThrowSync(requiredEnv('DB_USER'))
@@ -31,7 +31,7 @@ export class DatabaseStack extends InfraStack {
 
       engine: DatabaseStack.ENGINE,
 
-      vpc,
+      vpc: network.vpc,
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },

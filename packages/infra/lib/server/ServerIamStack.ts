@@ -1,5 +1,5 @@
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
-import { InfraStack } from './InfraStack.js'
+import { InfraStack } from '../InfraStack.js'
 import type { ServerIamStackProps } from './types.js'
 
 export class ServerIamStack extends InfraStack {
@@ -7,7 +7,7 @@ export class ServerIamStack extends InfraStack {
   readonly roleName: string
 
   constructor (props: ServerIamStackProps) {
-    const { app, pool, bucket } = props
+    const { app, auth, storage } = props
     super({ app, stackName: 'server-iam' })
 
     this.roleName = `${this.prefix}-server-role`
@@ -31,14 +31,14 @@ export class ServerIamStack extends InfraStack {
           'cognito-idp:InitiateAuth',
           'cognito-idp:RespondToAuthChallenge'
         ],
-        resources: [pool.userPoolArn]
+        resources: [auth.userPool.userPoolArn]
       })
     )
 
     this.role.addToPolicy(
       new PolicyStatement({
         actions: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
-        resources: [`${bucket.bucketArn}/*`]
+        resources: [`${storage.bucket.bucketArn}/*`]
       })
     )
   }

@@ -1,5 +1,5 @@
 import { BlockPublicAccess, Bucket, BucketEncryption, HttpMethods, ObjectOwnership, StorageClass } from 'aws-cdk-lib/aws-s3'
-import { InfraStack } from './InfraStack.js'
+import { InfraStack } from '../InfraStack.js'
 import type { StorageStackProps } from './types.js'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'

@@ -4,7 +4,7 @@ import {
   UserPoolClient,
   AccountRecovery
 } from 'aws-cdk-lib/aws-cognito'
-import { InfraStack } from './InfraStack.js'
+import { InfraStack } from '../InfraStack.js'
 import type { AuthStackProps } from './types.js'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 

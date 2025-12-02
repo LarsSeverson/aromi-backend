@@ -1,5 +1,5 @@
 import { AllowedMethods, CachedMethods, CachePolicy, Distribution, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
-import { InfraStack } from './InfraStack.js'
+import { InfraStack } from '../InfraStack.js'
 import type { CDNStackProps } from './types.js'
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 
@@ -19,13 +19,13 @@ export class CDNStack extends InfraStack {
   readonly domainName: string
 
   constructor (props: CDNStackProps) {
-    const { app, bucket } = props
+    const { app, storage } = props
     super({ app, stackName: 'cdn' })
 
     this.distributionId = `${this.prefix}-distribution`
     this.distribution = new Distribution(this, this.distributionId, {
       defaultBehavior: {
-        origin: S3BucketOrigin.withOriginAccessControl(bucket),
+        origin: S3BucketOrigin.withOriginAccessControl(storage.bucket),
 
         allowedMethods: CDNStack.ALLOWED_METHODS,
         cachedMethods: CDNStack.CACHED_METHODS,
