@@ -2,8 +2,8 @@ import { AuroraCapacityUnit, AuroraPostgresEngineVersion, Credentials, DatabaseC
 import type { DatabaseStackProps } from './types.js'
 import { InfraStack } from '../InfraStack.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib'
-import { requiredEnv, unwrapOrThrowSync } from '@aromi/shared'
+import { Duration, RemovalPolicy } from 'aws-cdk-lib'
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 
 export class DatabaseStack extends InfraStack {
   static readonly ENGINE = DatabaseClusterEngine.auroraPostgres({
@@ -16,18 +16,34 @@ export class DatabaseStack extends InfraStack {
   readonly cluster: ServerlessCluster
   readonly clusterId: string
 
+  readonly dbName: string
+
+  readonly dbSecretId: string
+  readonly dbSecret: Secret
+
   constructor (props: DatabaseStackProps) {
     const { app, network } = props
     super({ app, stackName: 'database' })
 
-    const dbUser = unwrapOrThrowSync(requiredEnv('DB_USER'))
-    const dbPassword = unwrapOrThrowSync(requiredEnv('DB_PASSWORD'))
+    this.dbName = `${this.prefix}-db`
+
+    this.dbSecretId = `${this.prefix}-db-secret`
+    this.dbSecret = new Secret(this, this.dbSecretId, {
+      secretName: this.dbSecretId,
+
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          username: 'postgres'
+        }),
+        generateStringKey: 'password',
+        passwordLength: 32
+      }
+    })
 
     this.clusterId = `${this.prefix}-db-cluster`
-
     this.cluster = new ServerlessCluster(this, this.clusterId, {
       clusterIdentifier: this.clusterId,
-      defaultDatabaseName: this.prefix.replace(/-/g, '_'),
+      defaultDatabaseName: this.dbName,
 
       engine: DatabaseStack.ENGINE,
 
@@ -44,10 +60,7 @@ export class DatabaseStack extends InfraStack {
       backupRetention: Duration.days(3),
       removalPolicy: RemovalPolicy.SNAPSHOT,
 
-      credentials: Credentials.fromPassword(
-        dbUser,
-        SecretValue.unsafePlainText(dbPassword)
-      )
+      credentials: Credentials.fromSecret(this.dbSecret)
     })
   }
 }

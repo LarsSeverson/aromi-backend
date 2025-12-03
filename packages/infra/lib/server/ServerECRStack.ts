@@ -1,9 +1,9 @@
 import { Repository, TagMutability } from 'aws-cdk-lib/aws-ecr'
 import { InfraStack } from '../InfraStack.js'
-import type { MeiliECRStackProps } from './types.js'
+import type { ServerECRStackProps } from './types.js'
 import { RemovalPolicy } from 'aws-cdk-lib'
 
-export class MeiliECRStack extends InfraStack {
+export class ServerECRStack extends InfraStack {
   static readonly TAG_MUTABILITY = TagMutability.IMMUTABLE
   static readonly REMOVAL_POLICY = RemovalPolicy.RETAIN
   static readonly SCAN_ON_PUSH = true
@@ -11,17 +11,17 @@ export class MeiliECRStack extends InfraStack {
   readonly repositoryId: string
   readonly repository: Repository
 
-  constructor (props: MeiliECRStackProps) {
+  constructor (props: ServerECRStackProps) {
     const { app } = props
-    super({ app, stackName: 'meili-ecr' })
+    super({ app, stackName: 'server-ecr' })
 
-    this.repositoryId = `${this.prefix}-meili-repository`
+    this.repositoryId = `${this.prefix}-server-repository`
     this.repository = new Repository(this, this.repositoryId, {
       repositoryName: this.repositoryId,
 
-      imageTagMutability: MeiliECRStack.TAG_MUTABILITY,
-      imageScanOnPush: MeiliECRStack.SCAN_ON_PUSH,
-      removalPolicy: MeiliECRStack.REMOVAL_POLICY
+      imageTagMutability: ServerECRStack.TAG_MUTABILITY,
+      imageScanOnPush: ServerECRStack.SCAN_ON_PUSH,
+      removalPolicy: ServerECRStack.REMOVAL_POLICY
     })
   }
 }

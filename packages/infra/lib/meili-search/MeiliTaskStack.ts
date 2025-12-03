@@ -2,6 +2,7 @@ import { type ContainerDefinition, ContainerImage, CpuArchitecture, FargateTaskD
 import { InfraStack } from '../InfraStack.js'
 import type { MeiliTaskStackProps } from './types.js'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import { requiredEnv, unwrapOrThrowSync } from '@aromi/shared'
 
 export class MeiliTaskStack extends InfraStack {
   static readonly CPU = 1024
@@ -22,9 +23,13 @@ export class MeiliTaskStack extends InfraStack {
 
   readonly container: ContainerDefinition
 
+  readonly masterKey: string
+
   constructor (props: MeiliTaskStackProps) {
-    const { app, ecr, storage } = props
+    const { app, storage } = props
     super({ app, stackName: 'meili-task' })
+
+    this.masterKey = unwrapOrThrowSync(requiredEnv('MEILI_MASTER_KEY'))
 
     this.taskId = `${this.prefix}-meili-task`
     this.task = new FargateTaskDefinition(this, this.taskId, {
@@ -38,7 +43,6 @@ export class MeiliTaskStack extends InfraStack {
           name: MeiliTaskStack.VOLUME_NAME,
           efsVolumeConfiguration: {
             fileSystemId: storage.fileSystem.fileSystemId,
-            transitEncryption: 'ENABLED',
             authorizationConfig: {
               accessPointId: storage.accessPoint.accessPointId
             }
@@ -48,7 +52,7 @@ export class MeiliTaskStack extends InfraStack {
     })
 
     this.container = this.task.addContainer(MeiliTaskStack.CONTAINER_NAME, {
-      image: ContainerImage.fromEcrRepository(ecr.repository),
+      image: ContainerImage.fromRegistry('getmeili/meilisearch:latest'),
 
       logging: LogDrivers.awsLogs({
         streamPrefix: MeiliTaskStack.CONTAINER_NAME
@@ -56,6 +60,7 @@ export class MeiliTaskStack extends InfraStack {
 
       environment: {
         MEILI_ENV: this.envName,
+        MEILI_MASTER_KEY: this.masterKey,
         MEILI_DB_PATH: MeiliTaskStack.VOLUME_PATH
       }
     })
