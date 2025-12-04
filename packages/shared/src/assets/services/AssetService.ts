@@ -3,9 +3,8 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import { CopyObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { format } from 'node:url'
-import { getSignedUrl } from '@aws-sdk/cloudfront-signer'
 import { createPresignedPost, type PresignedPost } from '@aws-sdk/s3-presigned-post'
-import { PRESIGNED_EXP, SIGNED_CDN_URL_EXP, type PresignUploadParams } from '../types.js'
+import { PRESIGNED_EXP, type PresignUploadParams } from '../types.js'
 import { streamToBuffer } from '@src/utils/stream.js'
 import { AssetUploadService } from '@src/db/index.js'
 
@@ -55,22 +54,6 @@ export class AssetService {
     const { domain } = cdn
 
     return format(`${domain}/${encodeURI(key)}`)
-  }
-
-  getCdnSignedUrl (
-    key: string
-  ): string {
-    const { cdn } = this
-    const { keyPairId, privateKey } = cdn
-
-    const url = this.getCdnUrl(key)
-
-    return getSignedUrl({
-      url,
-      keyPairId,
-      privateKey,
-      dateLessThan: SIGNED_CDN_URL_EXP()
-    })
   }
 
   getFromS3 (

@@ -69,20 +69,21 @@ export class AuthStack extends InfraStack {
     refreshTokenValidity: Duration.days(90)
   }
 
-  readonly userPool: UserPool
-  readonly userPoolClient: UserPoolClient
   readonly userPoolId: string
+  readonly userPool: UserPool
+
   readonly userPoolClientId: string
+  readonly userPoolClient: UserPoolClient
+
+  readonly jwksUri: string
 
   constructor (props: AuthStackProps) {
     const { app } = props
     super({ app, stackName: 'auth' })
 
-    const poolName = `${this.prefix}-user-pool`
-    const clientName = `${this.prefix}-client`
-
-    this.userPool = new UserPool(this, poolName, {
-      userPoolName: poolName,
+    this.userPoolId = `${this.prefix}-user-pool`
+    this.userPool = new UserPool(this, this.userPoolId, {
+      userPoolName: this.userPoolId,
 
       signInAliases: AuthStack.SIGN_IN_ALIASES,
 
@@ -102,9 +103,10 @@ export class AuthStack extends InfraStack {
       accountRecovery: AuthStack.ACCOUNT_RECOVERY
     })
 
-    this.userPoolClient = new UserPoolClient(this, clientName, {
+    this.userPoolClientId = `${this.prefix}-client`
+    this.userPoolClient = new UserPoolClient(this, this.userPoolClientId, {
       userPool: this.userPool,
-      userPoolClientName: clientName,
+      userPoolClientName: this.userPoolClientId,
 
       generateSecret: AuthStack.GENERATE_SECRET,
 
@@ -118,7 +120,6 @@ export class AuthStack extends InfraStack {
       refreshTokenValidity: AuthStack.CLIENT_TOKEN_CONFIG.refreshTokenValidity
     })
 
-    this.userPoolId = this.userPool.userPoolId
-    this.userPoolClientId = this.userPoolClient.userPoolClientId
+    this.jwksUri = `${this.userPool.userPoolProviderUrl}/.well-known/jwks.json`
   }
 }

@@ -17,6 +17,7 @@ export class DatabaseStack extends InfraStack {
   readonly clusterId: string
 
   readonly dbName: string
+  readonly dbUrl: string
 
   readonly dbSecretId: string
   readonly dbSecret: Secret
@@ -62,5 +63,7 @@ export class DatabaseStack extends InfraStack {
 
       credentials: Credentials.fromSecret(this.dbSecret)
     })
+
+    this.dbUrl = ''
   }
 }

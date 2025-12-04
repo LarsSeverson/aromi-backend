@@ -3,6 +3,8 @@ import { InfraStack } from '../InfraStack.js'
 import type { ServerIamStackProps } from './types.js'
 
 export class ServerIamStack extends InfraStack {
+  static readonly PRINCIPLE_SERVICE = 'ecs-task.amazonaws.com'
+
   readonly role: Role
   readonly roleName: string
 
@@ -14,7 +16,7 @@ export class ServerIamStack extends InfraStack {
 
     this.role = new Role(this, this.roleName, {
       roleName: this.roleName,
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com')
+      assumedBy: new ServicePrincipal(ServerIamStack.PRINCIPLE_SERVICE)
     })
 
     this.role.addToPolicy(

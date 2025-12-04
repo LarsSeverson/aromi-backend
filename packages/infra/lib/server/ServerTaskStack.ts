@@ -1,7 +1,8 @@
-import { type ContainerDefinition, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDrivers } from 'aws-cdk-lib/aws-ecs'
+import ecs, { type ContainerDefinition, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDrivers } from 'aws-cdk-lib/aws-ecs'
 import { InfraStack } from '../InfraStack.js'
 import type { ServerTaskStackProps } from './types.js'
-import { requiredEnv, unwrapOrThrowSync } from '@aromi/shared'
+import { RedisTaskStack } from '../redis/RedisTaskStack.js'
+import { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 
 export class ServerTaskStack extends InfraStack {
   static readonly CPU = 1024
@@ -22,11 +23,8 @@ export class ServerTaskStack extends InfraStack {
   readonly container: ContainerDefinition
 
   constructor (props: ServerTaskStackProps) {
-    const { app, ecr, db, storage, auth } = props
+    const { app, ecr, db, storage, auth, cdn, meili } = props
     super({ app, stackName: 'server-task' })
-
-    const dbUser = unwrapOrThrowSync(requiredEnv('DB_USER'))
-    const dbPassword = unwrapOrThrowSync(requiredEnv('DB_PASSWORD'))
 
     this.taskId = `${this.prefix}-server-task`
     this.task = new FargateTaskDefinition(this, this.taskId, {
@@ -47,15 +45,32 @@ export class ServerTaskStack extends InfraStack {
         NODE_ENV: this.envName,
 
         DB_HOST: db.cluster.clusterEndpoint.hostname,
-        DB_PORT: db.cluster.clusterEndpoint.port.toString(),
-        DB_USER: dbUser,
-        DB_PASSWORD: dbPassword,
+        DB_USER: db.dbSecret.secretValueFromJson('username').unsafeUnwrap(),
         DB_NAME: db.dbName,
+        DB_PORT: db.cluster.clusterEndpoint.port.toString(),
+        DB_URL: db.dbUrl,
+
+        REDIS_HOST: RedisTaskStack.SERVICE_HOST,
+        REDIS_PORT: RedisTaskStack.SERVICE_PORT.toString(),
+        REDIS_URL: RedisTaskStack.SERVICE_URL,
+
+        MEILI_ENV: this.envName,
+        MEILI_HOST: MeiliTaskStack.SERVICE_HOST,
+
+        COGNITO_USER_POOL_ID: auth.userPool.userPoolId,
+        COGNITO_CLIENT_ID: auth.userPoolClient.userPoolClientId,
+        COGNITO_REGION: this.region,
+
+        AWS_REGION: this.region,
 
         S3_BUCKET: storage.bucket.bucketName,
 
-        COGNITO_USER_POOL_ID: auth.userPool.userPoolId,
-        COGNITO_CLIENT_ID: auth.userPoolClient.userPoolClientId
+        CDN_DOMAIN: cdn.domainName
+      },
+
+      secrets: {
+        DB_PASSWORD: ecs.Secret.fromSecretsManager(db.dbSecret, 'password'),
+        MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(meili.masterSecret, meili.masterSecretKey)
       }
     })
 

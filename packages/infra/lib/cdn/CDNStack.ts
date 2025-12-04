@@ -16,6 +16,7 @@ export class CDNStack extends InfraStack {
 
   readonly distributionId: string
   readonly distribution: Distribution
+
   readonly domainName: string
 
   constructor (props: CDNStackProps) {

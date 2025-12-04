@@ -1,5 +1,7 @@
 import type { AuthStack } from '../auth/AuthStack.js'
+import type { CDNStack } from '../cdn/CDNStack.js'
 import type { DatabaseStack } from '../db/DatabaseStack.js'
+import type { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 import type { StorageStack } from '../storage/StorageStack.js'
 import type { AppInfraProps } from '../types.js'
 import type { ServerECRStack } from './ServerECRStack.js'
@@ -16,4 +18,6 @@ export interface ServerTaskStackProps extends AppInfraProps {
   db: DatabaseStack
   storage: StorageStack
   auth: AuthStack
+  cdn: CDNStack
+  meili: MeiliTaskStack
 }
