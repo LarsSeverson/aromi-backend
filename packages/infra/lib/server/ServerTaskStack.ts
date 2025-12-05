@@ -15,6 +15,10 @@ export class ServerTaskStack extends InfraStack {
   static readonly CONTAINER_NAME = 'server'
   static readonly CONTAINER_PORT = 8080
 
+  static readonly SERVICE_HOST = ServerTaskStack.CONTAINER_NAME
+  static readonly SERVICE_PORT = ServerTaskStack.CONTAINER_PORT
+  static readonly SERVICE_URL = `http://${ServerTaskStack.SERVICE_HOST}:${ServerTaskStack.SERVICE_PORT}`
+
   static readonly LOG_PREFIX = 'server'
 
   readonly taskId: string
@@ -69,7 +73,7 @@ export class ServerTaskStack extends InfraStack {
       },
 
       secrets: {
-        DB_PASSWORD: ecs.Secret.fromSecretsManager(db.dbSecret, 'password'),
+        DB_PASSWORD: ecs.Secret.fromSecretsManager(db.dbSecret, db.dbSecretKey),
         MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(meili.masterSecret, meili.masterSecretKey)
       }
     })

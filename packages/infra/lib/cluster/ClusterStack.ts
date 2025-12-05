@@ -3,7 +3,6 @@ import { InfraStack } from '../InfraStack.js'
 import type { ClusterStackProps } from './types.js'
 
 export class ClusterStack extends InfraStack {
-  static readonly CONTAINER_INSIGHTS = true
   static readonly ENABLE_FARGATE_CAPACITY_PROVIDERS = true
 
   readonly clusterId: string
@@ -18,9 +17,7 @@ export class ClusterStack extends InfraStack {
       clusterName: this.clusterId,
 
       vpc: network.vpc,
-      enableFargateCapacityProviders: ClusterStack.ENABLE_FARGATE_CAPACITY_PROVIDERS,
-
-      containerInsights: ClusterStack.CONTAINER_INSIGHTS
+      enableFargateCapacityProviders: ClusterStack.ENABLE_FARGATE_CAPACITY_PROVIDERS
     })
   }
 }

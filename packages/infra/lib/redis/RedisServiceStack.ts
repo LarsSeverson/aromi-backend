@@ -1,10 +1,12 @@
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { InfraStack } from '../InfraStack.js'
 import type { RedisServiceStackProps } from './types.js'
-import { FargateService } from 'aws-cdk-lib/aws-ecs'
+import { FargatePlatformVersion, FargateService } from 'aws-cdk-lib/aws-ecs'
 
 export class RedisServiceStack extends InfraStack {
   static readonly DESIRED_COUNT = 1
+  static readonly PLATFORM_VERSION = FargatePlatformVersion.LATEST
+
   static readonly ASSIGN_PUBLIC_IP = false
   static readonly ALLOW_ALL_OUTBOUND = true
 
@@ -18,12 +20,12 @@ export class RedisServiceStack extends InfraStack {
   readonly service: FargateService
 
   constructor (props: RedisServiceStackProps) {
-    const { app, cluster, task } = props
+    const { app, network, cluster, task } = props
     super({ app, stackName: 'redis-service' })
 
     this.securityGroupId = `${this.prefix}-redis-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
-      vpc: cluster.cluster.vpc,
+      vpc: network.vpc,
       allowAllOutbound: RedisServiceStack.ALLOW_ALL_OUTBOUND,
       securityGroupName: this.securityGroupId
     })
@@ -34,12 +36,14 @@ export class RedisServiceStack extends InfraStack {
       taskDefinition: task.task,
 
       desiredCount: RedisServiceStack.DESIRED_COUNT,
+      assignPublicIp: RedisServiceStack.ASSIGN_PUBLIC_IP,
 
+      securityGroups: [this.securityGroup],
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
-      assignPublicIp: RedisServiceStack.ASSIGN_PUBLIC_IP,
-      securityGroups: [this.securityGroup]
+
+      platformVersion: RedisServiceStack.PLATFORM_VERSION
     })
   }
 }

@@ -19,5 +19,4 @@ export interface MeiliServiceStackProps extends AppInfraProps {
 
   cluster: ClusterStack
   task: MeiliTaskStack
-  storage: MeiliStorageStack
 }

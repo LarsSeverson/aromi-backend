@@ -1,17 +1,14 @@
 import { AllowedMethods, CachedMethods, CachePolicy, Distribution, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { InfraStack } from '../InfraStack.js'
 import type { CDNStackProps } from './types.js'
-import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 
 export class CDNStack extends InfraStack {
   static readonly ALLOWED_METHODS = AllowedMethods.ALLOW_GET_HEAD
-
   static readonly CACHED_METHODS = CachedMethods.CACHE_GET_HEAD
 
   static readonly VIEWER_PROTOCOL_POLICY = ViewerProtocolPolicy.REDIRECT_TO_HTTPS
-
   static readonly ORIGIN_REQUEST_POLICY = OriginRequestPolicy.CORS_S3_ORIGIN
-
   static readonly CACHE_POLICY = CachePolicy.CACHING_OPTIMIZED
 
   readonly distributionId: string
@@ -20,7 +17,7 @@ export class CDNStack extends InfraStack {
   readonly domainName: string
 
   constructor (props: CDNStackProps) {
-    const { app, storage } = props
+    const { app, storage, serverLB } = props
     super({ app, stackName: 'cdn' })
 
     this.distributionId = `${this.prefix}-distribution`
@@ -36,6 +33,12 @@ export class CDNStack extends InfraStack {
         originRequestPolicy: CDNStack.ORIGIN_REQUEST_POLICY,
         cachePolicy: CDNStack.CACHE_POLICY
       }
+    })
+
+    this.distribution.addBehavior('/api/*', new LoadBalancerV2Origin(serverLB.loadBalancer), {
+      allowedMethods: AllowedMethods.ALLOW_ALL,
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: CachePolicy.CACHING_DISABLED
     })
 
     this.domainName = this.distribution.distributionDomainName

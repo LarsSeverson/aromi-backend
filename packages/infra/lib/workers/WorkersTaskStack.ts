@@ -4,7 +4,7 @@ import type { WorkersTaskStackProps } from './types.js'
 import { RedisTaskStack } from '../redis/RedisTaskStack.js'
 import { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 
-export class WorkerTaskStack extends InfraStack {
+export class WorkersTaskStack extends InfraStack {
   static readonly CPU = 512
   static readonly MEMORY = 1024
 
@@ -28,17 +28,17 @@ export class WorkerTaskStack extends InfraStack {
 
     this.taskId = `${this.prefix}-worker-task`
     this.task = new FargateTaskDefinition(this, this.taskId, {
-      cpu: WorkerTaskStack.CPU,
-      memoryLimitMiB: WorkerTaskStack.MEMORY,
+      cpu: WorkersTaskStack.CPU,
+      memoryLimitMiB: WorkersTaskStack.MEMORY,
 
-      runtimePlatform: WorkerTaskStack.PLATFORM
+      runtimePlatform: WorkersTaskStack.PLATFORM
     })
 
-    this.container = this.task.addContainer(WorkerTaskStack.CONTAINER_NAME, {
+    this.container = this.task.addContainer(WorkersTaskStack.CONTAINER_NAME, {
       image: ContainerImage.fromEcrRepository(ecr.repository),
 
       logging: LogDrivers.awsLogs({
-        streamPrefix: WorkerTaskStack.LOG_PREFIX
+        streamPrefix: WorkersTaskStack.LOG_PREFIX
       }),
 
       environment: {
@@ -75,7 +75,7 @@ export class WorkerTaskStack extends InfraStack {
     })
 
     this.container.addPortMappings({
-      containerPort: WorkerTaskStack.CONTAINER_PORT
+      containerPort: WorkersTaskStack.CONTAINER_PORT
     })
   }
 }

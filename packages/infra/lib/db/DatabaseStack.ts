@@ -20,6 +20,7 @@ export class DatabaseStack extends InfraStack {
   readonly dbUrl: string
 
   readonly dbSecretId: string
+  readonly dbSecretKey = 'password'
   readonly dbSecret: Secret
 
   constructor (props: DatabaseStackProps) {
@@ -36,7 +37,7 @@ export class DatabaseStack extends InfraStack {
         secretStringTemplate: JSON.stringify({
           username: 'postgres'
         }),
-        generateStringKey: 'password',
+        generateStringKey: this.dbSecretKey,
         passwordLength: 32
       }
     })
