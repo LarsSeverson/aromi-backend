@@ -57,6 +57,7 @@ export default [
       '@typescript-eslint/class-methods-use-this': 'off',
       '@typescript-eslint/init-declarations': 'off',
       '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off',
       // '@typescript-eslint/unbound-method': 'off',
 
       // Core stylistic formatting

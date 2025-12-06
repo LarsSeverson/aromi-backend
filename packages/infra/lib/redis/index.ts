@@ -1,5 +1,4 @@
-import { RedisServiceStack } from './RedisServiceStack.js'
-import { RedisTaskStack } from './RedisTaskStack.js'
+import { RedisAppStack } from './RedisAppStack.js'
 import type { SynthRedisServiceStackProps } from './types.js'
 
 export const synthRedisStack = (props: SynthRedisServiceStackProps) => {
@@ -7,8 +6,7 @@ export const synthRedisStack = (props: SynthRedisServiceStackProps) => {
   const { network } = networkStack
   const { cluster } = clusterStack
 
-  const task = new RedisTaskStack({ app })
-  const service = new RedisServiceStack({ app, network, cluster, task })
+  const redisApp = new RedisAppStack({ app, network, cluster })
 
-  return { task, service }
+  return { app: redisApp }
 }

@@ -1,23 +1,21 @@
 import { Stack } from 'aws-cdk-lib'
 import type { InfraStackProps } from './types.js'
+import { InfraConfig } from './InfraConfig.js'
 
 export abstract class InfraStack extends Stack {
-  static readonly appName = 'aromi'
-  static readonly envName = 'development'
-
   constructor (props: InfraStackProps) {
     const { app, stackName } = props
 
-    const id = `${InfraStack.appName}-${InfraStack.envName}-${stackName}`
+    const id = `${InfraConfig.prefix}-${stackName}`
     super(app, id)
   }
 
   get appName (): string {
-    return InfraStack.appName
+    return InfraConfig.appName
   }
 
   get envName (): string {
-    return InfraStack.envName
+    return InfraConfig.envName
   }
 
   get prefix (): string {

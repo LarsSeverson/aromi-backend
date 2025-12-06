@@ -1,6 +1,5 @@
-import { MeiliServiceStack } from './MeiliServiceStack.js'
-import { MeiliStorageStack } from './MeiliStorageStack.js'
-import { MeiliTaskStack } from './MeiliTaskStack.js'
+import { MeiliAppStack } from './MeiliAppStack.js'
+import { MeiliInfraStack } from './MeiliInfraStack.js'
 import type { SynthMeiliStackProps } from './types.js'
 
 export const synthMeiliStack = (props: SynthMeiliStackProps) => {
@@ -8,9 +7,8 @@ export const synthMeiliStack = (props: SynthMeiliStackProps) => {
   const { network } = networkStack
   const { cluster } = clusterStack
 
-  const storage = new MeiliStorageStack({ app, network })
-  const task = new MeiliTaskStack({ app, storage })
-  const service = new MeiliServiceStack({ app, network, cluster, storage, task })
+  const infra = new MeiliInfraStack({ app, network })
+  const meiliApp = new MeiliAppStack({ app, network, cluster, infra })
 
-  return { storage, task, service }
+  return { infra, app: meiliApp }
 }

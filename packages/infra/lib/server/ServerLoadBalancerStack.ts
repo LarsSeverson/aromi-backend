@@ -1,4 +1,4 @@
-import { type ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+import { type ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol, ListenerAction } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 import { InfraStack } from '../InfraStack.js'
 import type { ServerLoadBalancerStackProps } from './types.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
@@ -32,7 +32,8 @@ export class ServerLoadBalancerStack extends InfraStack {
     this.listenerId = `${this.prefix}-server-alb-listener`
     this.listener = this.loadBalancer.addListener(this.listenerId, {
       port: ServerLoadBalancerStack.LISTENER_PORT,
-      protocol: ServerLoadBalancerStack.LISTENER_PROTOCOL
+      protocol: ServerLoadBalancerStack.LISTENER_PROTOCOL,
+      defaultAction: ListenerAction.fixedResponse(404)
     })
   }
 }

@@ -10,31 +10,31 @@ import type { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 import type { SynthMeiliStackOutput } from '../meili-search/types.js'
 import type { NetworkStack } from '../network/NetworkStack.js'
 import type { SynthNetworkStackOutput } from '../network/types.js'
-import type { AppInfraProps } from '../types.js'
+import type { BaseInfraProps } from '../types.js'
 import type { ServerECRStack } from './ServerECRStack.js'
 import type { ServerIamStack } from './ServerIamStack.js'
 import type { ServerLoadBalancerStack } from './ServerLoadBalancerStack.js'
 import type { ServerTaskStack } from './ServerTaskStack.js'
 
-export interface ServerECRStackProps extends AppInfraProps {}
+export interface ServerECRStackProps extends BaseInfraProps {}
 
-export interface ServerIamStackProps extends AppInfraProps {
+export interface ServerIamStackProps extends BaseInfraProps {
   auth: AuthStack
   cdn: CDNStack
 }
 
-export interface ServerLoadBalancerStackProps extends AppInfraProps {
+export interface ServerLoadBalancerStackProps extends BaseInfraProps {
   network: NetworkStack
 }
 
-export interface ServerServiceStackProps extends AppInfraProps {
+export interface ServerServiceStackProps extends BaseInfraProps {
   network: NetworkStack
   cluster: ClusterStack
   task: ServerTaskStack
   serverLoadBalancer: ServerLoadBalancerStack
 }
 
-export interface ServerTaskStackProps extends AppInfraProps {
+export interface ServerTaskStackProps extends BaseInfraProps {
   auth: AuthStack
   database: DatabaseStack
   cdn: CDNStack
@@ -44,7 +44,7 @@ export interface ServerTaskStackProps extends AppInfraProps {
   iam: ServerIamStack
 }
 
-export interface SynthServerServiceStackProps extends AppInfraProps {
+export interface SynthServerServiceStackProps extends BaseInfraProps {
   networkStack: SynthNetworkStackOutput
   authStack: SynthAuthStackOutput
   databaseStack: SynthDatabaseStackOutput

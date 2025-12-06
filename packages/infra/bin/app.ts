@@ -9,6 +9,7 @@ import { synthRedisStack } from '../lib/redis/index.js'
 import { synthMeiliStack } from '../lib/meili-search/index.js'
 import { synthServerStack } from '../lib/server/index.js'
 import { synthWorkersStack } from '../lib/workers/index.js'
+import { synthStorageStack } from '../lib/storage/index.js'
 
 const app = new App()
 
@@ -16,9 +17,11 @@ const networkStack = synthNetworkStack({ app })
 
 const authStack = synthAuthStack({ app })
 
+const storageStack = synthStorageStack({ app })
+
 const databaseStack = synthDatabaseStack({ app, networkStack })
 
-const cdnStack = synthCDNStack({ app, networkStack })
+const cdnStack = synthCDNStack({ app, networkStack, storageStack })
 
 const clusterStack = synthClusterStack({ app, networkStack })
 
@@ -26,24 +29,24 @@ const redisStack = synthRedisStack({ app, networkStack, clusterStack })
 
 const meiliStack = synthMeiliStack({ app, networkStack, clusterStack })
 
-const serverStack = synthServerStack({
-  app,
-  networkStack,
-  authStack,
-  databaseStack,
-  clusterStack,
-  cdnStack,
-  meiliStack
-})
+// const serverStack = synthServerStack({
+//   app,
+//   networkStack,
+//   authStack,
+//   databaseStack,
+//   clusterStack,
+//   cdnStack,
+//   meiliStack
+// })
 
-const workersStack = synthWorkersStack({
-  app,
-  networkStack,
-  authStack,
-  databaseStack,
-  clusterStack,
-  cdnStack,
-  meiliStack
-})
+// const workersStack = synthWorkersStack({
+//   app,
+//   networkStack,
+//   authStack,
+//   databaseStack,
+//   clusterStack,
+//   cdnStack,
+//   meiliStack
+// })
 
 app.synth()
