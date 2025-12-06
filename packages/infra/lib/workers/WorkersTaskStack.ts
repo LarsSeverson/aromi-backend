@@ -13,7 +13,6 @@ export class WorkersTaskStack extends InfraStack {
   }
 
   static readonly CONTAINER_NAME = 'workers'
-  static readonly CONTAINER_PORT = 0
 
   static readonly LOG_PREFIX = 'workers'
 
@@ -23,7 +22,7 @@ export class WorkersTaskStack extends InfraStack {
   readonly container: ContainerDefinition
 
   constructor (props: WorkersTaskStackProps) {
-    const { app, ecr, db, meili, auth, storage, cdn } = props
+    const { app, ecr, database, meiliTask, auth, cdn } = props
     super({ app, stackName: 'worker-task' })
 
     this.taskId = `${this.prefix}-worker-task`
@@ -44,11 +43,11 @@ export class WorkersTaskStack extends InfraStack {
       environment: {
         NODE_ENV: this.envName,
 
-        DB_HOST: db.cluster.clusterEndpoint.hostname,
-        DB_USER: db.dbSecret.secretValueFromJson('username').unsafeUnwrap(),
-        DB_NAME: db.dbName,
-        DB_PORT: db.cluster.clusterEndpoint.port.toString(),
-        DB_URL: db.dbUrl,
+        DB_HOST: database.cluster.clusterEndpoint.hostname,
+        DB_USER: database.dbSecret.secretValueFromJson('username').unsafeUnwrap(),
+        DB_NAME: database.dbName,
+        DB_PORT: database.cluster.clusterEndpoint.port.toString(),
+        DB_URL: database.dbUrl,
 
         REDIS_HOST: RedisTaskStack.SERVICE_HOST,
         REDIS_PORT: RedisTaskStack.SERVICE_PORT.toString(),
@@ -63,19 +62,15 @@ export class WorkersTaskStack extends InfraStack {
 
         AWS_REGION: this.region,
 
-        S3_BUCKET: storage.bucket.bucketName,
+        S3_BUCKET: cdn.bucket.bucketName,
 
         CDN_DOMAIN: cdn.domainName
       },
 
       secrets: {
-        DB_PASSWORD: ecs.Secret.fromSecretsManager(db.dbSecret, 'password'),
-        MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(meili.masterSecret, meili.masterSecretKey)
+        DB_PASSWORD: ecs.Secret.fromSecretsManager(database.dbSecret, 'password'),
+        MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(meiliTask.masterSecret, meiliTask.masterSecretKey)
       }
-    })
-
-    this.container.addPortMappings({
-      containerPort: WorkersTaskStack.CONTAINER_PORT
     })
   }
 }

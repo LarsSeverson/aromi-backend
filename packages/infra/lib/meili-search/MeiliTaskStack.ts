@@ -60,8 +60,10 @@ export class MeiliTaskStack extends InfraStack {
           name: MeiliTaskStack.VOLUME_NAME,
           efsVolumeConfiguration: {
             fileSystemId: storage.fileSystem.fileSystemId,
+            transitEncryption: 'ENABLED',
             authorizationConfig: {
-              accessPointId: storage.accessPoint.accessPointId
+              accessPointId: storage.accessPoint.accessPointId,
+              iam: 'ENABLED'
             }
           }
         }

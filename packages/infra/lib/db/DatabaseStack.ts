@@ -1,19 +1,19 @@
-import { AuroraCapacityUnit, AuroraPostgresEngineVersion, Credentials, DatabaseClusterEngine, ServerlessCluster } from 'aws-cdk-lib/aws-rds'
+import { AuroraCapacityUnit, AuroraPostgresEngineVersion, ClusterInstance, Credentials, DatabaseCluster, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds'
 import type { DatabaseStackProps } from './types.js'
 import { InfraStack } from '../InfraStack.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { Duration, RemovalPolicy } from 'aws-cdk-lib'
+import { RemovalPolicy } from 'aws-cdk-lib'
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 
 export class DatabaseStack extends InfraStack {
   static readonly ENGINE = DatabaseClusterEngine.auroraPostgres({
-    version: AuroraPostgresEngineVersion.VER_17_5
+    version: AuroraPostgresEngineVersion.VER_17_6
   })
 
   static readonly MIN_CAPACITY = AuroraCapacityUnit.ACU_1
   static readonly MAX_CAPACITY = AuroraCapacityUnit.ACU_2
 
-  readonly cluster: ServerlessCluster
+  readonly cluster: DatabaseCluster
   readonly clusterId: string
 
   readonly dbName: string
@@ -23,11 +23,13 @@ export class DatabaseStack extends InfraStack {
   readonly dbSecretKey = 'password'
   readonly dbSecret: Secret
 
+  readonly writerId: string
+
   constructor (props: DatabaseStackProps) {
     const { app, network } = props
     super({ app, stackName: 'database' })
 
-    this.dbName = `${this.prefix}-db`
+    this.dbName = this.appName
 
     this.dbSecretId = `${this.prefix}-db-secret`
     this.dbSecret = new Secret(this, this.dbSecretId, {
@@ -42,8 +44,9 @@ export class DatabaseStack extends InfraStack {
       }
     })
 
+    this.writerId = `${this.prefix}-db-writer`
     this.clusterId = `${this.prefix}-db-cluster`
-    this.cluster = new ServerlessCluster(this, this.clusterId, {
+    this.cluster = new DatabaseCluster(this, this.clusterId, {
       clusterIdentifier: this.clusterId,
       defaultDatabaseName: this.dbName,
 
@@ -54,12 +57,13 @@ export class DatabaseStack extends InfraStack {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
 
-      scaling: {
-        minCapacity: DatabaseStack.MIN_CAPACITY,
-        maxCapacity: DatabaseStack.MAX_CAPACITY
-      },
+      writer: ClusterInstance.provisioned(this.writerId, {
+        publiclyAccessible: false
+      }),
 
-      backupRetention: Duration.days(3),
+      serverlessV2MinCapacity: DatabaseStack.MIN_CAPACITY,
+      serverlessV2MaxCapacity: DatabaseStack.MAX_CAPACITY,
+
       removalPolicy: RemovalPolicy.SNAPSHOT,
 
       credentials: Credentials.fromSecret(this.dbSecret)

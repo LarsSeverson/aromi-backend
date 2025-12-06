@@ -7,6 +7,9 @@ export class MeiliServiceStack extends InfraStack {
   static readonly DESIRED_COUNT = 1
   static readonly PLATFORM_VERSION = FargatePlatformVersion.LATEST
 
+  static readonly MIN_HEALTHY_PERCENT = 100
+  static readonly MAX_HEALTHY_PERCENT = 200
+
   static readonly ASSIGN_PUBLIC_IP = false
   static readonly ALLOW_ALL_OUTBOUND = true
 
@@ -17,7 +20,7 @@ export class MeiliServiceStack extends InfraStack {
   readonly serviceSecurityGroup: SecurityGroup
 
   constructor (props: MeiliServiceStackProps) {
-    const { app, network, cluster, task } = props
+    const { app, network, cluster, storage, task } = props
     super({ app, stackName: 'meili-service' })
 
     this.serviceSecurityGroupId = `${this.prefix}-meili-sg`
@@ -40,7 +43,12 @@ export class MeiliServiceStack extends InfraStack {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
 
-      platformVersion: MeiliServiceStack.PLATFORM_VERSION
+      platformVersion: MeiliServiceStack.PLATFORM_VERSION,
+
+      minHealthyPercent: MeiliServiceStack.MIN_HEALTHY_PERCENT,
+      maxHealthyPercent: MeiliServiceStack.MAX_HEALTHY_PERCENT
     })
+
+    storage.fileSystem.connections.allowDefaultPortFrom(this.service)
   }
 }

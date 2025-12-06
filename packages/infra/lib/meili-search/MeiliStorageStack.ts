@@ -46,17 +46,17 @@ export class MeiliStorageStack extends InfraStack {
     this.accessPointId = `${this.prefix}-efs-ap`
     this.accessPoint = this.fileSystem.addAccessPoint(this.accessPointId, {
       path: MeiliStorageStack.AP_PATH,
+
       posixUser: {
         uid: MeiliStorageStack.AP_UID,
         gid: MeiliStorageStack.AP_GID
       },
+
       createAcl: {
         ownerUid: MeiliStorageStack.AP_UID,
         ownerGid: MeiliStorageStack.AP_GID,
         permissions: MeiliStorageStack.AP_PERMISSIONS
       }
     })
-
-    this.fileSystem.connections.allowDefaultPortFrom(this.securityGroup)
   }
 }

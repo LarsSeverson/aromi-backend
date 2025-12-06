@@ -7,6 +7,9 @@ export class WorkersServiceStack extends InfraStack {
   static readonly DESIRED_COUNT = 1
   static readonly PLATFORM_VERSION = FargatePlatformVersion.LATEST
 
+  static readonly MIN_HEALTHY_PERCENT = 100
+  static readonly MAX_HEALTHY_PERCENT = 200
+
   static readonly ASSIGN_PUBLIC_IP = false
   static readonly ALLOW_ALL_OUTBOUND = true
 
@@ -40,7 +43,10 @@ export class WorkersServiceStack extends InfraStack {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
 
-      platformVersion: WorkersServiceStack.PLATFORM_VERSION
+      platformVersion: WorkersServiceStack.PLATFORM_VERSION,
+
+      minHealthyPercent: WorkersServiceStack.MIN_HEALTHY_PERCENT,
+      maxHealthyPercent: WorkersServiceStack.MAX_HEALTHY_PERCENT
     })
   }
 }

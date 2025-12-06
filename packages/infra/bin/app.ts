@@ -1,30 +1,49 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { App } from 'aws-cdk-lib'
-import { NetworkStack } from '../lib/network/NetworkStack.js'
-import { StorageStack } from '../lib/storage/StorageStack.js'
-import { RedisTaskStack } from '../lib/redis/RedisTaskStack.js'
-import { RedisServiceStack } from '../lib/redis/RedisServiceStack.js'
-import { ClusterStack } from '../lib/cluster/ClusterStack.js'
-import { ServerLoadBalancerStack } from '../lib/server/ServerLoadBalancerStack.js'
-import { MeiliStorageStack } from '../lib/meili-search/MeiliStorageStack.js'
-import { MeiliTaskStack } from '../lib/meili-search/MeiliTaskStack.js'
-import { MeiliServiceStack } from '../lib/meili-search/MeiliServiceStack.js'
+import { synthNetworkStack } from '../lib/network/index.js'
+import { synthAuthStack } from '../lib/auth/index.js'
+import { synthDatabaseStack } from '../lib/db/index.js'
+import { synthCDNStack } from '../lib/cdn/index.js'
+import { synthClusterStack } from '../lib/cluster/index.js'
+import { synthRedisStack } from '../lib/redis/index.js'
+import { synthMeiliStack } from '../lib/meili-search/index.js'
+import { synthServerStack } from '../lib/server/index.js'
+import { synthWorkersStack } from '../lib/workers/index.js'
 
 const app = new App()
 
-const network = new NetworkStack({ app })
+const networkStack = synthNetworkStack({ app })
 
-const storage = new StorageStack({ app })
+const authStack = synthAuthStack({ app })
 
-const cluster = new ClusterStack({ app, network })
+const databaseStack = synthDatabaseStack({ app, networkStack })
 
-const redisTask = new RedisTaskStack({ app })
-const redisService = new RedisServiceStack({ app, network, cluster, task: redisTask })
+const cdnStack = synthCDNStack({ app, networkStack })
 
-const meiliStorage = new MeiliStorageStack({ app, network })
-const meiliTask = new MeiliTaskStack({ app, storage: meiliStorage })
-const meiliService = new MeiliServiceStack({ app, network, cluster, task: meiliTask })
+const clusterStack = synthClusterStack({ app, networkStack })
 
-const serverLB = new ServerLoadBalancerStack({ app, network })
+const redisStack = synthRedisStack({ app, networkStack, clusterStack })
+
+const meiliStack = synthMeiliStack({ app, networkStack, clusterStack })
+
+const serverStack = synthServerStack({
+  app,
+  networkStack,
+  authStack,
+  databaseStack,
+  clusterStack,
+  cdnStack,
+  meiliStack
+})
+
+const workersStack = synthWorkersStack({
+  app,
+  networkStack,
+  authStack,
+  databaseStack,
+  clusterStack,
+  cdnStack,
+  meiliStack
+})
 
 app.synth()

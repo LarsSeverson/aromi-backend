@@ -13,6 +13,7 @@ export class ServerTaskStack extends InfraStack {
   }
 
   static readonly CONTAINER_NAME = 'server'
+  static readonly CONTAINER_HOST = '0.0.0.0'
   static readonly CONTAINER_PORT = 8080
 
   static readonly SERVICE_HOST = ServerTaskStack.CONTAINER_NAME
@@ -27,14 +28,15 @@ export class ServerTaskStack extends InfraStack {
   readonly container: ContainerDefinition
 
   constructor (props: ServerTaskStackProps) {
-    const { app, ecr, db, storage, auth, cdn, meili } = props
+    const { app, auth, database, cdn, meiliTask: meili, ecr, iam } = props
     super({ app, stackName: 'server-task' })
 
     this.taskId = `${this.prefix}-server-task`
     this.task = new FargateTaskDefinition(this, this.taskId, {
+      taskRole: iam.role,
+
       cpu: ServerTaskStack.CPU,
       memoryLimitMiB: ServerTaskStack.MEMORY_LIMIT_MIB,
-
       runtimePlatform: ServerTaskStack.RUNTIME_PLATFORM
     })
 
@@ -48,11 +50,15 @@ export class ServerTaskStack extends InfraStack {
       environment: {
         NODE_ENV: this.envName,
 
-        DB_HOST: db.cluster.clusterEndpoint.hostname,
-        DB_USER: db.dbSecret.secretValueFromJson('username').unsafeUnwrap(),
-        DB_NAME: db.dbName,
-        DB_PORT: db.cluster.clusterEndpoint.port.toString(),
-        DB_URL: db.dbUrl,
+        SERVER_HOST: ServerTaskStack.CONTAINER_HOST,
+        SERVER_PORT: ServerTaskStack.CONTAINER_PORT.toString(),
+        ALLOWED_ORIGINS: [`https://${cdn.domainName}`].join(','),
+
+        DB_HOST: database.cluster.clusterEndpoint.hostname,
+        DB_USER: database.dbSecret.secretValueFromJson('username').unsafeUnwrap(),
+        DB_NAME: database.dbName,
+        DB_PORT: database.cluster.clusterEndpoint.port.toString(),
+        DB_URL: database.dbUrl,
 
         REDIS_HOST: RedisTaskStack.SERVICE_HOST,
         REDIS_PORT: RedisTaskStack.SERVICE_PORT.toString(),
@@ -67,13 +73,13 @@ export class ServerTaskStack extends InfraStack {
 
         AWS_REGION: this.region,
 
-        S3_BUCKET: storage.bucket.bucketName,
+        S3_BUCKET: cdn.bucket.bucketName,
 
         CDN_DOMAIN: cdn.domainName
       },
 
       secrets: {
-        DB_PASSWORD: ecs.Secret.fromSecretsManager(db.dbSecret, db.dbSecretKey),
+        DB_PASSWORD: ecs.Secret.fromSecretsManager(database.dbSecret, database.dbSecretKey),
         MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(meili.masterSecret, meili.masterSecretKey)
       }
     })

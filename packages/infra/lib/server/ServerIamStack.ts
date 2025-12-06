@@ -3,13 +3,13 @@ import { InfraStack } from '../InfraStack.js'
 import type { ServerIamStackProps } from './types.js'
 
 export class ServerIamStack extends InfraStack {
-  static readonly PRINCIPLE_SERVICE = 'ecs-task.amazonaws.com'
+  static readonly PRINCIPLE_SERVICE = 'ecs-tasks.amazonaws.com'
 
   readonly role: Role
   readonly roleName: string
 
   constructor (props: ServerIamStackProps) {
-    const { app, auth, storage } = props
+    const { app, auth, cdn } = props
     super({ app, stackName: 'server-iam' })
 
     this.roleName = `${this.prefix}-server-role`
@@ -40,7 +40,7 @@ export class ServerIamStack extends InfraStack {
     this.role.addToPolicy(
       new PolicyStatement({
         actions: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
-        resources: [`${storage.bucket.bucketArn}/*`]
+        resources: [`${cdn.bucket.bucketArn}/*`]
       })
     )
   }

@@ -7,6 +7,9 @@ export class RedisServiceStack extends InfraStack {
   static readonly DESIRED_COUNT = 1
   static readonly PLATFORM_VERSION = FargatePlatformVersion.LATEST
 
+  static readonly MIN_HEALTHY_PERCENT = 100
+  static readonly MAX_HEALTHY_PERCENT = 200
+
   static readonly ASSIGN_PUBLIC_IP = false
   static readonly ALLOW_ALL_OUTBOUND = true
 
@@ -43,7 +46,10 @@ export class RedisServiceStack extends InfraStack {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
 
-      platformVersion: RedisServiceStack.PLATFORM_VERSION
+      platformVersion: RedisServiceStack.PLATFORM_VERSION,
+
+      minHealthyPercent: RedisServiceStack.MIN_HEALTHY_PERCENT,
+      maxHealthyPercent: RedisServiceStack.MAX_HEALTHY_PERCENT
     })
   }
 }
