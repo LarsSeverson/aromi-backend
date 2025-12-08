@@ -1,7 +1,7 @@
 import type { Construct } from 'constructs'
-import type { InfraStack } from './InfraStack.js'
+import type { BaseStack } from './BaseStack.js'
 
-export enum EnvName {
+export enum EnvMode {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production'
 }
@@ -11,10 +11,10 @@ export interface InfraStackProps {
   stackName: string
 }
 
-export interface BaseInfraProps {
+export interface BaseStackProps {
   app: Construct
 }
 
 export interface BaseComponentProps {
-  stack: InfraStack
+  stack: BaseStack
 }

@@ -1,9 +1,9 @@
-import type { BaseInfraProps } from '../types.js'
+import type { BaseStackProps } from '../types.js'
 import type { NetworkStack } from './NetworkStack.js'
 
-export interface NetworkStackProps extends BaseInfraProps { }
+export interface NetworkStackProps extends BaseStackProps { }
 
-export interface SynthNetworkStackProps extends BaseInfraProps { }
+export interface SynthNetworkStackProps extends BaseStackProps { }
 
 export interface SynthNetworkStackOutput {
   network: NetworkStack

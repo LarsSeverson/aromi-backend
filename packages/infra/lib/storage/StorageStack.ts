@@ -1,9 +1,9 @@
 import { Bucket } from 'aws-cdk-lib/aws-s3'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import type { StorageStackProps } from './types.js'
 import { StorageConfig } from './components/StorageConfig.js'
 
-export class StorageStack extends InfraStack {
+export class StorageStack extends BaseStack {
   readonly bucketId: string
   readonly bucket: Bucket
 

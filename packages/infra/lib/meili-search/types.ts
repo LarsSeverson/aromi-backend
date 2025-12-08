@@ -2,7 +2,7 @@ import type { ClusterStack } from '../cluster/ClusterStack.js'
 import type { SynthClusterStackOutput } from '../cluster/types.js'
 import type { NetworkStack } from '../network/NetworkStack.js'
 import type { SynthNetworkStackOutput } from '../network/types.js'
-import type { BaseComponentProps, BaseInfraProps } from '../types.js'
+import type { BaseComponentProps, BaseStackProps } from '../types.js'
 import type { MeiliEFSComponent } from './components/MeiliEFS.js'
 import type { MeiliTaskComponent } from './components/MeiliTask.js'
 import type { MeiliAppStack } from './MeiliAppStack.js'
@@ -24,17 +24,17 @@ export interface MeiliServiceComponentProps extends BaseComponentProps {
   efsComponent: MeiliEFSComponent
 }
 
-export interface MeiliInfraStackProps extends BaseInfraProps {
+export interface MeiliInfraStackProps extends BaseStackProps {
   network: NetworkStack
 }
 
-export interface MeiliAppStackProps extends BaseInfraProps {
+export interface MeiliAppStackProps extends BaseStackProps {
   network: NetworkStack
   cluster: ClusterStack
   infra: MeiliInfraStack
 }
 
-export interface SynthMeiliStackProps extends BaseInfraProps {
+export interface SynthMeiliStackProps extends BaseStackProps {
   networkStack: SynthNetworkStackOutput
   clusterStack: SynthClusterStackOutput
 }

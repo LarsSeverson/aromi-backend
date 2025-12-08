@@ -1,8 +1,8 @@
 import { BlockPublicAccess, BucketEncryption, HttpMethods, ObjectOwnership, StorageClass } from 'aws-cdk-lib/aws-s3'
-import { InfraConfig } from '../../InfraConfig.js'
+import { BaseConfig } from '../../BaseConfig.js'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 
-export class StorageConfig extends InfraConfig {
+export class StorageConfig extends BaseConfig {
   static readonly S3_CONFIG = {
     VERSIONED: true,
 

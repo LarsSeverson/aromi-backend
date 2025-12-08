@@ -1,7 +1,7 @@
 import { AllowedMethods, CachedMethods, CachePolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
-import { InfraConfig } from '../../InfraConfig.js'
+import { BaseConfig } from '../../BaseConfig.js'
 
-export class CDNConfig extends InfraConfig {
+export class CDNConfig extends BaseConfig {
   static readonly ALLOWED_METHODS = AllowedMethods.ALLOW_GET_HEAD
   static readonly CACHED_METHODS = CachedMethods.CACHE_GET_HEAD
 

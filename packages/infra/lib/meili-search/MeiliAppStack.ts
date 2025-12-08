@@ -1,9 +1,9 @@
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import type { MeiliAppStackProps } from './types.js'
 import { MeiliTaskComponent } from './components/MeiliTask.js'
 import { MeiliServiceComponent } from './components/MeiliService.js'
 
-export class MeiliAppStack extends InfraStack {
+export class MeiliAppStack extends BaseStack {
   readonly taskComponent: MeiliTaskComponent
   readonly serviceComponent: MeiliServiceComponent
 

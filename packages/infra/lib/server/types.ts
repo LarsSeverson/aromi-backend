@@ -6,56 +6,76 @@ import type { ClusterStack } from '../cluster/ClusterStack.js'
 import type { SynthClusterStackOutput } from '../cluster/types.js'
 import type { DatabaseStack } from '../db/DatabaseStack.js'
 import type { SynthDatabaseStackOutput } from '../db/types.js'
-import type { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
+import type { LoadBalancerStack } from '../load-balancer/LoadBalancerStack.js'
+import type { SynthLoadBalancerStackOutput } from '../load-balancer/types.js'
+import type { MeiliAppStack } from '../meili-search/MeiliAppStack.js'
 import type { SynthMeiliStackOutput } from '../meili-search/types.js'
 import type { NetworkStack } from '../network/NetworkStack.js'
 import type { SynthNetworkStackOutput } from '../network/types.js'
-import type { BaseInfraProps } from '../types.js'
-import type { ServerECRStack } from './ServerECRStack.js'
-import type { ServerIamStack } from './ServerIamStack.js'
-import type { ServerLoadBalancerStack } from './ServerLoadBalancerStack.js'
-import type { ServerTaskStack } from './ServerTaskStack.js'
+import type { RedisAppStack } from '../redis/RedisAppStack.js'
+import type { SynthRedisStackOutput } from '../redis/types.js'
+import type { StorageStack } from '../storage/StorageStack.js'
+import type { SynthStorageStackOutput } from '../storage/types.js'
+import type { BaseComponentProps, BaseStackProps } from '../types.js'
+import type { ServerECRComponent } from './components/ServerECR.js'
+import type { ServerIamComponent } from './components/ServerIam.js'
+import type { ServerTaskComponent } from './components/ServerTask.js'
+import type { ServerAppStack } from './ServerAppStack.js'
 
-export interface ServerECRStackProps extends BaseInfraProps {}
+export interface ServerECRComponentProps extends BaseComponentProps {}
 
-export interface ServerIamStackProps extends BaseInfraProps {
+export interface ServerIamComponentProps extends BaseComponentProps {
   auth: AuthStack
-  cdn: CDNStack
+  storage: StorageStack
 }
 
-export interface ServerLoadBalancerStackProps extends BaseInfraProps {
-  network: NetworkStack
-}
-
-export interface ServerServiceStackProps extends BaseInfraProps {
-  network: NetworkStack
-  cluster: ClusterStack
-  task: ServerTaskStack
-  serverLoadBalancer: ServerLoadBalancerStack
-}
-
-export interface ServerTaskStackProps extends BaseInfraProps {
+export interface ServerTaskComponentProps extends BaseComponentProps {
   auth: AuthStack
+  storage: StorageStack
   database: DatabaseStack
   cdn: CDNStack
-  meiliTask: MeiliTaskStack
-  ecr: ServerECRStack
 
-  iam: ServerIamStack
+  iam: ServerIamComponent
+  ecr: ServerECRComponent
+
+  meili: MeiliAppStack
+  redis: RedisAppStack
 }
 
-export interface SynthServerServiceStackProps extends BaseInfraProps {
+export interface ServerServiceComponentProps extends BaseComponentProps {
+  network: NetworkStack
+  cluster: ClusterStack
+  loadBalancer: LoadBalancerStack
+
+  taskComponent: ServerTaskComponent
+}
+
+export interface ServerAppStackProps extends BaseStackProps {
+  network: NetworkStack
+  auth: AuthStack
+  storage: StorageStack
+  database: DatabaseStack
+  cdn: CDNStack
+  cluster: ClusterStack
+  loadBalancer: LoadBalancerStack
+
+  meili: MeiliAppStack
+  redis: RedisAppStack
+}
+
+export interface SynthServerServiceStackProps extends BaseStackProps {
   networkStack: SynthNetworkStackOutput
   authStack: SynthAuthStackOutput
+  storageStack: SynthStorageStackOutput
   databaseStack: SynthDatabaseStackOutput
-  clusterStack: SynthClusterStackOutput
   cdnStack: SynthCDNStackOutput
+  clusterStack: SynthClusterStackOutput
+  loadBalancerStack: SynthLoadBalancerStackOutput
+
   meiliStack: SynthMeiliStackOutput
+  redisStack: SynthRedisStackOutput
 }
 
 export interface SynthServerStackOutput {
-  ecr: ServerECRStack
-  iam: ServerIamStack
-  task: ServerTaskStack
-  service: ServerLoadBalancerStack
+  app: ServerAppStack
 }

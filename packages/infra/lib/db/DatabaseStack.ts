@@ -1,11 +1,11 @@
 import { AuroraCapacityUnit, AuroraPostgresEngineVersion, ClusterInstance, Credentials, DatabaseCluster, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds'
 import type { DatabaseStackProps } from './types.js'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { RemovalPolicy } from 'aws-cdk-lib'
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 
-export class DatabaseStack extends InfraStack {
+export class DatabaseStack extends BaseStack {
   static readonly ENGINE = DatabaseClusterEngine.auroraPostgres({
     version: AuroraPostgresEngineVersion.VER_17_6
   })

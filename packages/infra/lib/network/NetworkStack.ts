@@ -1,8 +1,8 @@
 import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
 import type { NetworkStackProps } from './types.js'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 
-export class NetworkStack extends InfraStack {
+export class NetworkStack extends BaseStack {
   static readonly MAX_AZS = 2
   static readonly PUBLIC_MASK = 24
   static readonly PRIVATE_MASK = 24

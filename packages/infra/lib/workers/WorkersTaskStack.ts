@@ -1,10 +1,10 @@
 import ecs, { ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDrivers, type ContainerDefinition } from 'aws-cdk-lib/aws-ecs'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import type { WorkersTaskStackProps } from './types.js'
 import { RedisTaskStack } from '../redis/RedisTaskStack.js'
 import { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 
-export class WorkersTaskStack extends InfraStack {
+export class WorkersTaskStack extends BaseStack {
   static readonly CPU = 512
   static readonly MEMORY = 1024
 

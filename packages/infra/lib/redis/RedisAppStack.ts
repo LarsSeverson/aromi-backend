@@ -1,9 +1,9 @@
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import { RedisServiceComponent } from './components/RedisService.js'
 import { RedisTaskComponent } from './components/RedisTask.js'
 import type { RedisAppStackProps } from './types.js'
 
-export class RedisAppStack extends InfraStack {
+export class RedisAppStack extends BaseStack {
   readonly taskComponent: RedisTaskComponent
   readonly serviceComponent: RedisServiceComponent
 

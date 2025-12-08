@@ -10,14 +10,16 @@ export class MeiliServiceComponent {
   readonly serviceId: string
   readonly service: FargateService
 
+  readonly meiliDns: string
+  readonly meiliUrl: string
+
   constructor (props: MeiliServiceComponentProps) {
     const { stack, network, cluster, taskComponent } = props
 
     this.securityGroupId = `${MeiliConfig.prefix}-meili-service-sg`
     this.securityGroup = new SecurityGroup(stack, this.securityGroupId, {
       vpc: network.vpc,
-      securityGroupName: this.securityGroupId,
-      allowAllOutbound: true
+      allowAllOutbound: MeiliConfig.SERVICE_CONFIG.allowAllOutbound
     })
 
     this.serviceId = `${MeiliConfig.prefix}-meili-service`
@@ -36,5 +38,13 @@ export class MeiliServiceComponent {
         subnetType: MeiliConfig.SERVICE_CONFIG.subnetType
       }
     })
+
+    this.service.enableCloudMap({
+      name: MeiliConfig.SERVICE_CONFIG.cloudMapName,
+      dnsTtl: MeiliConfig.SERVICE_CONFIG.cloudMapDnsTtl
+    })
+
+    this.meiliDns = cluster.dns(MeiliConfig.SERVICE_CONFIG.cloudMapName)
+    this.meiliUrl = `${this.meiliDns}:${MeiliConfig.CONTAINER_CONFIG.containerPort}`
   }
 }

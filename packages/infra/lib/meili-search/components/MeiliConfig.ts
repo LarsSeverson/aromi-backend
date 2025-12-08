@@ -1,8 +1,9 @@
 import { CpuArchitecture } from 'aws-cdk-lib/aws-ecs'
-import { InfraConfig } from '../../InfraConfig.js'
+import { BaseConfig } from '../../BaseConfig.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
+import { Duration } from 'aws-cdk-lib'
 
-export class MeiliConfig extends InfraConfig {
+export class MeiliConfig extends BaseConfig {
   static readonly meiliVolume = 'meili-efs'
   static readonly meiliMount = '/meili_data'
 
@@ -27,7 +28,7 @@ export class MeiliConfig extends InfraConfig {
   static readonly CONTAINER_CONFIG = {
     image: 'getmeili/meilisearch:latest',
     containerName: 'meilisearch',
-    port: 7700
+    containerPort: 7700
   }
 
   static readonly SERVICE_CONFIG = {
@@ -36,7 +37,11 @@ export class MeiliConfig extends InfraConfig {
     maxHealthPercent: 200,
 
     assignPublicIp: false,
+    allowAllOutbound: true,
 
-    subnetType: SubnetType.PRIVATE_WITH_EGRESS
+    subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+
+    cloudMapName: 'meilisearch',
+    cloudMapDnsTtl: Duration.seconds(10)
   }
 }

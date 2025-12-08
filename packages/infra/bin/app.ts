@@ -10,6 +10,7 @@ import { synthMeiliStack } from '../lib/meili-search/index.js'
 import { synthServerStack } from '../lib/server/index.js'
 import { synthWorkersStack } from '../lib/workers/index.js'
 import { synthStorageStack } from '../lib/storage/index.js'
+import { synthLoadBalancerStack } from '../lib/load-balancer/index.js'
 
 const app = new App()
 
@@ -21,7 +22,9 @@ const storageStack = synthStorageStack({ app })
 
 const databaseStack = synthDatabaseStack({ app, networkStack })
 
-const cdnStack = synthCDNStack({ app, networkStack, storageStack })
+const loadBalancerStack = synthLoadBalancerStack({ app, networkStack })
+
+const cdnStack = synthCDNStack({ app, networkStack, storageStack, loadBalancerStack })
 
 const clusterStack = synthClusterStack({ app, networkStack })
 
@@ -29,15 +32,18 @@ const redisStack = synthRedisStack({ app, networkStack, clusterStack })
 
 const meiliStack = synthMeiliStack({ app, networkStack, clusterStack })
 
-// const serverStack = synthServerStack({
-//   app,
-//   networkStack,
-//   authStack,
-//   databaseStack,
-//   clusterStack,
-//   cdnStack,
-//   meiliStack
-// })
+const serverStack = synthServerStack({
+  app,
+  networkStack,
+  authStack,
+  storageStack,
+  databaseStack,
+  cdnStack,
+  clusterStack,
+  loadBalancerStack,
+  meiliStack,
+  redisStack
+})
 
 // const workersStack = synthWorkersStack({
 //   app,

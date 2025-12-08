@@ -5,6 +5,7 @@ import { MeiliConfig } from './MeiliConfig.js'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 
 export class MeiliTaskComponent {
+  readonly masterSecretKey = MeiliConfig.TASK_CONFIG.secretKeyField
   readonly masterSecretId: string
   readonly masterSecret: Secret
 
@@ -54,7 +55,7 @@ export class MeiliTaskComponent {
 
       environment: {
         MEILI_DB_PATH: MeiliConfig.meiliMount,
-        MEILI_ENV: MeiliConfig.envName
+        MEILI_ENV: MeiliConfig.envMode
       },
 
       secrets: {
@@ -66,7 +67,7 @@ export class MeiliTaskComponent {
     })
 
     this.container.addPortMappings({
-      containerPort: MeiliConfig.CONTAINER_CONFIG.port
+      containerPort: MeiliConfig.CONTAINER_CONFIG.containerPort
     })
 
     this.container.addMountPoints({

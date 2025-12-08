@@ -1,10 +1,9 @@
 import { Cluster } from 'aws-cdk-lib/aws-ecs'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import type { ClusterStackProps } from './types.js'
+import { ClusterConfig } from './components/ClusterConfig.js'
 
-export class ClusterStack extends InfraStack {
-  static readonly ENABLE_FARGATE_CAPACITY_PROVIDERS = true
-
+export class ClusterStack extends BaseStack {
   readonly clusterId: string
   readonly cluster: Cluster
 
@@ -14,10 +13,14 @@ export class ClusterStack extends InfraStack {
 
     this.clusterId = `${this.prefix}-cluster`
     this.cluster = new Cluster(this, this.clusterId, {
-      clusterName: this.clusterId,
-
       vpc: network.vpc,
-      enableFargateCapacityProviders: ClusterStack.ENABLE_FARGATE_CAPACITY_PROVIDERS
+
+      enableFargateCapacityProviders: ClusterConfig.enableFargateCapacityProviders,
+      defaultCloudMapNamespace: ClusterConfig.defaultCloudMapNamespace
     })
+  }
+
+  dns (cloudMapName: string) {
+    return `${cloudMapName}.${ClusterConfig.defaultCloudMapNamespace.name}`
   }
 }

@@ -10,20 +10,20 @@ import type { MeiliTaskStack } from '../meili-search/MeiliTaskStack.js'
 import type { SynthMeiliStackOutput } from '../meili-search/types.js'
 import type { NetworkStack } from '../network/NetworkStack.js'
 import type { SynthNetworkStackOutput } from '../network/types.js'
-import type { BaseInfraProps } from '../types.js'
+import type { BaseStackProps } from '../types.js'
 import type { WorkersECRStack } from './WorkersECRStack.js'
 import type { WorkersServiceStack } from './WorkersServiceStack.js'
 import type { WorkersTaskStack } from './WorkersTaskStack.js'
 
-export interface WorkersECRStackProps extends BaseInfraProps {}
+export interface WorkersECRStackProps extends BaseStackProps {}
 
-export interface WorkersServiceStackProps extends BaseInfraProps {
+export interface WorkersServiceStackProps extends BaseStackProps {
   network: NetworkStack
   cluster: ClusterStack
   task: WorkersTaskStack
 }
 
-export interface WorkersTaskStackProps extends BaseInfraProps {
+export interface WorkersTaskStackProps extends BaseStackProps {
   auth: AuthStack
   database: DatabaseStack
   cdn: CDNStack
@@ -31,7 +31,7 @@ export interface WorkersTaskStackProps extends BaseInfraProps {
   ecr: WorkersECRStack
 }
 
-export interface SynthWorkersServiceStackProps extends BaseInfraProps {
+export interface SynthWorkersServiceStackProps extends BaseStackProps {
   networkStack: SynthNetworkStackOutput
   authStack: SynthAuthStackOutput
   databaseStack: SynthDatabaseStackOutput

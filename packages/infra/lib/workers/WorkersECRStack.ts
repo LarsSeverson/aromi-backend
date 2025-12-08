@@ -1,9 +1,9 @@
 import { Repository, TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import type { WorkersECRStackProps } from './types.js'
 import { RemovalPolicy } from 'aws-cdk-lib'
 
-export class WorkersECRStack extends InfraStack {
+export class WorkersECRStack extends BaseStack {
   static readonly TAG_MUTABILITY = TagMutability.IMMUTABLE
   static readonly REMOVAL_POLICY = RemovalPolicy.RETAIN
   static readonly SCAN_ON_PUSH = true

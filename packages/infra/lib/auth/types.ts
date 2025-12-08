@@ -1,9 +1,9 @@
-import type { BaseInfraProps } from '../types.js'
+import type { BaseStackProps } from '../types.js'
 import type { AuthStack } from './AuthStack.js'
 
-export interface AuthStackProps extends BaseInfraProps { }
+export interface AuthStackProps extends BaseStackProps { }
 
-export interface SynthAuthStackProps extends BaseInfraProps {}
+export interface SynthAuthStackProps extends BaseStackProps {}
 
 export interface SynthAuthStackOutput {
   auth: AuthStack

@@ -1,22 +1,46 @@
-import { ServerECRStack } from './ServerECRStack.js'
-import { ServerIamStack } from './ServerIamStack.js'
-import { ServerServiceStack } from './ServerServiceStack.js'
-import { ServerTaskStack } from './ServerTaskStack.js'
+import { ServerAppStack } from './ServerAppStack.js'
 import type { SynthServerServiceStackProps } from './types.js'
 
 export const synthServerStack = (props: SynthServerServiceStackProps) => {
-  const { app, networkStack, authStack, databaseStack, clusterStack, cdnStack, meiliStack } = props
+  const {
+    app,
+
+    networkStack,
+    authStack,
+    storageStack,
+    databaseStack,
+    clusterStack,
+    cdnStack,
+    loadBalancerStack,
+
+    meiliStack,
+    redisStack
+  } = props
+
   const { network } = networkStack
   const { auth } = authStack
+  const { storage } = storageStack
   const { database } = databaseStack
   const { cluster } = clusterStack
-  const { cdn, serverLoadBalancer } = cdnStack
-  const { task: meiliTask } = meiliStack
+  const { cdn } = cdnStack
+  const { loadBalancer } = loadBalancerStack
 
-  const ecr = new ServerECRStack({ app })
-  const iam = new ServerIamStack({ app, auth, cdn })
-  const task = new ServerTaskStack({ app, auth, database, cdn, meiliTask, ecr, iam })
-  const service = new ServerServiceStack({ app, network, cluster, task, serverLoadBalancer })
+  const { app: meiliApp } = meiliStack
+  const { app: redisApp } = redisStack
 
-  return { ecr, iam, task, service }
+  const serverAppStack = new ServerAppStack({
+    app,
+    network,
+    auth,
+    storage,
+    database,
+    cdn,
+    cluster,
+    loadBalancer,
+
+    meili: meiliApp,
+    redis: redisApp
+  })
+
+  return { app: serverAppStack }
 }

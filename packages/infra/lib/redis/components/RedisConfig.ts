@@ -1,8 +1,9 @@
 import { CpuArchitecture } from 'aws-cdk-lib/aws-ecs'
-import { InfraConfig } from '../../InfraConfig.js'
+import { BaseConfig } from '../../BaseConfig.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
+import { Duration } from 'aws-cdk-lib'
 
-export class RedisConfig extends InfraConfig {
+export class RedisConfig extends BaseConfig {
   static readonly TASK_CONFIG = {
     cpuUnits: 512,
     memoryMiB: 1024,
@@ -14,7 +15,7 @@ export class RedisConfig extends InfraConfig {
   static readonly CONTAINER_CONFIG = {
     image: 'redis:latest',
     containerName: 'redis',
-    port: 6379
+    containerPort: 6379
   }
 
   static readonly SERVICE_CONFIG = {
@@ -23,7 +24,11 @@ export class RedisConfig extends InfraConfig {
     maxHealthPercent: 200,
 
     assignPublicIp: false,
+    allowAllOutbound: true,
 
-    subnetType: SubnetType.PRIVATE_WITH_EGRESS
+    subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+
+    cloudMapName: 'redis',
+    cloudMapDnsTtl: Duration.seconds(10)
   }
 }

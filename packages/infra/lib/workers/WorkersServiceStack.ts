@@ -1,9 +1,9 @@
 import { FargatePlatformVersion, FargateService } from 'aws-cdk-lib/aws-ecs'
-import { InfraStack } from '../InfraStack.js'
+import { BaseStack } from '../BaseStack.js'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import type { WorkersServiceStackProps } from './types.js'
 
-export class WorkersServiceStack extends InfraStack {
+export class WorkersServiceStack extends BaseStack {
   static readonly DESIRED_COUNT = 1
   static readonly PLATFORM_VERSION = FargatePlatformVersion.LATEST
 
