@@ -1,0 +1,46 @@
+name: server-image-ci
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/server/**"
+      - "docker/server.Dockerfile"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Get ECR from CDK output
+        id: ecr
+        run: |
+          uri=$(aws cloudformation describe-stacks \
+            --stack-name ${{ vars.INFRA_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='${{ vars.SERVER_ECR_OUTPUT_KEY }}'].OutputValue" \
+            --output text)
+
+          echo "uri=$uri" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          docker build -t server -f docker/server.Dockerfile .
+          docker tag server:latest ${{ steps.ecr.outputs.uri }}:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ steps.ecr.outputs.uri }}:latest
