@@ -9,10 +9,6 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: aromi-development-server
-  ECS_SERVICE: aromi-development-server-service
-  ECS_CLUSTER: aromi-development-cluster
-  ECS_TASK_DEFINITION: .aws/task-definition.json
-  CONTAINER_NAME: server
 
 permissions:
   contents: read
@@ -45,5 +41,8 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -f docker/server.Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
