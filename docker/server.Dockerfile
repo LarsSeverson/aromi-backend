@@ -11,7 +11,7 @@ RUN yarn install --frozen-lockfile
 COPY packages/shared ./packages/shared
 COPY packages/server ./packages/server
 
-RUN yarn build
+RUN yarn build:server
 
 FROM node:20-alpine
 
