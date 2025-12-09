@@ -8,7 +8,7 @@ export class ECRConfig extends BaseConfig {
     imageTagMutabilityExclusionFilters: [
       ImageTagMutabilityExclusionFilter.wildcard('latest')
     ],
-    liceCycleRules: [{
+    lifeCycleRules: [{
       tagStatus: TagStatus.UNTAGGED,
       maxImageCount: 10
     }]

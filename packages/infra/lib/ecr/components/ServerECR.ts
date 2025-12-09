@@ -20,7 +20,7 @@ export class ServerECRComponent {
       imageScanOnPush: ECRConfig.SERVER_ECR_CONFIG.imageScanOnPush,
       imageTagMutability: ECRConfig.SERVER_ECR_CONFIG.imageTagMutability,
       imageTagMutabilityExclusionFilters: ECRConfig.SERVER_ECR_CONFIG.imageTagMutabilityExclusionFilters,
-      lifecycleRules: ECRConfig.SERVER_ECR_CONFIG.liceCycleRules
+      lifecycleRules: ECRConfig.SERVER_ECR_CONFIG.lifeCycleRules
     })
 
     this.outputRepositoryUriId = `${this.repositoryId}-uri`
