@@ -17,7 +17,7 @@
     "dev:server": "yarn run build:shared && yarn workspace @aromi/server dev",
     "dev:workers": "yarn run build:shared && yarn workspace @aromi/workers dev",
     "build": "yarn run build:shared && yarn run build:server && yarn run build:workers",
-    "build:server": "yarn workspace @aromi/server build",
+    "build:server": "yarn run build:shared && yarn workspace @aromi/server build",
     "build:workers": "yarn workspace @aromi/workers build",
     "build:shared": "yarn workspace @aromi/shared build",
     "gen:gql": "yarn workspace @aromi/server gen:gql",
