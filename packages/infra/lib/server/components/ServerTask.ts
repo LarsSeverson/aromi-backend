@@ -35,7 +35,7 @@ export class ServerTaskComponent {
     })
 
     this.container = this.task.addContainer(ServerConfig.CONTAINER_CONFIG.containerName, {
-      image: ContainerImage.fromEcrRepository(ecr.repository),
+      image: ContainerImage.fromEcrRepository(ecr.serverECRComponent.repository),
 
       logging: ServerConfig.CONTAINER_CONFIG.logging,
 

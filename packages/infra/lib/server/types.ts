@@ -17,12 +17,11 @@ import type { SynthRedisStackOutput } from '../redis/types.js'
 import type { StorageStack } from '../storage/StorageStack.js'
 import type { SynthStorageStackOutput } from '../storage/types.js'
 import type { BaseComponentProps, BaseStackProps } from '../types.js'
-import type { ServerECRComponent } from './components/ServerECR.js'
 import type { ServerIamComponent } from './components/ServerIam.js'
 import type { ServerTaskComponent } from './components/ServerTask.js'
 import type { ServerAppStack } from './ServerAppStack.js'
-
-export interface ServerECRComponentProps extends BaseComponentProps {}
+import type { ECRStack } from '../ecr/ECRStack.js'
+import type { SynthECRStackOutput } from '../ecr/types.js'
 
 export interface ServerIamComponentProps extends BaseComponentProps {
   auth: AuthStack
@@ -34,9 +33,9 @@ export interface ServerTaskComponentProps extends BaseComponentProps {
   storage: StorageStack
   database: DatabaseStack
   cdn: CDNStack
+  ecr: ECRStack
 
   iam: ServerIamComponent
-  ecr: ServerECRComponent
 
   meili: MeiliAppStack
   redis: RedisAppStack
@@ -58,6 +57,7 @@ export interface ServerAppStackProps extends BaseStackProps {
   cdn: CDNStack
   cluster: ClusterStack
   loadBalancer: LoadBalancerStack
+  ecr: ECRStack
 
   meili: MeiliAppStack
   redis: RedisAppStack
@@ -71,6 +71,7 @@ export interface SynthServerServiceStackProps extends BaseStackProps {
   cdnStack: SynthCDNStackOutput
   clusterStack: SynthClusterStackOutput
   loadBalancerStack: SynthLoadBalancerStackOutput
+  ecrStack: SynthECRStackOutput
 
   meiliStack: SynthMeiliStackOutput
   redisStack: SynthRedisStackOutput

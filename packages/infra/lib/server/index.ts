@@ -12,6 +12,7 @@ export const synthServerStack = (props: SynthServerServiceStackProps) => {
     clusterStack,
     cdnStack,
     loadBalancerStack,
+    ecrStack,
 
     meiliStack,
     redisStack
@@ -24,6 +25,7 @@ export const synthServerStack = (props: SynthServerServiceStackProps) => {
   const { cluster } = clusterStack
   const { cdn } = cdnStack
   const { loadBalancer } = loadBalancerStack
+  const { ecr } = ecrStack
 
   const { app: meiliApp } = meiliStack
   const { app: redisApp } = redisStack
@@ -37,6 +39,7 @@ export const synthServerStack = (props: SynthServerServiceStackProps) => {
     cdn,
     cluster,
     loadBalancer,
+    ecr,
 
     meili: meiliApp,
     redis: redisApp

@@ -23,6 +23,7 @@ export class ServerLoadBalancerComponent {
     this.listener = this.loadBalancer.addListener(this.listenerId, {
       port: LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.listenerPort,
       protocol: LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.listenerProtocol
+      // defaultAction: LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.defaultAction
     })
   }
 }

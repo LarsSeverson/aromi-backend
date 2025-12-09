@@ -1,5 +1,4 @@
 import { BaseStack } from '../BaseStack.js'
-import { ServerECRComponent } from './components/ServerECR.js'
 import { ServerIamComponent } from './components/ServerIam.js'
 import { ServerServiceComponent } from './components/ServerService.js'
 import { ServerTaskComponent } from './components/ServerTask.js'
@@ -8,7 +7,6 @@ import type { ServerAppStackProps } from './types.js'
 export class ServerAppStack extends BaseStack {
   readonly iamComponent: ServerIamComponent
 
-  readonly ecrComponent: ServerECRComponent
   readonly taskComponent: ServerTaskComponent
   readonly serviceComponent: ServerServiceComponent
 
@@ -23,6 +21,7 @@ export class ServerAppStack extends BaseStack {
       cdn,
       cluster,
       loadBalancer,
+      ecr,
 
       meili,
       redis
@@ -36,19 +35,15 @@ export class ServerAppStack extends BaseStack {
       storage
     })
 
-    this.ecrComponent = new ServerECRComponent({
-      stack: this
-    })
-
     this.taskComponent = new ServerTaskComponent({
       stack: this,
       auth,
       storage,
       database,
       cdn,
+      ecr,
 
       iam: this.iamComponent,
-      ecr: this.ecrComponent,
 
       meili,
       redis

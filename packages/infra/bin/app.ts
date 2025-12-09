@@ -11,6 +11,7 @@ import { synthServerStack } from '../lib/server/index.js'
 import { synthWorkersStack } from '../lib/workers/index.js'
 import { synthStorageStack } from '../lib/storage/index.js'
 import { synthLoadBalancerStack } from '../lib/load-balancer/index.js'
+import { synthECRStack } from '../lib/ecr/index.js'
 
 const app = new App()
 
@@ -23,6 +24,8 @@ const storageStack = synthStorageStack({ app })
 const databaseStack = synthDatabaseStack({ app, networkStack })
 
 const loadBalancerStack = synthLoadBalancerStack({ app, networkStack })
+
+const ecrStack = synthECRStack({ app })
 
 const cdnStack = synthCDNStack({ app, networkStack, storageStack, loadBalancerStack })
 
@@ -41,6 +44,7 @@ const serverStack = synthServerStack({
   cdnStack,
   clusterStack,
   loadBalancerStack,
+  ecrStack,
   meiliStack,
   redisStack
 })

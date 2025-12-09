@@ -1,7 +1,7 @@
 import { Repository } from 'aws-cdk-lib/aws-ecr'
-import type { ServerECRComponentProps } from '../types.js'
-import { ServerConfig } from './ServerConfig.js'
 import { CfnOutput } from 'aws-cdk-lib'
+import type { ServerECRComponentProps } from '../types.js'
+import { ECRConfig } from './ECRConfig.js'
 
 export class ServerECRComponent {
   readonly repositoryId: string
@@ -13,13 +13,13 @@ export class ServerECRComponent {
   constructor (props: ServerECRComponentProps) {
     const { stack } = props
 
-    this.repositoryId = `${ServerConfig.prefix}-server`
+    this.repositoryId = `${ECRConfig.prefix}-server`
     this.repository = new Repository(stack, this.repositoryId, {
       repositoryName: this.repositoryId,
 
-      imageScanOnPush: ServerConfig.ECR_CONFIG.imageScanOnPush,
-      imageTagMutability: ServerConfig.ECR_CONFIG.imageTagMutability,
-      lifecycleRules: ServerConfig.ECR_CONFIG.liceCycleRules
+      imageScanOnPush: ECRConfig.SERVER_ECR_CONFIG.imageScanOnPush,
+      imageTagMutability: ECRConfig.SERVER_ECR_CONFIG.imageTagMutability,
+      lifecycleRules: ECRConfig.SERVER_ECR_CONFIG.liceCycleRules
     })
 
     this.outputRepositoryUriId = `${this.repositoryId}-uri`
