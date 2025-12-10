@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:slim AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY packages/server ./packages/server
 
 RUN yarn build:server
 
-FROM node:20-alpine
+FROM node:slim
 
 WORKDIR /app
 
