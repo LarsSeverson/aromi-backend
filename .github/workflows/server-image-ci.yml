@@ -34,6 +34,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set up QEMU for arm64
+        run: |
+          docker run --privileged tonistiigi/binfmt --install arm64
+
+      - name: Create buildx builder
+        run: |
+          docker buildx create --use --driver docker-container
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
