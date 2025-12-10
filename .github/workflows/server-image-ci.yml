@@ -45,5 +45,4 @@ jobs:
             -f docker/server.Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
-            --push \
-            .
+            --push .
