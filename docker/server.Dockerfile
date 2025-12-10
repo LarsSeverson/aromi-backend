@@ -13,7 +13,7 @@ COPY packages/server ./packages/server
 
 RUN yarn build:server
 
-FROM node:slim
+FROM --platform=${TARGETPLATFORM} node:slim
 
 WORKDIR /app
 
