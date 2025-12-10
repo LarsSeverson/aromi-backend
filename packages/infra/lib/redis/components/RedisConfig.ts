@@ -1,4 +1,4 @@
-import { CpuArchitecture } from 'aws-cdk-lib/aws-ecs'
+import { CpuArchitecture, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { BaseConfig } from '../../BaseConfig.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { Duration } from 'aws-cdk-lib'
@@ -8,7 +8,8 @@ export class RedisConfig extends BaseConfig {
     cpuUnits: 512,
     memoryMiB: 1024,
     runtimePlatform: {
-      cpuArchitecture: CpuArchitecture.X86_64
+      cpuArchitecture: CpuArchitecture.ARM64,
+      operatingSystemFamily: OperatingSystemFamily.LINUX
     }
   }
 

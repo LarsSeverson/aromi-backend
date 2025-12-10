@@ -1,6 +1,6 @@
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
 import { BaseConfig } from '../../BaseConfig.js'
-import { CpuArchitecture, LogDrivers } from 'aws-cdk-lib/aws-ecs'
+import { CpuArchitecture, LogDrivers, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 
 export class ServerConfig extends BaseConfig {
@@ -36,7 +36,8 @@ export class ServerConfig extends BaseConfig {
     cpu: 1024,
     memoryLimitMiB: 2048,
     runtimePlatform: {
-      cpuArchitecture: CpuArchitecture.X86_64
+      cpuArchitecture: CpuArchitecture.ARM64,
+      operatingSystemFamily: OperatingSystemFamily.LINUX
     }
   }
 
