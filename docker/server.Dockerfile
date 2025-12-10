@@ -1,4 +1,4 @@
-FROM node:slim AS builder
+FROM --platform=linux/arm64 node:slim AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY packages/server ./packages/server
 
 RUN yarn build:server
 
-FROM node:slim
+FROM --platform=linux/arm64 node:slim
 
 WORKDIR /app
 
