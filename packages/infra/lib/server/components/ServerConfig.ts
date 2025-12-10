@@ -51,7 +51,7 @@ export class ServerConfig extends BaseConfig {
   }
 
   static readonly SERVICE_CONFIG = {
-    desiredCount: 2,
+    desiredCount: 1,
     minHealthyPercent: 100,
     maxHealthyPercent: 200,
 

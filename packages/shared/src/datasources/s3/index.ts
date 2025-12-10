@@ -15,16 +15,15 @@ export const createS3Wrapper = (): Result<S3Wrapper, BackendError> => {
   return Result
     .combine([
       requiredEnv('AWS_REGION'),
-      requiredEnv('AWS_ACCESS_KEY_ID'),
-      requiredEnv('AWS_SECRET_ACCESS_KEY'),
       requiredEnv('S3_BUCKET')
     ])
     .map(([
       region,
-      accessKeyId,
-      secretAccessKey,
       bucket
     ]) => {
+      const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+      const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+
       const client = new S3Client({
         region,
         credentials: {

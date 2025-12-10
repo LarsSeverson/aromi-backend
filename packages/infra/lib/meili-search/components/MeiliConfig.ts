@@ -15,8 +15,8 @@ export class MeiliConfig extends BaseConfig {
   }
 
   static readonly TASK_CONFIG = {
-    cpuUnits: 1024,
-    memoryMiB: 2048,
+    cpuUnits: 512,
+    memoryMiB: 1024,
     runtimePlatform: {
       cpuArchitecture: CpuArchitecture.X86_64
     },
