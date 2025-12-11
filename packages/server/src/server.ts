@@ -28,14 +28,14 @@ export const startServer = async (): Promise<string> => {
 
   const host = hostRes.value
   const port = Number(portRes.value)
-  // const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
 
-  // const sources = new DataSources()
+  const sources = new DataSources()
   // const services = new ServerServices(sources)
   // const queues = new ServerQueues(sources)
 
   const app = express()
-  const httpServer = http.createServer((req, res) => { void app(req, res) })
+  const httpServer = http.createServer(app)
   // const plugins = [ApolloServerPluginDrainHttpServer({ httpServer })]
 
   // if (process.env.NODE_ENV === 'development') {
