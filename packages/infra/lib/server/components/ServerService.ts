@@ -52,19 +52,19 @@ export class ServerServiceComponent {
     })
 
     this.targetGroupId = `${stack.prefix}-server-target-group`
-    this.service.registerLoadBalancerTargets({
-      containerName: taskComponent.container.containerName,
-      containerPort: taskComponent.container.containerPort,
+    // this.service.registerLoadBalancerTargets({
+    //   containerName: taskComponent.container.containerName,
+    //   containerPort: taskComponent.container.containerPort,
 
-      newTargetGroupId: this.targetGroupId,
+    //   newTargetGroupId: this.targetGroupId,
 
-      listener: ListenerConfig.applicationListener(
-        loadBalancer.serverLoadBalancer.listener,
-        {
-          protocol: ApplicationProtocol.HTTP,
-          healthCheck: ServerConfig.LOAD_BALANCER_CONFIG
-        }
-      )
-    })
+    //   listener: ListenerConfig.applicationListener(
+    //     loadBalancer.serverLoadBalancer.listener,
+    //     {
+    //       protocol: ApplicationProtocol.HTTP,
+    //       healthCheck: ServerConfig.LOAD_BALANCER_CONFIG
+    //     }
+    //   )
+    // })
   }
 }
