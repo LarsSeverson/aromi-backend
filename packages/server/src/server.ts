@@ -38,6 +38,19 @@ export const startServer = async (): Promise<string> => {
   const httpServer = http.createServer(app)
   const plugins = [ApolloServerPluginDrainHttpServer({ httpServer })]
 
+  httpServer.on('connection', socket => {
+    const remote = `${socket.remoteAddress}:${socket.remotePort}`
+    console.log(`[SOCKET OPEN] from ${remote}`)
+
+    socket.on('close', hadError => {
+      console.log(`[SOCKET CLOSE] from ${remote} hadError=${hadError}`)
+    })
+
+    socket.on('error', err => {
+      console.log(`[SOCKET ERROR] from ${remote}`, err)
+    })
+  })
+
   if (process.env.NODE_ENV === 'development') {
     plugins.push(ApolloServerPluginLandingPageLocalDefault({
       embed: true,

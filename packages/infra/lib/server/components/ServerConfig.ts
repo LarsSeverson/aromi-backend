@@ -60,7 +60,10 @@ export class ServerConfig extends BaseConfig {
     assignPublicIp: false,
     allowAllOutbound: true,
 
-    subnetType: SubnetType.PRIVATE_WITH_EGRESS
+    subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+
+    cloudMapName: 'server',
+    cloudMapDnsTtl: Duration.seconds(10)
   }
 
   static readonly LOAD_BALANCER_CONFIG = {

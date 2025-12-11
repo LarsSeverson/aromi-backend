@@ -1,8 +1,8 @@
 import { SecurityGroup } from 'aws-cdk-lib/aws-ec2'
-import { FargateService } from 'aws-cdk-lib/aws-ecs'
+import { FargateService, ListenerConfig } from 'aws-cdk-lib/aws-ecs'
 import type { ServerServiceComponentProps } from '../types.js'
 import { ServerConfig } from './ServerConfig.js'
-import { ApplicationProtocol, type ApplicationTargetGroup } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export class ServerServiceComponent {
   readonly serviceId: string
@@ -12,7 +12,6 @@ export class ServerServiceComponent {
   readonly securityGroup: SecurityGroup
 
   readonly targetGroupId: string
-  readonly targetGroup: ApplicationTargetGroup
 
   constructor (props: ServerServiceComponentProps) {
     const {
@@ -53,16 +52,19 @@ export class ServerServiceComponent {
     })
 
     this.targetGroupId = `${stack.prefix}-server-target-group`
-    this.targetGroup = loadBalancer.serverLoadBalancer.listener.addTargets(this.targetGroupId, {
-      protocol: ApplicationProtocol.HTTP,
-      targets: [
-        this.service.loadBalancerTarget({
-          containerName: taskComponent.container.containerName,
-          containerPort: taskComponent.container.containerPort
-        })
-      ],
+    this.service.registerLoadBalancerTargets({
+      containerName: taskComponent.container.containerName,
+      containerPort: taskComponent.container.containerPort,
 
-      healthCheck: ServerConfig.LOAD_BALANCER_CONFIG
+      newTargetGroupId: this.targetGroupId,
+
+      listener: ListenerConfig.applicationListener(
+        loadBalancer.serverLoadBalancer.listener,
+        {
+          protocol: ApplicationProtocol.HTTP,
+          healthCheck: ServerConfig.LOAD_BALANCER_CONFIG
+        }
+      )
     })
   }
 }

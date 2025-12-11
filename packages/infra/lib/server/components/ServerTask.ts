@@ -79,6 +79,7 @@ export class ServerTaskComponent {
     })
 
     this.container.addPortMappings({
+      name: ServerConfig.CONTAINER_CONFIG.containerName,
       containerPort: ServerConfig.CONTAINER_CONFIG.containerPort
     })
   }
