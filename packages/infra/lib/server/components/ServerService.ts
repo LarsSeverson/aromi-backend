@@ -45,6 +45,10 @@ export class ServerServiceComponent {
       securityGroups: [this.securityGroup],
       vpcSubnets: {
         subnetType: ServerConfig.SERVICE_CONFIG.subnetType
+      },
+
+      serviceConnectConfiguration: {
+        namespace: cluster.cluster.defaultCloudMapNamespace!.namespaceName
       }
     })
 
@@ -56,7 +60,9 @@ export class ServerServiceComponent {
           containerName: taskComponent.container.containerName,
           containerPort: taskComponent.container.containerPort
         })
-      ]
+      ],
+
+      healthCheck: ServerConfig.LOAD_BALANCER_CONFIG
     })
   }
 }

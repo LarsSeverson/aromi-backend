@@ -5,8 +5,8 @@ import { Duration } from 'aws-cdk-lib'
 
 export class RedisConfig extends BaseConfig {
   static readonly TASK_CONFIG = {
-    cpuUnits: 512,
-    memoryMiB: 1024,
+    cpuUnits: 256,
+    memoryMiB: 512,
     runtimePlatform: {
       cpuArchitecture: CpuArchitecture.ARM64,
       operatingSystemFamily: OperatingSystemFamily.LINUX

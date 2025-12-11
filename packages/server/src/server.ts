@@ -56,6 +56,10 @@ export const startServer = async (): Promise<string> => {
 
   await server.start()
 
+  app.get('/health', (_req, res) => {
+    res.status(200).send('ok')
+  })
+
   app
     .use(cookieParser())
     .use(cors({ origin: allowedOrigins, credentials: true }))

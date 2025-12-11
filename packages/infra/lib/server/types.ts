@@ -47,6 +47,8 @@ export interface ServerServiceComponentProps extends BaseComponentProps {
   loadBalancer: LoadBalancerStack
 
   taskComponent: ServerTaskComponent
+
+  redis: RedisAppStack
 }
 
 export interface ServerAppStackProps extends BaseStackProps {

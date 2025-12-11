@@ -9,6 +9,5 @@ export class CDNConfig extends BaseConfig {
   static readonly ORIGIN_REQUEST_POLICY = OriginRequestPolicy.CORS_S3_ORIGIN
   static readonly CACHE_POLICY = CachePolicy.CACHING_OPTIMIZED
 
-  static readonly API_BEHAVIOR_PATH = '/api/*'
-
+  static readonly API_BEHAVIOR_PATH = '/graphql/*'
 }

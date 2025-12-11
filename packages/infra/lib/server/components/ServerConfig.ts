@@ -61,4 +61,9 @@ export class ServerConfig extends BaseConfig {
 
     subnetType: SubnetType.PRIVATE_WITH_EGRESS
   }
+
+  static readonly LOAD_BALANCER_CONFIG = {
+    path: '/health',
+    healthyHttpCodes: '200'
+  }
 }

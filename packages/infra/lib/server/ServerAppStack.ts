@@ -51,10 +51,14 @@ export class ServerAppStack extends BaseStack {
 
     this.serviceComponent = new ServerServiceComponent({
       stack: this,
+
       network,
       cluster,
       loadBalancer,
-      taskComponent: this.taskComponent
+
+      taskComponent: this.taskComponent,
+
+      redis
     })
   }
 }

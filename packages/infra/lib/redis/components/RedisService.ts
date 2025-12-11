@@ -10,8 +10,8 @@ export class RedisServiceComponent {
   readonly serviceId: string
   readonly service: FargateService
 
-  readonly redisDns: string
-  readonly redisUrl: string
+  readonly redisHost: string
+  readonly redisPort: number
 
   constructor (props: RedisServiceComponentProps) {
     const { stack, network, cluster, taskComponent } = props
@@ -37,15 +37,19 @@ export class RedisServiceComponent {
       securityGroups: [this.securityGroup],
       vpcSubnets: {
         subnetType: RedisConfig.SERVICE_CONFIG.subnetType
+      },
+
+      serviceConnectConfiguration: {
+        namespace: cluster.cluster.defaultCloudMapNamespace!.namespaceName,
+        services: [{
+          portMappingName: RedisConfig.CONTAINER_CONFIG.containerName,
+          dnsName: RedisConfig.SERVICE_CONFIG.cloudMapName,
+          port: RedisConfig.CONTAINER_CONFIG.containerPort
+        }]
       }
     })
 
-    this.service.enableCloudMap({
-      name: RedisConfig.SERVICE_CONFIG.cloudMapName,
-      dnsTtl: RedisConfig.SERVICE_CONFIG.cloudMapDnsTtl
-    })
-
-    this.redisDns = cluster.dns(RedisConfig.SERVICE_CONFIG.cloudMapName)
-    this.redisUrl = `${this.redisDns}:${RedisConfig.CONTAINER_CONFIG.containerPort}`
+    this.redisHost = RedisConfig.SERVICE_CONFIG.cloudMapName
+    this.redisPort = RedisConfig.CONTAINER_CONFIG.containerPort
   }
 }

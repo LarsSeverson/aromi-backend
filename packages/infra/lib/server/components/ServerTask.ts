@@ -1,7 +1,6 @@
 import ecs, { type ContainerDefinition, ContainerImage, FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs'
 import type { ServerTaskComponentProps } from '../types.js'
 import { ServerConfig } from './ServerConfig.js'
-import { RedisConfig } from '../../redis/components/RedisConfig.js'
 
 export class ServerTaskComponent {
   readonly taskId: string
@@ -58,10 +57,12 @@ export class ServerTaskComponent {
         DB_PORT: database.cluster.clusterEndpoint.port.toString(),
         DB_URL: database.dbUrl,
 
-        MEILI_HOST: meili.serviceComponent.meiliDns,
+        MEILI_HOST: meili.serviceComponent.meiliHost,
 
-        REDIS_HOST: redis.serviceComponent.redisDns,
-        REDIS_PORT: RedisConfig.CONTAINER_CONFIG.containerPort.toString()
+        REDIS_HOST: redis.serviceComponent.redisHost,
+        REDIS_PORT: redis.serviceComponent.redisPort.toString(),
+
+        CDN_DOMAIN: cdn.domainName
       },
 
       secrets: {
