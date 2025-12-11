@@ -2,6 +2,7 @@ import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
 import { BaseConfig } from '../../BaseConfig.js'
 import { CpuArchitecture, LogDrivers, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
+import { Duration } from 'aws-cdk-lib'
 
 export class ServerConfig extends BaseConfig {
   static readonly ECR_CONFIG = {
@@ -64,6 +65,15 @@ export class ServerConfig extends BaseConfig {
 
   static readonly LOAD_BALANCER_CONFIG = {
     path: '/health',
+
+    interval: Duration.seconds(30),
+    timeout: Duration.seconds(10),
+
+    healthyThresholdCount: 2,
+    unhealthyThresholdCount: 5,
+
+    port: ServerConfig.CONTAINER_CONFIG.containerPort.toString(),
+
     healthyHttpCodes: '200'
   }
 }

@@ -48,11 +48,6 @@ export class MeiliServiceComponent {
       }
     })
 
-    this.service.enableCloudMap({
-      name: MeiliConfig.SERVICE_CONFIG.cloudMapName,
-      dnsTtl: MeiliConfig.SERVICE_CONFIG.cloudMapDnsTtl
-    })
-
     this.meiliHost = MeiliConfig.SERVICE_CONFIG.cloudMapName
     this.meiliPort = MeiliConfig.CONTAINER_CONFIG.containerPort
   }

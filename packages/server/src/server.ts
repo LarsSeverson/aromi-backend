@@ -35,7 +35,7 @@ export const startServer = async (): Promise<string> => {
   const queues = new ServerQueues(sources)
 
   const app = express()
-  const httpServer = http.createServer((req, res) => { void app(req, res) })
+  const httpServer = http.createServer(app)
   const plugins = [ApolloServerPluginDrainHttpServer({ httpServer })]
 
   if (process.env.NODE_ENV === 'development') {

@@ -26,8 +26,8 @@ export class RedisTaskComponent {
     })
 
     this.container.addPortMappings({
-      containerPort: RedisConfig.CONTAINER_CONFIG.containerPort,
-      name: RedisConfig.CONTAINER_CONFIG.containerName
+      name: RedisConfig.CONTAINER_CONFIG.containerName,
+      containerPort: RedisConfig.CONTAINER_CONFIG.containerPort
     })
   }
 }

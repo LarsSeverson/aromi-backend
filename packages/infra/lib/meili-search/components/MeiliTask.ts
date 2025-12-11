@@ -67,6 +67,7 @@ export class MeiliTaskComponent {
     })
 
     this.container.addPortMappings({
+      name: MeiliConfig.CONTAINER_CONFIG.containerName,
       containerPort: MeiliConfig.CONTAINER_CONFIG.containerPort
     })
 
