@@ -1,12 +1,8 @@
-import { SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 import { FargateService } from 'aws-cdk-lib/aws-ecs'
 import type { RedisServiceComponentProps } from '../types.js'
 import { RedisConfig } from './RedisConfig.js'
 
 export class RedisServiceComponent {
-  readonly securityGroupId: string
-  readonly securityGroup: SecurityGroup
-
   readonly serviceId: string
   readonly service: FargateService
 
@@ -15,13 +11,6 @@ export class RedisServiceComponent {
 
   constructor (props: RedisServiceComponentProps) {
     const { stack, network, cluster, taskComponent } = props
-
-    this.securityGroupId = `${stack.prefix}-redis-sg`
-    this.securityGroup = new SecurityGroup(stack, this.securityGroupId, {
-      vpc: network.vpc,
-      securityGroupName: this.securityGroupId,
-      allowAllOutbound: RedisConfig.SERVICE_CONFIG.allowAllOutbound
-    })
 
     this.serviceId = `${stack.prefix}-redis-service`
     this.service = new FargateService(stack, this.serviceId, {
@@ -34,7 +23,7 @@ export class RedisServiceComponent {
 
       assignPublicIp: RedisConfig.SERVICE_CONFIG.assignPublicIp,
 
-      securityGroups: [this.securityGroup],
+      securityGroups: [network.redisSecurityGroup.securityGroup],
       vpcSubnets: {
         subnetType: RedisConfig.SERVICE_CONFIG.subnetType
       },
@@ -42,8 +31,10 @@ export class RedisServiceComponent {
       serviceConnectConfiguration: {
         namespace: cluster.cluster.defaultCloudMapNamespace!.namespaceName,
         services: [{
-          portMappingName: RedisConfig.CONTAINER_CONFIG.containerName,
           dnsName: RedisConfig.SERVICE_CONFIG.cloudMapName,
+          discoveryName: RedisConfig.SERVICE_CONFIG.cloudMapName,
+          portMappingName: RedisConfig.CONTAINER_CONFIG.containerName,
+
           port: RedisConfig.CONTAINER_CONFIG.containerPort
         }]
       }

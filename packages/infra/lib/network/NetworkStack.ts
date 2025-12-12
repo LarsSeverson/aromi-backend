@@ -1,6 +1,14 @@
-import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
+import { Port, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
 import type { NetworkStackProps } from './types.js'
 import { BaseStack } from '../BaseStack.js'
+import { RedisSecurityGroupComponent } from './components/RedisSecurityGroup.js'
+import { ServerSecurityGroupComponent } from './components/ServerSecurityGroup.js'
+import { RedisConfig } from '../redis/components/RedisConfig.js'
+import { ServerLoadBalancerSecurityGroupComponent } from './components/ServerLoadBalancerSecurityGroup.js'
+import { MeiliSecurityGroupComponent } from './components/MeiliSecurityGroup.js'
+import { MeiliConfig } from '../meili-search/components/MeiliConfig.js'
+import { DatabaseSecurityGroup } from './components/DatabaseSecurityGroup.js'
+import { DatabaseConfig } from '../db/components/DatabaseConfig.js'
 
 export class NetworkStack extends BaseStack {
   static readonly MAX_AZS = 2
@@ -10,6 +18,16 @@ export class NetworkStack extends BaseStack {
 
   readonly vpc: Vpc
   readonly vpcId: string
+
+  readonly databaseSecurityGroup: DatabaseSecurityGroup
+
+  readonly meiliSecurityGroup: MeiliSecurityGroupComponent
+
+  readonly redisSecurityGroup: RedisSecurityGroupComponent
+
+  readonly serverLoadBalancerSecurityGroup: ServerLoadBalancerSecurityGroupComponent
+
+  readonly serverSecurityGroup: ServerSecurityGroupComponent
 
   constructor (props: NetworkStackProps) {
     const { app } = props
@@ -35,5 +53,49 @@ export class NetworkStack extends BaseStack {
 
       natGateways: NetworkStack.NAT_GATEWAYS
     })
+
+    this.databaseSecurityGroup = new DatabaseSecurityGroup({ stack: this })
+
+    this.meiliSecurityGroup = new MeiliSecurityGroupComponent({ stack: this })
+
+    this.redisSecurityGroup = new RedisSecurityGroupComponent({ stack: this })
+
+    this.serverLoadBalancerSecurityGroup = new ServerLoadBalancerSecurityGroupComponent({ stack: this })
+
+    this.serverSecurityGroup = new ServerSecurityGroupComponent({ stack: this })
+
+    this.allowMeiliToEFS()
+
+    this.allowServerToDatabase()
+    this.allowServerToMeili()
+    this.allowServerToRedis()
+  }
+
+  private allowMeiliToEFS () {
+    this.meiliSecurityGroup.efsSecurityGroup.addIngressRule(
+      this.meiliSecurityGroup.serviceSecurityGroup,
+      MeiliConfig.EFS_CONFIG.tcpPort
+    )
+  }
+
+  private allowServerToDatabase () {
+    this.databaseSecurityGroup.securityGroup.addIngressRule(
+      this.serverSecurityGroup.securityGroup,
+      DatabaseConfig.DB_PORT
+    )
+  }
+
+  private allowServerToMeili () {
+    this.meiliSecurityGroup.efsSecurityGroup.addIngressRule(
+      this.serverSecurityGroup.securityGroup,
+      Port.tcp(MeiliConfig.CONTAINER_CONFIG.containerPort)
+    )
+  }
+
+  private allowServerToRedis () {
+    this.redisSecurityGroup.securityGroup.addIngressRule(
+      this.serverSecurityGroup.securityGroup,
+      Port.tcp(RedisConfig.CONTAINER_CONFIG.containerPort)
+    )
   }
 }

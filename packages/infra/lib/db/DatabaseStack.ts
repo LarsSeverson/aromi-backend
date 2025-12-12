@@ -1,18 +1,12 @@
-import { AuroraCapacityUnit, AuroraPostgresEngineVersion, ClusterInstance, Credentials, DatabaseCluster, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds'
+import { ClusterInstance, Credentials, DatabaseCluster } from 'aws-cdk-lib/aws-rds'
 import type { DatabaseStackProps } from './types.js'
 import { BaseStack } from '../BaseStack.js'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { RemovalPolicy } from 'aws-cdk-lib'
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
+import { DatabaseConfig } from './components/DatabaseConfig.js'
 
 export class DatabaseStack extends BaseStack {
-  static readonly ENGINE = DatabaseClusterEngine.auroraPostgres({
-    version: AuroraPostgresEngineVersion.VER_17_6
-  })
-
-  static readonly MIN_CAPACITY = AuroraCapacityUnit.ACU_1
-  static readonly MAX_CAPACITY = AuroraCapacityUnit.ACU_2
-
   readonly cluster: DatabaseCluster
   readonly clusterId: string
 
@@ -40,7 +34,8 @@ export class DatabaseStack extends BaseStack {
           username: 'postgres'
         }),
         generateStringKey: this.dbSecretKey,
-        passwordLength: 32
+        passwordLength: 32,
+        excludeCharacters: '/@" '
       }
     })
 
@@ -50,19 +45,20 @@ export class DatabaseStack extends BaseStack {
       clusterIdentifier: this.clusterId,
       defaultDatabaseName: this.dbName,
 
-      engine: DatabaseStack.ENGINE,
+      engine: DatabaseConfig.ENGINE,
 
       vpc: network.vpc,
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },
+      securityGroups: [network.databaseSecurityGroup.securityGroup],
 
       writer: ClusterInstance.provisioned(this.writerId, {
         publiclyAccessible: false
       }),
 
-      serverlessV2MinCapacity: DatabaseStack.MIN_CAPACITY,
-      serverlessV2MaxCapacity: DatabaseStack.MAX_CAPACITY,
+      serverlessV2MinCapacity: DatabaseConfig.MIN_CAPACITY,
+      serverlessV2MaxCapacity: DatabaseConfig.MAX_CAPACITY,
 
       removalPolicy: RemovalPolicy.SNAPSHOT,
 

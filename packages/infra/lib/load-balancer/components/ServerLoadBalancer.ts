@@ -16,6 +16,8 @@ export class ServerLoadBalancerComponent {
     this.loadBalancerId = `${stack.prefix}-server-alb`
     this.loadBalancer = new ApplicationLoadBalancer(stack, this.loadBalancerId, {
       vpc: network.vpc,
+      securityGroup: network.serverLoadBalancerSecurityGroup.securityGroup,
+
       internetFacing: LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.internetFacing,
       vpcSubnets: LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.vpcSubnets,
 

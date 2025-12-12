@@ -7,7 +7,7 @@ export class LoadBalancerStack extends BaseStack {
 
   constructor (props: LoadBalancerStackProps) {
     const { app, network } = props
-    super({ app, stackName: 'load-balancerv2' })
+    super({ app, stackName: 'load-balancer' })
 
     this.serverLoadBalancer = new ServerLoadBalancerComponent({ stack: this, network })
   }

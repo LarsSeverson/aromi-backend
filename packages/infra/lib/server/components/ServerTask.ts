@@ -43,7 +43,7 @@ export class ServerTaskComponent {
 
         SERVER_HOST: ServerConfig.CONTAINER_CONFIG.containerHost,
         SERVER_PORT: ServerConfig.CONTAINER_CONFIG.containerPort.toString(),
-        ALLOWED_ORIGINS: [`https://${cdn.domainName}`].join(','),
+        ALLOWED_ORIGINS: [`https://${cdn.domainName}`, 'https://studio.apollographql.com'].join(','),
 
         COGNITO_USER_POOL_ID: auth.userPool.userPoolId,
         COGNITO_CLIENT_ID: auth.userPoolClient.userPoolClientId,

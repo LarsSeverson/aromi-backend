@@ -1,6 +1,6 @@
 import { CpuArchitecture, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { BaseConfig } from '../../BaseConfig.js'
-import { SubnetType } from 'aws-cdk-lib/aws-ec2'
+import { Port, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { Duration } from 'aws-cdk-lib'
 
 export class MeiliConfig extends BaseConfig {
@@ -11,7 +11,9 @@ export class MeiliConfig extends BaseConfig {
     efsPath: '/data',
     posixUid: '1000',
     posixGid: '1000',
-    posixPerms: '755'
+    posixPerms: '755',
+
+    tcpPort: Port.tcp(2049)
   }
 
   static readonly TASK_CONFIG = {
