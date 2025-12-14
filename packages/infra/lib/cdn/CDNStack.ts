@@ -1,4 +1,4 @@
-import { AllowedMethods, CachePolicy, Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
+import { AllowedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { BaseStack } from '../BaseStack.js'
 import type { CDNStackProps } from './types.js'
 import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
@@ -35,11 +35,17 @@ export class CDNStack extends BaseStack {
 
     this.distribution.addBehavior(
       CDNConfig.API_BEHAVIOR_PATH,
-      new LoadBalancerV2Origin(loadBalancer.serverLoadBalancer.loadBalancer),
+      new LoadBalancerV2Origin(
+        loadBalancer.serverLoadBalancer.loadBalancer,
+        {
+          protocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
+          httpPort: loadBalancer.serverLoadBalancer.listener.port
+        }
+      ),
       {
         allowedMethods: AllowedMethods.ALLOW_ALL,
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        cachePolicy: CachePolicy.CACHING_DISABLED
+        cachePolicy: CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
       }
     )
 

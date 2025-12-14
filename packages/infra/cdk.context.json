@@ -1,5 +1,22 @@
 {
   "acknowledged-issue-numbers": [
     34892
+  ],
+  "availability-zones:account=490004620452:region=us-east-2": [
+    "us-east-2a",
+    "us-east-2b",
+    "us-east-2c"
+  ],
+  "cc-api-provider:account=490004620452:expectedMatchCount=exactly-one:propertiesToReturn.0=PrefixListId:propertyMatch.PrefixListName=com.amazonaws.global.ipv6.cloudfront.origin-facing:region=us-east-2:typeName=AWS$:$:EC2$:$:PrefixList": [
+    {
+      "PrefixListId": "pl-079a97b94f32e4ee7",
+      "Identifier": "pl-079a97b94f32e4ee7"
+    }
+  ],
+  "cc-api-provider:account=490004620452:expectedMatchCount=exactly-one:propertiesToReturn.0=PrefixListId:propertyMatch.PrefixListName=com.amazonaws.global.cloudfront.origin-facing:region=us-east-2:typeName=AWS$:$:EC2$:$:PrefixList": [
+    {
+      "PrefixListId": "pl-b6a144df",
+      "Identifier": "pl-b6a144df"
+    }
   ]
 }

@@ -1443,6 +1443,7 @@ export type Query = {
   fragranceRequest: FragranceRequest;
   fragranceRequests: FragranceRequestConnection;
   fragrances: FragranceConnection;
+  healthy: Scalars['String']['output'];
   me: User;
   note: Note;
   noteEdit: NoteEdit;
@@ -3152,6 +3153,7 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   fragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<QueryFragranceRequestArgs, 'id'>>;
   fragranceRequests?: Resolver<ResolversTypes['FragranceRequestConnection'], ParentType, ContextType, Partial<QueryFragranceRequestsArgs>>;
   fragrances?: Resolver<ResolversTypes['FragranceConnection'], ParentType, ContextType, Partial<QueryFragrancesArgs>>;
+  healthy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   note?: Resolver<ResolversTypes['Note'], ParentType, ContextType, RequireFields<QueryNoteArgs, 'id'>>;
   noteEdit?: Resolver<ResolversTypes['NoteEdit'], ParentType, ContextType, RequireFields<QueryNoteEditArgs, 'id'>>;

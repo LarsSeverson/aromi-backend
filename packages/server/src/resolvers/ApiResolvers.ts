@@ -7,6 +7,9 @@ import { AccordEditFieldResolvers, AccordMutationResolvers, AccordQueryResolvers
 import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, NoteQueryResolvers, NoteRequestFieldResolvers } from '@src/features/notes/index.js'
 import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers } from '@src/features/fragrances/index.js'
 import { AssetFieldResolvers, AssetMutationResolvers } from '@src/features/assets/index.js'
+import { HealthQueryResolvers } from '@src/features/health/index.js'
+
+const healthQueries = new HealthQueryResolvers()
 
 const authMutations = new AuthMutationResolvers()
 const assetMutations = new AssetMutationResolvers()
@@ -48,6 +51,8 @@ export const ApiResolvers: Resolvers = {
   JSON: GraphQLJSON,
 
   Query: {
+    ...healthQueries.getResolvers(),
+
     ...userQueries.getResolvers(),
 
     ...fragranceQueries.getResolvers(),

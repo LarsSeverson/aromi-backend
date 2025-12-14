@@ -968,6 +968,7 @@ type Query {
   fragranceRequest(id: ID!): FragranceRequest!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   fragrances(input: FragrancePaginationInput): FragranceConnection!
+  healthy: String!
   me: User!
   note(id: ID!): Note!
   noteEdit(id: ID!): NoteEdit!

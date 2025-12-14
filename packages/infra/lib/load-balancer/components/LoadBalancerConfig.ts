@@ -7,7 +7,7 @@ export class LoadBalancerConfig extends BaseConfig {
     listenerPort: 80,
     listenerProtocol: ApplicationProtocol.HTTP,
 
-    internetFacing: false,
+    internetFacing: true,
     vpcSubnets: {
       subnetType: SubnetType.PUBLIC
     },

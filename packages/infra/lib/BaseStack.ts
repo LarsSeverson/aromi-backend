@@ -7,7 +7,7 @@ export abstract class BaseStack extends Stack {
     const { app, stackName } = props
 
     const id = `${BaseConfig.prefix}-${stackName}`
-    super(app, id)
+    super(app, id, { env: BaseConfig.env })
   }
 
   get appName (): string {

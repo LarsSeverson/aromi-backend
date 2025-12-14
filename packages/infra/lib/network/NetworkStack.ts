@@ -1,4 +1,4 @@
-import { Port, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
+import { Port, PrefixList, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
 import type { NetworkStackProps } from './types.js'
 import { BaseStack } from '../BaseStack.js'
 import { RedisSecurityGroupComponent } from './components/RedisSecurityGroup.js'
@@ -9,6 +9,9 @@ import { MeiliSecurityGroupComponent } from './components/MeiliSecurityGroup.js'
 import { MeiliConfig } from '../meili-search/components/MeiliConfig.js'
 import { DatabaseSecurityGroup } from './components/DatabaseSecurityGroup.js'
 import { DatabaseConfig } from '../db/components/DatabaseConfig.js'
+import { ServerConfig } from '../server/components/ServerConfig.js'
+import { NetworkConfig } from './components/NetworkConfig.js'
+import { LoadBalancerConfig } from '../load-balancer/components/LoadBalancerConfig.js'
 
 export class NetworkStack extends BaseStack {
   static readonly MAX_AZS = 2
@@ -64,17 +67,39 @@ export class NetworkStack extends BaseStack {
 
     this.serverSecurityGroup = new ServerSecurityGroupComponent({ stack: this })
 
+    this.allowCdnToAlb()
+
     this.allowMeiliToEFS()
+
+    this.allowAlbToServer()
 
     this.allowServerToDatabase()
     this.allowServerToMeili()
     this.allowServerToRedis()
   }
 
+  private allowCdnToAlb () {
+    const ipv4PrefixList = PrefixList.fromLookup(this, NetworkConfig.CDN_PREFIX_LIST_ID, {
+      prefixListName: NetworkConfig.CDN_PREFIX_LIST_NAME
+    })
+
+    this.serverLoadBalancerSecurityGroup.securityGroup.addIngressRule(
+      ipv4PrefixList,
+      Port.tcp(LoadBalancerConfig.SERVER_LOAD_BALANCER_CONFIG.listenerPort)
+    )
+  }
+
   private allowMeiliToEFS () {
     this.meiliSecurityGroup.efsSecurityGroup.addIngressRule(
       this.meiliSecurityGroup.serviceSecurityGroup,
       MeiliConfig.EFS_CONFIG.tcpPort
+    )
+  }
+
+  private allowAlbToServer () {
+    this.serverSecurityGroup.securityGroup.addIngressRule(
+      this.serverLoadBalancerSecurityGroup.securityGroup,
+      Port.tcp(ServerConfig.CONTAINER_CONFIG.containerPort)
     )
   }
 

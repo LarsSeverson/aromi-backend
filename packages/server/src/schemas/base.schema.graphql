@@ -3,3 +3,7 @@ type Mutation
 
 scalar Date
 scalar JSON
+
+extend type Query {
+  healthy: String!
+}
