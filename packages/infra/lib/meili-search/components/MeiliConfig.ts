@@ -6,6 +6,7 @@ import { Duration } from 'aws-cdk-lib'
 export class MeiliConfig extends BaseConfig {
   static readonly meiliVolume = 'meili-efs'
   static readonly meiliMount = '/meili_data'
+  static readonly httpAddress = '0.0.0.0'
 
   static readonly EFS_CONFIG = {
     efsPath: '/data',
@@ -31,7 +32,8 @@ export class MeiliConfig extends BaseConfig {
   static readonly CONTAINER_CONFIG = {
     image: 'getmeili/meilisearch:v1.28.2',
     containerName: 'meilisearch',
-    containerPort: 7700
+    containerPort: 7700,
+    httpAddr: '0.0.0.0'
   }
 
   static readonly SERVICE_CONFIG = {

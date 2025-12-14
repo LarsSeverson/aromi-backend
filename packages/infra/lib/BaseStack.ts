@@ -4,10 +4,10 @@ import { BaseConfig } from './BaseConfig.js'
 
 export abstract class BaseStack extends Stack {
   constructor (props: InfraStackProps) {
-    const { app, stackName } = props
+    const { app, stackName, env, ...rest } = props
 
     const id = `${BaseConfig.prefix}-${stackName}`
-    super(app, id, { env: BaseConfig.env })
+    super(app, id, { env: { ...BaseConfig.env, ...env }, ...rest })
   }
 
   get appName (): string {

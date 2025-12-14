@@ -38,7 +38,7 @@ export class MeiliServiceComponent {
       }
     })
 
-    this.meiliHost = MeiliConfig.SERVICE_CONFIG.cloudMapName
+    this.meiliHost = `${MeiliConfig.SERVICE_CONFIG.cloudMapName}:${MeiliConfig.CONTAINER_CONFIG.containerPort}`
     this.meiliPort = MeiliConfig.CONTAINER_CONFIG.containerPort
   }
 }

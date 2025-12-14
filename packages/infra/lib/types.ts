@@ -1,12 +1,13 @@
 import type { Construct } from 'constructs'
 import type { BaseStack } from './BaseStack.js'
+import type { StackProps } from 'aws-cdk-lib'
 
 export enum EnvMode {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production'
 }
 
-export interface InfraStackProps {
+export interface InfraStackProps extends StackProps {
   app: Construct
   stackName: string
 }

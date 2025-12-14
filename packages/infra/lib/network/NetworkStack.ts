@@ -111,7 +111,7 @@ export class NetworkStack extends BaseStack {
   }
 
   private allowServerToMeili () {
-    this.meiliSecurityGroup.efsSecurityGroup.addIngressRule(
+    this.meiliSecurityGroup.serviceSecurityGroup.addIngressRule(
       this.serverSecurityGroup.securityGroup,
       Port.tcp(MeiliConfig.CONTAINER_CONFIG.containerPort)
     )

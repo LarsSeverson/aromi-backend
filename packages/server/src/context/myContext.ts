@@ -12,7 +12,7 @@ export const getMyContext = (context: ServerContext) => {
     return services
       .users
       .findOne(
-        eb => eb('id', '=', '5a10574b-908e-44f6-944e-9a292c9d1aeb')
+        eb => eb('email', '=', 'larsseverson1@gmail.com')
       )
       .map(user => ({ user, accessToken: token }))
   }

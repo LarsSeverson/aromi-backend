@@ -12,14 +12,15 @@ export class CDNStack extends BaseStack {
   readonly domainName: string
 
   constructor (props: CDNStackProps) {
-    const { app, storage, loadBalancer } = props
-    super({ app, stackName: 'cdn' })
+    const { app, storage, loadBalancer, waf, cert } = props
+    super({ app, stackName: 'cdn', crossRegionReferences: true })
 
     // WORKAROUND: re-import bucket to avoid CDK OAC cross-stack circular dependency
     const importedBucket = Bucket.fromBucketArn(this, 'AvoidCDKBug31462', storage.bucket.bucketArn)
 
     this.distributionId = `${this.prefix}-distribution`
     this.distribution = new Distribution(this, this.distributionId, {
+      webAclId: waf.webAcl.attrArn,
       defaultBehavior: {
         origin: S3BucketOrigin.withOriginAccessControl(importedBucket),
 
@@ -30,7 +31,10 @@ export class CDNStack extends BaseStack {
 
         originRequestPolicy: CDNConfig.ORIGIN_REQUEST_POLICY,
         cachePolicy: CDNConfig.CACHE_POLICY
-      }
+      },
+
+      domainNames: CDNConfig.DOMAIN_NAMES,
+      certificate: cert.certificate
     })
 
     this.distribution.addBehavior(

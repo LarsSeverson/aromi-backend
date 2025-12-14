@@ -12,6 +12,8 @@ import { synthWorkersStack } from '../lib/workers/index.js'
 import { synthStorageStack } from '../lib/storage/index.js'
 import { synthLoadBalancerStack } from '../lib/load-balancer/index.js'
 import { synthECRStack } from '../lib/ecr/index.js'
+import { synthWAFStack } from '../lib/waf/index.js'
+import { synthCertStack } from '../lib/cert/index.js'
 
 const app = new App()
 
@@ -27,7 +29,9 @@ const loadBalancerStack = synthLoadBalancerStack({ app, networkStack })
 
 const ecrStack = synthECRStack({ app })
 
-const cdnStack = synthCDNStack({ app, networkStack, storageStack, loadBalancerStack })
+const certStack = synthCertStack({ app })
+const wafStack = synthWAFStack({ app })
+const cdnStack = synthCDNStack({ app, networkStack, storageStack, loadBalancerStack, wafStack, certStack })
 
 const clusterStack = synthClusterStack({ app, networkStack })
 

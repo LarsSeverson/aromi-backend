@@ -55,7 +55,8 @@ export class MeiliTaskComponent {
 
       environment: {
         MEILI_DB_PATH: MeiliConfig.meiliMount,
-        MEILI_ENV: MeiliConfig.envMode
+        MEILI_ENV: MeiliConfig.envMode,
+        MEILI_HTTP_ADDR: `${MeiliConfig.httpAddress}:${MeiliConfig.CONTAINER_CONFIG.containerPort}`
       },
 
       secrets: {
