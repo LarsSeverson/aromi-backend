@@ -28,7 +28,9 @@ const createPool = (): Result<Pool, BackendError> => {
     password: dbPassword.value,
     database: dbName.value,
     port: Number(dbPort.value),
-    ssl: false
+    ssl: {
+      rejectUnauthorized: false
+    }
   })
 
   return ok(db)
