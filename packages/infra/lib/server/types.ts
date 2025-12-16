@@ -16,7 +16,7 @@ import type { RedisAppStack } from '../redis/RedisAppStack.js'
 import type { SynthRedisStackOutput } from '../redis/types.js'
 import type { StorageStack } from '../storage/StorageStack.js'
 import type { SynthStorageStackOutput } from '../storage/types.js'
-import type { BaseComponentProps, BaseStackProps } from '../types.js'
+import type { BaseComponentProps, BaseConstructProps } from '../../common/types.js'
 import type { ServerIamComponent } from './components/ServerIam.js'
 import type { ServerTaskComponent } from './components/ServerTask.js'
 import type { ServerAppStack } from './ServerAppStack.js'
@@ -51,7 +51,7 @@ export interface ServerServiceComponentProps extends BaseComponentProps {
   redis: RedisAppStack
 }
 
-export interface ServerAppStackProps extends BaseStackProps {
+export interface ServerAppStackProps extends BaseConstructProps {
   network: NetworkStack
   auth: AuthStack
   storage: StorageStack
@@ -65,7 +65,7 @@ export interface ServerAppStackProps extends BaseStackProps {
   redis: RedisAppStack
 }
 
-export interface SynthServerServiceStackProps extends BaseStackProps {
+export interface SynthServerServiceStackProps extends BaseConstructProps {
   networkStack: SynthNetworkStackOutput
   authStack: SynthAuthStackOutput
   storageStack: SynthStorageStackOutput

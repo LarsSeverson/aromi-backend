@@ -1,4 +1,4 @@
-import type { BaseComponentProps, BaseStackProps } from '../types.js'
+import type { BaseComponentProps, BaseConstructProps } from '../../common/types.js'
 import type { NetworkStack } from './NetworkStack.js'
 
 export interface DatabaseSecurityGroupComponentProps extends BaseComponentProps {
@@ -21,9 +21,9 @@ export interface ServerSecurityGroupComponentProps extends BaseComponentProps {
   stack: NetworkStack
 }
 
-export interface NetworkStackProps extends BaseStackProps { }
+export interface NetworkStackProps extends BaseConstructProps { }
 
-export interface SynthNetworkStackProps extends BaseStackProps { }
+export interface SynthNetworkStackProps extends BaseConstructProps { }
 
 export interface SynthNetworkStackOutput {
   network: NetworkStack

@@ -1,7 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "@infra/*": [
+        "*"
+      ]
+    }
   },
   "references": [
     {
@@ -11,7 +16,9 @@
   "include": [
     "bin",
     "lib",
-    "env"
+    "config",
+    "common",
+    "aws"
   ],
   "exclude": [
     "node_modules",

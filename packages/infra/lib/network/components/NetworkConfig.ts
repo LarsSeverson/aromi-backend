@@ -1,6 +1,6 @@
-import { BaseConfig } from '../../BaseConfig.js'
+import { AppConstants } from '../../../common/BaseConfig.js'
 
-export class NetworkConfig extends BaseConfig {
+export class NetworkConfig extends AppConstants {
   static readonly CDN_PREFIX_LIST_ID = 'CloudFrontOriginFacing'
   static readonly CDN_PREFIX_LIST_NAME = 'com.amazonaws.global.cloudfront.origin-facing'
 

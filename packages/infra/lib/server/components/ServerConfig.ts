@@ -1,10 +1,10 @@
 import { TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
-import { BaseConfig } from '../../BaseConfig.js'
+import { AppConstants } from '../../../common/BaseConfig.js'
 import { CpuArchitecture, LogDrivers, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { Duration } from 'aws-cdk-lib'
 
-export class ServerConfig extends BaseConfig {
+export class ServerConfig extends AppConstants {
   static readonly ECR_CONFIG = {
     imageScanOnPush: true,
     imageTagMutability: TagMutability.IMMUTABLE,

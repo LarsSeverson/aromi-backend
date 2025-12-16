@@ -1,7 +1,7 @@
 import { AllowedMethods, CachedMethods, CachePolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
-import { BaseConfig } from '../../BaseConfig.js'
+import { AppConstants } from '../../../common/BaseConfig.js'
 
-export class CDNConfig extends BaseConfig {
+export class CDNConfig extends AppConstants {
   static readonly DOMAIN_NAMES = ['aromi.net', 'www.aromi.net']
 
   static readonly API_BEHAVIOR_PATH = '/graphql*'

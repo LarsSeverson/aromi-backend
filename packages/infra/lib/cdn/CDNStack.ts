@@ -1,5 +1,5 @@
 import { AllowedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy } from 'aws-cdk-lib/aws-cloudfront'
-import { BaseStack } from '../BaseStack.js'
+import { BaseStack } from '../../common/BaseStack.js'
 import type { CDNStackProps } from './types.js'
 import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { CDNConfig } from './components/CDNConfig.js'
@@ -12,8 +12,8 @@ export class CDNStack extends BaseStack {
   readonly domainName: string
 
   constructor (props: CDNStackProps) {
-    const { app, storage, loadBalancer, waf, cert } = props
-    super({ app, stackName: 'cdn', crossRegionReferences: true })
+    const { scope: app, storage, loadBalancer, waf, cert } = props
+    super({ scope: app, stackName: 'cdn', crossRegionReferences: true })
 
     // WORKAROUND: re-import bucket to avoid CDK OAC cross-stack circular dependency
     const importedBucket = Bucket.fromBucketArn(this, 'AvoidCDKBug31462', storage.bucket.bucketArn)

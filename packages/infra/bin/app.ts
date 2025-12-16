@@ -1,57 +1,67 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { App } from 'aws-cdk-lib'
-import { synthNetworkStack } from '../lib/network/index.js'
-import { synthAuthStack } from '../lib/auth/index.js'
-import { synthDatabaseStack } from '../lib/db/index.js'
-import { synthCDNStack } from '../lib/cdn/index.js'
-import { synthClusterStack } from '../lib/cluster/index.js'
-import { synthRedisStack } from '../lib/redis/index.js'
-import { synthMeiliStack } from '../lib/meili-search/index.js'
-import { synthServerStack } from '../lib/server/index.js'
-import { synthWorkersStack } from '../lib/workers/index.js'
-import { synthStorageStack } from '../lib/storage/index.js'
-import { synthLoadBalancerStack } from '../lib/load-balancer/index.js'
-import { synthECRStack } from '../lib/ecr/index.js'
-import { synthWAFStack } from '../lib/waf/index.js'
-import { synthCertStack } from '../lib/cert/index.js'
+import { FoundationStack } from '../lib/foundation/FoundationStack.js'
+import { DataStack } from '../lib/data/DataStack.js'
+import { EnvMode } from '../common/types.js'
+import { loadConfig } from '../config/index.js'
+import { EdgeGlobalStack } from '../lib/edge/EdgeGlobalStack.js'
+import { EdgeStack } from '../lib/edge/EdgeStack.js'
 
 const app = new App()
 
-const networkStack = synthNetworkStack({ app })
+const env = (app.node.tryGetContext('env') ?? 'dev') === 'prod'
+  ? EnvMode.PRODUCTION
+  : EnvMode.DEVELOPMENT
 
-const authStack = synthAuthStack({ app })
+const config = loadConfig(env)
 
-const storageStack = synthStorageStack({ app })
+const foundation = new FoundationStack({ scope: app, config })
+const data = new DataStack({ scope: app, config, vpc: foundation.network.vpc })
 
-const databaseStack = synthDatabaseStack({ app, networkStack })
+const edgeGlobal = new EdgeGlobalStack({ scope: app, config })
+const edgeRegional = new EdgeStack({
+  scope: app,
+  config,
 
-const loadBalancerStack = synthLoadBalancerStack({ app, networkStack })
-
-const ecrStack = synthECRStack({ app })
-
-const certStack = synthCertStack({ app })
-const wafStack = synthWAFStack({ app })
-const cdnStack = synthCDNStack({ app, networkStack, storageStack, loadBalancerStack, wafStack, certStack })
-
-const clusterStack = synthClusterStack({ app, networkStack })
-
-const redisStack = synthRedisStack({ app, networkStack, clusterStack })
-
-const meiliStack = synthMeiliStack({ app, networkStack, clusterStack })
-
-const serverStack = synthServerStack({
-  app,
-  networkStack,
-  authStack,
-  storageStack,
-  databaseStack,
-  cdnStack,
-  clusterStack,
-  loadBalancerStack,
-  ecrStack,
-  meiliStack,
-  redisStack
+  certificate: edgeGlobal.acm.certifacte,
+  webAclId: edgeGlobal.acl.webAcl.attrArn
 })
+
+// const networkStack = synthNetworkStack({ scope: app })
+
+// const authStack = synthAuthStack({ scope: app })
+
+// const storageStack = synthStorageStack({ scope: app })
+
+// const databaseStack = synthDatabaseStack({ scope: app, networkStack })
+
+// const loadBalancerStack = synthLoadBalancerStack({ scope: app, networkStack })
+
+// const ecrStack = synthECRStack({ scope: app })
+
+// const certStack = synthCertStack({ scope: app })
+// const wafStack = synthWAFStack({ scope: app })
+// const cdnStack = synthCDNStack({ scope: app, networkStack, storageStack, loadBalancerStack, wafStack, certStack })
+
+// const clusterStack = synthClusterStack({ scope: app, networkStack })
+
+// const redisStack = synthRedisStack({ scope: app, networkStack, clusterStack })
+
+// const meiliStack = synthMeiliStack({ scope: app, networkStack, clusterStack })
+
+// const serverStack = synthServerStack({
+//   scope: app,
+//   networkStack,
+//   authStack,
+//   storageStack,
+//   databaseStack,
+//   cdnStack,
+//   clusterStack,
+//   loadBalancerStack,
+//   ecrStack,
+//   meiliStack,
+//   redisStack
+// })
 
 // const workersStack = synthWorkersStack({
 //   app,

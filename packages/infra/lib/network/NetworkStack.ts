@@ -1,6 +1,6 @@
 import { Port, PrefixList, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
 import type { NetworkStackProps } from './types.js'
-import { BaseStack } from '../BaseStack.js'
+import { BaseStack } from '../../common/BaseStack.js'
 import { RedisSecurityGroupComponent } from './components/RedisSecurityGroup.js'
 import { ServerSecurityGroupComponent } from './components/ServerSecurityGroup.js'
 import { RedisConfig } from '../redis/components/RedisConfig.js'
@@ -33,9 +33,9 @@ export class NetworkStack extends BaseStack {
   readonly serverSecurityGroup: ServerSecurityGroupComponent
 
   constructor (props: NetworkStackProps) {
-    const { app } = props
+    const { scope: app } = props
 
-    super({ app, stackName: 'network' })
+    super({ scope: app, stackName: 'network' })
 
     this.vpcId = `${this.prefix}-vpc`
     this.vpc = new Vpc(this, this.vpcId, {

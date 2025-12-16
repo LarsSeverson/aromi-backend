@@ -1,4 +1,4 @@
-import { BaseStack } from '../BaseStack.js'
+import { BaseStack } from '../../common/BaseStack.js'
 import { ServerIamComponent } from './components/ServerIam.js'
 import { ServerServiceComponent } from './components/ServerService.js'
 import { ServerTaskComponent } from './components/ServerTask.js'
@@ -12,7 +12,7 @@ export class ServerAppStack extends BaseStack {
 
   constructor (props: ServerAppStackProps) {
     const {
-      app,
+      scope: app,
 
       network,
       auth,
@@ -27,7 +27,7 @@ export class ServerAppStack extends BaseStack {
       redis
     } = props
 
-    super({ app, stackName: 'server-app' })
+    super({ scope: app, stackName: 'server-app' })
 
     this.iamComponent = new ServerIamComponent({
       stack: this,

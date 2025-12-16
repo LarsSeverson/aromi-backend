@@ -3,7 +3,7 @@ import type { SynthServerServiceStackProps } from './types.js'
 
 export const synthServerStack = (props: SynthServerServiceStackProps) => {
   const {
-    app,
+    scope: app,
 
     networkStack,
     authStack,
@@ -31,7 +31,7 @@ export const synthServerStack = (props: SynthServerServiceStackProps) => {
   const { app: redisApp } = redisStack
 
   const serverAppStack = new ServerAppStack({
-    app,
+    scope: app,
     network,
     auth,
     storage,

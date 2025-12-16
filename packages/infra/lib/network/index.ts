@@ -2,9 +2,9 @@ import { NetworkStack } from './NetworkStack.js'
 import type { SynthNetworkStackProps } from './types.js'
 
 export const synthNetworkStack = (props: SynthNetworkStackProps) => {
-  const { app } = props
+  const { scope: app } = props
 
-  const network = new NetworkStack({ app })
+  const network = new NetworkStack({ scope: app })
 
   return { network }
 }
