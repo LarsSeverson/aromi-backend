@@ -1,6 +1,6 @@
+import type { BaseConstructProps } from '@infra/packages/infra/common/types.js'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
 import { Construct } from 'constructs'
-import type { BaseConstructProps } from 'packages/infra/common/types.js'
 
 export class NetworkConstruct extends Construct {
   readonly vpc: Vpc

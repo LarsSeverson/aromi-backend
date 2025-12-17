@@ -29,8 +29,8 @@ export class MeiliServiceConstruct extends Construct {
 
   private readonly internalConfig = {
     security: {
-      allowAllOutbound: true,
-      subnetType: SubnetType.PRIVATE_WITH_EGRESS
+      subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+      allowAllOutbound: true
     },
 
     secret: {
@@ -55,7 +55,8 @@ export class MeiliServiceConstruct extends Construct {
     const {
       scope, config,
 
-      vpc, fileSystem,
+      vpc,
+      fileSystem,
 
       cluster
     } = props
@@ -87,7 +88,7 @@ export class MeiliServiceConstruct extends Construct {
       volumes: [{
         name: this.internalConfig.volume.name,
         efsVolumeConfiguration: {
-          fileSystemId: fileSystem.fileSystemId,
+          fileSystemId: fileSystem.fileSystem.fileSystemId,
           transitEncryption: this.internalConfig.volume.transitEncryption,
           authorizationConfig: {
             accessPointId: fileSystem.accessPoint.accessPointId,
@@ -147,6 +148,8 @@ export class MeiliServiceConstruct extends Construct {
     this.service = new FargateService(this, this.serviceId, {
       cluster,
       taskDefinition: this.task,
+
+      serviceName: `${scope.prefix}-meili`,
 
       desiredCount: config.meiliService.desiredCount,
       minHealthyPercent: config.meiliService.minHealthyPercent,

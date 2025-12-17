@@ -2,7 +2,7 @@ import { Construct } from 'constructs'
 import type { AlbConstructProps } from '../types.js'
 import { type ApplicationListener, ApplicationLoadBalancer, ApplicationProtocol, ListenerAction } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { CfnOutput, Duration } from 'aws-cdk-lib'
+import { Duration } from 'aws-cdk-lib'
 
 export class AlbConstruct extends Construct {
   readonly securityGroup: SecurityGroup
@@ -16,11 +16,6 @@ export class AlbConstruct extends Construct {
 
   readonly listenerPort = 80
   readonly listenerProtocol = ApplicationProtocol.HTTP
-  readonly listenerArn: string
-
-  readonly albDnsNameOutput: CfnOutput
-  readonly albListenerPortOutput: CfnOutput
-  readonly albListenerArnOutput: CfnOutput
 
   private readonly internalConfig = {
     security: {
@@ -37,7 +32,7 @@ export class AlbConstruct extends Construct {
   }
 
   constructor (props: AlbConstructProps) {
-    const { scope, config, vpc } = props
+    const { scope, vpc } = props
     super(scope, `${scope.prefix}-alb`)
 
     this.securityGroupId = `${scope.prefix}-alb-sg`
@@ -59,23 +54,6 @@ export class AlbConstruct extends Construct {
       protocol: this.listenerProtocol,
       port: this.listenerPort,
       defaultAction: this.internalConfig.defaultAction
-    })
-
-    this.listenerArn = this.listener.listenerArn
-
-    this.albDnsNameOutput = new CfnOutput(this, `${scope.prefix}-alb-dns-name`, {
-      exportName: config.exportNames.albDnsName,
-      value: this.loadBalancer.loadBalancerDnsName
-    })
-
-    this.albListenerPortOutput = new CfnOutput(this, `${scope.prefix}-alb-listener-port`, {
-      exportName: config.exportNames.albListenerPort,
-      value: this.listenerPort.toString()
-    })
-
-    this.albListenerArnOutput = new CfnOutput(this, `${scope.prefix}-alb-listener-arn`, {
-      exportName: config.exportNames.albListenerArn,
-      value: this.listenerArn
     })
   }
 }

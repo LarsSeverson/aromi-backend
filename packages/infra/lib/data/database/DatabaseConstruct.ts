@@ -33,12 +33,12 @@ export class DatabaseConstruct extends Construct {
   }
 
   constructor (props: DatabaseConstructProps) {
-    const { scope, config, vpc } = props
+    const { scope, config, foundationStack } = props
     super(scope, `${scope.prefix}-database`)
 
     this.securityGroupId = `${scope.prefix}-database-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
-      vpc,
+      vpc: foundationStack.network.vpc,
       allowAllOutbound: this.internalConfig.allowAllOutbound
     })
 
@@ -71,7 +71,7 @@ export class DatabaseConstruct extends Construct {
       serverlessV2MinCapacity: config.database.minCapacity,
       serverlessV2MaxCapacity: config.database.maxCapacity,
 
-      vpc,
+      vpc: foundationStack.network.vpc,
       vpcSubnets: {
         subnetType: SubnetType.PRIVATE_WITH_EGRESS
       },

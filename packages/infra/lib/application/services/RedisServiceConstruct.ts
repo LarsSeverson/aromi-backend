@@ -66,6 +66,8 @@ export class RedisServiceConstruct extends Construct {
       cluster,
       taskDefinition: this.task,
 
+      serviceName: `${scope.prefix}-redis`,
+
       desiredCount: config.redisService.desiredCount,
       minHealthyPercent: config.redisService.minHealthyPercent,
       maxHealthyPercent: config.redisService.maxHealthyPercent,

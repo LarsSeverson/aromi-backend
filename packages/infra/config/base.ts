@@ -4,9 +4,9 @@ import { AuroraCapacityUnit, AuroraPostgresEngineVersion, DatabaseClusterEngine 
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { LifecyclePolicy, PerformanceMode, ThroughputMode } from 'aws-cdk-lib/aws-efs'
 import { BlockPublicAccess, BucketEncryption, ObjectOwnership, StorageClass } from 'aws-cdk-lib/aws-s3'
-import { CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager'
 import { CpuArchitecture, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { AccountRecovery, Mfa } from 'aws-cdk-lib/aws-cognito'
+import { NamespaceType } from 'aws-cdk-lib/aws-servicediscovery'
 
 export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
   appName: 'aromi',
@@ -34,6 +34,30 @@ export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
         cidrMask: 24
       }
     ]
+  },
+
+  cognito: {
+    signInAliases: {
+      email: true,
+      username: false,
+      phone: false
+    },
+
+    selfSignUpEnabled: true,
+
+    mfa: Mfa.OFF,
+
+    accountRecovery: AccountRecovery.EMAIL_AND_PHONE_WITHOUT_MFA,
+
+    passwordPolicy: {
+      minLength: 8,
+      requireDigits: false,
+      requireLowercase: false,
+      requireUppercase: false,
+      requireSymbols: false,
+      tempPasswordValidity: Duration.days(7)
+    },
+    removalPolicy: RemovalPolicy.RETAIN
   },
 
   database: {
@@ -104,47 +128,11 @@ export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
     removalPolicy: RemovalPolicy.RETAIN
   },
 
-  acm: {
-    validation: CertificateValidation.fromDns()
-  },
-
-  webAcl: {
-    enabled: true,
-    rateLimit: 2000
-  },
-
-  distribution: {
-    domainNames: ['aromi.net', 'www.aromi.net']
-  },
-
-  cognito: {
-    signInAliases: {
-      email: true,
-      username: false,
-      phone: false
-    },
-
-    selfSignUpEnabled: true,
-
-    mfa: Mfa.OFF,
-
-    accountRecovery: AccountRecovery.EMAIL_AND_PHONE_WITHOUT_MFA,
-
-    passwordPolicy: {
-      minLength: 8,
-      requireDigits: false,
-      requireLowercase: false,
-      requireUppercase: false,
-      requireSymbols: false,
-      tempPasswordValidity: Duration.days(7)
-    },
-    removalPolicy: RemovalPolicy.RETAIN
-  },
-
   cluster: {
     enableFargateCapacityProviders: true,
     defaultCloudMapNamespace: {
-      name: 'local'
+      name: 'local',
+      type: NamespaceType.DNS_PRIVATE
     }
   },
 
@@ -194,5 +182,22 @@ export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
     maxHealthyPercent: 200,
 
     assignPublicIp: false
+  },
+
+  acm: {
+    subjectAlternativeNames: ['www.aromi.net']
+  },
+
+  webAcl: {
+    enabled: true,
+    rateLimit: 2000
+  },
+
+  distribution: {
+    domainNames: ['aromi.net', 'www.aromi.net']
+  },
+
+  dns: {
+    zoneName: 'aromi.net'
   }
 }

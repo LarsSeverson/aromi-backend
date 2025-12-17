@@ -1,6 +1,6 @@
 import { Construct } from 'constructs'
 import type { ServerServiceConstructProps } from '../types.js'
-import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, ListenerConfig } from 'aws-cdk-lib/aws-ecs'
+import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, ListenerConfig, LogDrivers } from 'aws-cdk-lib/aws-ecs'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { Duration } from 'aws-cdk-lib'
@@ -23,7 +23,7 @@ export class ServerServiceConstruct extends Construct {
 
   readonly containerName = 'server'
 
-  readonly serviceHost = 'server'
+  readonly serviceHost = '0.0.0.0'
   readonly servicePort = 8080
 
   readonly targetGroupId: string
@@ -71,22 +71,22 @@ export class ServerServiceConstruct extends Construct {
 
         healthyHttpCodes: '200'
       }
-    }
+    },
+
+    logging: LogDrivers.awsLogs({
+      streamPrefix: 'server'
+    })
   }
 
   constructor (props: ServerServiceConstructProps) {
     const {
       scope, config,
 
-      vpc,
-
-      database,
-
-      assets,
+      foundationStack,
+      identityStack,
+      dataStack,
 
       cluster,
-      cognito,
-      repository,
       alb,
       redis,
       meili
@@ -96,7 +96,7 @@ export class ServerServiceConstruct extends Construct {
 
     this.securityGroupId = `${scope.prefix}-server-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
-      vpc,
+      vpc: foundationStack.network.vpc,
       securityGroupName: this.securityGroupId,
       allowAllOutbound: this.internalConfig.security.allowAllOutbound
     })
@@ -110,14 +110,14 @@ export class ServerServiceConstruct extends Construct {
     this.role.addToPolicy(
       new PolicyStatement({
         actions: this.internalConfig.role.authActions,
-        resources: [cognito.userPool.userPoolArn]
+        resources: [identityStack.cognito.userPool.userPoolArn]
       })
     )
 
     this.role.addToPolicy(
       new PolicyStatement({
         actions: this.internalConfig.role.assetActions,
-        resources: [`${assets.bucket.bucketArn}/*`]
+        resources: [`${dataStack.assetsBucket.bucket.bucketArn}/*`]
       })
     )
 
@@ -132,7 +132,8 @@ export class ServerServiceConstruct extends Construct {
 
     this.containerId = `${scope.prefix}-server-service-container`
     this.container = this.task.addContainer(this.containerId, {
-      image: ContainerImage.fromEcrRepository(repository.serverRepository),
+      image: ContainerImage.fromEcrRepository(foundationStack.ecr.serverRepository),
+      logging: this.internalConfig.logging,
 
       environment: {
         NODE_ENV: config.envMode,
@@ -141,17 +142,17 @@ export class ServerServiceConstruct extends Construct {
         SERVER_PORT: this.servicePort.toString(),
         ALLOWED_ORIGINS: [`https://${config.appDomain}`, 'https://studio.apollographql.com'].join(','),
 
-        COGNITO_USER_POOL_ID: cognito.userPool.userPoolId,
-        COGNITO_CLIENT_ID: cognito.userPoolClient.userPoolClientId,
-        COGNITO_JWKS_URI: cognito.jwksUri,
+        COGNITO_USER_POOL_ID: identityStack.cognito.userPool.userPoolId,
+        COGNITO_CLIENT_ID: identityStack.cognito.userPoolClient.userPoolClientId,
+        COGNITO_JWKS_URI: identityStack.cognito.jwksUri,
 
-        S3_BUCKET: assets.bucket.bucketName,
+        S3_BUCKET: dataStack.assetsBucket.bucket.bucketName,
 
-        DB_HOST: database.cluster.clusterEndpoint.hostname,
-        DB_USER: database.dbSecret.secretValueFromJson(database.dbSecretUsernameKey).unsafeUnwrap(),
-        DB_NAME: database.databaseName,
-        DB_PORT: database.databasePort.toString(),
-        DB_URL: database.databaseUrl,
+        DB_HOST: dataStack.database.cluster.clusterEndpoint.hostname,
+        DB_USER: dataStack.database.dbSecret.secretValueFromJson(dataStack.database.dbSecretUsernameKey).unsafeUnwrap(),
+        DB_NAME: dataStack.database.databaseName,
+        DB_PORT: dataStack.database.databasePort.toString(),
+        DB_URL: dataStack.database.databaseUrl,
 
         REDIS_HOST: redis.serviceHost,
         REDIS_PORT: redis.servicePort.toString(),
@@ -163,8 +164,8 @@ export class ServerServiceConstruct extends Construct {
 
       secrets: {
         DB_PASSWORD: ecs.Secret.fromSecretsManager(
-          database.dbSecret,
-          database.dbSecretPasswordKey
+          dataStack.database.dbSecret,
+          dataStack.database.dbSecretPasswordKey
         ),
 
         MEILI_MASTER_KEY: ecs.Secret.fromSecretsManager(
@@ -183,6 +184,8 @@ export class ServerServiceConstruct extends Construct {
     this.service = new FargateService(this, this.serviceId, {
       cluster,
       taskDefinition: this.task,
+
+      serviceName: `${scope.prefix}-server`,
 
       desiredCount: config.serverService.desiredCount,
       minHealthyPercent: config.serverService.minHealthyPercent,

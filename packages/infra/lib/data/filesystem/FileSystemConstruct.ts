@@ -17,19 +17,22 @@ export class FileSystemConstruct extends Construct {
     allowAllOutbound: true
   }
 
+  readonly efsPort = 2049
+
   constructor (props: FileSystemConstructProps) {
-    const { scope, vpc, config } = props
+    const { scope, config, foundationStack } = props
     super(scope, `${scope.prefix}-filesystem`)
 
     this.securityGroupId = `${scope.prefix}-efs-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
-      vpc,
+      vpc: foundationStack.network.vpc,
       allowAllOutbound: this.internalConfig.allowAllOutbound
     })
 
     this.fileSystemId = `${scope.prefix}-efs`
     this.fileSystem = new FileSystem(this, this.fileSystemId, {
-      vpc,
+      vpc: foundationStack.network.vpc,
+      securityGroup: this.securityGroup,
       removalPolicy: config.fileSystem.removalPolicy,
       lifecyclePolicy: config.fileSystem.lifecyclePolicy,
       performanceMode: config.fileSystem.performanceMode,

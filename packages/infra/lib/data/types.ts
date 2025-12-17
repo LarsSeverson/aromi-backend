@@ -1,14 +1,18 @@
-import type { Vpc } from 'aws-cdk-lib/aws-ec2'
 import type { BaseConstructProps, ScopedStackProps } from '../../common/types.js'
+import type { FoundationStack } from '../foundation/FoundationStack.js'
 
 export interface DatabaseConstructProps extends BaseConstructProps {
-  vpc: Vpc
+  foundationStack: FoundationStack
 }
 
 export interface FileSystemConstructProps extends BaseConstructProps {
-  vpc: Vpc
+  foundationStack: FoundationStack
 }
 
 export interface DataStackProps extends ScopedStackProps {
-  vpc: Vpc
+  foundationStack: FoundationStack
 }
+
+export interface AssetsBucketConstructProps extends BaseConstructProps { }
+
+export interface SpaBucketConstructProps extends BaseConstructProps { }

@@ -1,8 +1,8 @@
 import { Construct } from 'constructs'
 import type { DistributionConstructProps } from '../types.js'
 import { AllowedMethods, CachedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
-import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import { Fn } from 'aws-cdk-lib'
+import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { Bucket } from 'aws-cdk-lib/aws-s3'
 
 export class DistributionConstruct extends Construct {
   readonly distribution: Distribution
@@ -47,13 +47,15 @@ export class DistributionConstruct extends Construct {
       assetsBucket,
 
       certifcate,
-      webAclId
+      webAclId,
+
+      alb
     } = props
 
     super(scope, `${scope.prefix}-distribution`)
 
-    const albDnsName = Fn.importValue(config.exportNames.albDnsName)
-    const albListenerPort = parseInt(Fn.importValue(config.exportNames.albListenerPort), 10)
+    const importedSpaBucket = Bucket.fromBucketArn(scope, 'AvoidCDKBug31462Spa', spaBucket.bucketArn)
+    const importedAssetsBucket = Bucket.fromBucketArn(scope, 'AvoidCDKBug31462Assets', assetsBucket.bucketArn)
 
     this.distributionId = `${scope.prefix}-distribution`
     this.distribution = new Distribution(this, this.distributionId, {
@@ -62,24 +64,22 @@ export class DistributionConstruct extends Construct {
       webAclId,
 
       defaultBehavior: {
-        origin: S3BucketOrigin.withOriginAccessControl(spaBucket),
+        origin: S3BucketOrigin.withOriginAccessControl(importedSpaBucket, { originId: 'spa' }),
         ...this.internalConfig.defaultBehavior
       },
 
       additionalBehaviors: {
         [this.internalConfig.assetsBehavior.pathPattern]: {
-          origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
+          origin: S3BucketOrigin.withOriginAccessControl(importedAssetsBucket, { originId: 'assets' }),
           ...this.internalConfig.assetsBehavior
         },
 
         [this.internalConfig.graphqlBehavior.pathPattern]: {
-          origin: new HttpOrigin(
-            albDnsName,
-            {
-              protocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
-              httpPort: albListenerPort
-            }
-          ),
+          origin: new LoadBalancerV2Origin(alb.loadBalancer, {
+            originId: 'alb',
+            protocolPolicy: this.internalConfig.graphqlBehavior.protocolPolicy,
+            httpPort: alb.listener.port
+          }),
           ...this.internalConfig.graphqlBehavior
         }
       }

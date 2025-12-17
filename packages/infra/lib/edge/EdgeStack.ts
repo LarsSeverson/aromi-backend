@@ -1,44 +1,70 @@
+import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { BaseStack } from '../../common/BaseStack.js'
+import { AcmConstruct } from './acm/AcmConstruct.js'
 import { DistributionConstruct } from './cloudfront/DistributionConstruct.js'
-import { AssetsBucketConstruct } from './s3/AssetsBucketConstruct.js'
-import { SpaBucketConstruct } from './s3/SpaBucketConstruct.js'
 import type { EdgeStackProps } from './types.js'
+import { WebAclConstruct } from './waf/WebAclConstruct.js'
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 
 export class EdgeStack extends BaseStack {
-  readonly spaBucket: SpaBucketConstruct
-  readonly assetsBucket: AssetsBucketConstruct
+  readonly appDistribution: DistributionConstruct
+  readonly acm: AcmConstruct
+  readonly acl: WebAclConstruct
 
-  readonly distribution: DistributionConstruct
+  readonly rootAlias: ARecord
+  readonly wwwAlias: ARecord
 
   constructor (props: EdgeStackProps) {
-    const { scope, config, certificate, webAclId } = props
+    const {
+      scope, config,
+
+      dnsStack,
+      dataStack,
+      applicationStack
+    } = props
+
     super({
       scope,
       stackName: 'edge',
       config,
 
-      crossRegionReferences: true
+      crossRegionReferences: true,
+      env: { region: 'us-east-1' }
     })
 
-    this.spaBucket = new SpaBucketConstruct({
+    this.acm = new AcmConstruct({
+      scope: this,
+      config: this.config,
+      zone: dnsStack.zone
+    })
+
+    this.acl = new WebAclConstruct({
       scope: this,
       config: this.config
     })
 
-    this.assetsBucket = new AssetsBucketConstruct({
-      scope: this,
-      config: this.config
-    })
-
-    this.distribution = new DistributionConstruct({
+    this.appDistribution = new DistributionConstruct({
       scope: this,
       config: this.config,
 
-      spaBucket: this.spaBucket.bucket,
-      assetsBucket: this.assetsBucket.bucket,
+      spaBucket: dataStack.spaBucket.bucket,
+      assetsBucket: dataStack.assetsBucket.bucket,
 
-      certifcate: certificate,
-      webAclId
+      certifcate: this.acm.certifacte,
+      webAclId: this.acl.webAcl.attrArn,
+
+      alb: applicationStack.alb
+    })
+
+    this.rootAlias = new ARecord(this, `${this.prefix}-root-alias`, {
+      zone: dnsStack.zone.hostedZone,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(this.appDistribution.distribution))
+    })
+
+    this.wwwAlias = new ARecord(this, `${this.prefix}-www-alias`, {
+      zone: dnsStack.zone.hostedZone,
+      recordName: 'www',
+      target: RecordTarget.fromAlias(new CloudFrontTarget(this.appDistribution.distribution))
     })
   }
 }

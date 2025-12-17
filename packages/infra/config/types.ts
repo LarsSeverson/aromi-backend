@@ -4,7 +4,6 @@ import type { IClusterEngine } from 'aws-cdk-lib/aws-rds'
 import type { RemovalPolicy } from 'aws-cdk-lib'
 import type { LifecyclePolicy, PerformanceMode, ThroughputMode } from 'aws-cdk-lib/aws-efs'
 import type { BlockPublicAccess, BucketEncryption, LifecycleRule, ObjectOwnership } from 'aws-cdk-lib/aws-s3'
-import type { CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager'
 import type { CloudMapNamespaceOptions, RuntimePlatform } from 'aws-cdk-lib/aws-ecs'
 import type { AccountRecovery, Mfa, PasswordPolicy, SignInAliases } from 'aws-cdk-lib/aws-cognito'
 
@@ -27,23 +26,24 @@ export interface EnvConfig {
 
   readonly network: NetworkConfig
 
+  readonly cognito: CognitoConfig
+
   readonly database: DatabaseConfig
   readonly fileSystem: FileSystemConfig
 
   readonly assetsBucket: BucketConfig
   readonly spaBucket: BucketConfig
 
-  readonly acm: AcmConfig
-  readonly webAcl: WebAclConfig
-
-  readonly distribution: DistributionConfig
-
-  readonly cognito: CognitoConfig
-
   readonly cluster: ClusterConfig
   readonly redisService: ServiceConfig
   readonly meiliService: ServiceConfig
   readonly serverService: ServiceConfig
+
+  readonly acm: AcmConfig
+  readonly webAcl: WebAclConfig
+  readonly distribution: DistributionConfig
+
+  readonly dns: DnsConfig
 }
 
 export interface NetworkConfig {
@@ -91,7 +91,7 @@ export interface BucketConfig {
 }
 
 export interface AcmConfig {
-  readonly validation: CertificateValidation
+  readonly subjectAlternativeNames: string[]
 }
 
 export interface WebAclConfig {
@@ -132,4 +132,8 @@ export interface ServiceConfig {
   readonly maxHealthyPercent: number
 
   readonly assignPublicIp: boolean
+}
+
+export interface DnsConfig {
+  readonly zoneName: string
 }
