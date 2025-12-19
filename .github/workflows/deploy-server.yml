@@ -50,7 +50,18 @@ jobs:
           docker run --privileged tonistiigi/binfmt --install arm64
           docker buildx create --use
 
+      - name: Check if image exists in ECR
+        id: check-image
+        run: |
+          if aws ecr describe-images --repository-name ${{ vars.SERVER_REPO }} --image-ids imageTag=${{ github.sha }} > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Image with tag ${{ github.sha }} already exists. Skipping build."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and Push Server
+        if: steps.check-image.outputs.exists != 'true'
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPO: ${{ vars.SERVER_REPO }}
