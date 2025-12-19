@@ -69,12 +69,17 @@ jobs:
             aws ssm put-parameter --name "$PARAM" --value "latest" --type "String"
           fi
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node and Install
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
       - name: CDK Deploy (Targeted)
         working-directory: packages/infra
