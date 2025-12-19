@@ -1,5 +1,5 @@
 import { Port, SubnetType } from 'aws-cdk-lib/aws-ec2'
-import type { EnvConfig } from './types.js'
+import type { BaseConfig } from './types.js'
 import { AuroraCapacityUnit, AuroraPostgresEngineVersion, DatabaseClusterEngine } from 'aws-cdk-lib/aws-rds'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { LifecyclePolicy, PerformanceMode, ThroughputMode } from 'aws-cdk-lib/aws-efs'
@@ -8,15 +8,9 @@ import { CpuArchitecture, OperatingSystemFamily } from 'aws-cdk-lib/aws-ecs'
 import { AccountRecovery, Mfa } from 'aws-cdk-lib/aws-cognito'
 import { NamespaceType } from 'aws-cdk-lib/aws-servicediscovery'
 
-export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
+export const baseConfig: BaseConfig = {
   appName: 'aromi',
   appDomain: 'aromi.net',
-
-  exportNames: {
-    albDnsName: 'AromiAlbDnsName',
-    albListenerPort: 'AromiAlbListenerPort',
-    albListenerArn: 'AromiAlbListenerArn'
-  },
 
   network: {
     maxAzs: 2,
@@ -58,6 +52,11 @@ export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
       tempPasswordValidity: Duration.days(7)
     },
     removalPolicy: RemovalPolicy.RETAIN
+  },
+
+  ecr: {
+    serverTag: 'latest',
+    workersTag: 'latest'
   },
 
   database: {
@@ -173,6 +172,22 @@ export const baseConfig: Omit<EnvConfig, 'envMode' | 'aws'> = {
 
     cpu: 1024,
     memoryLimitMiB: 2048,
+    runtimePlatform: {
+      cpuArchitecture: CpuArchitecture.ARM64,
+      operatingSystemFamily: OperatingSystemFamily.LINUX
+    },
+
+    minHealthyPercent: 100,
+    maxHealthyPercent: 200,
+
+    assignPublicIp: false
+  },
+
+  workersService: {
+    desiredCount: 1,
+
+    cpu: 512,
+    memoryLimitMiB: 1024,
     runtimePlatform: {
       cpuArchitecture: CpuArchitecture.ARM64,
       operatingSystemFamily: OperatingSystemFamily.LINUX

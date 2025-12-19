@@ -1,10 +1,10 @@
 import { Construct } from 'constructs'
-import type { RepositoryConstructProps } from '../types.js'
 import { ImageTagMutabilityExclusionFilter, Repository, TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
+import type { WorkersRepoConstructProps } from '../types.js'
 
-export class RepositoryConstruct extends Construct {
-  readonly serverRepository: Repository
-  readonly serverRepositoryId: string
+export class WorkersRepoConstruct extends Construct {
+  readonly repository: Repository
+  readonly repositoryId: string
 
   private readonly internalConfig = {
     server: {
@@ -21,13 +21,13 @@ export class RepositoryConstruct extends Construct {
     }
   }
 
-  constructor (props: RepositoryConstructProps) {
+  constructor (props: WorkersRepoConstructProps) {
     const { scope } = props
-    super(scope, `${scope.prefix}-ecr-repository`)
+    super(scope, `${scope.prefix}-workers`)
 
-    this.serverRepositoryId = `${scope.prefix}-server`
-    this.serverRepository = new Repository(this, this.serverRepositoryId, {
-      repositoryName: this.serverRepositoryId,
+    this.repositoryId = `${scope.prefix}-server`
+    this.repository = new Repository(this, this.repositoryId, {
+      repositoryName: this.repositoryId,
 
       imageScanOnPush: this.internalConfig.server.imageScanOnPush,
       imageTagMutability: this.internalConfig.server.imageTagMutability,

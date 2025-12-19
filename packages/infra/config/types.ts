@@ -18,15 +18,11 @@ export interface EnvConfig {
     readonly region?: string
   }
 
-  readonly exportNames: {
-    readonly albDnsName: string
-    readonly albListenerPort: string
-    readonly albListenerArn: string
-  }
-
   readonly network: NetworkConfig
 
   readonly cognito: CognitoConfig
+
+  readonly ecr: EcrConfig
 
   readonly database: DatabaseConfig
   readonly fileSystem: FileSystemConfig
@@ -38,6 +34,7 @@ export interface EnvConfig {
   readonly redisService: ServiceConfig
   readonly meiliService: ServiceConfig
   readonly serverService: ServiceConfig
+  readonly workersService: ServiceConfig
 
   readonly acm: AcmConfig
   readonly webAcl: WebAclConfig
@@ -46,10 +43,17 @@ export interface EnvConfig {
   readonly dns: DnsConfig
 }
 
+export type BaseConfig = Omit<EnvConfig, 'envMode' | 'aws'>
+
 export interface NetworkConfig {
   readonly maxAzs: number
   readonly natGateways: number
   readonly subnetConfiguration: SubnetConfiguration[]
+}
+
+export interface EcrConfig {
+  readonly serverTag: string
+  readonly workersTag: string
 }
 
 export interface DatabaseConfig {

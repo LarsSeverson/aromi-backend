@@ -1,0 +1,87 @@
+name: Deploy Workers
+
+concurrency:
+  group: ${{ github.workflow}}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ["main", "development"]
+    paths:
+      - "packages/workers/**"
+      - "packages/shared/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure ECR Repository Exists
+        run: |
+          aws ecr describe-repositories --repository-names ${{ vars.WORKERS_REPO }} || \
+          aws ecr create-repository \
+            --repository-name ${{ vars.WORKERS_REPO }} \
+            --image-tag-mutability IMMUTABLE_WITH_EXCLUSION \
+            --image-tag-mutability-exclusion-filters filterType=WILDCARD,filter=latest \
+            --image-scanning-configuration scanOnPush=true
+
+      - name: Set up Docker Buildx
+        run: |
+          docker run --privileged tonistiigi/binfmt --install arm64
+          docker buildx create --use
+
+      - name: Build and Push Workers
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPO: ${{ vars.WORKERS_REPO }}
+        run: |
+          docker buildx build --platform linux/arm64 \
+            -f docker/workers.Dockerfile \
+            -t $REGISTRY/$REPO:${{ github.sha }} \
+            -t $REGISTRY/$REPO:latest --push .
+
+      - name: Ensure Workers SSM Parameter Exists
+        env:
+          ENV_NAME: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+        run: |
+          PARAM="/aromi/$ENV_NAME/workers/tag"
+          if ! aws ssm get-parameter --name "$PARAM" > /dev/null 2>&1; then
+            aws ssm put-parameter --name "$PARAM" --value "latest" --type "String"
+          fi
+
+      - name: Setup Node and Install
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+      - run: pnpm install
+
+      - name: CDK Deploy (Targeted)
+        working-directory: packages/infra
+        env:
+          ENV_NAME: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+        run: |
+          npx cdk deploy "aromi-$ENV_NAME-application" \
+            --context env=$ENV_NAME \
+            --context workersTag=${{ github.sha }} \
+            --require-approval never

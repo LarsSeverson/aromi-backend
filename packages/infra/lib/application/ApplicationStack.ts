@@ -8,6 +8,7 @@ import { ServerServiceConstruct } from './services/ServerServiceConstruct.js'
 import type { ApplicationStackProps } from './types.js'
 import type { DataStack } from '../data/DataStack.js'
 import { Protocol } from 'aws-cdk-lib/aws-ecs'
+import { WorkersServiceConstruct } from './services/WorkersServiceConstruct.js'
 
 export class ApplicationStack extends BaseStack {
   readonly alb: AlbConstruct
@@ -16,6 +17,7 @@ export class ApplicationStack extends BaseStack {
 
   readonly redisService: RedisServiceConstruct
   readonly meiliService: MeiliServiceConstruct
+  readonly workersService: WorkersServiceConstruct
   readonly serverService: ServerServiceConstruct
 
   constructor (props: ApplicationStackProps) {
@@ -63,6 +65,19 @@ export class ApplicationStack extends BaseStack {
       cluster: this.cluster.cluster
     })
 
+    this.workersService = new WorkersServiceConstruct({
+      scope: this,
+      config,
+
+      foundationStack,
+      identityStack,
+      dataStack,
+
+      cluster: this.cluster.cluster,
+      redis: this.redisService,
+      meili: this.meiliService
+    })
+
     this.serverService = new ServerServiceConstruct({
       scope: this,
       config,
@@ -81,16 +96,21 @@ export class ApplicationStack extends BaseStack {
     if (namespace != null) {
       this.redisService.service.node.addDependency(namespace)
       this.meiliService.service.node.addDependency(namespace)
+      this.workersService.service.node.addDependency(namespace)
       this.serverService.service.node.addDependency(namespace)
     }
 
     this.allowCdnPrefixToAlb()
-    this.allowAlbToServer()
 
     this.allowMeiliToFileSystem(dataStack)
 
+    this.allowWorkersToDatabase(dataStack)
+    this.allowWorkersToRedis()
+    this.allowWorkersToMeili()
+
     this.allowServerToDatabase(dataStack)
     this.allowServerToRedis()
+    this.allowAlbToServer()
   }
 
   private allowCdnPrefixToAlb () {
@@ -106,15 +126,7 @@ export class ApplicationStack extends BaseStack {
     )
   }
 
-  private allowAlbToServer () {
-    this.serverService.securityGroup.addIngressRule(
-      this.alb.securityGroup,
-      Port.tcp(this.serverService.servicePort)
-    )
-  }
-
   private allowMeiliToFileSystem (dataStack: DataStack) {
-    // eslint-disable-next-line no-new
     new CfnSecurityGroupIngress(this, 'AllowMeiliToFileSystem', {
       groupId: dataStack.fileSystem.securityGroup.securityGroupId,
       sourceSecurityGroupId: this.meiliService.securityGroup.securityGroupId,
@@ -124,8 +136,31 @@ export class ApplicationStack extends BaseStack {
     })
   }
 
+  private allowWorkersToDatabase (dataStack: DataStack) {
+    new CfnSecurityGroupIngress(this, 'AllowWorkersToDatabase', {
+      groupId: dataStack.database.securityGroup.securityGroupId,
+      sourceSecurityGroupId: this.workersService.securityGroup.securityGroupId,
+      ipProtocol: Protocol.TCP,
+      fromPort: dataStack.database.databasePort,
+      toPort: dataStack.database.databasePort
+    })
+  }
+
+  private allowWorkersToRedis () {
+    this.redisService.securityGroup.addIngressRule(
+      this.workersService.securityGroup,
+      Port.tcp(this.redisService.servicePort)
+    )
+  }
+
+  private allowWorkersToMeili () {
+    this.meiliService.securityGroup.addIngressRule(
+      this.workersService.securityGroup,
+      Port.tcp(this.meiliService.servicePort)
+    )
+  }
+
   private allowServerToDatabase (dataStack: DataStack) {
-    // eslint-disable-next-line no-new
     new CfnSecurityGroupIngress(this, 'AllowServerToDatabase', {
       groupId: dataStack.database.securityGroup.securityGroupId,
       sourceSecurityGroupId: this.serverService.securityGroup.securityGroupId,
@@ -139,6 +174,13 @@ export class ApplicationStack extends BaseStack {
     this.redisService.securityGroup.addIngressRule(
       this.serverService.securityGroup,
       Port.tcp(this.redisService.servicePort)
+    )
+  }
+
+  private allowAlbToServer () {
+    this.serverService.securityGroup.addIngressRule(
+      this.alb.securityGroup,
+      Port.tcp(this.serverService.servicePort)
     )
   }
 }

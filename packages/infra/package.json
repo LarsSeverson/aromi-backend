@@ -6,10 +6,10 @@
   "author": "Lars Severson",
   "license": "MIT",
   "scripts": {
-    "cdk:bootstrap": "cdk bootstrap",
-    "cdk:synth": "cdk synth",
-    "cdk:deploy": "cdk deploy",
-    "cdk:destroy": "cdk destroy"
+    "cdk:bootstrap": "cdk bootstrap --profile aromi-prod",
+    "cdk:synth": "cdk synth --profile aromi-prod",
+    "cdk:deploy": "cdk deploy --profile aromi-prod",
+    "cdk:destroy": "cdk destroy --profile aromi-prod"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.230.0",

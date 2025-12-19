@@ -1,11 +1,14 @@
 import { NetworkConstruct } from './network/NetworkConstruct.js'
 import { BaseStack } from '../../common/BaseStack.js'
 import type { ScopedStackProps } from '../../common/types.js'
-import { RepositoryConstruct } from './ecr/RepositoryConstruct.js'
+import { ServerRepoConstruct } from './ecr/ServerRepoConstruct.js'
+import { WorkersRepoConstruct } from './ecr/WorkersRepoConstruct.js'
 
 export class FoundationStack extends BaseStack {
   readonly network: NetworkConstruct
-  readonly ecr: RepositoryConstruct
+
+  readonly serverEcr: ServerRepoConstruct
+  readonly workersEcr: WorkersRepoConstruct
 
   constructor (props: ScopedStackProps) {
     const { scope, config } = props
@@ -13,6 +16,7 @@ export class FoundationStack extends BaseStack {
 
     this.network = new NetworkConstruct({ scope: this, config })
 
-    this.ecr = new RepositoryConstruct({ scope: this, config })
+    this.serverEcr = new ServerRepoConstruct({ scope: this, config })
+    this.workersEcr = new WorkersRepoConstruct({ scope: this, config })
   }
 }

@@ -29,6 +29,16 @@ export interface MeiliServiceConstructProps extends BaseConstructProps {
   cluster: Cluster
 }
 
+export interface WorkersServiceConstructProps extends BaseConstructProps {
+  foundationStack: FoundationStack
+  identityStack: IdentityStack
+  dataStack: DataStack
+
+  cluster: Cluster
+  redis: RedisServiceConstruct
+  meili: MeiliServiceConstruct
+}
+
 export interface ServerServiceConstructProps extends BaseConstructProps {
   foundationStack: FoundationStack
   identityStack: IdentityStack

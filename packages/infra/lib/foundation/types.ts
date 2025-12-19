@@ -1,3 +1,4 @@
 import type { BaseConstructProps } from '../../common/types.js'
 
-export interface RepositoryConstructProps extends BaseConstructProps { }
+export interface ServerRepoConstructProps extends BaseConstructProps { }
+export interface WorkersRepoConstructProps extends BaseConstructProps { }

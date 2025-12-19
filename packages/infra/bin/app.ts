@@ -1,7 +1,6 @@
-import { App } from 'aws-cdk-lib'
+import { App, Stack } from 'aws-cdk-lib'
 import { FoundationStack } from '../lib/foundation/FoundationStack.js'
 import { DataStack } from '../lib/data/DataStack.js'
-import { EnvMode } from '../common/types.js'
 import { loadConfig } from '../config/index.js'
 import { EdgeStack } from '../lib/edge/EdgeStack.js'
 import { IdentityStack } from '../lib/identity/IdentityStack.js'
@@ -10,11 +9,14 @@ import { DnsStack } from '../lib/dns/DnsStack.js'
 
 const app = new App()
 
-const env = (app.node.tryGetContext('env') ?? 'dev') === 'prod'
-  ? EnvMode.PRODUCTION
-  : EnvMode.DEVELOPMENT
+const configStack = new Stack(app, 'ConfigStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
+  }
+})
 
-const config = loadConfig(env)
+const config = loadConfig(configStack)
 
 const foundation = new FoundationStack({ scope: app, config })
 

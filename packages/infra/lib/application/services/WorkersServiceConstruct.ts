@@ -1,12 +1,10 @@
 import { Construct } from 'constructs'
-import type { ServerServiceConstructProps } from '../types.js'
-import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, ListenerConfig, LogDrivers } from 'aws-cdk-lib/aws-ecs'
+import type { WorkersServiceConstructProps } from '../types.js'
+import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, LogDrivers } from 'aws-cdk-lib/aws-ecs'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { Duration } from 'aws-cdk-lib'
-import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 
-export class ServerServiceConstruct extends Construct {
+export class WorkersServiceConstruct extends Construct {
   readonly securityGroup: SecurityGroup
   readonly securityGroupId: string
 
@@ -22,29 +20,11 @@ export class ServerServiceConstruct extends Construct {
   readonly service: FargateService
   readonly serviceId: string
 
-  readonly containerName = 'server'
-
-  readonly serviceHost = '0.0.0.0'
-  readonly servicePort = 8080
-
-  readonly targetGroupId: string
+  readonly containerName = 'workers'
 
   private readonly internalConfig = {
     role: {
       assumedBy: 'ecs-tasks.amazonaws.com',
-
-      authActions: [
-        'cognito-idp:AdminGetUser',
-        'cognito-idp:AdminCreateUser',
-        'cognito-idp:AdminDeleteUser',
-        'cognito-idp:AdminUpdateUserAttributes',
-        'cognito-idp:AdminSetUserPassword',
-        'cognito-idp:ResendConfirmationCode',
-        'cognito-idp:SignUp',
-        'cognito-idp:ConfirmSignUp',
-        'cognito-idp:InitiateAuth',
-        'cognito-idp:RespondToAuthChallenge'
-      ],
 
       assetActions: [
         'S3:GetObject',
@@ -58,28 +38,12 @@ export class ServerServiceConstruct extends Construct {
       subnetType: SubnetType.PRIVATE_WITH_EGRESS
     },
 
-    alb: {
-      healthCheck: {
-        path: '/health',
-
-        interval: Duration.seconds(60),
-        timeout: Duration.seconds(15),
-
-        healthyThresholdCount: 2,
-        unhealthyThresholdCount: 5,
-
-        port: this.servicePort.toString(),
-
-        healthyHttpCodes: '200'
-      }
-    },
-
     logging: LogDrivers.awsLogs({
-      streamPrefix: 'server'
+      streamPrefix: 'workers'
     })
   }
 
-  constructor (props: ServerServiceConstructProps) {
+  constructor (props: WorkersServiceConstructProps) {
     const {
       scope, config,
 
@@ -88,32 +52,24 @@ export class ServerServiceConstruct extends Construct {
       dataStack,
 
       cluster,
-      alb,
       redis,
       meili
     } = props
 
-    super(scope, `${scope.prefix}-server-service`)
+    super(scope, `${scope.prefix}-workers-service`)
 
-    this.securityGroupId = `${scope.prefix}-server-service-sg`
+    this.securityGroupId = `${scope.prefix}-workers-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
       vpc: foundationStack.network.vpc,
       securityGroupName: this.securityGroupId,
       allowAllOutbound: this.internalConfig.security.allowAllOutbound
     })
 
-    this.roleId = `${scope.prefix}-server-service-role`
+    this.roleId = `${scope.prefix}-workers-service-role`
     this.role = new Role(this, this.roleId, {
       roleName: this.roleId,
       assumedBy: new ServicePrincipal(this.internalConfig.role.assumedBy)
     })
-
-    this.role.addToPolicy(
-      new PolicyStatement({
-        actions: this.internalConfig.role.authActions,
-        resources: [identityStack.cognito.userPool.userPoolArn]
-      })
-    )
 
     this.role.addToPolicy(
       new PolicyStatement({
@@ -122,20 +78,20 @@ export class ServerServiceConstruct extends Construct {
       })
     )
 
-    this.taskId = `${scope.prefix}-server-service-task`
+    this.taskId = `${scope.prefix}-workers-service-task`
     this.task = new FargateTaskDefinition(this, this.taskId, {
-      cpu: config.serverService.cpu,
-      memoryLimitMiB: config.serverService.memoryLimitMiB,
-      runtimePlatform: config.serverService.runtimePlatform,
+      cpu: config.workersService.cpu,
+      memoryLimitMiB: config.workersService.memoryLimitMiB,
+      runtimePlatform: config.workersService.runtimePlatform,
 
       taskRole: this.role
     })
 
-    this.containerId = `${scope.prefix}-server-service-container`
+    this.containerId = `${scope.prefix}-workers-service-container`
     this.container = this.task.addContainer(this.containerId, {
       image: ContainerImage.fromEcrRepository(
-        foundationStack.serverEcr.repository,
-        config.ecr.serverTag
+        foundationStack.workersEcr.repository,
+        config.ecr.workersTag
       ),
 
       logging: this.internalConfig.logging,
@@ -143,8 +99,6 @@ export class ServerServiceConstruct extends Construct {
       environment: {
         NODE_ENV: config.envMode,
 
-        SERVER_HOST: this.serviceHost,
-        SERVER_PORT: this.servicePort.toString(),
         ALLOWED_ORIGINS: [`https://${config.appDomain}`, 'https://studio.apollographql.com'].join(','),
 
         COGNITO_USER_POOL_ID: identityStack.cognito.userPool.userPoolId,
@@ -180,23 +134,18 @@ export class ServerServiceConstruct extends Construct {
       }
     })
 
-    this.container.addPortMappings({
-      name: this.containerName,
-      containerPort: this.servicePort
-    })
-
-    this.serviceId = `${scope.prefix}-server-service`
+    this.serviceId = `${scope.prefix}-workers-service`
     this.service = new FargateService(this, this.serviceId, {
       cluster,
       taskDefinition: this.task,
 
-      serviceName: `${scope.prefix}-server`,
+      serviceName: `${scope.prefix}-workers`,
 
-      desiredCount: config.serverService.desiredCount,
-      minHealthyPercent: config.serverService.minHealthyPercent,
-      maxHealthyPercent: config.serverService.maxHealthyPercent,
+      desiredCount: config.workersService.desiredCount,
+      minHealthyPercent: config.workersService.minHealthyPercent,
+      maxHealthyPercent: config.workersService.maxHealthyPercent,
 
-      assignPublicIp: config.serverService.assignPublicIp,
+      assignPublicIp: config.workersService.assignPublicIp,
 
       securityGroups: [this.securityGroup],
       vpcSubnets: {
@@ -206,27 +155,6 @@ export class ServerServiceConstruct extends Construct {
       serviceConnectConfiguration: {
         namespace: cluster.defaultCloudMapNamespace!.namespaceName
       }
-    })
-
-    this.targetGroupId = `${scope.prefix}-server-target-group`
-    this.service.registerLoadBalancerTargets({
-      containerName: this.container.containerName,
-      containerPort: this.container.containerPort,
-
-      newTargetGroupId: this.targetGroupId,
-
-      listener: ListenerConfig.applicationListener(
-        alb.listener,
-        {
-          protocol: alb.listenerProtocol,
-          healthCheck: this.internalConfig.alb.healthCheck
-        }
-      )
-    })
-
-    new StringParameter(this, 'ActiveServerTag', {
-      parameterName: `/aromi/${scope.prefix}/server/tag`,
-      stringValue: config.ecr.serverTag
     })
   }
 }

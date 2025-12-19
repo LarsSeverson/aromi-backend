@@ -1,6 +1,6 @@
 {
   "app": "node --loader ts-node/esm bin/app.ts",
   "context": {
-    "env": "dev"
+    "env": "production"
   }
 }

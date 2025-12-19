@@ -44,6 +44,7 @@ export default [
       'promise/avoid-new': 'off',
       'no-console': 'off',
       'max-nested-callbacks': ['error', { max: 5 }],
+      'no-new': 'off',
 
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/prefer-destructuring': 'off',

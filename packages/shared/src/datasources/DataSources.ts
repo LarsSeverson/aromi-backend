@@ -55,4 +55,12 @@ export class DataSources {
   async healthCheckDB () {
     return await sql`SELECT 1`.execute(this.db)
   }
+
+  async healthCheckRedis () {
+    await this.redis.client.ping()
+  }
+
+  async healthCheckMeili () {
+    await this.meili.client.health()
+  }
 }
