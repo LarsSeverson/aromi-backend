@@ -1,24 +1,18 @@
-import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import type { Construct } from 'constructs'
 import { EnvMode } from '../common/types.js'
 import { devConfig } from './dev.js'
+import { prodConfig } from './prod.js'
+import type { GlobalStack } from '../lib/global/GlobalStack.js'
 
-export const loadConfig = (scope: Construct) => {
+export const loadConfig = (scope: GlobalStack) => {
   const env = scope.node.tryGetContext('env') as EnvMode ?? EnvMode.DEVELOPMENT
+
   const serverTagFromContext = scope.node.tryGetContext('serverTag') as string
   const workersTagFromContext = scope.node.tryGetContext('workersTag') as string
 
-  const serverTag = serverTagFromContext ?? StringParameter.valueForStringParameter(
-    scope,
-    `/aromi/${env}/server/tag`
-  )
+  const serverTag = serverTagFromContext ?? scope.serverTagParam.stringValue
+  const workersTag = workersTagFromContext ?? scope.workersTagParam.stringValue
 
-  const workersTag = workersTagFromContext ?? StringParameter.valueForStringParameter(
-    scope,
-    `/aromi/${env}/workers/tag`
-  )
-
-  const baseConfig = env === EnvMode.PRODUCTION ? devConfig : devConfig
+  const baseConfig = env === EnvMode.PRODUCTION ? prodConfig : devConfig
 
   return {
     ...baseConfig,

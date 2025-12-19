@@ -25,7 +25,7 @@ export class WorkersRepoConstruct extends Construct {
     const { scope } = props
     super(scope, `${scope.prefix}-workers`)
 
-    this.repositoryId = `${scope.prefix}-server`
+    this.repositoryId = `${scope.prefix}-workers`
     this.repository = new Repository(this, this.repositoryId, {
       repositoryName: this.repositoryId,
 

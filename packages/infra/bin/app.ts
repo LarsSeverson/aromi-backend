@@ -1,4 +1,4 @@
-import { App, Stack } from 'aws-cdk-lib'
+import { App } from 'aws-cdk-lib'
 import { FoundationStack } from '../lib/foundation/FoundationStack.js'
 import { DataStack } from '../lib/data/DataStack.js'
 import { loadConfig } from '../config/index.js'
@@ -6,17 +6,13 @@ import { EdgeStack } from '../lib/edge/EdgeStack.js'
 import { IdentityStack } from '../lib/identity/IdentityStack.js'
 import { ApplicationStack } from '../lib/application/ApplicationStack.js'
 import { DnsStack } from '../lib/dns/DnsStack.js'
+import { GlobalStack } from '../lib/global/GlobalStack.js'
 
 const app = new App()
 
-const configStack = new Stack(app, 'ConfigStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION
-  }
-})
+const globalStack = new GlobalStack({ scope: app })
 
-const config = loadConfig(configStack)
+const config = loadConfig(globalStack)
 
 const foundation = new FoundationStack({ scope: app, config })
 
@@ -41,6 +37,8 @@ const edgeRegional = new EdgeStack({
   dataStack: data,
   applicationStack: application
 })
+
+foundation.addDependency(globalStack)
 
 data.addDependency(foundation)
 
