@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM --platform=${BUILDPLATFORM} node:slim AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY packages/workers ./packages/workers
 
 RUN yarn build
 
-FROM node:20-alpine
+FROM node:slim
 
 WORKDIR /app
 
