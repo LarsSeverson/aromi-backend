@@ -39,8 +39,33 @@ jobs:
             workers: ['packages/workers/**', 'packages/shared/**']
             infra: ['packages/infra/**']
 
-  build-server:
+  ensure-foundation:
     needs: changes
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy Foundation
+        working-directory: packages/infra
+        run: |
+          yarn install --immutable
+          if ! aws ecr describe-repositories --repository-names ${{ vars.SERVER_REPO }} > /dev/null 2>&1 || \
+             ! aws ecr describe-repositories --repository-names ${{ vars.WORKERS_REPO }} > /dev/null 2>&1; then
+            yarn cdk deploy "aromi-${{ env.ENV_NAME }}-foundation" \
+            --context env=${{ env.ENV_NAME }} \
+            --require-approval never
+          fi
+
+  build-server:
+    needs: [changes, ensure-foundation]
     if: needs.changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
@@ -76,7 +101,7 @@ jobs:
             --overwrite
 
   build-workers:
-    needs: changes
+    needs: [changes, ensure-foundation]
     if: needs.changes.outputs.workers == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}

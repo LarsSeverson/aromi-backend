@@ -9,9 +9,8 @@
     "cdk": "cdk",
     "cdk:bootstrap": "cdk bootstrap --profile aromi-prod",
     "cdk:synth": "cdk synth --profile aromi-prod",
-    "deploy:base": "cdk deploy \"*-global\" \"*-foundation\" \"*-identity\" \"*-dns\" \"*-data\" --profile aromi-prod --require-approval never",
-    "deploy:app": "cdk deploy \"*-application\" \"*-edge\" --profile aromi-prod --require-approval never",
-    "deploy:all": "cdk deploy --all --profile aromi-prod --requirs-approval never",
+    "deploy:base": "cdk deploy \"*-foundation\" --profile aromi-prod --require-approval never",
+    "deploy:all": "cdk deploy --all --profile aromi-prod --require-approval never",
     "cdk:destroy": "cdk destroy --all"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import { Construct } from 'constructs'
 import { ImageTagMutabilityExclusionFilter, Repository, TagMutability, TagStatus } from 'aws-cdk-lib/aws-ecr'
 import type { WorkersRepoConstructProps } from '../types.js'
+import { RemovalPolicy } from 'aws-cdk-lib'
 
 export class WorkersRepoConstruct extends Construct {
   readonly repository: Repository
@@ -17,7 +18,9 @@ export class WorkersRepoConstruct extends Construct {
       lifeCycleRules: [{
         tagStatus: TagStatus.UNTAGGED,
         maxImageCount: 10
-      }]
+      }],
+
+      removalPolicy: RemovalPolicy.RETAIN
     }
   }
 
@@ -32,7 +35,9 @@ export class WorkersRepoConstruct extends Construct {
       imageScanOnPush: this.internalConfig.server.imageScanOnPush,
       imageTagMutability: this.internalConfig.server.imageTagMutability,
       imageTagMutabilityExclusionFilters: this.internalConfig.server.imageTagMutabilityExclusionFilters,
-      lifecycleRules: this.internalConfig.server.lifeCycleRules
+      lifecycleRules: this.internalConfig.server.lifeCycleRules,
+
+      removalPolicy: this.internalConfig.server.removalPolicy
     })
   }
 }
