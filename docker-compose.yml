@@ -36,16 +36,16 @@ services:
       - redis
       - meilisearch
 
-  # workers:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/workers.Dockerfile
-  #   container_name: aromi-workers
-  #   env_file:
-  #     - ./packages/workers/.env.production
-  #   depends_on:
-  #     - redis
-  #     - meilisearch
+  workers:
+    build:
+      context: .
+      dockerfile: docker/workers.Dockerfile
+    container_name: aromi-workers
+    env_file:
+      - ./packages/workers/.env.production
+    depends_on:
+      - redis
+      - meilisearch
 
 volumes:
   meili-data:
