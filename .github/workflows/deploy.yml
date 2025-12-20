@@ -114,7 +114,7 @@ jobs:
   deploy-infra:
     needs: [changes, build-server, build-workers]
     if: |
-      always() && 
+      !cancelled() &&
       (needs.changes.outputs.infra == 'true' || 
        needs.build-server.result == 'success' || 
        needs.build-workers.result == 'success')
