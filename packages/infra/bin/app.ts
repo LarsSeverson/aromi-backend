@@ -6,6 +6,7 @@ import { EdgeStack } from '../lib/edge/EdgeStack.js'
 import { IdentityStack } from '../lib/identity/IdentityStack.js'
 import { ApplicationStack } from '../lib/application/ApplicationStack.js'
 import { DnsStack } from '../lib/dns/DnsStack.js'
+import { ManagementStack } from '../lib/management/ManagementStack.js'
 
 const app = new App({ autoSynth: true })
 
@@ -26,7 +27,7 @@ const application = new ApplicationStack({
   dataStack: data
 })
 
-const edgeRegional = new EdgeStack({
+const edge = new EdgeStack({
   scope: app,
   config,
 
@@ -35,12 +36,22 @@ const edgeRegional = new EdgeStack({
   applicationStack: application
 })
 
+const management = new ManagementStack({
+  scope: app,
+  config,
+  foundationStack: foundation,
+  dataStack: data
+})
+
 data.addDependency(foundation)
 
 application.addDependency(foundation)
 application.addDependency(identity)
 application.addDependency(data)
 
-edgeRegional.addDependency(application)
+edge.addDependency(application)
+
+management.addDependency(foundation)
+management.addDependency(data)
 
 app.synth()
