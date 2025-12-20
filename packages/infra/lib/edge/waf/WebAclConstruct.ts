@@ -10,7 +10,7 @@ export class WebAclConstruct extends Construct {
     scope: 'CLOUDFRONT',
 
     defaultAction: {
-      block: {}
+      allow: {}
     },
 
     visibilityConfig: {
@@ -21,8 +21,50 @@ export class WebAclConstruct extends Construct {
 
     rules: [
       {
-        name: 'AWSManagedRulesCommonRuleSet',
+        name: 'AmazonIPReputation',
+        priority: 0,
+        overrideAction: { none: {} },
+        statement: {
+          managedRuleGroupStatement: {
+            vendorName: 'AWS',
+            name: 'AWSManagedRulesAmazonIpReputationList'
+          }
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: 'ipRepMetric'
+        }
+      },
+
+      {
+        name: 'RelaxedRateLimit',
         priority: 1,
+        action: { captcha: {} },
+        statement: {
+          rateBasedStatement: {
+            limit: 3000,
+            aggregateKeyType: 'IP',
+            scopeDownStatement: {
+              byteMatchStatement: {
+                searchString: '/graphql',
+                fieldToMatch: { uriPath: {} },
+                positionalConstraint: 'STARTS_WITH',
+                textTransformations: [{ priority: 0, type: 'NONE' }]
+              }
+            }
+          }
+        },
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: 'RelaxedRateLimitMetric'
+        }
+      },
+
+      {
+        name: 'AWSManagedRulesCommonRuleSet',
+        priority: 2,
         overrideAction: { none: {} },
         statement: {
           managedRuleGroupStatement: {
