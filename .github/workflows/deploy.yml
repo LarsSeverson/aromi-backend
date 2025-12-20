@@ -47,6 +47,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: 'packages/infra/yarn.lock'
+
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -73,6 +80,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -84,13 +97,17 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Server
-        run: |
-          docker run --privileged tonistiigi/binfmt --install arm64
-          docker buildx create --use
-          docker buildx build --platform linux/arm64 \
-            -f docker/server.Dockerfile \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:${{ env.IMAGE_TAG }} \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:latest --push .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/server.Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Update SSM Tag
         run: |
@@ -109,6 +126,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -120,13 +143,17 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Workers
-        run: |
-          docker run --privileged tonistiigi/binfmt --install arm64
-          docker buildx create --use
-          docker buildx build --platform linux/arm64 \
-            -f docker/workers.Dockerfile \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:${{ env.IMAGE_TAG }} \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:latest --push .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/workers.Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Update SSM Tag
         run: |
@@ -148,6 +175,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: 'packages/infra/yarn.lock'
 
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
