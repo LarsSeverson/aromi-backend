@@ -11,7 +11,7 @@ RUN yarn install --frozen-lockfile
 COPY packages/shared ./packages/shared
 COPY packages/workers ./packages/workers
 
-RUN yarn build
+RUN yarn build:workers
 
 FROM node:slim
 
