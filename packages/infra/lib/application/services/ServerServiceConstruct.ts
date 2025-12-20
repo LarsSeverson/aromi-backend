@@ -99,7 +99,7 @@ export class ServerServiceConstruct extends Construct {
 
     this.tag = StringParameter.valueForStringParameter(
       this,
-      `/aromi/${scope.prefix}/server/tag`
+      `/aromi/${config.envMode}/server/tag`
     )
 
     this.securityGroupId = `${scope.prefix}-server-service-sg`

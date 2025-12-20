@@ -63,7 +63,7 @@ export class WorkersServiceConstruct extends Construct {
 
     this.tag = StringParameter.valueForStringParameter(
       this,
-      `/aromi/${scope.prefix}/workers/tag`
+      `/aromi/${config.envMode}/workers/tag`
     )
 
     this.securityGroupId = `${scope.prefix}-workers-service-sg`
