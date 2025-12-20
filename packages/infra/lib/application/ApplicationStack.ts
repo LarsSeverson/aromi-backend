@@ -100,6 +100,12 @@ export class ApplicationStack extends BaseStack {
       this.serverService.service.node.addDependency(namespace)
     }
 
+    this.workersService.service.node.addDependency(this.redisService.service)
+    this.workersService.service.node.addDependency(this.meiliService.service)
+
+    this.serverService.service.node.addDependency(this.redisService.service)
+    this.serverService.service.node.addDependency(this.meiliService.service)
+
     this.allowCdnPrefixToAlb()
 
     this.allowMeiliToFileSystem(dataStack)
