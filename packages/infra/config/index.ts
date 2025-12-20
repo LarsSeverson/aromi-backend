@@ -1,21 +1,12 @@
 import { EnvMode } from '../common/types.js'
 import { devConfig } from './dev.js'
 import { prodConfig } from './prod.js'
-import type { GlobalStack } from '../lib/global/GlobalStack.js'
+import type { Construct } from 'constructs'
 
-export const loadConfig = (scope: GlobalStack) => {
+export const loadConfig = (scope: Construct) => {
   const env = scope.node.tryGetContext('env') as EnvMode ?? EnvMode.DEVELOPMENT
 
-  const serverTagFromContext = scope.node.tryGetContext('serverTag') as string
-  const workersTagFromContext = scope.node.tryGetContext('workersTag') as string
+  const config = env === EnvMode.PRODUCTION ? prodConfig : devConfig
 
-  const serverTag = serverTagFromContext ?? scope.serverTagParam.stringValue
-  const workersTag = workersTagFromContext ?? scope.workersTagParam.stringValue
-
-  const baseConfig = env === EnvMode.PRODUCTION ? prodConfig : devConfig
-
-  return {
-    ...baseConfig,
-    ecr: { serverTag, workersTag }
-  }
+  return config
 }

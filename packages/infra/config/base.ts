@@ -54,11 +54,6 @@ export const baseConfig: BaseConfig = {
     removalPolicy: RemovalPolicy.RETAIN
   },
 
-  ecr: {
-    serverTag: 'latest',
-    workersTag: 'latest'
-  },
-
   database: {
     databaseName: 'aromi',
 

@@ -22,8 +22,6 @@ export interface EnvConfig {
 
   readonly cognito: CognitoConfig
 
-  readonly ecr: EcrConfig
-
   readonly database: DatabaseConfig
   readonly fileSystem: FileSystemConfig
 
@@ -49,11 +47,6 @@ export interface NetworkConfig {
   readonly maxAzs: number
   readonly natGateways: number
   readonly subnetConfiguration: SubnetConfiguration[]
-}
-
-export interface EcrConfig {
-  readonly serverTag: string
-  readonly workersTag: string
 }
 
 export interface DatabaseConfig {

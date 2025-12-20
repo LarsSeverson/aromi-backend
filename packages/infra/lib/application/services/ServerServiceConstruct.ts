@@ -7,6 +7,8 @@ import { Duration } from 'aws-cdk-lib'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 
 export class ServerServiceConstruct extends Construct {
+  readonly tag: string
+
   readonly securityGroup: SecurityGroup
   readonly securityGroupId: string
 
@@ -95,6 +97,11 @@ export class ServerServiceConstruct extends Construct {
 
     super(scope, `${scope.prefix}-server-service`)
 
+    this.tag = StringParameter.valueForStringParameter(
+      this,
+      `/aromi/${scope.prefix}/server/tag`
+    )
+
     this.securityGroupId = `${scope.prefix}-server-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
       vpc: foundationStack.network.vpc,
@@ -135,7 +142,7 @@ export class ServerServiceConstruct extends Construct {
     this.container = this.task.addContainer(this.containerId, {
       image: ContainerImage.fromEcrRepository(
         foundationStack.serverEcr.repository,
-        config.ecr.serverTag
+        this.tag
       ),
 
       logging: this.internalConfig.logging,
@@ -222,11 +229,6 @@ export class ServerServiceConstruct extends Construct {
           healthCheck: this.internalConfig.alb.healthCheck
         }
       )
-    })
-
-    new StringParameter(this, 'ActiveServerTag', {
-      parameterName: `/aromi/${scope.prefix}/server/tag`,
-      stringValue: config.ecr.serverTag
     })
   }
 }

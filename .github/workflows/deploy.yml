@@ -1,0 +1,139 @@
+name: Deploy Services
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ["main", "development"]
+    paths:
+      - "packages/server/**"
+      - "packages/workers/**"
+      - "packages/shared/**"
+      - "packages/infra/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ENV_NAME: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      workers: ${{ steps.filter.outputs.workers }}
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server: ['packages/server/**', 'packages/shared/**']
+            workers: ['packages/workers/**', 'packages/shared/**']
+            infra: ['packages/infra/**']
+
+  build-server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Server
+        run: |
+          docker run --privileged tonistiigi/binfmt --install arm64
+          docker buildx create --use
+          docker buildx build --platform linux/arm64 \
+            -f docker/server.Dockerfile \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:${{ env.IMAGE_TAG }} \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.SERVER_REPO }}:latest --push .
+
+      - name: Update SSM Tag
+        run: |
+          aws ssm put-parameter \
+            --name "/aromi/${{ env.ENV_NAME }}/server/tag" \
+            --value "${{ env.IMAGE_TAG }}" \
+            --type "String" \
+            --overwrite
+
+  build-workers:
+    needs: changes
+    if: needs.changes.outputs.workers == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Workers
+        run: |
+          docker run --privileged tonistiigi/binfmt --install arm64
+          docker buildx create --use
+          docker buildx build --platform linux/arm64 \
+            -f docker/workers.Dockerfile \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:${{ env.IMAGE_TAG }} \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.WORKERS_REPO }}:latest --push .
+
+      - name: Update SSM Tag
+        run: |
+          aws ssm put-parameter \
+            --name "/aromi/${{ env.ENV_NAME }}/workers/tag" \
+            --value "${{ env.IMAGE_TAG }}" \
+            --type "String" \
+            --overwrite
+
+  deploy-infra:
+    needs: [changes, build-server, build-workers]
+    if: |
+      always() && 
+      (needs.changes.outputs.infra == 'true' || 
+       needs.build-server.result == 'success' || 
+       needs.build-workers.result == 'success')
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Node & Deploy
+        working-directory: packages/infra
+        run: |
+          yarn install --immutable
+          yarn cdk deploy "aromi-${{ env.ENV_NAME }}-*" \
+          --context env=${{ env.ENV_NAME }} \
+          --require-approval never

@@ -3,8 +3,11 @@ import type { WorkersServiceConstructProps } from '../types.js'
 import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, LogDrivers } from 'aws-cdk-lib/aws-ecs'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
+import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 
 export class WorkersServiceConstruct extends Construct {
+  readonly tag: string
+
   readonly securityGroup: SecurityGroup
   readonly securityGroupId: string
 
@@ -58,6 +61,11 @@ export class WorkersServiceConstruct extends Construct {
 
     super(scope, `${scope.prefix}-workers-service`)
 
+    this.tag = StringParameter.valueForStringParameter(
+      this,
+      `/aromi/${scope.prefix}/workers/tag`
+    )
+
     this.securityGroupId = `${scope.prefix}-workers-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
       vpc: foundationStack.network.vpc,
@@ -91,7 +99,7 @@ export class WorkersServiceConstruct extends Construct {
     this.container = this.task.addContainer(this.containerId, {
       image: ContainerImage.fromEcrRepository(
         foundationStack.workersEcr.repository,
-        config.ecr.workersTag
+        this.tag
       ),
 
       logging: this.internalConfig.logging,
