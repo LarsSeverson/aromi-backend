@@ -26,9 +26,9 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      server: ${{ steps.filter.outputs.server }}
-      workers: ${{ steps.filter.outputs.workers }}
-      infra: ${{ steps.filter.outputs.infra }}
+      server: ${{ steps.filter.outputs.server == 'true' || github.event_name == 'workflow_dispatch' }}
+      workers: ${{ steps.filter.outputs.workers == 'true' || github.event_name == 'workflow_dispatch' }}
+      infra: ${{ steps.filter.outputs.infra == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
