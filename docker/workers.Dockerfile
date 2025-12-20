@@ -6,7 +6,8 @@ COPY package.json yarn.lock tsconfig.base.json ./
 COPY packages/workers/package.json ./packages/workers/
 COPY packages/shared/package.json ./packages/shared/
 
-RUN yarn install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.yarn/cache \
+    yarn install --frozen-lockfile
 
 COPY packages/shared ./packages/shared
 COPY packages/workers ./packages/workers
@@ -21,7 +22,8 @@ COPY package.json yarn.lock ./
 COPY packages/workers/package.json ./packages/workers/
 COPY packages/shared/package.json ./packages/shared/
 
-RUN yarn install --frozen-lockfile --production
+RUN --mount=type=cache,target=/root/.yarn/cache \
+    yarn install --frozen-lockfile --production
 
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/workers/dist ./packages/workers/dist
