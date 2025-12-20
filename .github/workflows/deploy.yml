@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-          cache-dependency-path: 'packages/infra/yarn.lock'
+          cache-dependency-path: 'yarn.lock'
 
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -181,7 +181,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-          cache-dependency-path: 'packages/infra/yarn.lock'
+          cache-dependency-path: 'yarn.lock'
 
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
