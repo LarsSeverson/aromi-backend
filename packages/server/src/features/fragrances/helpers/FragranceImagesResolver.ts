@@ -24,10 +24,10 @@ export class FragranceImagesResolver extends RequestResolver<Query> {
 
     return rows.map(
       row => {
-        const { id, primaryColor, width, height } = row
+        const { id, s3Key, primaryColor, width, height } = row
         const url = assets.getCdnUrl(row.s3Key)
         return {
-          id, url, width, height, primaryColor
+          id, s3Key, url, width, height, primaryColor
         }
       }
     )

@@ -20,6 +20,7 @@ const config: CodegenConfig = {
           UserFollow: '../features/users/types.js#IUserFollowSummary',
 
           Fragrance: '../features/fragrances/types.js#IFragranceSummary',
+          FragranceImage: '../features/fragrances/types.js#IFragranceImageSummary',
           FragranceEdit: '../features/fragrances/types.js#IFragranceEditSummary',
           FragranceRequest: '../features/fragrances/types.js#IFragranceRequestSummary',
           FragranceCollection: '../features/fragrances/types.js#IFragranceCollectionSummary',

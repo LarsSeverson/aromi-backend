@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IAssetResult } from '../features/assets/types.js';
 import { IUserSummary, IUserFollowSummary } from '../features/users/types.js';
-import { IFragranceSummary, IFragranceEditSummary, IFragranceRequestSummary, IFragranceCollectionSummary, IFragranceCollectionItemSummary, IFragranceReviewSummary } from '../features/fragrances/types.js';
+import { IFragranceSummary, IFragranceImageSummary, IFragranceEditSummary, IFragranceRequestSummary, IFragranceCollectionSummary, IFragranceCollectionItemSummary, IFragranceReviewSummary } from '../features/fragrances/types.js';
 import { IBrandSummary, IBrandEditSummary, IBrandRequestSummary } from '../features/brands/types.js';
 import { IAccordEditSummary, IAccordRequestSummary } from '../features/accords/types.js';
 import { INoteSummary, INoteEditSummary, INoteRequestSummary } from '../features/notes/types.js';
@@ -2263,9 +2263,9 @@ export type ResolversTypes = ResolversObject<{
   FragranceEditPaginationInput: ResolverTypeWrapper<Partial<FragranceEditPaginationInput>>;
   FragranceEditSortBy: ResolverTypeWrapper<Partial<FragranceEditSortBy>>;
   FragranceEditSortInput: ResolverTypeWrapper<Partial<FragranceEditSortInput>>;
-  FragranceImage: ResolverTypeWrapper<Partial<FragranceImage>>;
-  FragranceImageConnection: ResolverTypeWrapper<Partial<FragranceImageConnection>>;
-  FragranceImageEdge: ResolverTypeWrapper<Partial<FragranceImageEdge>>;
+  FragranceImage: ResolverTypeWrapper<IFragranceImageSummary>;
+  FragranceImageConnection: ResolverTypeWrapper<Partial<Omit<FragranceImageConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceImageEdge']> }>>;
+  FragranceImageEdge: ResolverTypeWrapper<Partial<Omit<FragranceImageEdge, 'node'> & { node: ResolversTypes['FragranceImage'] }>>;
   FragranceNote: ResolverTypeWrapper<Partial<Omit<FragranceNote, 'note'> & { note: ResolversTypes['Note'] }>>;
   FragranceNoteConnection: ResolverTypeWrapper<Partial<Omit<FragranceNoteConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceNoteEdge']> }>>;
   FragranceNoteEdge: ResolverTypeWrapper<Partial<Omit<FragranceNoteEdge, 'node'> & { node: ResolversTypes['FragranceNote'] }>>;
@@ -2475,9 +2475,9 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceEditEdge: Partial<Omit<FragranceEditEdge, 'node'> & { node: ResolversParentTypes['FragranceEdit'] }>;
   FragranceEditPaginationInput: Partial<FragranceEditPaginationInput>;
   FragranceEditSortInput: Partial<FragranceEditSortInput>;
-  FragranceImage: Partial<FragranceImage>;
-  FragranceImageConnection: Partial<FragranceImageConnection>;
-  FragranceImageEdge: Partial<FragranceImageEdge>;
+  FragranceImage: IFragranceImageSummary;
+  FragranceImageConnection: Partial<Omit<FragranceImageConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceImageEdge']> }>;
+  FragranceImageEdge: Partial<Omit<FragranceImageEdge, 'node'> & { node: ResolversParentTypes['FragranceImage'] }>;
   FragranceNote: Partial<Omit<FragranceNote, 'note'> & { note: ResolversParentTypes['Note'] }>;
   FragranceNoteConnection: Partial<Omit<FragranceNoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceNoteEdge']> }>;
   FragranceNoteEdge: Partial<Omit<FragranceNoteEdge, 'node'> & { node: ResolversParentTypes['FragranceNote'] }>;

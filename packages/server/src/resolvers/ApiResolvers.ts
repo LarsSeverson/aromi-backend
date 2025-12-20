@@ -5,7 +5,7 @@ import { UserFieldResolvers, UserFollowFieldResolvers, UserMutationResolvers, Us
 import { BrandEditFieldResolvers, BrandFieldResolvers, BrandMutationResolvers, BrandQueryResolvers, BrandRequestFieldResolvers } from '@src/features/brands/index.js'
 import { AccordEditFieldResolvers, AccordMutationResolvers, AccordQueryResolvers, AccordRequestFieldResolvers } from '@src/features/accords/index.js'
 import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, NoteQueryResolvers, NoteRequestFieldResolvers } from '@src/features/notes/index.js'
-import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers } from '@src/features/fragrances/index.js'
+import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers } from '@src/features/fragrances/index.js'
 import { AssetFieldResolvers, AssetMutationResolvers } from '@src/features/assets/index.js'
 import { HealthQueryResolvers } from '@src/features/health/index.js'
 
@@ -22,6 +22,7 @@ const userMutations = new UserMutationResolvers()
 
 const fragranceQueries = new FragranceQueryResolvers()
 const fragranceFieldResolvers = new FragranceFieldResolvers()
+const fragranceImageFieldResolvers = new FragranceImageFieldResolvers()
 const fragranceCollectionFieldResolvers = new FragranceCollectionFieldResolvers()
 const fragranceCollectionItemFieldResolvers = new FragranceCollectionItemFieldResolvers()
 const fragranceReviewFieldResolvers = new FragranceReviewFieldResolvers()
@@ -93,6 +94,9 @@ export const ApiResolvers: Resolvers = {
 
   Fragrance: {
     ...fragranceFieldResolvers.getResolvers()
+  },
+  FragranceImage: {
+    ...fragranceImageFieldResolvers.getResolvers()
   },
   FragranceCollection: {
     ...fragranceCollectionFieldResolvers.getResolvers()
