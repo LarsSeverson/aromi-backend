@@ -126,7 +126,7 @@ export class WorkersServiceConstruct extends Construct {
 
         MEILI_HOST: meili.serviceHost,
 
-        CDN_DOMAIN: `https://${config.appDomain}`
+        CDN_DOMAIN: `https://${config.appDomain}/assets`
       },
 
       secrets: {

@@ -23,6 +23,7 @@ export class ManagementStack extends BaseStack {
     })
 
     this.allowJumpBoxToDatabase(dataStack)
+    this.allowJumpBoxToFileSystem(dataStack)
   }
 
   private allowJumpBoxToDatabase (dataStack: DataStack) {
@@ -33,6 +34,17 @@ export class ManagementStack extends BaseStack {
       ipProtocol: Protocol.TCP,
       fromPort: dataStack.database.databasePort,
       toPort: dataStack.database.databasePort
+    })
+  }
+
+  private allowJumpBoxToFileSystem (dataStack: DataStack) {
+    new CfnSecurityGroupIngress(this, 'AllowJumpBoxToFilesystem', {
+      groupId: dataStack.fileSystem.securityGroup.securityGroupId,
+      sourceSecurityGroupId: this.jumpBox.securityGroup.securityGroupId,
+
+      ipProtocol: Protocol.TCP,
+      fromPort: dataStack.fileSystem.efsPort,
+      toPort: dataStack.fileSystem.efsPort
     })
   }
 }
