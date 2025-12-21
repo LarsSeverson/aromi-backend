@@ -171,7 +171,7 @@ export class ServerServiceConstruct extends Construct {
         REDIS_HOST: redis.serviceHost,
         REDIS_PORT: redis.servicePort.toString(),
 
-        MEILI_HOST: meili.serviceHost,
+        MEILI_HOST: meili.externalHost,
 
         CDN_DOMAIN: `https://${config.appDomain}/assets`
       },

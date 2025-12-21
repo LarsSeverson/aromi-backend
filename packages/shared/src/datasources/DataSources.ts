@@ -48,7 +48,9 @@ export class DataSources {
 
   async healthCheck (): Promise<void> {
     await Promise.all([
-      this.healthCheckDB()
+      this.healthCheckDB(),
+      this.healthCheckMeili(),
+      this.healthCheckRedis()
     ])
   }
 

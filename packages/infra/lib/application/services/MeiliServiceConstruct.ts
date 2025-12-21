@@ -27,6 +27,8 @@ export class MeiliServiceConstruct extends Construct {
   readonly serviceHost = 'meilisearch'
   readonly servicePort = 7700
 
+  readonly externalHost = `${this.serviceHost}:${this.servicePort}`
+
   private readonly internalConfig = {
     security: {
       subnetType: SubnetType.PRIVATE_WITH_EGRESS,
