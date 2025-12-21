@@ -19,6 +19,19 @@ export class DistributionConstruct extends Construct {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
     },
 
+    errorResponses: [
+      {
+        httpStatus: 403,
+        responseHttpStatus: 200,
+        responsePagePath: '/index.html'
+      },
+      {
+        httpStatus: 404,
+        responseHttpStatus: 200,
+        responsePagePath: '/index.html'
+      }
+    ],
+
     assetsBehavior: {
       pathPattern: '/assets/*',
 
@@ -72,12 +85,15 @@ export class DistributionConstruct extends Construct {
       certificate: certifcate,
       webAclId,
 
+      defaultRootObject: 'index.html',
       defaultBehavior: {
         origin: S3BucketOrigin.withOriginAccessControl(importedSpaBucket, {
           originId: 'spa'
         }),
         ...this.internalConfig.defaultBehavior
       },
+
+      errorResponses: this.internalConfig.errorResponses,
 
       additionalBehaviors: {
         [this.internalConfig.assetsBehavior.pathPattern]: {
