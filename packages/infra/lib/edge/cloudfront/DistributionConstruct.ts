@@ -1,6 +1,6 @@
 import { Construct } from 'constructs'
 import type { DistributionConstructProps } from '../types.js'
-import { AllowedMethods, CachedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
+import { AllowedMethods, CachedMethods, CachePolicy, Distribution, Function, FunctionCode, FunctionEventType, OriginProtocolPolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { Bucket, BucketPolicy, type IBucket } from 'aws-cdk-lib/aws-s3'
 import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
@@ -84,6 +84,12 @@ export class DistributionConstruct extends Construct {
           origin: S3BucketOrigin.withOriginAccessControl(importedAssetsBucket, {
             originId: 'assets'
           }),
+
+          functionAssociations: [{
+            function: this.createRewriteFunction(),
+            eventType: FunctionEventType.VIEWER_REQUEST
+          }],
+
           ...this.internalConfig.assetsBehavior
         },
 
@@ -100,6 +106,21 @@ export class DistributionConstruct extends Construct {
 
     this.createCloudFrontS3Policy(importedSpaBucket, this.distribution)
     this.createCloudFrontS3Policy(importedAssetsBucket, this.distribution)
+  }
+
+  private createRewriteFunction (): Function {
+    return new Function(this, 'AssetsRewriteFunction', {
+      code: FunctionCode.fromInline(`
+        function handler(event) {
+          var request = event.request;
+          var uri = request.uri;
+          if (uri.startsWith('/assets/')) {
+            request.uri = uri.replace('/assets/', '/');
+          }
+          return request;
+        }
+      `)
+    })
   }
 
   private createCloudFrontS3Policy (bucket: IBucket, distribution: Distribution): BucketPolicy {
