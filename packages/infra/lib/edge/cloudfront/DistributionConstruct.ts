@@ -2,7 +2,9 @@ import { Construct } from 'constructs'
 import type { DistributionConstructProps } from '../types.js'
 import { AllowedMethods, CachedMethods, CachePolicy, Distribution, OriginProtocolPolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { LoadBalancerV2Origin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import { Bucket } from 'aws-cdk-lib/aws-s3'
+import { Bucket, BucketPolicy, type IBucket } from 'aws-cdk-lib/aws-s3'
+import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
+import { Stack } from 'aws-cdk-lib'
 
 export class DistributionConstruct extends Construct {
   readonly distribution: Distribution
@@ -87,5 +89,31 @@ export class DistributionConstruct extends Construct {
         }
       }
     })
+
+    this.createCloudFrontS3Policy(importedSpaBucket, this.distribution)
+    this.createCloudFrontS3Policy(importedAssetsBucket, this.distribution)
+  }
+
+  private createCloudFrontS3Policy (bucket: IBucket, distribution: Distribution): BucketPolicy {
+    const policy = new BucketPolicy(this, `${bucket.node.id}Policy`, {
+      bucket
+    })
+
+    policy.document.addStatements(
+      new PolicyStatement({
+        sid: 'AllowCloudFrontServicePrincipalReadOnly',
+        effect: Effect.ALLOW,
+        principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
+        actions: ['s3:GetObject'],
+        resources: [bucket.arnForObjects('*')],
+        conditions: {
+          StringEquals: {
+            'AWS:SourceArn': `arn:aws:cloudfront::${Stack.of(this).account}:distribution/${distribution.distributionId}`
+          }
+        }
+      })
+    )
+
+    return policy
   }
 }
