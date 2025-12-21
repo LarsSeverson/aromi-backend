@@ -15,6 +15,9 @@ export const syncAccords = (
         .execute(),
       error => BackendError.fromDatabase(error)
     )
+    .andTee(accords => {
+      console.log(`Fetched ${accords.length} accords from database`)
+    })
     .andThen(accords => ResultAsync
       .fromPromise(
         meili

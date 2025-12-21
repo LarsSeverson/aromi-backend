@@ -15,6 +15,9 @@ export const syncBrands = (
         .execute(),
       error => BackendError.fromDatabase(error)
     )
+    .andTee(brands => {
+      console.log(`Fetched ${brands.length} brands from database`)
+    })
     .andThen(brands => ResultAsync
       .fromPromise(
         meili

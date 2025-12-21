@@ -88,6 +88,8 @@ export const syncFragrances = (
             new Map<string, FragranceDocNote[]>()
           )
 
+          console.log(`Fetched ${fragrances.length} fragrances from database`)
+
           return fragrances
             .map(fragrance => ({
               ...fragrance,

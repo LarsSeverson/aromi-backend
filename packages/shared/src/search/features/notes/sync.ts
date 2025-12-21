@@ -15,6 +15,9 @@ export const syncNotes = (
         .execute(),
       error => BackendError.fromDatabase(error)
     )
+    .andTee(notes => {
+      console.log(`Fetched ${notes.length} notes from database`)
+    })
     .andThen(notes => ResultAsync
       .fromPromise(
         meili

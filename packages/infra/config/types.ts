@@ -6,6 +6,7 @@ import type { LifecyclePolicy, PerformanceMode, ThroughputMode } from 'aws-cdk-l
 import type { BlockPublicAccess, BucketEncryption, LifecycleRule, ObjectOwnership } from 'aws-cdk-lib/aws-s3'
 import type { CloudMapNamespaceOptions, RuntimePlatform } from 'aws-cdk-lib/aws-ecs'
 import type { AccountRecovery, Mfa, PasswordPolicy, SignInAliases } from 'aws-cdk-lib/aws-cognito'
+import type { DkimIdentity } from 'aws-cdk-lib/aws-ses'
 
 export interface EnvConfig {
   readonly appName: string
@@ -39,6 +40,7 @@ export interface EnvConfig {
   readonly distribution: DistributionConfig
 
   readonly dns: DnsConfig
+  readonly ses: SESConfig
 }
 
 export type BaseConfig = Omit<EnvConfig, 'envMode' | 'aws'>
@@ -133,4 +135,8 @@ export interface ServiceConfig {
 
 export interface DnsConfig {
   readonly zoneName: string
+}
+
+export interface SESConfig {
+  readonly dkimIdentity?: DkimIdentity
 }

@@ -209,5 +209,7 @@ export const baseConfig: BaseConfig = {
 
   dns: {
     zoneName: 'aromi.net'
-  }
+  },
+
+  ses: {}
 }

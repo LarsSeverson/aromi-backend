@@ -6,8 +6,8 @@ import { syncNotes } from '@src/search/features/notes/sync.js'
 import { syncFragrances } from '@src/search/features/fragrances/sync.js'
 import { syncUsers } from '@src/search/features/users/sync.js'
 
-export const syncSearch = () => {
-  return Result
+export const syncSearch = async () => {
+  const res = await Result
     .combine([
       createMeiliSearchWrapper(),
       createDB()
@@ -26,6 +26,15 @@ export const syncSearch = () => {
     .andTee(() => {
       console.log('Search index synced successfully')
     })
+
+  return res
 }
 
-void syncSearch()
+syncSearch().then(() => {
+  console.log('Process complete.')
+  process.exit(0)
+})
+  .catch((err: unknown) => {
+    console.error(err)
+    process.exit(1)
+  })

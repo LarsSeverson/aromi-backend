@@ -10,6 +10,9 @@ export const syncUsers = (
 
   return userService
     .find()
+    .andTee(users => {
+      console.log(`Fetched ${users.length} users from database`)
+    })
     .map(users => users.map(user => userSearch.fromRow({ user })))
     .andThen(docs => userSearch.addDocuments(docs))
 }
