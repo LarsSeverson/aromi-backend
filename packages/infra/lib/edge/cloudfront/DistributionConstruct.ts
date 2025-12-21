@@ -56,8 +56,15 @@ export class DistributionConstruct extends Construct {
 
     super(scope, `${scope.prefix}-distribution`)
 
-    const importedSpaBucket = Bucket.fromBucketArn(scope, 'AvoidCDKBug31462Spa', spaBucket.bucketArn)
-    const importedAssetsBucket = Bucket.fromBucketArn(scope, 'AvoidCDKBug31462Assets', assetsBucket.bucketArn)
+    const importedSpaBucket = Bucket.fromBucketAttributes(scope, 'AvoidCDKBug31462SPA', {
+      bucketArn: spaBucket.bucketArn,
+      region: Stack.of(spaBucket).region
+    })
+
+    const importedAssetsBucket = Bucket.fromBucketAttributes(scope, 'AvoidCDKBug31462Assets', {
+      bucketArn: assetsBucket.bucketArn,
+      region: Stack.of(spaBucket).region
+    })
 
     this.distributionId = `${scope.prefix}-distribution`
     this.distribution = new Distribution(this, this.distributionId, {
@@ -66,15 +73,16 @@ export class DistributionConstruct extends Construct {
       webAclId,
 
       defaultBehavior: {
-        origin: S3BucketOrigin.withOriginAccessControl(importedSpaBucket, { originId: 'spa' }),
+        origin: S3BucketOrigin.withOriginAccessControl(importedSpaBucket, {
+          originId: 'spa'
+        }),
         ...this.internalConfig.defaultBehavior
       },
 
       additionalBehaviors: {
         [this.internalConfig.assetsBehavior.pathPattern]: {
           origin: S3BucketOrigin.withOriginAccessControl(importedAssetsBucket, {
-            originId: 'assets',
-            originPath: '/'
+            originId: 'assets'
           }),
           ...this.internalConfig.assetsBehavior
         },
