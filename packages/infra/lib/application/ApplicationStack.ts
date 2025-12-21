@@ -116,6 +116,7 @@ export class ApplicationStack extends BaseStack {
 
     this.allowServerToDatabase(dataStack)
     this.allowServerToRedis()
+    this.allowServerToMeili()
     this.allowAlbToServer()
   }
 
@@ -180,6 +181,13 @@ export class ApplicationStack extends BaseStack {
     this.redisService.securityGroup.addIngressRule(
       this.serverService.securityGroup,
       Port.tcp(this.redisService.servicePort)
+    )
+  }
+
+  private allowServerToMeili () {
+    this.meiliService.securityGroup.addIngressRule(
+      this.serverService.securityGroup,
+      Port.tcp(this.meiliService.servicePort)
     )
   }
 
