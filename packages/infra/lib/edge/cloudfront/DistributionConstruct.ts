@@ -70,7 +70,10 @@ export class DistributionConstruct extends Construct {
 
       additionalBehaviors: {
         [this.internalConfig.assetsBehavior.pathPattern]: {
-          origin: S3BucketOrigin.withOriginAccessControl(importedAssetsBucket, { originId: 'assets' }),
+          origin: S3BucketOrigin.withOriginAccessControl(importedAssetsBucket, {
+            originId: 'assets',
+            originPath: '/'
+          }),
           ...this.internalConfig.assetsBehavior
         },
 
