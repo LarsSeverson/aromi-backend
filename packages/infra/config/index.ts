@@ -8,5 +8,9 @@ export const loadConfig = (scope: Construct) => {
 
   const config = env === EnvMode.PRODUCTION ? prodConfig : devConfig
 
+  if (config.aws.account === undefined || config.aws.region === undefined) {
+    throw new Error('AWS account and region must be defined in the environment variables.')
+  }
+
   return config
 }

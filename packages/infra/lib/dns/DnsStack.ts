@@ -1,9 +1,11 @@
 import { BaseStack } from '../../common/BaseStack.js'
+import { EmailConstruct } from './ses/EmailConstruct.js'
 import type { DnsStackProps } from './types.js'
 import { ZoneConstruct } from './zone/ZoneConstruct.js'
 
 export class DnsStack extends BaseStack {
   readonly zone: ZoneConstruct
+  readonly email: EmailConstruct
 
   constructor (props: DnsStackProps) {
     const { scope, config } = props
@@ -20,6 +22,12 @@ export class DnsStack extends BaseStack {
     this.zone = new ZoneConstruct({
       scope: this,
       config
+    })
+
+    this.email = new EmailConstruct({
+      scope: this,
+      config,
+      zone: this.zone
     })
   }
 }

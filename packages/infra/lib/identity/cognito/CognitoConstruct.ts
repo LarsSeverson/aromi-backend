@@ -1,7 +1,7 @@
-import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito'
+import { UserPool, UserPoolClient, UserPoolEmail } from 'aws-cdk-lib/aws-cognito'
 import { Construct } from 'constructs'
 import type { CognitoConstructProps } from '../types.js'
-import { Duration } from 'aws-cdk-lib'
+import { Duration, Stack } from 'aws-cdk-lib'
 
 export class CognitoConstruct extends Construct {
   readonly userPool: UserPool
@@ -51,12 +51,24 @@ export class CognitoConstruct extends Construct {
   }
 
   constructor (props: CognitoConstructProps) {
-    const { scope, config } = props
+    const { scope, config, dnsStack } = props
+    const { zone, email } = dnsStack
+
     super(scope, `${scope.prefix}-cognito`)
 
     this.userPoolId = `${scope.prefix}-user-pool`
     this.userPool = new UserPool(this, this.userPoolId, {
       userPoolName: this.userPoolId,
+
+      email: UserPoolEmail.withSES({
+        fromEmail: `noreply@${zone.hostedZone.zoneName}`,
+        fromName: config.appName,
+
+        sesVerifiedDomain: zone.hostedZone.zoneName,
+        configurationSetName: email.configSetName,
+
+        sesRegion: Stack.of(dnsStack).region
+      }),
 
       signInAliases: config.cognito.signInAliases,
 

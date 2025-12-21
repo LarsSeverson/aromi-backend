@@ -14,8 +14,8 @@ const config = loadConfig(app)
 
 const foundation = new FoundationStack({ scope: app, config })
 
-const identity = new IdentityStack({ scope: app, config })
 const dns = new DnsStack({ scope: app, config })
+const identity = new IdentityStack({ scope: app, config, dnsStack: dns })
 
 const data = new DataStack({ scope: app, config, foundationStack: foundation })
 
@@ -42,6 +42,8 @@ const management = new ManagementStack({
   foundationStack: foundation,
   dataStack: data
 })
+
+identity.addDependency(dns)
 
 data.addDependency(foundation)
 

@@ -6,7 +6,7 @@ export class IdentityStack extends BaseStack {
   cognito: CognitoConstruct
 
   constructor (props: IdentityStackProps) {
-    const { scope, config } = props
+    const { scope, config, dnsStack } = props
 
     super({
       scope,
@@ -16,7 +16,8 @@ export class IdentityStack extends BaseStack {
 
     this.cognito = new CognitoConstruct({
       scope: this,
-      config
+      config,
+      dnsStack
     })
   }
 }
