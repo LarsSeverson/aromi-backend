@@ -78,7 +78,9 @@ export class ServerServiceConstruct extends Construct {
 
     logging: LogDrivers.awsLogs({
       streamPrefix: 'server'
-    })
+    }),
+
+    enableExecuteCommand: true
   }
 
   constructor (props: ServerServiceConstructProps) {
@@ -212,7 +214,9 @@ export class ServerServiceConstruct extends Construct {
 
       serviceConnectConfiguration: {
         namespace: cluster.defaultCloudMapNamespace!.namespaceName
-      }
+      },
+
+      enableExecuteCommand: this.internalConfig.enableExecuteCommand
     })
 
     this.targetGroupId = `${scope.prefix}-server-target-group`
