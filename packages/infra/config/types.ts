@@ -139,4 +139,5 @@ export interface DnsConfig {
 
 export interface SESConfig {
   readonly dkimIdentity?: DkimIdentity
+  readonly enableAlarms?: boolean
 }

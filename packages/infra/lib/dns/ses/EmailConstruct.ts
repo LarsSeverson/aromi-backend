@@ -3,6 +3,8 @@ import type { EmailConstructProps } from '../types.js'
 import { ConfigurationSet, EmailIdentity, Identity } from 'aws-cdk-lib/aws-ses'
 import { TxtRecord } from 'aws-cdk-lib/aws-route53'
 import { ServicePrincipal } from 'aws-cdk-lib/aws-iam'
+import { Alarm, ComparisonOperator, Metric } from 'aws-cdk-lib/aws-cloudwatch'
+import { Duration } from 'aws-cdk-lib'
 
 export class EmailConstruct extends Construct {
   readonly configSet: ConfigurationSet
@@ -11,7 +13,11 @@ export class EmailConstruct extends Construct {
   readonly identity: EmailIdentity
   readonly identityName: string
 
-  readonly txtRecord: TxtRecord
+  readonly dkimRecord: TxtRecord
+  readonly spfRecord: TxtRecord
+
+  readonly bounceAlarm?: Alarm
+  readonly complaintAlarm?: Alarm
 
   constructor (props: EmailConstructProps) {
     const { scope, zone, config } = props
@@ -30,7 +36,7 @@ export class EmailConstruct extends Construct {
       configurationSet: this.configSet
     })
 
-    this.txtRecord = new TxtRecord(this, `${scope.prefix}-email-txt`, {
+    this.dkimRecord = new TxtRecord(this, `${scope.prefix}-email-txt`, {
       zone: zone.hostedZone,
       recordName: '_dmarc',
       values: [
@@ -38,6 +44,44 @@ export class EmailConstruct extends Construct {
       ]
     })
 
+    this.spfRecord = new TxtRecord(this, `${scope.prefix}-email-spf`, {
+      zone: zone.hostedZone,
+      recordName: `mail.${zone.hostedZone.zoneName}`,
+      values: [
+        'v=spf1 include:amazonses.com ~all'
+      ]
+    })
+
     this.identity.grantSendEmail(new ServicePrincipal('cognito-idp.amazonaws.com'))
+
+    if (config.ses.enableAlarms ?? false) {
+      this.bounceAlarm = new Alarm(this, `${scope.prefix}-email-bounce-alarm`, {
+        alarmName: `${scope.prefix}-email-bounce-alarm`,
+        metric: new Metric({
+          namespace: 'AWS/SES',
+          metricName: 'Reputation.BounceRate',
+          statistic: 'Average',
+          period: Duration.minutes(15)
+        }),
+        threshold: 0.05, // 5%
+        evaluationPeriods: 1,
+        comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        alarmDescription: 'Alert: SES Bounce Rate has reached 5%.'
+      })
+
+      this.complaintAlarm = new Alarm(this, `${scope.prefix}-email-complaint-alarm`, {
+        alarmName: `${scope.prefix}-email-complaint-alarm`,
+        metric: new Metric({
+          namespace: 'AWS/SES',
+          metricName: 'Reputation.ComplaintRate',
+          statistic: 'Average',
+          period: Duration.minutes(15)
+        }),
+        threshold: 0.001, // 0.1%
+        evaluationPeriods: 1,
+        comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        alarmDescription: 'Alert: SES Complaint Rate has reached 0.1%.'
+      })
+    }
   }
 }
