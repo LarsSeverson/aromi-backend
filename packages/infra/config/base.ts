@@ -149,8 +149,8 @@ export const baseConfig: BaseConfig = {
   meiliService: {
     desiredCount: 1,
 
-    cpu: 512,
-    memoryLimitMiB: 1024,
+    cpu: 1024,
+    memoryLimitMiB: 2048,
     runtimePlatform: {
       cpuArchitecture: CpuArchitecture.ARM64,
       operatingSystemFamily: OperatingSystemFamily.LINUX
