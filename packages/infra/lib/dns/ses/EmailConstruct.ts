@@ -1,7 +1,7 @@
 import { Construct } from 'constructs'
 import type { EmailConstructProps } from '../types.js'
 import { ConfigurationSet, EmailIdentity, Identity } from 'aws-cdk-lib/aws-ses'
-import { TxtRecord } from 'aws-cdk-lib/aws-route53'
+import { MxRecord, TxtRecord } from 'aws-cdk-lib/aws-route53'
 import { ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { Alarm, ComparisonOperator, Metric } from 'aws-cdk-lib/aws-cloudwatch'
 import { Duration } from 'aws-cdk-lib'
@@ -18,6 +18,8 @@ export class EmailConstruct extends Construct {
 
   readonly bounceAlarm?: Alarm
   readonly complaintAlarm?: Alarm
+
+  readonly googMxRecord: MxRecord
 
   constructor (props: EmailConstructProps) {
     const { scope, zone, config } = props
@@ -40,7 +42,7 @@ export class EmailConstruct extends Construct {
       zone: zone.hostedZone,
       recordName: '_dmarc',
       values: [
-        `v=DMARC1; p=none; rua=mailto:dmarc-reports@${zone.hostedZone.zoneName}`
+        `v=DMARC1; p=none; rua=mailto:admin@${zone.hostedZone.zoneName}`
       ]
     })
 
@@ -48,7 +50,7 @@ export class EmailConstruct extends Construct {
       zone: zone.hostedZone,
       recordName: `mail.${zone.hostedZone.zoneName}`,
       values: [
-        'v=spf1 include:amazonses.com ~all'
+        'v=spf1 include:_spf.google.com include:amazonses.com ~all'
       ]
     })
 
@@ -83,5 +85,12 @@ export class EmailConstruct extends Construct {
         alarmDescription: 'Alert: SES Complaint Rate has reached 0.1%.'
       })
     }
+
+    this.googMxRecord = new MxRecord(this, `${scope.prefix}-google-mx`, {
+      zone: zone.hostedZone,
+      values: [
+        { priority: 1, hostName: 'smtp.google.com' }
+      ]
+    })
   }
 }

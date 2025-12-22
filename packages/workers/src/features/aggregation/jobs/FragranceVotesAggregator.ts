@@ -10,6 +10,7 @@ export class FragranceVotesAggregator extends BaseAggregator<AggregationJobPaylo
 
     await unwrapOrThrow(this.getScore(fragranceId))
     const score = await this.updateScore(fragranceId)
+    await this.updateUpdatedAt(fragranceId)
 
     return score
   }
@@ -32,5 +33,15 @@ export class FragranceVotesAggregator extends BaseAggregator<AggregationJobPaylo
     const { scores } = fragrances
 
     return await scores.aggregateVotes(fragranceId)
+  }
+
+  private async updateUpdatedAt (fragranceId: string) {
+    const { services } = this.context
+    const { fragrances } = services
+
+    return await fragrances.updateOne(
+      where => where('id', '=', fragranceId),
+      { updatedAt: new Date().toISOString() }
+    )
   }
 }

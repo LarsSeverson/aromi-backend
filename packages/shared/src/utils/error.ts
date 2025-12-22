@@ -10,7 +10,8 @@ export class BackendError extends GraphQLError {
   readonly details?: unknown
 
   constructor (code: string, message: string, status: number, details?: unknown) {
-    const parsedDetails = details instanceof Error
+    const skipDetails = process.env.NODE_ENV === 'production'
+    const parsedDetails = skipDetails ? undefined : details instanceof Error
       ? { name: details.name, message: details.message, stack: details.stack }
       : typeof details === 'object'
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -114,8 +115,6 @@ export const formatApiError = (formattedError: GraphQLFormattedError, error: unk
     return new BackendError('GRAPHQL_VALIDATION_FAILED', 'Invalid query', 400, error)
       .serialize()
   }
-
-  console.log(error)
 
   return new BackendError('INTERNAL_ERROR', 'Something went wrong on our end. Please try again later', 500, error)
     .serialize()

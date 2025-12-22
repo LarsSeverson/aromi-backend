@@ -22,15 +22,15 @@ const createPool = (): Result<Pool, BackendError> => {
   if (dbName.isErr()) return err(new BackendError('MISSING_ENV', 'DB_NAME is missing', 500))
   if (dbPort.isErr()) return err(new BackendError('MISSING_ENV', 'DB_PORT is missing', 500))
 
+  const ssl = process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+
   const db = new Pool({
     host: dbHost.value,
     user: dbUser.value,
     password: dbPassword.value,
     database: dbName.value,
     port: Number(dbPort.value),
-    ssl: {
-      rejectUnauthorized: false
-    }
+    ssl
   })
 
   return ok(db)
