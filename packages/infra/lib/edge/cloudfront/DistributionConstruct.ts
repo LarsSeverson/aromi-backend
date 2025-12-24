@@ -149,7 +149,7 @@ export class DistributionConstruct extends Construct {
         sid: 'AllowCloudFrontServicePrincipalReadWrite',
         effect: Effect.ALLOW,
         principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-        actions: ['s3:GetObject', 's3:PutObject', 's3:PostObject'],
+        actions: ['s3:GetObject', 's3:PutObject'],
         resources: [bucket.arnForObjects('*')],
         conditions: {
           StringEquals: {
