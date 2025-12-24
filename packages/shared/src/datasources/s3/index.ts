@@ -24,12 +24,13 @@ export const createS3Wrapper = (): Result<S3Wrapper, BackendError> => {
       const accessKeyId = process.env.AWS_ACCESS_KEY_ID
       const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
 
+      const credentials = accessKeyId != null && secretAccessKey != null
+        ? { accessKeyId, secretAccessKey }
+        : undefined
+
       const client = new S3Client({
         region,
-        credentials: {
-          accessKeyId,
-          secretAccessKey
-        }
+        credentials
       })
 
       return { client, bucket }
