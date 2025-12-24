@@ -7,6 +7,7 @@ export const MAX_USER_AVATAR_SIZE = 5_000_000 // 5 MB
 
 export const ValidUserEmail = z
   .email('Please enter a valid email address')
+  .toLowerCase()
 
 export const ValidUserPassowrd = z
   .string('Password must be a string')

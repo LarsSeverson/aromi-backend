@@ -42,7 +42,6 @@ export const ConfirmForgotPasswordSchema = z
     password: ValidUserPassowrd
   })
 
-
 export const ChangePasswordSchema = z
   .object({
     oldPassword: ValidUserPassowrd,
