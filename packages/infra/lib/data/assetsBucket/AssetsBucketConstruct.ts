@@ -30,7 +30,7 @@ export class AssetsBucketConstruct extends Construct {
 
       cors: [{
         ...this.internalConfig.cors,
-        allowedOrigins: [`https://${config.appDomain}`]
+        allowedOrigins: [`https://${config.appDomain}`, `https://www.${config.appDomain}`]
       }],
       lifecycleRules: config.assetsBucket.lifecycleRules,
 

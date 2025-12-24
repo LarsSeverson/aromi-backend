@@ -157,7 +157,6 @@ export class UserLoaders extends BaseLoader {
             }
             if (row.followedId === userId) {
               entry.isFollowedBy = true
-
             }
           }
         }
