@@ -120,8 +120,8 @@ export class DistributionConstruct extends Construct {
       }
     })
 
-    this.createCloudFrontS3Policy(importedSpaBucket, this.distribution)
-    this.createCloudFrontS3Policy(importedAssetsBucket, this.distribution)
+    this.createCloudFrontS3Policy(importedSpaBucket, this.distribution, false)
+    this.createCloudFrontS3Policy(importedAssetsBucket, this.distribution, true)
   }
 
   private createRewriteFunction (): Function {
@@ -139,17 +139,19 @@ export class DistributionConstruct extends Construct {
     })
   }
 
-  private createCloudFrontS3Policy (bucket: IBucket, distribution: Distribution): BucketPolicy {
+  private createCloudFrontS3Policy (bucket: IBucket, distribution: Distribution, isAssetBucket: boolean): BucketPolicy {
     const policy = new BucketPolicy(this, `${bucket.node.id}Policy`, {
       bucket
     })
+
+    const actions = isAssetBucket ? ['s3:GetObject', 's3:PutObject'] : ['s3:GetObject']
 
     policy.document.addStatements(
       new PolicyStatement({
         sid: 'AllowCloudFrontServicePrincipalReadWrite',
         effect: Effect.ALLOW,
         principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-        actions: ['s3:GetObject', 's3:PutObject'],
+        actions,
         resources: [bucket.arnForObjects('*')],
         conditions: {
           StringEquals: {
