@@ -35,7 +35,7 @@ export class DistributionConstruct extends Construct {
     assetsBehavior: {
       pathPattern: '/assets/*',
 
-      allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
+      allowedMethods: AllowedMethods.ALLOW_ALL,
       cachedMethods: CachedMethods.CACHE_GET_HEAD,
 
       cachePolicy: CachePolicy.CACHING_OPTIMIZED,
@@ -146,10 +146,10 @@ export class DistributionConstruct extends Construct {
 
     policy.document.addStatements(
       new PolicyStatement({
-        sid: 'AllowCloudFrontServicePrincipalReadOnly',
+        sid: 'AllowCloudFrontServicePrincipalReadWrite',
         effect: Effect.ALLOW,
         principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-        actions: ['s3:GetObject'],
+        actions: ['s3:GetObject', 's3:PutObject', 's3:PostObject'],
         resources: [bucket.arnForObjects('*')],
         conditions: {
           StringEquals: {
