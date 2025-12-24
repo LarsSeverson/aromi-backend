@@ -419,6 +419,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const connection = this.pageFactory.paginate(followers, pagination)
     const transformed = this.pageFactory.transform(connection, follow => ({
       ...follow,
+      id: `follower:${follow.followerId}`,
       userId: follow.followerId
     }))
 
@@ -445,6 +446,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const connection = this.pageFactory.paginate(following, pagination)
     const transformed = this.pageFactory.transform(connection, follow => ({
       ...follow,
+      id: `following:${follow.followedId}`,
       userId: follow.followedId
     }))
 
