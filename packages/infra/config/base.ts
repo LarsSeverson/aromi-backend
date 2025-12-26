@@ -181,8 +181,8 @@ export const baseConfig: BaseConfig = {
   workersService: {
     desiredCount: 1,
 
-    cpu: 512,
-    memoryLimitMiB: 1024,
+    cpu: 256,
+    memoryLimitMiB: 512,
     runtimePlatform: {
       cpuArchitecture: CpuArchitecture.ARM64,
       operatingSystemFamily: OperatingSystemFamily.LINUX
