@@ -5,6 +5,10 @@ export const SearchInputSchema = z
     term: z
       .string()
       .trim()
+      .nullish()
   })
   .strip()
   .default({ term: '' })
+  .transform(({ term }) => ({
+    term: term ?? ''
+  }))
