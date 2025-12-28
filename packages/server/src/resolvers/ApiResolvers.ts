@@ -5,7 +5,7 @@ import { UserFieldResolvers, UserFollowFieldResolvers, UserMutationResolvers, Us
 import { BrandEditFieldResolvers, BrandFieldResolvers, BrandMutationResolvers, BrandQueryResolvers, BrandRequestFieldResolvers } from '@src/features/brands/index.js'
 import { AccordEditFieldResolvers, AccordMutationResolvers, AccordQueryResolvers, AccordRequestFieldResolvers } from '@src/features/accords/index.js'
 import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, NoteQueryResolvers, NoteRequestFieldResolvers } from '@src/features/notes/index.js'
-import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers } from '@src/features/fragrances/index.js'
+import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers, FragranceVoteFieldResolvers } from '@src/features/fragrances/index.js'
 import { AssetFieldResolvers, AssetMutationResolvers } from '@src/features/assets/index.js'
 import { HealthQueryResolvers } from '@src/features/health/index.js'
 
@@ -29,6 +29,7 @@ const fragranceReviewFieldResolvers = new FragranceReviewFieldResolvers()
 const fragranceMutations = new FragranceMutationResolvers()
 const fragranceEditFieldResolvers = new FragranceEditFieldResolvers()
 const fragranceRequestFieldResolvers = new FragranceRequestFieldResolvers()
+const fragranceVoteFieldResolvers = new FragranceVoteFieldResolvers()
 
 const brandQueries = new BrandQueryResolvers()
 const brandMutations = new BrandMutationResolvers()
@@ -80,64 +81,41 @@ export const ApiResolvers: Resolvers = {
     ...noteMutations.getResolvers()
   },
 
-  Asset: {
-    ...assetFieldResolvers.getResolvers()
-  },
+  Asset: assetFieldResolvers.getResolvers(),
 
-  User: {
-    ...userFieldQueries.getResolvers()
-  },
+  User: userFieldQueries.getResolvers(),
 
-  UserFollow: {
-    ...userFollowFieldResolvers.getResolvers()
-  },
+  UserFollow: userFollowFieldResolvers.getResolvers(),
 
-  Fragrance: {
-    ...fragranceFieldResolvers.getResolvers()
-  },
-  FragranceImage: {
-    ...fragranceImageFieldResolvers.getResolvers()
-  },
-  FragranceCollection: {
-    ...fragranceCollectionFieldResolvers.getResolvers()
-  },
-  FragranceCollectionItem: {
-    ...fragranceCollectionItemFieldResolvers.getResolvers()
-  },
-  FragranceReview: {
-    ...fragranceReviewFieldResolvers.getResolvers()
-  },
-  FragranceEdit: {
-    ...fragranceEditFieldResolvers.getResolvers()
-  },
-  FragranceRequest: {
-    ...fragranceRequestFieldResolvers.getResolvers()
-  },
+  Fragrance: fragranceFieldResolvers.getResolvers(),
 
-  Brand: {
-    ...brandFieldResolvers.getResolvers()
-  },
-  BrandEdit: {
-    ...brandEditFieldResolvers.getResolvers()
-  },
-  BrandRequest: {
-    ...brandRequestFieldResolvers.getResolvers()
-  },
+  FragranceImage: fragranceImageFieldResolvers.getResolvers(),
 
-  AccordEdit: {
-    ...accordEditFieldResolvers.getResolvers()
-  },
-  AccordRequest: {
-    ...accordRequestFieldResolvers.getResolvers()
-  },
+  FragranceVote: fragranceVoteFieldResolvers.getResolvers(),
 
-  Note: {
-    ...noteFieldResolvers.getResolvers()
-  },
-  NoteEdit: {
-    ...noteEditFieldResolvers.getResolvers()
-  },
-  NoteRequest: {
-    ...noteRequestFieldResolvers.getResolvers()
-  }
+  FragranceCollection: fragranceCollectionFieldResolvers.getResolvers(),
+
+  FragranceCollectionItem: fragranceCollectionItemFieldResolvers.getResolvers(),
+
+  FragranceReview: fragranceReviewFieldResolvers.getResolvers(),
+
+  FragranceEdit: fragranceEditFieldResolvers.getResolvers(),
+
+  FragranceRequest: fragranceRequestFieldResolvers.getResolvers(),
+
+  Brand: brandFieldResolvers.getResolvers(),
+
+  BrandEdit: brandEditFieldResolvers.getResolvers(),
+
+  BrandRequest: brandRequestFieldResolvers.getResolvers(),
+
+  AccordEdit: accordEditFieldResolvers.getResolvers(),
+
+  AccordRequest: accordRequestFieldResolvers.getResolvers(),
+
+  Note: noteFieldResolvers.getResolvers(),
+
+  NoteEdit: noteEditFieldResolvers.getResolvers(),
+
+  NoteRequest: noteRequestFieldResolvers.getResolvers()
 }

@@ -5,6 +5,7 @@ CREATE TABLE public.fragrance_votes (
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   deleted_at timestamp with time zone,
   vote smallint NOT NULL,
+  updated_at timestamp with time zone DEFAULT now() NOT NULL,
   CONSTRAINT fragrance_votes_vote_check CHECK ((vote = ANY (ARRAY['-1'::integer, 0, 1])))
 );
 

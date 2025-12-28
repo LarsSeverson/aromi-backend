@@ -22,7 +22,7 @@ type User {
   collection(id: ID!): FragranceCollection!
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
 
-  likes(input: FragrancePaginationInput): FragranceConnection!
+  likes(input: FragranceVotePaginationInput): FragranceVoteConnection!
 
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!
@@ -57,6 +57,6 @@ extend type Mutation {
   updateMe(input: UpdateMeInput!): User!
   setMyAvatar(input: SetMyAvatarInput!): User!
 
-  follow(input: FollowUserInput!): User!
-  unfollow(input: UnfollowUserInput!): User!
+  follow(input: FollowUserInput!): UserFollow!
+  unfollow(input: UnfollowUserInput!): UserFollow!
 }

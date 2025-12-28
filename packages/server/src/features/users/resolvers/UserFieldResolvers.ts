@@ -2,20 +2,21 @@ import { INVALID_ID, RequestStatus, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { RelationshipStatus, type UserResolvers } from '@src/graphql/gql-types.js'
 import { RequestPaginationFactory } from '@src/features/requests/factories/RequestPaginationFactory.js'
-import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview, mapFragranceRowToFragranceSummary } from '@src/features/fragrances/utils/mappers.js'
+import { mapFragranceRequestRowToFragranceRequest, mapFragranceReviewRowToFragranceReview } from '@src/features/fragrances/utils/mappers.js'
 import { mapBrandRequestRowToBrandRequestSummary } from '@src/features/brands/utils/mappers.js'
 import { mapAccordRequestRowToAccordRequestSummary } from '@src/features/accords/utils/mappers.js'
 import { mapNoteRequestRowToNoteRequestSummary } from '@src/features/notes/utils/mappers.js'
 import { FragranceCollectionPaginationFactory, FragranceReviewPaginationFactory } from '@src/features/fragrances/index.js'
-import { FragrancePaginationFactory } from '@src/features/fragrances/factories/FragrancePaginationFactory.js'
 import { UserFollowPaginationFactory } from '../factories/UserPaginationFactory.js'
+import { UserLikesPaginationFactory } from '../factories/UserLikesPaginationFactory.js'
+import { VOTE_TYPES } from '@src/utils/constants.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
-  private readonly fragrancePagination = new FragrancePaginationFactory()
   private readonly collectionPagination = new FragranceCollectionPaginationFactory()
   private readonly reviewPagination = new FragranceReviewPaginationFactory()
   private readonly userFollowPagination = new UserFollowPaginationFactory()
+  private readonly userLikesPagination = new UserLikesPaginationFactory()
 
   email: UserResolvers['email'] = (
     parent,
@@ -143,16 +144,21 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     const { services } = context
 
     const { fragrances } = services
-    const pagination = this.fragrancePagination.parse(input)
+    const pagination = this.userLikesPagination.parse(input)
 
-    const likedFragrances = await unwrapOrThrow(
-      fragrances.findLikedFragrances(id, { pagination })
+    const likes = await unwrapOrThrow(
+      fragrances.votes.find(
+        where => where.and([
+          where('userId', '=', id),
+          where('vote', '=', VOTE_TYPES.UPVOTE)
+        ]),
+        { pagination }
+      )
     )
 
-    const connection = this.pageFactory.paginate(likedFragrances, pagination)
-    const transformed = this.pageFactory.transform(connection, mapFragranceRowToFragranceSummary)
+    const connection = this.pageFactory.paginate(likes, pagination)
 
-    return transformed
+    return connection
   }
 
   review: UserResolvers['review'] = async (

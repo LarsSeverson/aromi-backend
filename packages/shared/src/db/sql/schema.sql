@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict b1XTiAXFPxRJr3KYQEIPUwL2sUxDTYDfAbarjxTXGWR6HaLP3EUxSXVYhH3q91g
+\restrict EHURwVLng3eLHv4INExXtc8W8UAFxQ0nV91kPhs6gMcklDpMBsLwbfn3zWNvG9F
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6 (Homebrew)
@@ -812,6 +812,7 @@ CREATE TABLE public.fragrance_votes (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp with time zone,
     vote smallint NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT fragrance_votes_vote_check CHECK ((vote = ANY (ARRAY['-1'::integer, 0, 1])))
 );
 
@@ -2396,5 +2397,5 @@ ALTER TABLE ONLY public.user_images
 -- PostgreSQL database dump complete
 --
 
-\unrestrict b1XTiAXFPxRJr3KYQEIPUwL2sUxDTYDfAbarjxTXGWR6HaLP3EUxSXVYhH3q91g
+\unrestrict EHURwVLng3eLHv4INExXtc8W8UAFxQ0nV91kPhs6gMcklDpMBsLwbfn3zWNvG9F
 

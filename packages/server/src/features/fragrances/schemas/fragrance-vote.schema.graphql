@@ -1,3 +1,35 @@
+type FragranceVote {
+  id: ID!
+  user: User!
+  fragrance: Fragrance!
+  vote: Int!
+}
+
+type FragranceVoteEdge {
+  node: FragranceVote!
+  cursor: String!
+}
+
+type FragranceVoteConnection {
+  edges: [FragranceVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum FragranceVoteSortBy {
+  RECENT
+}
+
+input FragranceVoteSortInput {
+  direction: SortDirection
+  by: FragranceVoteSortBy
+}
+
+input FragranceVotePaginationInput {
+  first: Int
+  after: String
+  sort: FragranceVoteSortInput
+}
+
 input VoteOnFragranceInput {
   fragranceId: ID!
   vote: Int!

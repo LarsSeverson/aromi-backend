@@ -62,7 +62,7 @@ export class VoteOnFragranceResolver extends MutationResolver<Mutation> {
         { fragranceId, userId, vote },
         oc => oc
           .columns(['fragranceId', 'userId'])
-          .doUpdateSet({ vote })
+          .doUpdateSet({ vote, updatedAt: new Date().toISOString() })
       )
   }
 }

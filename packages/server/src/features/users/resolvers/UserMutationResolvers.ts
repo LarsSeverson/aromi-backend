@@ -99,7 +99,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       )
     }
 
-    await unwrapOrThrow(
+    const follow = await unwrapOrThrow(
       users.follows.upsert(
         { followerId: me.id, followedId: userId },
         oc => oc
@@ -112,7 +112,11 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       users.findOne(eb => eb('id', '=', userId))
     )
 
-    return mapUserRowToUserSummary(user)
+    return {
+      ...follow,
+      id: `following:${follow.followedId}`,
+      userId: user.id
+    }
   }
 
   unfollow: MutationResolvers['unfollow'] = async (
@@ -136,7 +140,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       )
     }
 
-    await unwrapOrThrow(
+    const follow = await unwrapOrThrow(
       users.follows.softDeleteOne(
         where => where.and([
           where('followerId', '=', me.id),
@@ -149,7 +153,11 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
       users.findOne(eb => eb('id', '=', userId))
     )
 
-    return mapUserRowToUserSummary(user)
+    return {
+      ...follow,
+      id: `following:${follow.followedId}`,
+      userId: user.id
+    }
   }
 
   getResolvers (): MutationResolvers {

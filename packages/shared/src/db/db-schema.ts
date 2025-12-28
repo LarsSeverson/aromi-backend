@@ -515,6 +515,7 @@ export interface FragranceVote {
   deletedAt: Timestamp | null;
   fragranceId: string;
   id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
   userId: string;
   vote: number;
 }

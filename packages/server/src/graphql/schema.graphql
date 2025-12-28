@@ -757,6 +757,38 @@ type FragranceTraitVote {
   type: TraitTypeEnum!
 }
 
+type FragranceVote {
+  fragrance: Fragrance!
+  id: ID!
+  user: User!
+  vote: Int!
+}
+
+type FragranceVoteConnection {
+  edges: [FragranceVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FragranceVoteEdge {
+  cursor: String!
+  node: FragranceVote!
+}
+
+input FragranceVotePaginationInput {
+  after: String
+  first: Int
+  sort: FragranceVoteSortInput
+}
+
+enum FragranceVoteSortBy {
+  RECENT
+}
+
+input FragranceVoteSortInput {
+  by: FragranceVoteSortBy
+  direction: SortDirection
+}
+
 scalar JSON
 
 input LogInInput {
@@ -796,7 +828,7 @@ type Mutation {
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
   deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
-  follow(input: FollowUserInput!): User!
+  follow(input: FollowUserInput!): UserFollow!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
@@ -819,7 +851,7 @@ type Mutation {
   submitBrandRequest(input: SubmitBrandRequestInput!): BrandRequest!
   submitFragranceRequest(input: SubmitFragranceRequestInput!): FragranceRequest!
   submitNoteRequest(input: SubmitNoteRequestInput!): NoteRequest!
-  unfollow(input: UnfollowUserInput!): User!
+  unfollow(input: UnfollowUserInput!): UserFollow!
   updateAccordRequest(input: UpdateAccordRequestInput!): AccordRequest!
   updateBrandRequest(input: UpdateBrandRequestInput!): BrandRequest!
   updateFragranceCollection(input: UpdateFragranceCollectionInput!): FragranceCollection!
@@ -1277,7 +1309,7 @@ type User {
   followingCount: Int!
   fragranceRequests(input: RequestPaginationInput): FragranceRequestConnection!
   id: ID!
-  likes(input: FragrancePaginationInput): FragranceConnection!
+  likes(input: FragranceVotePaginationInput): FragranceVoteConnection!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   relationship: RelationshipStatus!
   review(id: ID!): FragranceReview!
