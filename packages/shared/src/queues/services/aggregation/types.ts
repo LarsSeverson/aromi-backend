@@ -14,10 +14,17 @@ export const AGGREGATION_JOB_NAMES = {
   AGGREGATE_NOTE_VOTES: 'aggregate-note-votes',
   AGGREGATE_NOTE_REQUEST_VOTES: 'aggregate-note-request-votes',
 
-  AGGREGATE_REVIEW_VOTES: 'aggregate-review-votes'
+  AGGREGATE_REVIEW_VOTES: 'aggregate-review-votes',
+
+  AGGREGATE_POST: 'aggregate-post'
 } as const
 
 export type AggregationJobName = (typeof AGGREGATION_JOB_NAMES)[keyof typeof AGGREGATION_JOB_NAMES]
+
+export interface AggregatePostPayload extends Record<string, unknown> {
+  postId: string
+  type: 'votes' | 'comments' | 'all'
+}
 
 export interface AggregationJobPayload {
   [AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REVIEWS]: { fragranceId: string }
@@ -34,4 +41,6 @@ export interface AggregationJobPayload {
   [AGGREGATION_JOB_NAMES.AGGREGATE_NOTE_REQUEST_VOTES]: { requestId: string }
 
   [AGGREGATION_JOB_NAMES.AGGREGATE_REVIEW_VOTES]: { reviewId: string }
+
+  [AGGREGATION_JOB_NAMES.AGGREGATE_POST]: AggregatePostPayload
 }

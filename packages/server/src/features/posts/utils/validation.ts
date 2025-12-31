@@ -1,4 +1,4 @@
-import { VALID_IMAGE_TYPES, VALID_VIDEO_TYPES } from '@aromi/shared'
+import { VALID_IMAGE_TYPES, VALID_VIDEO_TYPES, ValidVote } from '@aromi/shared'
 import { PostType } from '@src/graphql/gql-types.js'
 import z from 'zod'
 
@@ -167,6 +167,13 @@ export const CreatePostSchema = z
     assets: CreatePostSchemaAssets.nullish()
   })
   .strip()
+  .refine(data => {
+    if (data.type === PostType.Fragrance && data.fragranceId == null) {
+      return false
+    }
+
+    return true
+  })
 
 export const CreatePostCommentSchema = z
   .object({
@@ -191,5 +198,12 @@ export const UpdatePostCommentSchema = z
     id: z.string(),
     content: ValidPostCommentContent.nullish(),
     assets: UpdatePostCommentSchemaAssets.nullish()
+  })
+  .strip()
+
+export const VoteOnPostInputSchema = z
+  .object({
+    postId: z.string(),
+    vote: ValidVote
   })
   .strip()

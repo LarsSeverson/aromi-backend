@@ -10,9 +10,15 @@ export const syncComments = async (sources: DataSources) => {
 
   const comments = await unwrapOrThrow(postService.comments.find())
 
-  const users = await unwrapOrThrow(userService.find(
-    where => where('id', 'in', comments.map(c => c.userId))
-  ))
+  const userIds = comments.map(c => c.userId)
+
+  const users = userIds.length === 0
+    ? []
+    : await unwrapOrThrow(
+      userService.find(
+        where => where('id', 'in', comments.map(c => c.userId))
+      )
+    )
 
   const userMap = new Map(users.map(u => [u.id, u]))
 

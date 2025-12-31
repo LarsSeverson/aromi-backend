@@ -15,9 +15,14 @@ export const syncPosts = async (sources: DataSources) => {
     where => where('id', 'in', posts.map(p => p.userId))
   ))
 
-  const fragrances = await unwrapOrThrow(fragranceService.find(
-    where => where('id', 'in', posts.map(p => p.fragranceId).filter((id): id is string => id != null))
-  ))
+  const fragranceIds = posts.map(post => post.fragranceId).filter(id => id != null)
+  const fragrances = fragranceIds.length === 0
+    ? []
+    : await unwrapOrThrow(
+      fragranceService.find(
+        where => where('id', 'in', fragranceIds)
+      )
+    )
 
   const userMap = new Map(users.map(u => [u.id, u]))
   const fragranceMap = new Map(fragrances.map(f => [f.id, f]))

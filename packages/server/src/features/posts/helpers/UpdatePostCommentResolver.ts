@@ -1,4 +1,4 @@
-import { BackendError, INDEXATION_JOB_NAMES, parseOrThrow, removeNullish, unwrapOrThrow, type PostCommentRow } from '@aromi/shared'
+import { AGGREGATION_JOB_NAMES, BackendError, INDEXATION_JOB_NAMES, parseOrThrow, removeNullish, unwrapOrThrow, type PostCommentRow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
@@ -19,6 +19,9 @@ export class UpdatePostCommentResolver extends MutationResolver<Mutation> {
       this.trxServices = trx
       return await this.handleResolve()
     })
+
+    await this.handleIndex(comment)
+    await this.handleAggregation(comment.postId)
 
     return comment
   }
@@ -46,6 +49,18 @@ export class UpdatePostCommentResolver extends MutationResolver<Mutation> {
     return queues.indexations.enqueue({
       jobName: INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT,
       data: comment
+    })
+  }
+
+  private handleAggregation (postId: string) {
+    const { queues } = this.context
+
+    return queues.aggregations.enqueue({
+      jobName: AGGREGATION_JOB_NAMES.AGGREGATE_POST,
+      data: {
+        postId,
+        type: 'comments'
+      }
     })
   }
 

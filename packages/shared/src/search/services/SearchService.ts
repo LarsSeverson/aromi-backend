@@ -99,6 +99,13 @@ export abstract class SearchService<T extends BaseSearchIndex> {
       )
   }
 
+  upsertDocument (document: T): ResultAsync<this, BackendError> {
+    return this
+      .getDocument(document.id)
+      .andThen(() => this.updateDocument(document))
+      .orElse(() => this.addDocument(document))
+  }
+
   getIndex (): ResultAsync<Index<T>, BackendError> {
     return ResultAsync
       .fromPromise(

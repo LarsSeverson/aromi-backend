@@ -64,5 +64,6 @@ export class DataSources {
 
   async healthCheckMeili () {
     await this.meili.client.health()
+    await this.meili.client.getStats()
   }
 }

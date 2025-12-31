@@ -4,6 +4,7 @@ import { CreatePostResolver } from '../helpers/CreatePostResolver.js'
 import { UpdatePostResolver } from '../helpers/UpdatePostResolver.js'
 import { DeletePostResolver } from '../helpers/DeletePostResolver.js'
 import { PostCommentMutationResolvers } from './PostCommentMutationResolvers.js'
+import { VoteOnPostResolver } from '../helpers/VoteOnPostResolver.js'
 
 export class PostMutationResolvers extends BaseResolver<MutationResolvers> {
   comments = new PostCommentMutationResolvers()
@@ -38,11 +39,22 @@ export class PostMutationResolvers extends BaseResolver<MutationResolvers> {
     return await resolver.resolve()
   }
 
+  voteOnPost: MutationResolvers['voteOnPost'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const resolver = new VoteOnPostResolver({ parent, args, context, info })
+    return await resolver.resolve()
+  }
+
   getResolvers (): MutationResolvers {
     return {
       createPost: this.createPost,
       updatePost: this.updatePost,
       deletePost: this.deletePost,
+      voteOnPost: this.voteOnPost,
       ...this.comments.getResolvers()
     }
   }

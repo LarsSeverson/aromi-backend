@@ -910,6 +910,7 @@ type Mutation {
   voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
   voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
+  voteOnPost(input: VoteOnPostInput!): Post!
 }
 
 type Note {
@@ -1107,6 +1108,38 @@ enum PostType {
   FRAGRANCE
   MEDIA
   TEXT
+}
+
+type PostVote {
+  id: ID!
+  post: Post!
+  user: User!
+  vote: Int!
+}
+
+type PostVoteConnection {
+  edges: [PostVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostVoteEdge {
+  cursor: String!
+  node: PostVote!
+}
+
+input PostVotePaginationInput {
+  after: String
+  first: Int
+  sort: PostVoteSortInput
+}
+
+enum PostVoteSortBy {
+  RECENT
+}
+
+input PostVoteSortInput {
+  by: PostVoteSortBy
+  direction: SortDirection
 }
 
 type PresignedUpload {
@@ -1589,5 +1622,10 @@ input VoteOnFragranceTraitInput {
 
 input VoteOnNoteRequestInput {
   requestId: ID!
+  vote: Int!
+}
+
+input VoteOnPostInput {
+  postId: ID!
   vote: Int!
 }

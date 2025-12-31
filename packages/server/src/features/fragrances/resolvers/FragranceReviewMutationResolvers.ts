@@ -1,4 +1,4 @@
-import { AGGREGATION_JOB_NAMES, BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
+import { AGGREGATION_JOB_NAMES, BackendError, INDEXATION_JOB_NAMES, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 import type { FragranceReviewResolvers, MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { CreateFragranceReviewInputSchema, UpdateFragranceReviewInputSchema } from '../utils/validation.js'
@@ -19,7 +19,7 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     const parsed = parseOrThrow(CreateFragranceReviewInputSchema, input)
 
     const { fragrances } = services
-    const { aggregations } = queues
+    const { aggregations, indexations } = queues
 
     const values = {
       ...parsed,
@@ -42,6 +42,11 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
       data: { fragranceId }
     })
 
+    await indexations.enqueue({
+      jobName: INDEXATION_JOB_NAMES.INDEX_REVIEW,
+      data: { reviewId: review.id }
+    })
+
     return mapFragranceReviewRowToFragranceReview(review)
   }
 
@@ -59,7 +64,7 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     const parsed = parseOrThrow(UpdateFragranceReviewInputSchema, input)
 
     const { fragrances } = services
-    const { aggregations } = queues
+    const { aggregations, indexations } = queues
 
     const existing = await unwrapOrThrow(
       fragrances.reviews.findOne(where => where('id', '=', reviewId))
@@ -85,6 +90,11 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
       data: { fragranceId: updated.fragranceId }
     })
 
+    await indexations.enqueue({
+      jobName: INDEXATION_JOB_NAMES.UPDATE_REVIEW,
+      data: { reviewId: updated.id }
+    })
+
     return mapFragranceReviewRowToFragranceReview(updated)
   }
 
@@ -100,7 +110,7 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     const me = this.checkAuthenticated(context)
 
     const { fragrances } = services
-    const { aggregations } = queues
+    const { aggregations, indexations } = queues
 
     const existing = await unwrapOrThrow(
       fragrances.reviews.findOne(where => where('id', '=', reviewId))
@@ -121,6 +131,11 @@ export class FragranceReviewMutationResolvers extends BaseResolver<MutationResol
     await aggregations.enqueue({
       jobName: AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_REVIEWS,
       data: { fragranceId: deleted.fragranceId }
+    })
+
+    await indexations.enqueue({
+      jobName: INDEXATION_JOB_NAMES.DELETE_REVIEW,
+      data: { reviewId: deleted.id }
     })
 
     return mapFragranceReviewRowToFragranceReview(deleted)

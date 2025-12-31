@@ -17,79 +17,131 @@ import { PostDeleter } from '../jobs/PostDeleter.js'
 import { PostCommentDeleter } from '../jobs/PostCommentDeleter.js'
 import { PostCommentIndexer } from '../jobs/PostCommentIndexer.js'
 import { PostCommentUpdater } from '../jobs/PostCommentUpdater.js'
+import { UserUpdater } from '../jobs/UserUpdater.js'
+import { ReviewIndexer } from '../jobs/ReviewIndexer.js'
+import { ReviewUpdater } from '../jobs/ReviewUpdater.js'
+import { ReviewDeleter } from '../jobs/ReviewDeleter.js'
 
 export class IndexationService extends WorkerService<keyof IndexationJobPayload, IndexationJobPayload> {
   constructor (context: WorkerContext) {
     super(QUEUE_NAMES.INDEXATION, context)
 
-    const { sources } = context
-
     this
+      .registerFragranceJobs()
+      .registerBrandJobs()
+      .registerAccordJobs()
+      .registerNoteJobs()
+      .registerUserJobs()
+      .registerPostJobs()
+      .registerPostCommentJobs()
+      .registerReviewJobs()
+  }
+
+  private registerFragranceJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_FRAGRANCE,
-        new FragranceIndexer(sources)
+        new FragranceIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_FRAGRANCE,
-        new FragranceUpdater(sources)
+        new FragranceUpdater(this.context.sources)
       )
+  }
 
+  private registerBrandJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_BRAND,
-        new BrandIndexer(sources)
+        new BrandIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_BRAND,
-        new BrandUpdater(sources)
+        new BrandUpdater(this.context.sources)
       )
+  }
 
+  private registerAccordJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_ACCORD,
-        new AccordIndexer(sources)
+        new AccordIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_ACCORD,
-        new AccordUpdater(sources)
+        new AccordUpdater(this.context.sources)
       )
+  }
 
+  private registerNoteJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_NOTE,
-        new NoteIndexer(sources)
+        new NoteIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_NOTE,
-        new NoteUpdater(sources)
+        new NoteUpdater(this.context.sources)
       )
+  }
 
+  private registerUserJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_USER,
-        new UserIndexer(sources)
+        new UserIndexer(this.context.sources)
       )
+      .register(
+        INDEXATION_JOB_NAMES.UPDATE_USER,
+        new UserUpdater(this.context.sources)
+      )
+  }
 
+  private registerPostJobs () {
+    return this
       .register(
         INDEXATION_JOB_NAMES.INDEX_POST,
-        new PostIndexer(sources)
+        new PostIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_POST,
-        new PostUpdater(sources)
+        new PostUpdater(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.DELETE_POST,
-        new PostDeleter(sources)
+        new PostDeleter(this.context.sources)
       )
+  }
 
+  private registerPostCommentJobs () {
+    return this
       .register(
-        INDEXATION_JOB_NAMES.INDEX_POST,
-        new PostCommentIndexer(sources)
+        INDEXATION_JOB_NAMES.INDEX_POST_COMMENT,
+        new PostCommentIndexer(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT,
-        new PostCommentUpdater(sources)
+        new PostCommentUpdater(this.context.sources)
       )
       .register(
         INDEXATION_JOB_NAMES.DELETE_POST_COMMENT,
-        new PostCommentDeleter(sources)
+        new PostCommentDeleter(this.context.sources)
+      )
+  }
+
+  private registerReviewJobs () {
+    return this
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_REVIEW,
+        new ReviewIndexer(this.context.sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.UPDATE_REVIEW,
+        new ReviewUpdater(this.context.sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.DELETE_REVIEW,
+        new ReviewDeleter(this.context.sources)
       )
   }
 }

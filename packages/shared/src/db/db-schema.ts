@@ -639,6 +639,25 @@ export interface Post {
   userId: string;
 }
 
+export interface PostScore {
+  commentCount: Generated<number>;
+  downvotes: Generated<number>;
+  postId: string;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
+export interface PostVote {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  postId: string;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  vote: number;
+}
+
 export interface RequestJob {
   createdAt: Generated<Timestamp>;
   error: string | null;
@@ -746,6 +765,8 @@ export interface DB {
   postCommentAssets: PostCommentAsset;
   postComments: PostComment;
   posts: Post;
+  postScores: PostScore;
+  postVotes: PostVote;
   requestJobs: RequestJob;
   traitOptions: TraitOption;
   traitTypes: TraitType;

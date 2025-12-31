@@ -16,6 +16,7 @@ export const INDEXATION_JOB_NAMES = {
   UPDATE_NOTE: 'update-note',
 
   INDEX_USER: 'index-user',
+  UPDATE_USER: 'update-user',
 
   INDEX_POST: 'index-post',
   UPDATE_POST: 'update-post',
@@ -23,7 +24,11 @@ export const INDEXATION_JOB_NAMES = {
 
   INDEX_POST_COMMENT: 'index-post-comment',
   UPDATE_POST_COMMENT: 'update-post-comment',
-  DELETE_POST_COMMENT: 'delete-post-comment'
+  DELETE_POST_COMMENT: 'delete-post-comment',
+
+  INDEX_REVIEW: 'index-review',
+  UPDATE_REVIEW: 'update-review',
+  DELETE_REVIEW: 'delete-review'
 } as const
 
 export type IndexationJobName = (typeof INDEXATION_JOB_NAMES)[keyof typeof INDEXATION_JOB_NAMES]
@@ -40,6 +45,7 @@ export interface IndexationJobPayload {
   [INDEXATION_JOB_NAMES.UPDATE_NOTE]: PartialWithId<NoteDoc>
 
   [INDEXATION_JOB_NAMES.INDEX_USER]: { userId: string }
+  [INDEXATION_JOB_NAMES.UPDATE_USER]: { userId: string }
 
   [INDEXATION_JOB_NAMES.INDEX_POST]: PartialWithId<PostRow>
   [INDEXATION_JOB_NAMES.UPDATE_POST]: PartialWithId<PostRow>
@@ -48,4 +54,8 @@ export interface IndexationJobPayload {
   [INDEXATION_JOB_NAMES.INDEX_POST_COMMENT]: PartialWithId<PostCommentRow>
   [INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT]: PartialWithId<PostCommentRow>
   [INDEXATION_JOB_NAMES.DELETE_POST_COMMENT]: PartialWithId<PostCommentRow>
+
+  [INDEXATION_JOB_NAMES.INDEX_REVIEW]: { reviewId: string }
+  [INDEXATION_JOB_NAMES.UPDATE_REVIEW]: { reviewId: string }
+  [INDEXATION_JOB_NAMES.DELETE_REVIEW]: { reviewId: string }
 }

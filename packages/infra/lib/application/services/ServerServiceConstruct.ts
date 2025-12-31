@@ -3,11 +3,14 @@ import type { ServerServiceConstructProps } from '../types.js'
 import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateTaskDefinition, ListenerConfig, LogDrivers } from 'aws-cdk-lib/aws-ecs'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { Duration } from 'aws-cdk-lib'
+import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
+import { LogGroup, LogGroupClass, RetentionDays } from 'aws-cdk-lib/aws-logs'
 
 export class ServerServiceConstruct extends Construct {
   readonly tag: string
+
+  readonly logGroup: LogGroup
 
   readonly securityGroup: SecurityGroup
   readonly securityGroupId: string
@@ -76,9 +79,11 @@ export class ServerServiceConstruct extends Construct {
       }
     },
 
-    logging: LogDrivers.awsLogs({
-      streamPrefix: 'server'
-    }),
+    logging: {
+      retention: RetentionDays.ONE_WEEK,
+      logGroupClass: LogGroupClass.INFREQUENT_ACCESS,
+      removalPolicy: RemovalPolicy.DESTROY
+    },
 
     enableExecuteCommand: true
   }
@@ -103,6 +108,13 @@ export class ServerServiceConstruct extends Construct {
       this,
       `/aromi/${config.envMode}/server/tag`
     )
+
+    this.logGroup = new LogGroup(this, `${scope.prefix}-server-service-log-group`, {
+      logGroupName: `/aromi/${config.envMode}/server-service`,
+      retention: this.internalConfig.logging.retention,
+      removalPolicy: this.internalConfig.logging.removalPolicy,
+      logGroupClass: this.internalConfig.logging.logGroupClass
+    })
 
     this.securityGroupId = `${scope.prefix}-server-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
@@ -147,7 +159,10 @@ export class ServerServiceConstruct extends Construct {
         this.tag
       ),
 
-      logging: this.internalConfig.logging,
+      logging: LogDrivers.awsLogs({
+        logGroup: this.logGroup,
+        streamPrefix: this.containerName
+      }),
 
       environment: {
         NODE_ENV: config.envMode,

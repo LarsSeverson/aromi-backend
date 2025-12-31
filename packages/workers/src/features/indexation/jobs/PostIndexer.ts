@@ -37,7 +37,7 @@ export class PostIndexer extends BaseIndexer<IndexationJobPayload[JobKey], PostD
       )
   }
 
-  getUser (row: PostRow) {
+  private getUser (row: PostRow) {
     const { services } = this.context
     const { users } = services
 
@@ -47,7 +47,7 @@ export class PostIndexer extends BaseIndexer<IndexationJobPayload[JobKey], PostD
       )
   }
 
-  getFragrance (row: PostRow) {
+  private getFragrance (row: PostRow) {
     const { services } = this.context
     const { fragrances } = services
 

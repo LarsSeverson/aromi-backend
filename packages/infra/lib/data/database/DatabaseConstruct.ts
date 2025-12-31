@@ -24,7 +24,7 @@ export class DatabaseConstruct extends Construct {
   readonly databaseUrl: string
 
   private readonly internalConfig = {
-    allowAllOutbound: true,
+    allowAllOutbound: false,
 
     usernameValue: 'postgres',
 
@@ -56,9 +56,7 @@ export class DatabaseConstruct extends Construct {
     })
 
     this.writerId = `${scope.prefix}-db-writer`
-    this.writer = ClusterInstance.provisioned(this.writerId, {
-      publiclyAccessible: false
-    })
+    this.writer = ClusterInstance.serverlessV2(this.writerId, {})
 
     this.clusterId = `${scope.prefix}-db-cluster`
     this.cluster = new DatabaseCluster(this, this.clusterId, {

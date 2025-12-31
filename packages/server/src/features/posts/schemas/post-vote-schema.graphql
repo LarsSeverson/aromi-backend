@@ -1,0 +1,40 @@
+type PostVote {
+  id: ID!
+  user: User!
+  post: Post!
+  vote: Int!
+}
+
+type PostVoteEdge {
+  node: PostVote!
+  cursor: String!
+}
+
+type PostVoteConnection {
+  edges: [PostVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum PostVoteSortBy {
+  RECENT
+}
+
+input PostVoteSortInput {
+  direction: SortDirection
+  by: PostVoteSortBy
+}
+
+input PostVotePaginationInput {
+  first: Int
+  after: String
+  sort: PostVoteSortInput
+}
+
+input VoteOnPostInput {
+  postId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnPost(input: VoteOnPostInput!): Post!
+}

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict KHwfxmdmURk8ttwHCSIuBEhWkZ44LgFTfUHOmex0g6Dq6l1BjJt5GPLzdVtJsb6
+\restrict t5njpgbfWg9P8EIKoij9fn5bYxsiuqG1UzQV1B2hE0OdWlGeHenuNzyW2FPCYvL
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6 (Homebrew)
@@ -994,6 +994,36 @@ CREATE TABLE public.post_comments (
 
 
 --
+-- Name: post_scores; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_scores (
+    post_id uuid NOT NULL,
+    upvotes integer DEFAULT 0 NOT NULL,
+    downvotes integer DEFAULT 0 NOT NULL,
+    score integer GENERATED ALWAYS AS ((upvotes - downvotes)) STORED NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    comment_count integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: post_votes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_votes (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    post_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    vote smallint NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT post_votes_vote_check CHECK ((vote = ANY (ARRAY['-1'::integer, 0, 1])))
+);
+
+
+--
 -- Name: posts; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1663,6 +1693,30 @@ ALTER TABLE ONLY public.post_comment_assets
 
 ALTER TABLE ONLY public.post_comments
     ADD CONSTRAINT post_comments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: post_scores post_scores_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_scores
+    ADD CONSTRAINT post_scores_pkey PRIMARY KEY (post_id);
+
+
+--
+-- Name: post_votes post_votes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_votes
+    ADD CONSTRAINT post_votes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: post_votes post_votes_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_votes
+    ADD CONSTRAINT post_votes_unique UNIQUE (user_id, post_id);
 
 
 --
@@ -2581,6 +2635,30 @@ ALTER TABLE ONLY public.post_comments
 
 
 --
+-- Name: post_scores post_scores_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_scores
+    ADD CONSTRAINT post_scores_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_votes post_votes_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_votes
+    ADD CONSTRAINT post_votes_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_votes post_votes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_votes
+    ADD CONSTRAINT post_votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: posts posts_fragrance_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2648,5 +2726,5 @@ ALTER TABLE ONLY public.user_images
 -- PostgreSQL database dump complete
 --
 
-\unrestrict KHwfxmdmURk8ttwHCSIuBEhWkZ44LgFTfUHOmex0g6Dq6l1BjJt5GPLzdVtJsb6
+\unrestrict t5njpgbfWg9P8EIKoij9fn5bYxsiuqG1UzQV1B2hE0OdWlGeHenuNzyW2FPCYvL
 

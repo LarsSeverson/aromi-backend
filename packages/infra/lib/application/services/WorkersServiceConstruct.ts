@@ -4,9 +4,13 @@ import ecs, { type ContainerDefinition, ContainerImage, FargateService, FargateT
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
+import { LogGroup, LogGroupClass, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { RemovalPolicy } from 'aws-cdk-lib'
 
 export class WorkersServiceConstruct extends Construct {
   readonly tag: string
+
+  readonly logGroup: LogGroup
 
   readonly securityGroup: SecurityGroup
   readonly securityGroupId: string
@@ -41,9 +45,11 @@ export class WorkersServiceConstruct extends Construct {
       subnetType: SubnetType.PRIVATE_WITH_EGRESS
     },
 
-    logging: LogDrivers.awsLogs({
-      streamPrefix: 'workers'
-    })
+    logging: {
+      retention: RetentionDays.ONE_WEEK,
+      logGroupClass: LogGroupClass.INFREQUENT_ACCESS,
+      removalPolicy: RemovalPolicy.DESTROY
+    }
   }
 
   constructor (props: WorkersServiceConstructProps) {
@@ -65,6 +71,13 @@ export class WorkersServiceConstruct extends Construct {
       this,
       `/aromi/${config.envMode}/workers/tag`
     )
+
+    this.logGroup = new LogGroup(this, `${scope.prefix}-workers-service-log-group`, {
+      logGroupName: `/aromi/${config.envMode}/workers-service`,
+      retention: this.internalConfig.logging.retention,
+      removalPolicy: this.internalConfig.logging.removalPolicy,
+      logGroupClass: this.internalConfig.logging.logGroupClass
+    })
 
     this.securityGroupId = `${scope.prefix}-workers-service-sg`
     this.securityGroup = new SecurityGroup(this, this.securityGroupId, {
@@ -102,7 +115,10 @@ export class WorkersServiceConstruct extends Construct {
         this.tag
       ),
 
-      logging: this.internalConfig.logging,
+      logging: LogDrivers.awsLogs({
+        logGroup: this.logGroup,
+        streamPrefix: this.containerName
+      }),
 
       environment: {
         NODE_ENV: config.envMode,

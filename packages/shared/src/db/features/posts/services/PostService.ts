@@ -7,15 +7,21 @@ import type { DB } from '@src/db/db-schema.js'
 import { ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import { PostCommentService } from './PostCommentService.js'
+import { PostVoteService } from './PostVoteService.js'
+import { PostScoreService } from './PostScoreService.js'
 
 export class PostService extends FeaturedTableService<PostRow> {
   assets: PostAssetService
   comments: PostCommentService
+  votes: PostVoteService
+  scores: PostScoreService
 
   constructor (sources: DataSources) {
     super(sources, 'posts')
     this.assets = new PostAssetService(sources)
     this.comments = new PostCommentService(sources)
+    this.votes = new PostVoteService(sources)
+    this.scores = new PostScoreService(sources)
   }
 
   findAssets (

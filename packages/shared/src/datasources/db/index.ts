@@ -1,7 +1,7 @@
 import type { DB } from '@src/db/db-schema.js'
 import { requiredEnv } from '@src/utils/env-util.js'
 import { BackendError } from '@src/utils/error.js'
-import { Kysely, PostgresDialect, CamelCasePlugin } from 'kysely'
+import { Kysely, PostgresDialect, CamelCasePlugin, HandleEmptyInListsPlugin, replaceWithNoncontingentExpression } from 'kysely'
 import { ok, err } from 'neverthrow'
 import type { Result } from 'neverthrow'
 import { types, Pool } from 'pg'
@@ -42,7 +42,10 @@ export const createDB = (): Result<Kysely<DB>, BackendError> => {
       {
         dialect: new PostgresDialect({ pool }),
         plugins: [
-          new CamelCasePlugin()
+          new CamelCasePlugin(),
+          new HandleEmptyInListsPlugin({
+            strategy: replaceWithNoncontingentExpression
+          })
         ]
       }
     ))

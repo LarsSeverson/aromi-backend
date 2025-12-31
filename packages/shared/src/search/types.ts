@@ -28,6 +28,7 @@ export const INDEX_NAMES = {
   BRANDS: 'brands',
   ACCORDS: 'accords',
   NOTES: 'notes',
+  REVIEWS: 'reviews',
   USERS: 'users',
   POSTS: 'posts',
   POST_COMMENTS: 'post-comments'

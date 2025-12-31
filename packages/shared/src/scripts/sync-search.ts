@@ -6,6 +6,7 @@ import { syncFragrances } from '@src/search/features/fragrances/scripts/sync.js'
 import { syncUsers } from '@src/search/features/users/scripts/sync.js'
 import { syncPosts } from '@src/search/features/posts/scripts/sync.js'
 import { syncComments } from '@src/search/features/posts/scripts/sync-comments.js'
+import { syncReviews } from '@src/search/features/reviews/scripts/sync.js'
 
 export const syncSearch = async () => {
   const sources = new DataSources()
@@ -17,6 +18,7 @@ export const syncSearch = async () => {
   await syncUsers(sources)
   await syncPosts(sources)
   await syncComments(sources)
+  await syncReviews(sources)
 }
 
 syncSearch()

@@ -5,7 +5,7 @@ import type { JobHandler } from '@src/jobs/JobHandler.js'
 import type { WorkerContext } from '@src/context/WorkerContext.js'
 
 export abstract class WorkerService<J extends JobPayloadKey, M extends JobPayload<J>> {
-  private readonly context: WorkerContext
+  protected readonly context: WorkerContext
   private readonly queueName: QueueName
   private readonly worker: Worker
 

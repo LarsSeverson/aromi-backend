@@ -5,6 +5,7 @@ import { BrandSearchService } from '../features/brands/services/BrandSearchServi
 import { FragranceSearchService } from '../features/fragrances/services/FragranceSearchService.js'
 import { UserSearchService } from '../features/users/index.js'
 import { PostSearchService } from '../features/posts/index.js'
+import { ReviewSearchService } from '../features/reviews/index.js'
 
 export class SearchServices {
   fragrances: FragranceSearchService
@@ -13,6 +14,7 @@ export class SearchServices {
   notes: NoteSearchService
   users: UserSearchService
   posts: PostSearchService
+  reviews: ReviewSearchService
 
   constructor (sources: DataSources) {
     this.fragrances = new FragranceSearchService(sources)
@@ -21,6 +23,7 @@ export class SearchServices {
     this.notes = new NoteSearchService(sources)
     this.users = new UserSearchService(sources)
     this.posts = new PostSearchService(sources)
+    this.reviews = new ReviewSearchService(sources)
   }
 
   async ensureIndexes () {
@@ -31,7 +34,8 @@ export class SearchServices {
       this.notes.ensureIndex(),
       this.users.ensureIndex(),
       this.posts.ensureIndex(),
-      this.posts.comments.ensureIndex()
+      this.posts.comments.ensureIndex(),
+      this.reviews.ensureIndex()
     ])
   }
 }

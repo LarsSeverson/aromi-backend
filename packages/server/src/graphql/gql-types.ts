@@ -1060,6 +1060,7 @@ export type Mutation = {
   voteOnFragranceReview: FragranceReview;
   voteOnFragranceTrait: FragranceTraitVote;
   voteOnNoteRequest: NoteRequest;
+  voteOnPost: Post;
 };
 
 
@@ -1407,6 +1408,11 @@ export type MutationVoteOnNoteRequestArgs = {
   input: VoteOnNoteRequestInput;
 };
 
+
+export type MutationVoteOnPostArgs = {
+  input: VoteOnPostInput;
+};
+
 export type Note = {
   __typename?: 'Note';
   id: Scalars['ID']['output'];
@@ -1643,6 +1649,42 @@ export const PostType = {
 } as const;
 
 export type PostType = typeof PostType[keyof typeof PostType];
+export type PostVote = {
+  __typename?: 'PostVote';
+  id: Scalars['ID']['output'];
+  post: Post;
+  user: User;
+  vote: Scalars['Int']['output'];
+};
+
+export type PostVoteConnection = {
+  __typename?: 'PostVoteConnection';
+  edges: Array<PostVoteEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PostVoteEdge = {
+  __typename?: 'PostVoteEdge';
+  cursor: Scalars['String']['output'];
+  node: PostVote;
+};
+
+export type PostVotePaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<PostVoteSortInput>;
+};
+
+export const PostVoteSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type PostVoteSortBy = typeof PostVoteSortBy[keyof typeof PostVoteSortBy];
+export type PostVoteSortInput = {
+  by?: InputMaybe<PostVoteSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
 export type PresignedUpload = {
   __typename?: 'PresignedUpload';
   assetId: Scalars['ID']['output'];
@@ -2388,6 +2430,11 @@ export type VoteOnNoteRequestInput = {
   vote: Scalars['Int']['input'];
 };
 
+export type VoteOnPostInput = {
+  postId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -2639,6 +2686,12 @@ export type ResolversTypes = ResolversObject<{
   PostSortBy: ResolverTypeWrapper<Partial<PostSortBy>>;
   PostSortInput: ResolverTypeWrapper<Partial<PostSortInput>>;
   PostType: ResolverTypeWrapper<Partial<PostType>>;
+  PostVote: ResolverTypeWrapper<Partial<Omit<PostVote, 'post' | 'user'> & { post: ResolversTypes['Post'], user: ResolversTypes['User'] }>>;
+  PostVoteConnection: ResolverTypeWrapper<Partial<Omit<PostVoteConnection, 'edges'> & { edges: Array<ResolversTypes['PostVoteEdge']> }>>;
+  PostVoteEdge: ResolverTypeWrapper<Partial<Omit<PostVoteEdge, 'node'> & { node: ResolversTypes['PostVote'] }>>;
+  PostVotePaginationInput: ResolverTypeWrapper<Partial<PostVotePaginationInput>>;
+  PostVoteSortBy: ResolverTypeWrapper<Partial<PostVoteSortBy>>;
+  PostVoteSortInput: ResolverTypeWrapper<Partial<PostVoteSortInput>>;
   PresignedUpload: ResolverTypeWrapper<Partial<PresignedUpload>>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RelationshipStatus: ResolverTypeWrapper<Partial<RelationshipStatus>>;
@@ -2718,6 +2771,7 @@ export type ResolversTypes = ResolversObject<{
   VoteOnFragranceReviewInput: ResolverTypeWrapper<Partial<VoteOnFragranceReviewInput>>;
   VoteOnFragranceTraitInput: ResolverTypeWrapper<Partial<VoteOnFragranceTraitInput>>;
   VoteOnNoteRequestInput: ResolverTypeWrapper<Partial<VoteOnNoteRequestInput>>;
+  VoteOnPostInput: ResolverTypeWrapper<Partial<VoteOnPostInput>>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -2875,6 +2929,11 @@ export type ResolversParentTypes = ResolversObject<{
   PostEdge: Partial<Omit<PostEdge, 'node'> & { node: ResolversParentTypes['Post'] }>;
   PostPaginationInput: Partial<PostPaginationInput>;
   PostSortInput: Partial<PostSortInput>;
+  PostVote: Partial<Omit<PostVote, 'post' | 'user'> & { post: ResolversParentTypes['Post'], user: ResolversParentTypes['User'] }>;
+  PostVoteConnection: Partial<Omit<PostVoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostVoteEdge']> }>;
+  PostVoteEdge: Partial<Omit<PostVoteEdge, 'node'> & { node: ResolversParentTypes['PostVote'] }>;
+  PostVotePaginationInput: Partial<PostVotePaginationInput>;
+  PostVoteSortInput: Partial<PostVoteSortInput>;
   PresignedUpload: Partial<PresignedUpload>;
   Query: Record<PropertyKey, never>;
   RemoveFragranceFromCollectionsInput: Partial<RemoveFragranceFromCollectionsInput>;
@@ -2947,6 +3006,7 @@ export type ResolversParentTypes = ResolversObject<{
   VoteOnFragranceReviewInput: Partial<VoteOnFragranceReviewInput>;
   VoteOnFragranceTraitInput: Partial<VoteOnFragranceTraitInput>;
   VoteOnNoteRequestInput: Partial<VoteOnNoteRequestInput>;
+  VoteOnPostInput: Partial<VoteOnPostInput>;
 }>;
 
 export type AccordResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Accord'] = ResolversParentTypes['Accord']> = ResolversObject<{
@@ -3443,6 +3503,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   voteOnFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceReviewArgs, 'input'>>;
   voteOnFragranceTrait?: Resolver<ResolversTypes['FragranceTraitVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceTraitArgs, 'input'>>;
   voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
+  voteOnPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationVoteOnPostArgs, 'input'>>;
 }>;
 
 export type NoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
@@ -3568,6 +3629,23 @@ export type PostConnectionResolvers<ContextType = ServerContext, ParentType exte
 export type PostEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostEdge'] = ResolversParentTypes['PostEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+}>;
+
+export type PostVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostVote'] = ResolversParentTypes['PostVote']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  vote?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type PostVoteConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostVoteConnection'] = ResolversParentTypes['PostVoteConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['PostVoteEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+}>;
+
+export type PostVoteEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostVoteEdge'] = ResolversParentTypes['PostVoteEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['PostVote'], ParentType, ContextType>;
 }>;
 
 export type PresignedUploadResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PresignedUpload'] = ResolversParentTypes['PresignedUpload']> = ResolversObject<{
@@ -3837,6 +3915,9 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   PostCommentEdge?: PostCommentEdgeResolvers<ContextType>;
   PostConnection?: PostConnectionResolvers<ContextType>;
   PostEdge?: PostEdgeResolvers<ContextType>;
+  PostVote?: PostVoteResolvers<ContextType>;
+  PostVoteConnection?: PostVoteConnectionResolvers<ContextType>;
+  PostVoteEdge?: PostVoteEdgeResolvers<ContextType>;
   PresignedUpload?: PresignedUploadResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SearchAccordConnection?: SearchAccordConnectionResolvers<ContextType>;

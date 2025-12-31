@@ -2,7 +2,7 @@ import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapUserRowToUserSummary } from '../utils/mappers.js'
 import { UpdateUserSchema } from './validation.js'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
-import { BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, INDEXATION_JOB_NAMES, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 
 export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
   updateMe: MutationResolvers['updateMe'] = async (
@@ -12,10 +12,11 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     info
   ) => {
     const { input } = args
-    const { services } = context
+    const { queues, services } = context
     const me = this.checkAuthenticated(context)
 
     const { username } = input
+    const { indexations } = queues
     const { users } = services
 
     parseOrThrow(UpdateUserSchema, input)
@@ -30,6 +31,11 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
         }
       )
     )
+
+    await indexations.enqueue({
+      jobName: INDEXATION_JOB_NAMES.UPDATE_USER,
+      data: { userId: user.id }
+    })
 
     return mapUserRowToUserSummary(user)
   }

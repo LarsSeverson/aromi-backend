@@ -14,10 +14,7 @@ export const createMeiliSearchWrapper = (): Result<MeiliSearchWrapper, BackendEr
       requiredEnv('MEILI_MASTER_KEY')
     ])
     .map(([host, apiKey]) => {
-      const client = new MeiliSearch({
-        host,
-        apiKey
-      })
+      const client = new MeiliSearch({ host, apiKey })
       return { client }
     })
 }
