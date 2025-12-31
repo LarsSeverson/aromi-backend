@@ -31,9 +31,11 @@ export const startServer = async (): Promise<string> => {
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? []
 
   const sources = new DataSources()
-  await sources.healthCheck()
+  await sources.checkHealth()
 
   const services = new ServerServices(sources)
+  await services.ensure()
+
   const queues = new ServerQueues(sources)
 
   const app = express()

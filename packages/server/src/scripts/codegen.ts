@@ -37,7 +37,12 @@ const config: CodegenConfig = {
 
           Note: '../features/notes/types.js#INoteSummary',
           NoteEdit: '../features/notes/types.js#INoteEditSummary',
-          NoteRequest: '../features/notes/types.js#INoteRequestSummary'
+          NoteRequest: '../features/notes/types.js#INoteRequestSummary',
+
+          Post: '../features/posts/types.js#IPost',
+          PostAsset: '../features/posts/types.js#IPostAsset',
+          PostComment: '../features/posts/types.js#IPostComment',
+          PostCommentAsset: '../features/posts/types.js#IPostCommentAsset'
         }
       },
       plugins: ['typescript', 'typescript-resolvers']

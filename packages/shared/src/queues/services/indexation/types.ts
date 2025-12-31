@@ -1,5 +1,5 @@
-import type { BrandDoc } from '@src/search/features/brands/types.js'
-import type { AccordDoc, FragranceDoc, NoteDoc } from '@src/search/index.js'
+import type { PostCommentRow, PostRow } from '@src/db/index.js'
+import type { AccordDoc, BrandDoc, FragranceDoc, NoteDoc } from '@src/search/index.js'
 import type { PartialWithId } from '@src/utils/util-types.js'
 
 export const INDEXATION_JOB_NAMES = {
@@ -15,7 +15,15 @@ export const INDEXATION_JOB_NAMES = {
   INDEX_NOTE: 'index-note',
   UPDATE_NOTE: 'update-note',
 
-  INDEX_USER: 'index-user'
+  INDEX_USER: 'index-user',
+
+  INDEX_POST: 'index-post',
+  UPDATE_POST: 'update-post',
+  DELETE_POST: 'delete-post',
+
+  INDEX_POST_COMMENT: 'index-post-comment',
+  UPDATE_POST_COMMENT: 'update-post-comment',
+  DELETE_POST_COMMENT: 'delete-post-comment'
 } as const
 
 export type IndexationJobName = (typeof INDEXATION_JOB_NAMES)[keyof typeof INDEXATION_JOB_NAMES]
@@ -32,4 +40,12 @@ export interface IndexationJobPayload {
   [INDEXATION_JOB_NAMES.UPDATE_NOTE]: PartialWithId<NoteDoc>
 
   [INDEXATION_JOB_NAMES.INDEX_USER]: { userId: string }
+
+  [INDEXATION_JOB_NAMES.INDEX_POST]: PartialWithId<PostRow>
+  [INDEXATION_JOB_NAMES.UPDATE_POST]: PartialWithId<PostRow>
+  [INDEXATION_JOB_NAMES.DELETE_POST]: PartialWithId<PostRow>
+
+  [INDEXATION_JOB_NAMES.INDEX_POST_COMMENT]: PartialWithId<PostCommentRow>
+  [INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT]: PartialWithId<PostCommentRow>
+  [INDEXATION_JOB_NAMES.DELETE_POST_COMMENT]: PartialWithId<PostCommentRow>
 }

@@ -1,39 +1,29 @@
-import { Result, ResultAsync } from 'neverthrow'
-import { createDB, createMeiliSearchWrapper, DataSources } from '@src/datasources/index.js'
-import { syncBrands } from '@src/search/features/brands/sync.js'
-import { syncAccords } from '@src/search/features/accords/sync.js'
-import { syncNotes } from '@src/search/features/notes/sync.js'
-import { syncFragrances } from '@src/search/features/fragrances/sync.js'
-import { syncUsers } from '@src/search/features/users/sync.js'
+import { DataSources } from '@src/datasources/index.js'
+import { syncBrands } from '@src/search/features/brands/scripts/sync.js'
+import { syncAccords } from '@src/search/features/accords/scripts/sync.js'
+import { syncNotes } from '@src/search/features/notes/scripts/sync.js'
+import { syncFragrances } from '@src/search/features/fragrances/scripts/sync.js'
+import { syncUsers } from '@src/search/features/users/scripts/sync.js'
+import { syncPosts } from '@src/search/features/posts/scripts/sync.js'
+import { syncComments } from '@src/search/features/posts/scripts/sync-comments.js'
 
 export const syncSearch = async () => {
-  const res = await Result
-    .combine([
-      createMeiliSearchWrapper(),
-      createDB()
-    ])
-    .asyncAndThen(([meili, db]) => ResultAsync
-      .combine([
-        syncBrands(meili, db),
-        syncAccords(meili, db),
-        syncNotes(meili, db),
-        syncFragrances(meili, db),
-        syncUsers(new DataSources())
-      ]))
-    .orTee(error => {
-      console.error('Failed to sync search index:', error.details)
-    })
-    .andTee(() => {
-      console.log('Search index synced successfully')
-    })
+  const sources = new DataSources()
 
-  return res
+  await syncAccords(sources)
+  await syncBrands(sources)
+  await syncNotes(sources)
+  await syncFragrances(sources)
+  await syncUsers(sources)
+  await syncPosts(sources)
+  await syncComments(sources)
 }
 
-syncSearch().then(() => {
-  console.log('Process complete.')
-  process.exit(0)
-})
+syncSearch()
+  .then(() => {
+    console.log('Process complete.')
+    process.exit(0)
+  })
   .catch((err: unknown) => {
     console.error(err)
     process.exit(1)

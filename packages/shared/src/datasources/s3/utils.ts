@@ -27,15 +27,13 @@ export const genAvatarUploadKey = (userId: string): { id: string, key: string } 
   }
 }
 
-export const IMAGES = 'images'
-
-export const genImageKey = (
+export const genAssetKey = (
   entity: S3Entity,
   fileName: string
 ): UtilKeyReturn => {
   const { id, name } = withIdFileName(fileName)
   return {
     id,
-    key: `${IMAGES}/${entity}/${name}`
+    key: `${entity}/${name}`
   }
 }

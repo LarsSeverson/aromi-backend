@@ -1,0 +1,19 @@
+type PostCommentAsset {
+  id: ID!
+
+  displayOrder: Int!
+
+  asset: Asset!
+  PostComment: PostComment!
+}
+
+input CreatePostCommentAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+}
+
+input UpdatePostCommentAssetInput {
+  id: ID
+  assetId: ID!
+  displayOrder: Int!
+}

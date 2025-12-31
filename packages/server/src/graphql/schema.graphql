@@ -107,6 +107,8 @@ enum AssetKey {
   BRAND_IMAGES
   FRAGRANCE_IMAGES
   NOTE_IMAGES
+  POST_ASSETS
+  POST_COMMENT_ASSETS
   USER_IMAGES
 }
 
@@ -339,6 +341,31 @@ input CreateNoteRequestInput {
   name: String
 }
 
+input CreatePostAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+}
+
+input CreatePostCommentAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+}
+
+input CreatePostCommentInput {
+  assets: [CreatePostCommentAssetInput!]
+  content: String!
+  parentId: ID
+  postId: ID!
+}
+
+input CreatePostInput {
+  assets: [CreatePostAssetInput!]
+  content: String
+  fragranceId: ID
+  title: String!
+  type: PostType!
+}
+
 scalar Date
 
 input DeleteAccordRequestInput {
@@ -371,6 +398,14 @@ input DeleteFragranceReviewInput {
 }
 
 input DeleteNoteRequestInput {
+  id: ID!
+}
+
+input DeletePostCommentInput {
+  id: ID!
+}
+
+input DeletePostInput {
   id: ID!
 }
 
@@ -820,6 +855,8 @@ type Mutation {
   createFragranceReview(input: CreateFragranceReviewInput!): FragranceReview!
   createNoteEdit(input: CreateNoteEditInput!): NoteEdit!
   createNoteRequest(input: CreateNoteRequestInput): NoteRequest!
+  createPost(input: CreatePostInput!): Post!
+  createPostComment(input: CreatePostCommentInput!): PostComment!
   deleteAccordRequest(input: DeleteAccordRequestInput!): AccordRequest!
   deleteAsset(input: DeleteAssetInput!): Boolean!
   deleteBrandRequest(input: DeleteBrandRequestInput!): BrandRequest!
@@ -828,6 +865,8 @@ type Mutation {
   deleteFragranceRequest(input: DeleteFragranceRequestInput!): FragranceRequest!
   deleteFragranceReview(input: DeleteFragranceReviewInput!): FragranceReview!
   deleteNoteRequest(input: DeleteNoteRequestInput!): NoteRequest!
+  deletePost(input: DeletePostInput!): Post!
+  deletePostComment(input: DeletePostCommentInput!): PostComment!
   follow(input: FollowUserInput!): UserFollow!
   forgotPassword(input: ForgotPasswordInput!): AuthDeliveryResult!
   logIn(input: LogInInput!): AuthTokenPayload!
@@ -859,6 +898,8 @@ type Mutation {
   updateFragranceReview(input: UpdateFragranceReviewInput!): FragranceReview!
   updateMe(input: UpdateMeInput!): User!
   updateNoteRequest(input: UpdateNoteRequestInput!): NoteRequest!
+  updatePost(input: UpdatePostInput!): Post!
+  updatePostComment(input: UpdatePostCommentInput!): PostComment!
   voteOnAccordRequest(input: VoteOnAccordRequestInput!): AccordRequest!
   voteOnBrand(input: VoteOnBrandInput!): Brand!
   voteOnBrandRequest(input: VoteOnBrandRequestInput!): BrandRequest!
@@ -973,6 +1014,101 @@ type PageInfo {
   startCursor: String
 }
 
+type Post {
+  assets: [PostAsset!]!
+  comments(input: PostCommentPaginationInput): PostCommentConnection!
+  content: String
+  createdAt: String!
+  fragrance: Fragrance
+  id: ID!
+  searchComments(input: SearchInput): SearchPostCommentConnection!
+  title: String!
+  type: PostType!
+  user: User!
+}
+
+type PostAsset {
+  asset: Asset!
+  displayOrder: Int!
+  id: ID!
+  post: Post!
+}
+
+type PostComment {
+  assets: [PostCommentAsset!]!
+  comments(input: PostCommentPaginationInput): PostCommentConnection!
+  content: String!
+  createdAt: String!
+  depth: Int!
+  id: ID!
+  parent: PostComment
+  post: Post!
+  user: User!
+}
+
+type PostCommentAsset {
+  PostComment: PostComment!
+  asset: Asset!
+  displayOrder: Int!
+  id: ID!
+}
+
+type PostCommentConnection {
+  edges: [PostCommentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostCommentEdge {
+  cursor: String!
+  node: PostComment!
+}
+
+input PostCommentPaginationInput {
+  after: String
+  first: Int
+  sort: PostCommentSortInput
+}
+
+enum PostCommentSortBy {
+  RECENT
+}
+
+input PostCommentSortInput {
+  by: PostCommentSortBy
+  direction: SortDirection
+}
+
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostEdge {
+  cursor: String!
+  node: Post!
+}
+
+input PostPaginationInput {
+  after: String
+  first: Int
+  sort: PostSortInput
+}
+
+enum PostSortBy {
+  RECENT
+}
+
+input PostSortInput {
+  by: PostSortBy
+  direction: SortDirection
+}
+
+enum PostType {
+  FRAGRANCE
+  MEDIA
+  TEXT
+}
+
 type PresignedUpload {
   assetId: ID!
   fields: JSON!
@@ -1008,10 +1144,13 @@ type Query {
   noteRequest(id: ID!): NoteRequest!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
+  post(id: ID!): Post!
+  posts(input: PostPaginationInput): PostConnection!
   searchAccords(input: SearchInput): SearchAccordConnection!
   searchBrands(input: SearchInput): SearchBrandConnection!
   searchFragrances(input: SearchInput): SearchFragranceConnection!
   searchNotes(input: SearchInput): SearchNoteConnection!
+  searchPosts(input: SearchInput): SearchPostConnection!
   searchUsers(input: SearchInput): SearchUserConnection!
   user(id: ID!): User!
 }
@@ -1136,6 +1275,26 @@ input SearchPaginationInput {
   after: Int
   first: Int
   sort: SearchSortInput
+}
+
+type SearchPostCommentConnection {
+  edges: [SearchPostCommentEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchPostCommentEdge {
+  node: PostComment!
+  offset: Int!
+}
+
+type SearchPostConnection {
+  edges: [SearchPostEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+type SearchPostEdge {
+  node: Post!
+  offset: Int!
 }
 
 enum SearchSortBy {
@@ -1294,6 +1453,31 @@ input UpdateNoteRequestInput {
   description: String
   id: ID!
   name: String
+}
+
+input UpdatePostAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+  id: ID
+}
+
+input UpdatePostCommentAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+  id: ID
+}
+
+input UpdatePostCommentInput {
+  assets: [UpdatePostCommentAssetInput!]
+  content: String!
+  id: ID!
+}
+
+input UpdatePostInput {
+  assets: [UpdatePostAssetInput!]
+  content: String
+  id: ID!
+  title: String
 }
 
 type User {

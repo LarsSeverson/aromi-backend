@@ -63,10 +63,10 @@ export class FragranceQueryResolvers extends BaseResolver<QueryResolvers> {
   ) => {
     const { input } = args
     const { services } = context
+    const { search } = services
 
     const { term, pagination } = input ?? {}
     const offsetPagination = this.searchPagination.parse(pagination)
-    const { search } = services
 
     const { hits } = await unwrapOrThrow(
       search

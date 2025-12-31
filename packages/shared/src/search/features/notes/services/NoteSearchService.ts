@@ -15,4 +15,21 @@ export class NoteSearchService extends SearchService<NoteDoc> {
   fromPartialRow (row: PartialWithId<NoteDoc>): PartialWithId<NoteDoc> {
     return row
   }
+
+  override createIndex () {
+    return super.createIndex({ primaryKey: 'id' })
+  }
+
+  override configureIndex () {
+    return super.configureIndex({
+      searchableAttributes: [
+        'name',
+        'description'
+      ],
+      sortableAttributes: [
+        'createdAt',
+        'updatedAt'
+      ]
+    })
+  }
 }

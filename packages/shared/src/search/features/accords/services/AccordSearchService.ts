@@ -16,4 +16,20 @@ export class AccordSearchService extends SearchService<AccordDoc> {
   fromPartialRow (row: PartialWithId<AccordRow>): PartialWithId<AccordDoc> {
     return row
   }
+
+  override createIndex () {
+    return super.createIndex({ primaryKey: 'id' })
+  }
+
+  override configureIndex () {
+    return super.configureIndex({
+      searchableAttributes: [
+        'name'
+      ],
+      sortableAttributes: [
+        'createdAt',
+        'updatedAt'
+      ]
+    })
+  }
 }

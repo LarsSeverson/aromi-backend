@@ -4,6 +4,8 @@ enum AssetKey {
   ACCORD_IMAGES
   NOTE_IMAGES
   USER_IMAGES
+  POST_ASSETS
+  POST_COMMENT_ASSETS
 }
 
 type Asset {

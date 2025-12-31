@@ -1,4 +1,4 @@
-import type { FragranceRow, NoteLayerEnum } from '@src/db/index.js'
+import type { AccordRow, BrandRow, FragranceRow, LayerNoteRow, NoteLayerEnum } from '@src/db/index.js'
 
 export interface FragranceDocBrand {
   id: string
@@ -22,4 +22,11 @@ export interface FragranceDoc extends FragranceRow {
   brand: FragranceDocBrand | null
   accords: FragranceDocAccord[]
   notes: FragranceDocNote[]
+}
+
+export interface FragraceFromRowParams {
+  fragrance: FragranceRow
+  brand?: BrandRow | null
+  accords?: AccordRow[]
+  notes?: LayerNoteRow[]
 }

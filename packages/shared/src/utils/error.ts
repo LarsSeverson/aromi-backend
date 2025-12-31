@@ -1,6 +1,7 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors'
 import { GraphQLError, type GraphQLFormattedError } from 'graphql'
 import { NoResultError } from 'kysely'
+import { MeiliSearchApiError } from 'meilisearch'
 import type { Result, ResultAsync } from 'neverthrow'
 import type z from 'zod'
 
@@ -48,10 +49,37 @@ export class BackendError extends GraphQLError {
   }
 
   static fromMeili (error: unknown): BackendError {
+    if (error instanceof MeiliSearchApiError && error.cause?.code != null) {
+      const specificMapping = MEILI_API_CODE_MAPPING[error.cause.code]
+
+      if (specificMapping != null) {
+        return new BackendError(
+          specificMapping.code,
+          specificMapping.message,
+          specificMapping.status,
+          error
+        )
+      }
+    }
+
     const typed = error as Error
     const mapping = MEILI_ERROR_TO_API_ERROR[typed.name]
-    if (mapping != null) return new BackendError(mapping.code, mapping.message, mapping.status, error)
-    return new BackendError('SEARCH_SERVICE_ERROR', 'Something went wrong with search. Please try again later', 500, error)
+
+    if (mapping != null) {
+      return new BackendError(
+        mapping.code,
+        mapping.message,
+        mapping.status,
+        error
+      )
+    }
+
+    return new BackendError(
+      'SEARCH_SERVICE_ERROR',
+      'Something went wrong with search. Please try again later',
+      500,
+      error
+    )
   }
 
   static fromMQ (error: unknown): BackendError {
@@ -148,11 +176,45 @@ export const S3_ERROR_TO_API_ERROR: Record<string, BackendError> = {
   NotFound: new BackendError('S3_NO_OBJECT', 'The requested asset does not exist', 404)
 } as const
 
-export const MEILI_ERROR_TO_API_ERROR: Record<string, BackendError> = {
-  MeiliSearchCommunicationError: new BackendError('SEARCH_COMMUNICATION_ERROR', 'Could not reach search Service.js', 503),
-  MeiliSearchApiError: new BackendError('SEARCH_API_ERROR', 'Search service returned an error', 502),
-  MeiliSearchError: new BackendError('SEARCH_ERROR', 'Unexpected search service error', 500),
-  TimeoutError: new BackendError('SEARCH_TIMEOUT', 'Search request timed out', 504)
+export const MEILI_API_CODE_MAPPING: Record<string, { code: string, message: string, status: number }> = {
+  index_not_found: {
+    code: 'SEARCH_INDEX_NOT_FOUND',
+    message: 'The requested search index was not found',
+    status: 404
+  },
+  invalid_api_key: {
+    code: 'SEARCH_AUTH_ERROR',
+    message: 'Invalid search credentials',
+    status: 401
+  },
+  index_already_exists: {
+    code: 'SEARCH_INDEX_ALREADY_EXISTS',
+    message: 'The search index already exists',
+    status: 409
+  }
+}
+
+export const MEILI_ERROR_TO_API_ERROR: Record<string, { code: string, message: string, status: number }> = {
+  MeiliSearchCommunicationError: {
+    code: 'SEARCH_COMMUNICATION_ERROR',
+    message: 'Could not reach search Service',
+    status: 503
+  },
+  MeiliSearchApiError: {
+    code: 'SEARCH_API_ERROR',
+    message: 'Search service returned an error',
+    status: 502
+  },
+  MeiliSearchError: {
+    code: 'SEARCH_ERROR',
+    message: 'Unexpected search service error',
+    status: 500
+  },
+  TimeoutError: {
+    code: 'SEARCH_TIMEOUT',
+    message: 'Search request timed out',
+    status: 504
+  }
 } as const
 
 export const MQ_ERROR_TO_API_ERROR: Record<string, BackendError> = {

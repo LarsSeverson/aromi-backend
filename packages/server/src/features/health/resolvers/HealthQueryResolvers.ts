@@ -10,7 +10,7 @@ export class HealthQueryResolvers extends BaseResolver<QueryResolvers> {
   ) => {
     const { sources } = context
 
-    await sources.healthCheck()
+    await sources.checkHealth()
 
     return 'Yes'
   }

@@ -46,7 +46,7 @@ export class DataSources {
     )
   }
 
-  async healthCheck (): Promise<void> {
+  async checkHealth (): Promise<void> {
     await Promise.all([
       this.healthCheckDB(),
       this.healthCheckMeili(),

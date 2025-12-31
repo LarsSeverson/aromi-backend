@@ -1,4 +1,4 @@
-import { AccordService, AssetService, BrandService, type DataSources, EditJobService, FragranceService, NoteService, RequestJobService, SearchServices, UserService } from '@aromi/shared'
+import { AccordService, AssetService, BrandService, type DataSources, EditJobService, FragranceService, NoteService, PostService, RequestJobService, SearchServices, UserService } from '@aromi/shared'
 
 export class JobServices {
   assets: AssetService
@@ -9,6 +9,7 @@ export class JobServices {
   brands: BrandService
   accords: AccordService
   notes: NoteService
+  posts: PostService
 
   search: SearchServices
   editJobs: EditJobService
@@ -23,6 +24,7 @@ export class JobServices {
     this.brands = new BrandService(sources)
     this.accords = new AccordService(sources)
     this.notes = new NoteService(sources)
+    this.posts = new PostService(sources)
 
     this.search = new SearchServices(sources)
     this.editJobs = new EditJobService(sources)

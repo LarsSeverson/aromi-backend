@@ -6,6 +6,12 @@ export const VALID_IMAGE_TYPES = [
   'image/webp'
 ] as const
 
+export const VALID_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/ogg'
+] as const
+
 export const ValidVersion = z
   .number()
   .int()

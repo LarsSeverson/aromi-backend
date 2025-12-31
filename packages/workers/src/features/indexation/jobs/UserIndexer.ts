@@ -13,7 +13,7 @@ export class UserIndexer extends BaseIndexer<IndexationJobPayload[JobKey], UserD
     const { userId } = job.data
 
     const user = await unwrapOrThrow(this.getUserRow(userId))
-    const doc = users.fromRow({ user })
+    const doc = users.fromRow(user)
 
     await users.addDocument(doc)
 

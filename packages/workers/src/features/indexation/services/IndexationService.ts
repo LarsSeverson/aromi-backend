@@ -11,6 +11,12 @@ import { BrandUpdater } from '../jobs/BrandUpdater.js'
 import { AccordUpdater } from '../jobs/AccordUpdater.js'
 import { NoteUpdater } from '../jobs/NoteUpdater.js'
 import { UserIndexer } from '../jobs/UserIndexer.js'
+import { PostIndexer } from '../jobs/PostIndexer.js'
+import { PostUpdater } from '../jobs/PostUpdater.js'
+import { PostDeleter } from '../jobs/PostDeleter.js'
+import { PostCommentDeleter } from '../jobs/PostCommentDeleter.js'
+import { PostCommentIndexer } from '../jobs/PostCommentIndexer.js'
+import { PostCommentUpdater } from '../jobs/PostCommentUpdater.js'
 
 export class IndexationService extends WorkerService<keyof IndexationJobPayload, IndexationJobPayload> {
   constructor (context: WorkerContext) {
@@ -58,6 +64,32 @@ export class IndexationService extends WorkerService<keyof IndexationJobPayload,
       .register(
         INDEXATION_JOB_NAMES.INDEX_USER,
         new UserIndexer(sources)
+      )
+
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_POST,
+        new PostIndexer(sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.UPDATE_POST,
+        new PostUpdater(sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.DELETE_POST,
+        new PostDeleter(sources)
+      )
+
+      .register(
+        INDEXATION_JOB_NAMES.INDEX_POST,
+        new PostCommentIndexer(sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT,
+        new PostCommentUpdater(sources)
+      )
+      .register(
+        INDEXATION_JOB_NAMES.DELETE_POST_COMMENT,
+        new PostCommentDeleter(sources)
       )
   }
 }

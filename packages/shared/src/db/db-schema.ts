@@ -53,6 +53,12 @@ export enum NoteLayerEnum {
   TOP = "top",
 }
 
+export enum PostType {
+  FRAGRANCE = "FRAGRANCE",
+  MEDIA = "MEDIA",
+  TEXT = "TEXT",
+}
+
 export enum RequestStatus {
   ACCEPTED = "ACCEPTED",
   DENIED = "DENIED",
@@ -158,6 +164,7 @@ export interface AssetUpload {
   sizeBytes: Int8;
   status: Generated<AssetStatus>;
   updatedAt: Generated<Timestamp>;
+  userId: string | null;
 }
 
 export interface BrandEdit {
@@ -588,6 +595,50 @@ export interface Note {
   updatedAt: Generated<Timestamp>;
 }
 
+export interface PostAsset {
+  assetId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  displayOrder: Generated<number>;
+  id: Generated<string>;
+  postId: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface PostCommentAsset {
+  assetId: string;
+  commentId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  displayOrder: Generated<number>;
+  id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface PostComment {
+  content: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  depth: Generated<number>;
+  id: Generated<string>;
+  parentId: string | null;
+  postId: string;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface Post {
+  content: string | null;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  fragranceId: string | null;
+  id: Generated<string>;
+  title: string;
+  type: PostType;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
 export interface RequestJob {
   createdAt: Generated<Timestamp>;
   error: string | null;
@@ -691,6 +742,10 @@ export interface DB {
   noteRequestScores: NoteRequestScore;
   noteRequestVotes: NoteRequestVote;
   notes: Note;
+  postAssets: PostAsset;
+  postCommentAssets: PostCommentAsset;
+  postComments: PostComment;
+  posts: Post;
   requestJobs: RequestJob;
   traitOptions: TraitOption;
   traitTypes: TraitType;

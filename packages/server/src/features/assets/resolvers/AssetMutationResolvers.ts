@@ -1,4 +1,4 @@
-import { genImageKey, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
+import { genAssetKey, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { mapAssetKeyToS3Entity, mapAssetKeyToSchema } from '../utils/mappers.js'
@@ -13,7 +13,7 @@ export class AssetMutationResolvers extends BaseResolver<MutationResolvers> {
     const { input } = args
     const { services } = context
 
-    this.checkAuthenticated(context)
+    const me = this.checkAuthenticated(context)
 
     const { fileName, key } = input
     const { assets } = services
@@ -21,7 +21,7 @@ export class AssetMutationResolvers extends BaseResolver<MutationResolvers> {
     const entity = mapAssetKeyToS3Entity(key)
     const schema = mapAssetKeyToSchema(key)
 
-    const { key: s3Key } = genImageKey(entity, fileName)
+    const { key: s3Key } = genAssetKey(entity, fileName)
     const { contentType, contentSize } = parseOrThrow(schema, input)
 
     const presigned = await unwrapOrThrow(
@@ -32,6 +32,7 @@ export class AssetMutationResolvers extends BaseResolver<MutationResolvers> {
       assets
         .uploads
         .createOne({
+          userId: me.id,
           name: fileName,
           s3Key,
           contentType,

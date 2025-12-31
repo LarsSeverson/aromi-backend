@@ -24,7 +24,7 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
 
     const user = await unwrapOrThrow(
       users.updateOne(
-        eb => eb('id', '=', me.id),
+        where => where('id', '=', me.id),
         {
           username
         }
@@ -50,7 +50,12 @@ export class UserMutationResolvers extends BaseResolver<MutationResolvers> {
     const asset = await unwrapOrThrow(
       assets
         .uploads
-        .findOne(eb => eb('id', '=', assetId))
+        .findOne(
+          where => where.and([
+            where('id', '=', assetId),
+            where('userId', '=', me.id)
+          ])
+        )
     )
 
     const user = await unwrapOrThrow(users.withTransactionAsync(

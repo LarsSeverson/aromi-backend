@@ -8,6 +8,7 @@ import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, Note
 import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers, FragranceVoteFieldResolvers } from '@src/features/fragrances/index.js'
 import { AssetFieldResolvers, AssetMutationResolvers } from '@src/features/assets/index.js'
 import { HealthQueryResolvers } from '@src/features/health/index.js'
+import { PostAssetFieldResolvers, PostCommentAssetFieldResolvers, PostCommentFieldResolvers, PostFieldResolvers, PostMutationResolvers, PostQueryResolvers } from '@src/features/posts/index.js'
 
 const healthQueries = new HealthQueryResolvers()
 
@@ -48,6 +49,14 @@ const noteFieldResolvers = new NoteFieldResolvers()
 const noteEditFieldResolvers = new NoteEditFieldResolvers()
 const noteRequestFieldResolvers = new NoteRequestFieldResolvers()
 
+const postQueries = new PostQueryResolvers()
+const postMutations = new PostMutationResolvers()
+const postFieldResolvers = new PostFieldResolvers()
+const postAssetFieldResolvers = new PostAssetFieldResolvers()
+
+const postCommentFieldResolvers = new PostCommentFieldResolvers()
+const postCommentAssetFieldResolvers = new PostCommentAssetFieldResolvers()
+
 export const ApiResolvers: Resolvers = {
   Date: GraphQLDateTime,
   JSON: GraphQLJSON,
@@ -63,7 +72,9 @@ export const ApiResolvers: Resolvers = {
 
     ...accordQueries.getResolvers(),
 
-    ...noteQueries.getResolvers()
+    ...noteQueries.getResolvers(),
+
+    ...postQueries.getResolvers()
   },
 
   Mutation: {
@@ -78,7 +89,9 @@ export const ApiResolvers: Resolvers = {
 
     ...accordMutations.getResolvers(),
 
-    ...noteMutations.getResolvers()
+    ...noteMutations.getResolvers(),
+
+    ...postMutations.getResolvers()
   },
 
   Asset: assetFieldResolvers.getResolvers(),
@@ -117,5 +130,13 @@ export const ApiResolvers: Resolvers = {
 
   NoteEdit: noteEditFieldResolvers.getResolvers(),
 
-  NoteRequest: noteRequestFieldResolvers.getResolvers()
+  NoteRequest: noteRequestFieldResolvers.getResolvers(),
+
+  Post: postFieldResolvers.getResolvers(),
+
+  PostAsset: postAssetFieldResolvers.getResolvers(),
+
+  PostComment: postCommentFieldResolvers.getResolvers(),
+
+  PostCommentAsset: postCommentAssetFieldResolvers.getResolvers()
 }

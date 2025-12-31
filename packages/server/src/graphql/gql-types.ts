@@ -5,6 +5,7 @@ import { IFragranceSummary, IFragranceImageSummary, IFragranceEditSummary, IFrag
 import { IBrandSummary, IBrandEditSummary, IBrandRequestSummary } from '../features/brands/types.js';
 import { IAccordEditSummary, IAccordRequestSummary } from '../features/accords/types.js';
 import { INoteSummary, INoteEditSummary, INoteRequestSummary } from '../features/notes/types.js';
+import { IPost, IPostAsset, IPostComment, IPostCommentAsset } from '../features/posts/types.js';
 import { ServerContext } from '@src/context/index.js';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -147,6 +148,8 @@ export const AssetKey = {
   BrandImages: 'BRAND_IMAGES',
   FragranceImages: 'FRAGRANCE_IMAGES',
   NoteImages: 'NOTE_IMAGES',
+  PostAssets: 'POST_ASSETS',
+  PostCommentAssets: 'POST_COMMENT_ASSETS',
   UserImages: 'USER_IMAGES'
 } as const;
 
@@ -401,6 +404,31 @@ export type CreateNoteRequestInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreatePostAssetInput = {
+  assetId: Scalars['ID']['input'];
+  displayOrder: Scalars['Int']['input'];
+};
+
+export type CreatePostCommentAssetInput = {
+  assetId: Scalars['ID']['input'];
+  displayOrder: Scalars['Int']['input'];
+};
+
+export type CreatePostCommentInput = {
+  assets?: InputMaybe<Array<CreatePostCommentAssetInput>>;
+  content: Scalars['String']['input'];
+  parentId?: InputMaybe<Scalars['ID']['input']>;
+  postId: Scalars['ID']['input'];
+};
+
+export type CreatePostInput = {
+  assets?: InputMaybe<Array<CreatePostAssetInput>>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  fragranceId?: InputMaybe<Scalars['ID']['input']>;
+  title: Scalars['String']['input'];
+  type: PostType;
+};
+
 export type DeleteAccordRequestInput = {
   id: Scalars['ID']['input'];
 };
@@ -431,6 +459,14 @@ export type DeleteFragranceReviewInput = {
 };
 
 export type DeleteNoteRequestInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type DeletePostCommentInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type DeletePostInput = {
   id: Scalars['ID']['input'];
 };
 
@@ -969,6 +1005,8 @@ export type Mutation = {
   createFragranceReview: FragranceReview;
   createNoteEdit: NoteEdit;
   createNoteRequest: NoteRequest;
+  createPost: Post;
+  createPostComment: PostComment;
   deleteAccordRequest: AccordRequest;
   deleteAsset: Scalars['Boolean']['output'];
   deleteBrandRequest: BrandRequest;
@@ -977,6 +1015,8 @@ export type Mutation = {
   deleteFragranceRequest: FragranceRequest;
   deleteFragranceReview: FragranceReview;
   deleteNoteRequest: NoteRequest;
+  deletePost: Post;
+  deletePostComment: PostComment;
   follow: UserFollow;
   forgotPassword: AuthDeliveryResult;
   logIn: AuthTokenPayload;
@@ -1008,6 +1048,8 @@ export type Mutation = {
   updateFragranceReview: FragranceReview;
   updateMe: User;
   updateNoteRequest: NoteRequest;
+  updatePost: Post;
+  updatePostComment: PostComment;
   voteOnAccordRequest: AccordRequest;
   voteOnBrand: Brand;
   voteOnBrandRequest: BrandRequest;
@@ -1101,6 +1143,16 @@ export type MutationCreateNoteRequestArgs = {
 };
 
 
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
+
+export type MutationCreatePostCommentArgs = {
+  input: CreatePostCommentInput;
+};
+
+
 export type MutationDeleteAccordRequestArgs = {
   input: DeleteAccordRequestInput;
 };
@@ -1138,6 +1190,16 @@ export type MutationDeleteFragranceReviewArgs = {
 
 export type MutationDeleteNoteRequestArgs = {
   input: DeleteNoteRequestInput;
+};
+
+
+export type MutationDeletePostArgs = {
+  input: DeletePostInput;
+};
+
+
+export type MutationDeletePostCommentArgs = {
+  input: DeletePostCommentInput;
 };
 
 
@@ -1283,6 +1345,16 @@ export type MutationUpdateMeArgs = {
 
 export type MutationUpdateNoteRequestArgs = {
   input: UpdateNoteRequestInput;
+};
+
+
+export type MutationUpdatePostArgs = {
+  input: UpdatePostInput;
+};
+
+
+export type MutationUpdatePostCommentArgs = {
+  input: UpdatePostCommentInput;
 };
 
 
@@ -1450,6 +1522,127 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+export type Post = {
+  __typename?: 'Post';
+  assets: Array<PostAsset>;
+  comments: PostCommentConnection;
+  content?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
+  fragrance?: Maybe<Fragrance>;
+  id: Scalars['ID']['output'];
+  searchComments: SearchPostCommentConnection;
+  title: Scalars['String']['output'];
+  type: PostType;
+  user: User;
+};
+
+
+export type PostCommentsArgs = {
+  input?: InputMaybe<PostCommentPaginationInput>;
+};
+
+
+export type PostSearchCommentsArgs = {
+  input?: InputMaybe<SearchInput>;
+};
+
+export type PostAsset = {
+  __typename?: 'PostAsset';
+  asset: Asset;
+  displayOrder: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  post: Post;
+};
+
+export type PostComment = {
+  __typename?: 'PostComment';
+  assets: Array<PostCommentAsset>;
+  comments: PostCommentConnection;
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  depth: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  parent?: Maybe<PostComment>;
+  post: Post;
+  user: User;
+};
+
+
+export type PostCommentCommentsArgs = {
+  input?: InputMaybe<PostCommentPaginationInput>;
+};
+
+export type PostCommentAsset = {
+  __typename?: 'PostCommentAsset';
+  PostComment: PostComment;
+  asset: Asset;
+  displayOrder: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+};
+
+export type PostCommentConnection = {
+  __typename?: 'PostCommentConnection';
+  edges: Array<PostCommentEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PostCommentEdge = {
+  __typename?: 'PostCommentEdge';
+  cursor: Scalars['String']['output'];
+  node: PostComment;
+};
+
+export type PostCommentPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<PostCommentSortInput>;
+};
+
+export const PostCommentSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type PostCommentSortBy = typeof PostCommentSortBy[keyof typeof PostCommentSortBy];
+export type PostCommentSortInput = {
+  by?: InputMaybe<PostCommentSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
+export type PostConnection = {
+  __typename?: 'PostConnection';
+  edges: Array<PostEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PostEdge = {
+  __typename?: 'PostEdge';
+  cursor: Scalars['String']['output'];
+  node: Post;
+};
+
+export type PostPaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<PostSortInput>;
+};
+
+export const PostSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type PostSortBy = typeof PostSortBy[keyof typeof PostSortBy];
+export type PostSortInput = {
+  by?: InputMaybe<PostSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
+export const PostType = {
+  Fragrance: 'FRAGRANCE',
+  Media: 'MEDIA',
+  Text: 'TEXT'
+} as const;
+
+export type PostType = typeof PostType[keyof typeof PostType];
 export type PresignedUpload = {
   __typename?: 'PresignedUpload';
   assetId: Scalars['ID']['output'];
@@ -1487,10 +1680,13 @@ export type Query = {
   noteRequest: NoteRequest;
   noteRequests: NoteRequestConnection;
   notes: NoteConnection;
+  post: Post;
+  posts: PostConnection;
   searchAccords: SearchAccordConnection;
   searchBrands: SearchBrandConnection;
   searchFragrances: SearchFragranceConnection;
   searchNotes: SearchNoteConnection;
+  searchPosts: SearchPostConnection;
   searchUsers: SearchUserConnection;
   user: User;
 };
@@ -1626,6 +1822,16 @@ export type QueryNotesArgs = {
 };
 
 
+export type QueryPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPostsArgs = {
+  input?: InputMaybe<PostPaginationInput>;
+};
+
+
 export type QuerySearchAccordsArgs = {
   input?: InputMaybe<SearchInput>;
 };
@@ -1642,6 +1848,11 @@ export type QuerySearchFragrancesArgs = {
 
 
 export type QuerySearchNotesArgs = {
+  input?: InputMaybe<SearchInput>;
+};
+
+
+export type QuerySearchPostsArgs = {
   input?: InputMaybe<SearchInput>;
 };
 
@@ -1787,6 +1998,30 @@ export type SearchPaginationInput = {
   after?: InputMaybe<Scalars['Int']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<SearchSortInput>;
+};
+
+export type SearchPostCommentConnection = {
+  __typename?: 'SearchPostCommentConnection';
+  edges: Array<SearchPostCommentEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchPostCommentEdge = {
+  __typename?: 'SearchPostCommentEdge';
+  node: PostComment;
+  offset: Scalars['Int']['output'];
+};
+
+export type SearchPostConnection = {
+  __typename?: 'SearchPostConnection';
+  edges: Array<SearchPostEdge>;
+  pageInfo: SearchPageInfo;
+};
+
+export type SearchPostEdge = {
+  __typename?: 'SearchPostEdge';
+  node: Post;
+  offset: Scalars['Int']['output'];
 };
 
 export const SearchSortBy = {
@@ -1953,6 +2188,31 @@ export type UpdateNoteRequestInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdatePostAssetInput = {
+  assetId: Scalars['ID']['input'];
+  displayOrder: Scalars['Int']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type UpdatePostCommentAssetInput = {
+  assetId: Scalars['ID']['input'];
+  displayOrder: Scalars['Int']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type UpdatePostCommentInput = {
+  assets?: InputMaybe<Array<UpdatePostCommentAssetInput>>;
+  content: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+export type UpdatePostInput = {
+  assets?: InputMaybe<Array<UpdatePostAssetInput>>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
@@ -2256,6 +2516,10 @@ export type ResolversTypes = ResolversObject<{
   CreateFragranceReviewInput: ResolverTypeWrapper<Partial<CreateFragranceReviewInput>>;
   CreateNoteEditInput: ResolverTypeWrapper<Partial<CreateNoteEditInput>>;
   CreateNoteRequestInput: ResolverTypeWrapper<Partial<CreateNoteRequestInput>>;
+  CreatePostAssetInput: ResolverTypeWrapper<Partial<CreatePostAssetInput>>;
+  CreatePostCommentAssetInput: ResolverTypeWrapper<Partial<CreatePostCommentAssetInput>>;
+  CreatePostCommentInput: ResolverTypeWrapper<Partial<CreatePostCommentInput>>;
+  CreatePostInput: ResolverTypeWrapper<Partial<CreatePostInput>>;
   Date: ResolverTypeWrapper<Partial<Scalars['Date']['output']>>;
   DeleteAccordRequestInput: ResolverTypeWrapper<Partial<DeleteAccordRequestInput>>;
   DeleteAssetInput: ResolverTypeWrapper<Partial<DeleteAssetInput>>;
@@ -2265,6 +2529,8 @@ export type ResolversTypes = ResolversObject<{
   DeleteFragranceRequestInput: ResolverTypeWrapper<Partial<DeleteFragranceRequestInput>>;
   DeleteFragranceReviewInput: ResolverTypeWrapper<Partial<DeleteFragranceReviewInput>>;
   DeleteNoteRequestInput: ResolverTypeWrapper<Partial<DeleteNoteRequestInput>>;
+  DeletePostCommentInput: ResolverTypeWrapper<Partial<DeletePostCommentInput>>;
+  DeletePostInput: ResolverTypeWrapper<Partial<DeletePostInput>>;
   EditJob: ResolverTypeWrapper<Partial<EditJob>>;
   EditJobStatus: ResolverTypeWrapper<Partial<EditJobStatus>>;
   EditStatus: ResolverTypeWrapper<Partial<EditStatus>>;
@@ -2358,6 +2624,21 @@ export type ResolversTypes = ResolversObject<{
   NoteSortBy: ResolverTypeWrapper<Partial<NoteSortBy>>;
   NoteSortInput: ResolverTypeWrapper<Partial<NoteSortInput>>;
   PageInfo: ResolverTypeWrapper<Partial<PageInfo>>;
+  Post: ResolverTypeWrapper<IPost>;
+  PostAsset: ResolverTypeWrapper<IPostAsset>;
+  PostComment: ResolverTypeWrapper<IPostComment>;
+  PostCommentAsset: ResolverTypeWrapper<IPostCommentAsset>;
+  PostCommentConnection: ResolverTypeWrapper<Partial<Omit<PostCommentConnection, 'edges'> & { edges: Array<ResolversTypes['PostCommentEdge']> }>>;
+  PostCommentEdge: ResolverTypeWrapper<Partial<Omit<PostCommentEdge, 'node'> & { node: ResolversTypes['PostComment'] }>>;
+  PostCommentPaginationInput: ResolverTypeWrapper<Partial<PostCommentPaginationInput>>;
+  PostCommentSortBy: ResolverTypeWrapper<Partial<PostCommentSortBy>>;
+  PostCommentSortInput: ResolverTypeWrapper<Partial<PostCommentSortInput>>;
+  PostConnection: ResolverTypeWrapper<Partial<Omit<PostConnection, 'edges'> & { edges: Array<ResolversTypes['PostEdge']> }>>;
+  PostEdge: ResolverTypeWrapper<Partial<Omit<PostEdge, 'node'> & { node: ResolversTypes['Post'] }>>;
+  PostPaginationInput: ResolverTypeWrapper<Partial<PostPaginationInput>>;
+  PostSortBy: ResolverTypeWrapper<Partial<PostSortBy>>;
+  PostSortInput: ResolverTypeWrapper<Partial<PostSortInput>>;
+  PostType: ResolverTypeWrapper<Partial<PostType>>;
   PresignedUpload: ResolverTypeWrapper<Partial<PresignedUpload>>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RelationshipStatus: ResolverTypeWrapper<Partial<RelationshipStatus>>;
@@ -2382,6 +2663,10 @@ export type ResolversTypes = ResolversObject<{
   SearchNoteEdge: ResolverTypeWrapper<Partial<Omit<SearchNoteEdge, 'node'> & { node: ResolversTypes['Note'] }>>;
   SearchPageInfo: ResolverTypeWrapper<Partial<SearchPageInfo>>;
   SearchPaginationInput: ResolverTypeWrapper<Partial<SearchPaginationInput>>;
+  SearchPostCommentConnection: ResolverTypeWrapper<Partial<Omit<SearchPostCommentConnection, 'edges'> & { edges: Array<ResolversTypes['SearchPostCommentEdge']> }>>;
+  SearchPostCommentEdge: ResolverTypeWrapper<Partial<Omit<SearchPostCommentEdge, 'node'> & { node: ResolversTypes['PostComment'] }>>;
+  SearchPostConnection: ResolverTypeWrapper<Partial<Omit<SearchPostConnection, 'edges'> & { edges: Array<ResolversTypes['SearchPostEdge']> }>>;
+  SearchPostEdge: ResolverTypeWrapper<Partial<Omit<SearchPostEdge, 'node'> & { node: ResolversTypes['Post'] }>>;
   SearchSortBy: ResolverTypeWrapper<Partial<SearchSortBy>>;
   SearchSortInput: ResolverTypeWrapper<Partial<SearchSortInput>>;
   SearchUserConnection: ResolverTypeWrapper<Partial<Omit<SearchUserConnection, 'edges'> & { edges: Array<ResolversTypes['SearchUserEdge']> }>>;
@@ -2411,6 +2696,10 @@ export type ResolversTypes = ResolversObject<{
   UpdateFragranceReviewInput: ResolverTypeWrapper<Partial<UpdateFragranceReviewInput>>;
   UpdateMeInput: ResolverTypeWrapper<Partial<UpdateMeInput>>;
   UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
+  UpdatePostAssetInput: ResolverTypeWrapper<Partial<UpdatePostAssetInput>>;
+  UpdatePostCommentAssetInput: ResolverTypeWrapper<Partial<UpdatePostCommentAssetInput>>;
+  UpdatePostCommentInput: ResolverTypeWrapper<Partial<UpdatePostCommentInput>>;
+  UpdatePostInput: ResolverTypeWrapper<Partial<UpdatePostInput>>;
   User: ResolverTypeWrapper<IUserSummary>;
   UserFollow: ResolverTypeWrapper<IUserFollowSummary>;
   UserFollowConnection: ResolverTypeWrapper<Partial<Omit<UserFollowConnection, 'edges'> & { edges: Array<ResolversTypes['UserFollowEdge']> }>>;
@@ -2480,6 +2769,10 @@ export type ResolversParentTypes = ResolversObject<{
   CreateFragranceReviewInput: Partial<CreateFragranceReviewInput>;
   CreateNoteEditInput: Partial<CreateNoteEditInput>;
   CreateNoteRequestInput: Partial<CreateNoteRequestInput>;
+  CreatePostAssetInput: Partial<CreatePostAssetInput>;
+  CreatePostCommentAssetInput: Partial<CreatePostCommentAssetInput>;
+  CreatePostCommentInput: Partial<CreatePostCommentInput>;
+  CreatePostInput: Partial<CreatePostInput>;
   Date: Partial<Scalars['Date']['output']>;
   DeleteAccordRequestInput: Partial<DeleteAccordRequestInput>;
   DeleteAssetInput: Partial<DeleteAssetInput>;
@@ -2489,6 +2782,8 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteFragranceRequestInput: Partial<DeleteFragranceRequestInput>;
   DeleteFragranceReviewInput: Partial<DeleteFragranceReviewInput>;
   DeleteNoteRequestInput: Partial<DeleteNoteRequestInput>;
+  DeletePostCommentInput: Partial<DeletePostCommentInput>;
+  DeletePostInput: Partial<DeletePostInput>;
   EditJob: Partial<EditJob>;
   Float: Partial<Scalars['Float']['output']>;
   FollowUserInput: Partial<FollowUserInput>;
@@ -2568,6 +2863,18 @@ export type ResolversParentTypes = ResolversObject<{
   NoteRequestEdge: Partial<Omit<NoteRequestEdge, 'node'> & { node: ResolversParentTypes['NoteRequest'] }>;
   NoteSortInput: Partial<NoteSortInput>;
   PageInfo: Partial<PageInfo>;
+  Post: IPost;
+  PostAsset: IPostAsset;
+  PostComment: IPostComment;
+  PostCommentAsset: IPostCommentAsset;
+  PostCommentConnection: Partial<Omit<PostCommentConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostCommentEdge']> }>;
+  PostCommentEdge: Partial<Omit<PostCommentEdge, 'node'> & { node: ResolversParentTypes['PostComment'] }>;
+  PostCommentPaginationInput: Partial<PostCommentPaginationInput>;
+  PostCommentSortInput: Partial<PostCommentSortInput>;
+  PostConnection: Partial<Omit<PostConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostEdge']> }>;
+  PostEdge: Partial<Omit<PostEdge, 'node'> & { node: ResolversParentTypes['Post'] }>;
+  PostPaginationInput: Partial<PostPaginationInput>;
+  PostSortInput: Partial<PostSortInput>;
   PresignedUpload: Partial<PresignedUpload>;
   Query: Record<PropertyKey, never>;
   RemoveFragranceFromCollectionsInput: Partial<RemoveFragranceFromCollectionsInput>;
@@ -2589,6 +2896,10 @@ export type ResolversParentTypes = ResolversObject<{
   SearchNoteEdge: Partial<Omit<SearchNoteEdge, 'node'> & { node: ResolversParentTypes['Note'] }>;
   SearchPageInfo: Partial<SearchPageInfo>;
   SearchPaginationInput: Partial<SearchPaginationInput>;
+  SearchPostCommentConnection: Partial<Omit<SearchPostCommentConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchPostCommentEdge']> }>;
+  SearchPostCommentEdge: Partial<Omit<SearchPostCommentEdge, 'node'> & { node: ResolversParentTypes['PostComment'] }>;
+  SearchPostConnection: Partial<Omit<SearchPostConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchPostEdge']> }>;
+  SearchPostEdge: Partial<Omit<SearchPostEdge, 'node'> & { node: ResolversParentTypes['Post'] }>;
   SearchSortInput: Partial<SearchSortInput>;
   SearchUserConnection: Partial<Omit<SearchUserConnection, 'edges'> & { edges: Array<ResolversParentTypes['SearchUserEdge']> }>;
   SearchUserEdge: Partial<Omit<SearchUserEdge, 'node'> & { node: ResolversParentTypes['User'] }>;
@@ -2615,6 +2926,10 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateFragranceReviewInput: Partial<UpdateFragranceReviewInput>;
   UpdateMeInput: Partial<UpdateMeInput>;
   UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
+  UpdatePostAssetInput: Partial<UpdatePostAssetInput>;
+  UpdatePostCommentAssetInput: Partial<UpdatePostCommentAssetInput>;
+  UpdatePostCommentInput: Partial<UpdatePostCommentInput>;
+  UpdatePostInput: Partial<UpdatePostInput>;
   User: IUserSummary;
   UserFollow: IUserFollowSummary;
   UserFollowConnection: Partial<Omit<UserFollowConnection, 'edges'> & { edges: Array<ResolversParentTypes['UserFollowEdge']> }>;
@@ -3073,6 +3388,8 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   createFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationCreateFragranceReviewArgs, 'input'>>;
   createNoteEdit?: Resolver<ResolversTypes['NoteEdit'], ParentType, ContextType, RequireFields<MutationCreateNoteEditArgs, 'input'>>;
   createNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, Partial<MutationCreateNoteRequestArgs>>;
+  createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'input'>>;
+  createPostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<MutationCreatePostCommentArgs, 'input'>>;
   deleteAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationDeleteAccordRequestArgs, 'input'>>;
   deleteAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'input'>>;
   deleteBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationDeleteBrandRequestArgs, 'input'>>;
@@ -3081,6 +3398,8 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   deleteFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationDeleteFragranceRequestArgs, 'input'>>;
   deleteFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationDeleteFragranceReviewArgs, 'input'>>;
   deleteNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationDeleteNoteRequestArgs, 'input'>>;
+  deletePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'input'>>;
+  deletePostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<MutationDeletePostCommentArgs, 'input'>>;
   follow?: Resolver<ResolversTypes['UserFollow'], ParentType, ContextType, RequireFields<MutationFollowArgs, 'input'>>;
   forgotPassword?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationForgotPasswordArgs, 'input'>>;
   logIn?: Resolver<ResolversTypes['AuthTokenPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'input'>>;
@@ -3112,6 +3431,8 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   updateFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationUpdateFragranceReviewArgs, 'input'>>;
   updateMe?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateMeArgs, 'input'>>;
   updateNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationUpdateNoteRequestArgs, 'input'>>;
+  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'input'>>;
+  updatePostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<MutationUpdatePostCommentArgs, 'input'>>;
   voteOnAccordRequest?: Resolver<ResolversTypes['AccordRequest'], ParentType, ContextType, RequireFields<MutationVoteOnAccordRequestArgs, 'input'>>;
   voteOnBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationVoteOnBrandArgs, 'input'>>;
   voteOnBrandRequest?: Resolver<ResolversTypes['BrandRequest'], ParentType, ContextType, RequireFields<MutationVoteOnBrandRequestArgs, 'input'>>;
@@ -3190,6 +3511,65 @@ export type PageInfoResolvers<ContextType = ServerContext, ParentType extends Re
   startCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 }>;
 
+export type PostResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
+  assets?: Resolver<Array<ResolversTypes['PostAsset']>, ParentType, ContextType>;
+  comments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<PostCommentsArgs>>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  searchComments?: Resolver<ResolversTypes['SearchPostCommentConnection'], ParentType, ContextType, Partial<PostSearchCommentsArgs>>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['PostType'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+}>;
+
+export type PostAssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostAsset'] = ResolversParentTypes['PostAsset']> = ResolversObject<{
+  asset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
+  displayOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+}>;
+
+export type PostCommentResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostComment'] = ResolversParentTypes['PostComment']> = ResolversObject<{
+  assets?: Resolver<Array<ResolversTypes['PostCommentAsset']>, ParentType, ContextType>;
+  comments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<PostCommentCommentsArgs>>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  depth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  parent?: Resolver<Maybe<ResolversTypes['PostComment']>, ParentType, ContextType>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+}>;
+
+export type PostCommentAssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentAsset'] = ResolversParentTypes['PostCommentAsset']> = ResolversObject<{
+  PostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
+  displayOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+}>;
+
+export type PostCommentConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentConnection'] = ResolversParentTypes['PostCommentConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['PostCommentEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+}>;
+
+export type PostCommentEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentEdge'] = ResolversParentTypes['PostCommentEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType>;
+}>;
+
+export type PostConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostConnection'] = ResolversParentTypes['PostConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['PostEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+}>;
+
+export type PostEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostEdge'] = ResolversParentTypes['PostEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+}>;
+
 export type PresignedUploadResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PresignedUpload'] = ResolversParentTypes['PresignedUpload']> = ResolversObject<{
   assetId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   fields?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
@@ -3225,10 +3605,13 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   noteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<QueryNoteRequestArgs, 'id'>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
+  post?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  posts?: Resolver<ResolversTypes['PostConnection'], ParentType, ContextType, Partial<QueryPostsArgs>>;
   searchAccords?: Resolver<ResolversTypes['SearchAccordConnection'], ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
   searchBrands?: Resolver<ResolversTypes['SearchBrandConnection'], ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;
   searchFragrances?: Resolver<ResolversTypes['SearchFragranceConnection'], ParentType, ContextType, Partial<QuerySearchFragrancesArgs>>;
   searchNotes?: Resolver<ResolversTypes['SearchNoteConnection'], ParentType, ContextType, Partial<QuerySearchNotesArgs>>;
+  searchPosts?: Resolver<ResolversTypes['SearchPostConnection'], ParentType, ContextType, Partial<QuerySearchPostsArgs>>;
   searchUsers?: Resolver<ResolversTypes['SearchUserConnection'], ParentType, ContextType, Partial<QuerySearchUsersArgs>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
 }>;
@@ -3279,6 +3662,26 @@ export type SearchPageInfoResolvers<ContextType = ServerContext, ParentType exte
   hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pageSize?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   startOffset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchPostCommentConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchPostCommentConnection'] = ResolversParentTypes['SearchPostCommentConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchPostCommentEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchPostCommentEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchPostCommentEdge'] = ResolversParentTypes['SearchPostCommentEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type SearchPostConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchPostConnection'] = ResolversParentTypes['SearchPostConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['SearchPostEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['SearchPageInfo'], ParentType, ContextType>;
+}>;
+
+export type SearchPostEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchPostEdge'] = ResolversParentTypes['SearchPostEdge']> = ResolversObject<{
+  node?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
+  offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 }>;
 
 export type SearchUserConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['SearchUserConnection'] = ResolversParentTypes['SearchUserConnection']> = ResolversObject<{
@@ -3426,6 +3829,14 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   NoteRequestConnection?: NoteRequestConnectionResolvers<ContextType>;
   NoteRequestEdge?: NoteRequestEdgeResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
+  PostAsset?: PostAssetResolvers<ContextType>;
+  PostComment?: PostCommentResolvers<ContextType>;
+  PostCommentAsset?: PostCommentAssetResolvers<ContextType>;
+  PostCommentConnection?: PostCommentConnectionResolvers<ContextType>;
+  PostCommentEdge?: PostCommentEdgeResolvers<ContextType>;
+  PostConnection?: PostConnectionResolvers<ContextType>;
+  PostEdge?: PostEdgeResolvers<ContextType>;
   PresignedUpload?: PresignedUploadResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SearchAccordConnection?: SearchAccordConnectionResolvers<ContextType>;
@@ -3437,6 +3848,10 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   SearchNoteConnection?: SearchNoteConnectionResolvers<ContextType>;
   SearchNoteEdge?: SearchNoteEdgeResolvers<ContextType>;
   SearchPageInfo?: SearchPageInfoResolvers<ContextType>;
+  SearchPostCommentConnection?: SearchPostCommentConnectionResolvers<ContextType>;
+  SearchPostCommentEdge?: SearchPostCommentEdgeResolvers<ContextType>;
+  SearchPostConnection?: SearchPostConnectionResolvers<ContextType>;
+  SearchPostEdge?: SearchPostEdgeResolvers<ContextType>;
   SearchUserConnection?: SearchUserConnectionResolvers<ContextType>;
   SearchUserEdge?: SearchUserEdgeResolvers<ContextType>;
   TraitOption?: TraitOptionResolvers<ContextType>;

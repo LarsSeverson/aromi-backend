@@ -8,6 +8,7 @@ import { NoteLoaders } from '@src/features/notes/loaders/NoteLoaders.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 import { AssetLoaders } from '@src/features/assets/loaders/AssetLoaders.js'
 import { UserLoaders } from '@src/features/users/index.js'
+import { PostLoaders } from '@src/features/posts/loaders/PostLoaders.js'
 
 export class ServerLoaders {
   assets: AssetLoaders
@@ -17,6 +18,7 @@ export class ServerLoaders {
   fragrances: FragranceLoaders
   brands: BrandLoaders
   notes: NoteLoaders
+  posts: PostLoaders
 
   fragranceRequests: FragranceRequestLoaders
   brandRequests: BrandRequestLoaders
@@ -31,6 +33,7 @@ export class ServerLoaders {
     this.fragrances = new FragranceLoaders(services)
     this.brands = new BrandLoaders(services)
     this.notes = new NoteLoaders(services)
+    this.posts = new PostLoaders(services)
 
     this.fragranceRequests = new FragranceRequestLoaders(services)
     this.brandRequests = new BrandRequestLoaders(services)

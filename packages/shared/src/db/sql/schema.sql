@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict EHURwVLng3eLHv4INExXtc8W8UAFxQ0nV91kPhs6gMcklDpMBsLwbfn3zWNvG9F
+\restrict KHwfxmdmURk8ttwHCSIuBEhWkZ44LgFTfUHOmex0g6Dq6l1BjJt5GPLzdVtJsb6
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6 (Homebrew)
@@ -135,6 +135,17 @@ CREATE TYPE public.note_layer_enum AS ENUM (
     'top',
     'middle',
     'base'
+);
+
+
+--
+-- Name: post_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.post_type AS ENUM (
+    'TEXT',
+    'MEDIA',
+    'FRAGRANCE'
 );
 
 
@@ -298,7 +309,8 @@ CREATE TABLE public.asset_uploads (
     size_bytes bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp with time zone
+    deleted_at timestamp with time zone,
+    user_id uuid
 );
 
 
@@ -935,6 +947,70 @@ CREATE TABLE public.notes (
 
 
 --
+-- Name: post_assets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_assets (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    post_id uuid NOT NULL,
+    asset_id uuid NOT NULL,
+    display_order integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+--
+-- Name: post_comment_assets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_comment_assets (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    comment_id uuid NOT NULL,
+    asset_id uuid NOT NULL,
+    display_order integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+--
+-- Name: post_comments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_comments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    post_id uuid NOT NULL,
+    parent_id uuid,
+    user_id uuid NOT NULL,
+    content text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    depth integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.posts (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    fragrance_id uuid,
+    type public.post_type NOT NULL,
+    title text NOT NULL,
+    content text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+--
 -- Name: request_jobs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1566,6 +1642,38 @@ ALTER TABLE ONLY public.notes
 
 
 --
+-- Name: post_assets post_assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_assets
+    ADD CONSTRAINT post_assets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: post_comment_assets post_comment_assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comment_assets
+    ADD CONSTRAINT post_comment_assets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: post_comments post_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comments
+    ADD CONSTRAINT post_comments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: request_jobs request_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1673,6 +1781,69 @@ CREATE INDEX idx_edit_jobs_lookup ON public.edit_jobs USING btree (edit_type, ed
 --
 
 CREATE INDEX idx_edit_jobs_status ON public.edit_jobs USING btree (status);
+
+
+--
+-- Name: idx_post_assets_asset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_assets_asset_id ON public.post_assets USING btree (asset_id);
+
+
+--
+-- Name: idx_post_assets_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_assets_post_id ON public.post_assets USING btree (post_id);
+
+
+--
+-- Name: idx_post_replies_parent_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_replies_parent_id ON public.post_comments USING btree (parent_id);
+
+
+--
+-- Name: idx_post_replies_post_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_replies_post_id ON public.post_comments USING btree (post_id);
+
+
+--
+-- Name: idx_post_reply_assets_asset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_reply_assets_asset_id ON public.post_comment_assets USING btree (asset_id);
+
+
+--
+-- Name: idx_post_reply_assets_replu_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_post_reply_assets_replu_id ON public.post_comment_assets USING btree (comment_id);
+
+
+--
+-- Name: idx_posts_fragrance_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_posts_fragrance_id ON public.posts USING btree (fragrance_id) WHERE (fragrance_id IS NOT NULL);
+
+
+--
+-- Name: idx_posts_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_posts_type ON public.posts USING btree (type);
+
+
+--
+-- Name: idx_posts_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_posts_user_id ON public.posts USING btree (user_id);
 
 
 --
@@ -2354,6 +2525,78 @@ ALTER TABLE ONLY public.notes
 
 
 --
+-- Name: post_assets post_assets_asset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_assets
+    ADD CONSTRAINT post_assets_asset_id_fkey FOREIGN KEY (asset_id) REFERENCES public.asset_uploads(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_assets post_assets_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_assets
+    ADD CONSTRAINT post_assets_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_comment_assets post_comment_assets_asset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comment_assets
+    ADD CONSTRAINT post_comment_assets_asset_id_fkey FOREIGN KEY (asset_id) REFERENCES public.asset_uploads(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_comment_assets post_comment_assets_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comment_assets
+    ADD CONSTRAINT post_comment_assets_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.post_comments(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_comments post_replies_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comments
+    ADD CONSTRAINT post_replies_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.post_comments(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_comments post_replies_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comments
+    ADD CONSTRAINT post_replies_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_comments post_replies_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_comments
+    ADD CONSTRAINT post_replies_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: posts posts_fragrance_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_fragrance_id_fkey FOREIGN KEY (fragrance_id) REFERENCES public.fragrances(id) ON DELETE SET NULL;
+
+
+--
+-- Name: posts posts_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: trait_options trait_options_trait_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2386,6 +2629,14 @@ ALTER TABLE ONLY public.user_follows
 
 
 --
+-- Name: asset_uploads user_id_asset; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_uploads
+    ADD CONSTRAINT user_id_asset FOREIGN KEY (user_id) REFERENCES public.users(id) NOT VALID;
+
+
+--
 -- Name: user_images user_images_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2397,5 +2648,5 @@ ALTER TABLE ONLY public.user_images
 -- PostgreSQL database dump complete
 --
 
-\unrestrict EHURwVLng3eLHv4INExXtc8W8UAFxQ0nV91kPhs6gMcklDpMBsLwbfn3zWNvG9F
+\unrestrict KHwfxmdmURk8ttwHCSIuBEhWkZ44LgFTfUHOmex0g6Dq6l1BjJt5GPLzdVtJsb6
 

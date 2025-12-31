@@ -8,6 +8,6 @@ export class WorkerContext {
   }
 
   async healthCheck () {
-    await this.sources.healthCheck()
+    await this.sources.checkHealth()
   }
 }

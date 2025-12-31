@@ -1,43 +1,45 @@
-CREATE TYPE public.asset_status AS enum('ready', 'staged');
+CREATE TYPE public.asset_status AS enum('staged', 'ready');
 
-CREATE TYPE public.avatar_status AS enum('PENDING', 'FAILED', 'READY', 'PROCESSING');
+CREATE TYPE public.avatar_status AS enum('PENDING', 'PROCESSING', 'READY', 'FAILED');
 
-CREATE TYPE public.edit_status AS enum('REJECTED', 'APPROVED', 'PENDING');
+CREATE TYPE public.edit_status AS enum('APPROVED', 'REJECTED', 'PENDING');
 
-CREATE TYPE public.edit_type AS enum('note', 'fragrance', 'brand', 'accord');
+CREATE TYPE public.edit_type AS enum('accord', 'note', 'fragrance', 'brand');
 
 CREATE TYPE public.fragrance_concentration AS enum(
-  'OTHER',
-  'EDP',
-  'EDC',
-  'EAU_FRAICHE',
-  'BODY_MIST',
   'PARFUM',
+  'EDP',
+  'EDT',
   'OIL',
-  'EDT'
+  'OTHER',
+  'BODY_MIST',
+  'EAU_FRAICHE',
+  'EDC'
 );
 
-CREATE TYPE public.fragrance_reaction AS enum('like', 'dislike');
+CREATE TYPE public.fragrance_reaction AS enum('dislike', 'like');
 
-CREATE TYPE public.fragrance_status AS enum('CURRENT', 'DISCONTINUED', 'REFORMULATED');
+CREATE TYPE public.fragrance_status AS enum('REFORMULATED', 'DISCONTINUED', 'CURRENT');
 
 CREATE TYPE public.fragrance_trait_enum AS enum(
-  'sillage',
-  'longevity',
   'complexity',
+  'sillage',
   'balance',
   'allure',
-  'gender'
+  'gender',
+  'longevity'
 );
 
-CREATE TYPE public.job_status AS enum('QUEUED', 'FAILED', 'SUCCESS', 'PROCESSING');
+CREATE TYPE public.job_status AS enum('PROCESSING', 'FAILED', 'QUEUED', 'SUCCESS');
 
-CREATE TYPE public.note_layer_enum AS enum('base', 'top', 'middle');
+CREATE TYPE public.note_layer_enum AS enum('base', 'middle', 'top');
 
-CREATE TYPE public.request_status AS enum('ACCEPTED', 'DENIED', 'DRAFT', 'PENDING');
+CREATE TYPE public.post_type AS enum('FRAGRANCE', 'TEXT', 'MEDIA');
+
+CREATE TYPE public.request_status AS enum('PENDING', 'DENIED', 'ACCEPTED', 'DRAFT');
 
 CREATE TYPE public.request_type AS enum('note', 'fragrance', 'brand', 'accord');
 
 CREATE TYPE public.upload_status AS enum('uploaded', 'failed', 'pending');
 
-CREATE TYPE public.user_role AS enum('USER', 'ADMIN', 'MODERATOR');
+CREATE TYPE public.user_role AS enum('MODERATOR', 'ADMIN', 'USER');

@@ -1,0 +1,9 @@
+type SearchPostCommentEdge {
+  node: PostComment!
+  offset: Int!
+}
+
+type SearchPostCommentConnection {
+  edges: [SearchPostCommentEdge!]!
+  pageInfo: SearchPageInfo!
+}

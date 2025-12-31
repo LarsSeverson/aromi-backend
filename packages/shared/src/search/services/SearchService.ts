@@ -1,6 +1,6 @@
 import type { DataSources } from '@src/datasources/index.js'
-import type { Index } from 'meilisearch'
-import { ResultAsync } from 'neverthrow'
+import type { Index, IndexOptions, Settings } from 'meilisearch'
+import { errAsync, okAsync, ResultAsync } from 'neverthrow'
 import { BackendError } from '@src/utils/error.js'
 import type { SearchParams, SearchResult, BaseSearchIndex, IndexName } from '../types.js'
 
@@ -22,7 +22,7 @@ export abstract class SearchService<T extends BaseSearchIndex> {
   }
 
   search (params: SearchParams): ResultAsync<SearchResult<T>, BackendError> {
-    const { term, pagination } = params
+    const { term, pagination, filter } = params
     const { offset, first } = pagination
 
     return ResultAsync
@@ -33,7 +33,8 @@ export abstract class SearchService<T extends BaseSearchIndex> {
             term,
             {
               limit: first + 1,
-              offset
+              offset,
+              filter
             }
           ),
         error => BackendError.fromMeili(error)
@@ -98,6 +99,44 @@ export abstract class SearchService<T extends BaseSearchIndex> {
       )
   }
 
+  getIndex (): ResultAsync<Index<T>, BackendError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .meili
+          .client
+          .getIndex<T>(this.indexName),
+        error => BackendError.fromMeili(error)
+      )
+  }
+
+  createIndex (
+    config?: IndexOptions
+  ): ResultAsync<this, BackendError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .meili
+          .client
+          .createIndex(this.indexName, config),
+        error => BackendError.fromMeili(error)
+      )
+      .map(() => this)
+  }
+
+  configureIndex (
+    settings: Settings
+  ): ResultAsync<this, BackendError> {
+    return ResultAsync
+      .fromPromise(
+        this
+          .index
+          .updateSettings(settings),
+        error => BackendError.fromMeili(error)
+      )
+      .map(() => this)
+  }
+
   clearIndex (): ResultAsync<this, BackendError> {
     return ResultAsync
       .fromPromise(
@@ -109,16 +148,18 @@ export abstract class SearchService<T extends BaseSearchIndex> {
       .map(() => this)
   }
 
-  configure (
-    settings: Parameters<typeof this.index.updateSettings>[0]
+  ensureIndex (
+    config?: IndexOptions,
+    settings?: Settings
   ): ResultAsync<this, BackendError> {
-    return ResultAsync
-      .fromPromise(
-        this
-          .index
-          .updateSettings(settings),
-        error => BackendError.fromMeili(error)
-      )
-      .map(() => this)
+    return this
+      .createIndex(config)
+      .orElse(error => {
+        if (error.code === 'index_already_exists') return okAsync(this)
+        return errAsync(error)
+      })
+      .andThen(() => {
+        return this.configureIndex(settings ?? {})
+      })
   }
 }

@@ -1,0 +1,13 @@
+type SearchPostEdge {
+  node: Post!
+  offset: Int!
+}
+
+type SearchPostConnection {
+  edges: [SearchPostEdge!]!
+  pageInfo: SearchPageInfo!
+}
+
+extend type Query {
+  searchPosts(input: SearchInput): SearchPostConnection!
+}

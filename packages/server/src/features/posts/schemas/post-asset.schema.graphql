@@ -1,0 +1,19 @@
+type PostAsset {
+  id: ID!
+
+  displayOrder: Int!
+
+  asset: Asset!
+  post: Post!
+}
+
+input CreatePostAssetInput {
+  assetId: ID!
+  displayOrder: Int!
+}
+
+input UpdatePostAssetInput {
+  id: ID
+  assetId: ID!
+  displayOrder: Int!
+}

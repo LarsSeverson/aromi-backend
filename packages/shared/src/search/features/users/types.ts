@@ -4,7 +4,3 @@ export interface UserDoc extends Omit<UserRow, 'email' | 'cognitoSub'> {
   id: string
   username: string
 }
-
-export interface FromUserRowParams {
-  user: UserRow
-}

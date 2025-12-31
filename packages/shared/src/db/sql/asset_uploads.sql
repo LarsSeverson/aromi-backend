@@ -7,8 +7,12 @@ CREATE TABLE public.asset_uploads (
   size_bytes bigint NOT NULL,
   created_at timestamp with time zone DEFAULT now() NOT NULL,
   updated_at timestamp with time zone DEFAULT now() NOT NULL,
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  user_id uuid
 );
 
 ALTER TABLE ONLY public.asset_uploads
 ADD CONSTRAINT asset_uploads_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.asset_uploads
+ADD CONSTRAINT user_id_asset FOREIGN KEY (user_id) REFERENCES public.users (id) NOT VALID;

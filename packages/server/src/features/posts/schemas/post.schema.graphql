@@ -1,0 +1,79 @@
+enum PostType {
+  TEXT
+  MEDIA
+  FRAGRANCE
+}
+
+type Post {
+  id: ID!
+
+  type: PostType!
+  title: String!
+  content: String
+
+  user: User!
+  fragrance: Fragrance
+  assets: [PostAsset!]!
+
+  comments(input: PostCommentPaginationInput): PostCommentConnection!
+  searchComments(input: SearchInput): SearchPostCommentConnection!
+
+  createdAt: String!
+}
+
+type PostEdge {
+  node: Post!
+  cursor: String!
+}
+
+type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum PostSortBy {
+  RECENT
+}
+
+input PostSortInput {
+  direction: SortDirection
+  by: PostSortBy
+}
+
+input PostPaginationInput {
+  first: Int
+  after: String
+  sort: PostSortInput
+}
+
+input CreatePostInput {
+  type: PostType!
+  title: String!
+  content: String
+  fragranceId: ID
+
+  assets: [CreatePostAssetInput!]
+}
+
+input UpdatePostInput {
+  id: ID!
+  title: String
+  content: String
+
+  assets: [UpdatePostAssetInput!]
+}
+
+input DeletePostInput {
+  id: ID!
+}
+
+extend type Query {
+  post(id: ID!): Post!
+  posts(input: PostPaginationInput): PostConnection!
+}
+
+extend type Mutation {
+  createPost(input: CreatePostInput!): Post!
+  updatePost(input: UpdatePostInput!): Post!
+  deletePost(input: DeletePostInput!): Post!
+}

@@ -22,19 +22,33 @@ const jobKeyBuilders = {
   [INDEXATION_JOB_NAMES.UPDATE_NOTE]:
     (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_NOTE]) => data.id,
   [INDEXATION_JOB_NAMES.INDEX_USER]:
-    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.INDEX_USER]) => data.userId
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.INDEX_USER]) => data.userId,
+
+  [INDEXATION_JOB_NAMES.INDEX_POST]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.INDEX_POST]) => data.id,
+  [INDEXATION_JOB_NAMES.UPDATE_POST]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_POST]) => data.id,
+  [INDEXATION_JOB_NAMES.DELETE_POST]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.DELETE_POST]) => data.id,
+
+  [INDEXATION_JOB_NAMES.INDEX_POST_COMMENT]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.INDEX_POST_COMMENT]) => data.id,
+  [INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.UPDATE_POST_COMMENT]) => data.id,
+  [INDEXATION_JOB_NAMES.DELETE_POST_COMMENT]:
+    (data: IndexationJobPayload[typeof INDEXATION_JOB_NAMES.DELETE_POST_COMMENT]) => data.id
 }
 
 export class IndexationQueueService extends MQueueService<IndexationJobName, IndexationJobPayload> {
+  constructor (sources: DataSources) {
+    super(sources, QUEUE_NAMES.INDEXATION)
+  }
+
   getJobId<J extends IndexationJobName>(
     jobName: J,
     data: IndexationJobPayload[J]
   ): string {
     const builder = jobKeyBuilders[jobName] as (data: IndexationJobPayload[J]) => string
     return `${jobName}-${builder(data)}`
-  }
-
-  constructor (sources: DataSources) {
-    super(sources, QUEUE_NAMES.INDEXATION)
   }
 }

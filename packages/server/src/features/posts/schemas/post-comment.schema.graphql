@@ -1,0 +1,62 @@
+type PostComment {
+  id: ID!
+
+  depth: Int!
+  parent: PostComment
+  post: Post!
+  user: User!
+  content: String!
+
+  comments(input: PostCommentPaginationInput): PostCommentConnection!
+  assets: [PostCommentAsset!]!
+
+  createdAt: String!
+}
+
+type PostCommentEdge {
+  node: PostComment!
+  cursor: String!
+}
+
+type PostCommentConnection {
+  edges: [PostCommentEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum PostCommentSortBy {
+  RECENT
+}
+
+input PostCommentSortInput {
+  direction: SortDirection
+  by: PostCommentSortBy
+}
+
+input PostCommentPaginationInput {
+  first: Int
+  after: String
+  sort: PostCommentSortInput
+}
+
+input CreatePostCommentInput {
+  postId: ID!
+  parentId: ID
+  content: String!
+  assets: [CreatePostCommentAssetInput!]
+}
+
+input UpdatePostCommentInput {
+  id: ID!
+  content: String!
+  assets: [UpdatePostCommentAssetInput!]
+}
+
+input DeletePostCommentInput {
+  id: ID!
+}
+
+extend type Mutation {
+  createPostComment(input: CreatePostCommentInput!): PostComment!
+  updatePostComment(input: UpdatePostCommentInput!): PostComment!
+  deletePostComment(input: DeletePostCommentInput!): PostComment!
+}

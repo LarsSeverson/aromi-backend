@@ -15,4 +15,22 @@ export class BrandSearchService extends SearchService<BrandDoc> {
   fromPartialRow (row: PartialWithId<BrandDoc>): PartialWithId<BrandDoc> {
     return row
   }
+
+  override createIndex () {
+    return super.createIndex({ primaryKey: 'id' })
+  }
+
+  override configureIndex () {
+    return super.configureIndex({
+      searchableAttributes: [
+        'name',
+        'description',
+        'website'
+      ],
+      sortableAttributes: [
+        'createdAt',
+        'updatedAt'
+      ]
+    })
+  }
 }

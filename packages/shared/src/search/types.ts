@@ -1,3 +1,5 @@
+import type { Filter } from 'meilisearch'
+
 export interface BaseSearchIndex {
   id: string
 }
@@ -10,6 +12,7 @@ export interface SearchPagination {
 export interface SearchParams {
   term?: string | null
   pagination: SearchPagination
+  filter?: Filter
 }
 
 export interface SearchResult<T> {
@@ -25,7 +28,9 @@ export const INDEX_NAMES = {
   BRANDS: 'brands',
   ACCORDS: 'accords',
   NOTES: 'notes',
-  USERS: 'users'
+  USERS: 'users',
+  POSTS: 'posts',
+  POST_COMMENTS: 'post-comments'
 } as const
 
 export type IndexName = (typeof INDEX_NAMES)[keyof typeof INDEX_NAMES]
