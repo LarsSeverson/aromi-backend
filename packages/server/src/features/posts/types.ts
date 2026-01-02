@@ -2,7 +2,10 @@ import type { Post, PostAsset, PostComment, PostCommentAsset } from '@src/graphq
 import type { CreatePostCommentSchema, CreatePostSchema, UpdatePostCommentSchema, UpdatePostSchema } from './utils/validation.js'
 import type z from 'zod'
 
-export interface IPost extends Omit<Post, 'assets' | 'user' | 'fragrance' | 'comments' | 'searchComments'> {
+export interface IPost extends Omit<Post,
+'assets' | 'user' | 'fragrance' |
+'commentCount' | 'comments' | 'searchComments' | 'votes'
+> {
   userId: string
   fragranceId?: string | null
 }

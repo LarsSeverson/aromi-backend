@@ -68,6 +68,22 @@ export class PostFieldResolvers extends BaseResolver<PostResolvers> {
     return assets
   }
 
+  commentCount: PostResolvers['commentCount'] = async (
+    post,
+    args,
+    context,
+    info
+  ) => {
+    const { loaders } = context
+    const { id: postId } = post
+
+    const score = await unwrapOrThrow(
+      loaders.posts.loadScore(postId)
+    )
+
+    return score?.commentCount ?? 0
+  }
+
   comments: PostResolvers['comments'] = async (
     post,
     args,
@@ -123,13 +139,43 @@ export class PostFieldResolvers extends BaseResolver<PostResolvers> {
     return connection
   }
 
+  votes: PostResolvers['votes'] = async (
+    post,
+    args,
+    context,
+    info
+  ) => {
+    const { id: postId } = post
+    const { me, loaders } = context
+
+    const [score, myVote] = await Promise.all([
+      unwrapOrThrow(
+        loaders.posts.loadScore(postId)
+      ),
+      unwrapOrThrow(
+        loaders.posts.loadUserVote(postId, me?.id)
+      )
+    ])
+
+    const votes = {
+      upvotes: score?.upvotes ?? 0,
+      downvotes: score?.downvotes ?? 0,
+      score: score?.score ?? 0,
+      myVote: myVote?.vote
+    }
+
+    return votes
+  }
+
   getResolvers (): PostResolvers {
     return {
       user: this.user,
       fragrance: this.fragrance,
       assets: this.assets,
+      commentCount: this.commentCount,
       comments: this.comments,
-      searchComments: this.searchComments
+      searchComments: this.searchComments,
+      votes: this.votes
     }
   }
 }

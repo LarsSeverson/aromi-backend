@@ -2,9 +2,11 @@ import { unwrapOrThrow } from '@aromi/shared'
 import type { QueryResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { PostPaginationFactory } from '../factories/PostPaginationFactory.js'
+import { PostCommentQueryResolvers } from './PostCommentQueryResolvers.js'
 
 export class PostQueryResolvers extends BaseResolver<QueryResolvers> {
   private readonly pagination = new PostPaginationFactory()
+  private readonly comments = new PostCommentQueryResolvers()
 
   post: QueryResolvers['post'] = async (
     _,
@@ -73,7 +75,8 @@ export class PostQueryResolvers extends BaseResolver<QueryResolvers> {
     return {
       post: this.post,
       posts: this.posts,
-      searchPosts: this.searchPosts
+      searchPosts: this.searchPosts,
+      ...this.comments.getResolvers()
     }
   }
 }

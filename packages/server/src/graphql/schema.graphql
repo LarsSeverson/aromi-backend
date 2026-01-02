@@ -360,7 +360,7 @@ input CreatePostCommentInput {
 
 input CreatePostInput {
   assets: [CreatePostAssetInput!]
-  content: String
+  content: JSON
   fragranceId: ID
   title: String!
   type: PostType!
@@ -1017,8 +1017,9 @@ type PageInfo {
 
 type Post {
   assets: [PostAsset!]!
+  commentCount: Int!
   comments(input: PostCommentPaginationInput): PostCommentConnection!
-  content: String
+  content: JSON
   createdAt: String!
   fragrance: Fragrance
   id: ID!
@@ -1026,6 +1027,7 @@ type Post {
   title: String!
   type: PostType!
   user: User!
+  votes: VoteInfo!
 }
 
 type PostAsset {
@@ -1178,6 +1180,8 @@ type Query {
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
   notes(input: NotePaginationInput): NoteConnection!
   post(id: ID!): Post!
+  postComment(id: ID!): PostComment!
+  postComments(input: PostCommentPaginationInput): PostCommentConnection!
   posts(input: PostPaginationInput): PostConnection!
   searchAccords(input: SearchInput): SearchAccordConnection!
   searchBrands(input: SearchInput): SearchBrandConnection!
@@ -1508,7 +1512,7 @@ input UpdatePostCommentInput {
 
 input UpdatePostInput {
   assets: [UpdatePostAssetInput!]
-  content: String
+  content: JSON
   id: ID!
   title: String
 }

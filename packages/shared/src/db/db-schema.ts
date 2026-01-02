@@ -85,6 +85,18 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
 export type Timestamp = ColumnType<string, string, string>;
 
 export interface AccordEdit {
@@ -628,7 +640,7 @@ export interface PostComment {
 }
 
 export interface Post {
-  content: string | null;
+  content: Json | null;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: string | null;

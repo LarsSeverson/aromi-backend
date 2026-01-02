@@ -9,14 +9,17 @@ type Post {
 
   type: PostType!
   title: String!
-  content: String
+  content: JSON
 
   user: User!
   fragrance: Fragrance
   assets: [PostAsset!]!
 
+  commentCount: Int!
   comments(input: PostCommentPaginationInput): PostCommentConnection!
   searchComments(input: SearchInput): SearchPostCommentConnection!
+
+  votes: VoteInfo!
 
   createdAt: String!
 }
@@ -49,7 +52,7 @@ input PostPaginationInput {
 input CreatePostInput {
   type: PostType!
   title: String!
-  content: String
+  content: JSON
   fragranceId: ID
 
   assets: [CreatePostAssetInput!]
@@ -58,7 +61,7 @@ input CreatePostInput {
 input UpdatePostInput {
   id: ID!
   title: String
-  content: String
+  content: JSON
 
   assets: [UpdatePostAssetInput!]
 }

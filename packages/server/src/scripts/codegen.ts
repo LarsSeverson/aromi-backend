@@ -11,7 +11,7 @@ const config: CodegenConfig = {
         defaultMapper: 'Partial<{T}>',
         scalars: {
           Date: 'Date',
-          JSON: 'Record<string, any>'
+          JSON: 'any'
         },
         mappers: {
           Asset: '../features/assets/types.js#IAssetResult',

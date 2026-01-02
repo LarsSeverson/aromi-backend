@@ -24,7 +24,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Date: { input: Date; output: Date; }
-  JSON: { input: Record<string, any>; output: Record<string, any>; }
+  JSON: { input: any; output: any; }
 };
 
 export type Accord = {
@@ -423,7 +423,7 @@ export type CreatePostCommentInput = {
 
 export type CreatePostInput = {
   assets?: InputMaybe<Array<CreatePostAssetInput>>;
-  content?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['JSON']['input']>;
   fragranceId?: InputMaybe<Scalars['ID']['input']>;
   title: Scalars['String']['input'];
   type: PostType;
@@ -1531,8 +1531,9 @@ export type PageInfo = {
 export type Post = {
   __typename?: 'Post';
   assets: Array<PostAsset>;
+  commentCount: Scalars['Int']['output'];
   comments: PostCommentConnection;
-  content?: Maybe<Scalars['String']['output']>;
+  content?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['String']['output'];
   fragrance?: Maybe<Fragrance>;
   id: Scalars['ID']['output'];
@@ -1540,6 +1541,7 @@ export type Post = {
   title: Scalars['String']['output'];
   type: PostType;
   user: User;
+  votes: VoteInfo;
 };
 
 
@@ -1723,6 +1725,8 @@ export type Query = {
   noteRequests: NoteRequestConnection;
   notes: NoteConnection;
   post: Post;
+  postComment: PostComment;
+  postComments: PostCommentConnection;
   posts: PostConnection;
   searchAccords: SearchAccordConnection;
   searchBrands: SearchBrandConnection;
@@ -1866,6 +1870,16 @@ export type QueryNotesArgs = {
 
 export type QueryPostArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPostCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPostCommentsArgs = {
+  input?: InputMaybe<PostCommentPaginationInput>;
 };
 
 
@@ -2252,7 +2266,7 @@ export type UpdatePostCommentInput = {
 
 export type UpdatePostInput = {
   assets?: InputMaybe<Array<UpdatePostAssetInput>>;
-  content?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['JSON']['input']>;
   id: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3574,8 +3588,9 @@ export type PageInfoResolvers<ContextType = ServerContext, ParentType extends Re
 
 export type PostResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
   assets?: Resolver<Array<ResolversTypes['PostAsset']>, ParentType, ContextType>;
+  commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   comments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<PostCommentsArgs>>;
-  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fragrance?: Resolver<Maybe<ResolversTypes['Fragrance']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3583,6 +3598,7 @@ export type PostResolvers<ContextType = ServerContext, ParentType extends Resolv
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['PostType'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
 }>;
 
 export type PostAssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostAsset'] = ResolversParentTypes['PostAsset']> = ResolversObject<{
@@ -3684,6 +3700,8 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<QueryNoteRequestsArgs>>;
   notes?: Resolver<ResolversTypes['NoteConnection'], ParentType, ContextType, Partial<QueryNotesArgs>>;
   post?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
+  postComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<QueryPostCommentArgs, 'id'>>;
+  postComments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<QueryPostCommentsArgs>>;
   posts?: Resolver<ResolversTypes['PostConnection'], ParentType, ContextType, Partial<QueryPostsArgs>>;
   searchAccords?: Resolver<ResolversTypes['SearchAccordConnection'], ParentType, ContextType, Partial<QuerySearchAccordsArgs>>;
   searchBrands?: Resolver<ResolversTypes['SearchBrandConnection'], ParentType, ContextType, Partial<QuerySearchBrandsArgs>>;

@@ -55,6 +55,11 @@ input DeletePostCommentInput {
   id: ID!
 }
 
+extend type Query {
+  postComment(id: ID!): PostComment!
+  postComments(input: PostCommentPaginationInput): PostCommentConnection!
+}
+
 extend type Mutation {
   createPostComment(input: CreatePostCommentInput!): PostComment!
   updatePostComment(input: UpdatePostCommentInput!): PostComment!

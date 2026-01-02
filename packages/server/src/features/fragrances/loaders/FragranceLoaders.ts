@@ -148,7 +148,7 @@ export class FragranceLoaders extends BaseLoader {
   }
 
   private getUserVoteLoader (userId: string) {
-    const key = this.genKey('myVote', userId)
+    const key = this.genKey('userVote', userId)
     return this
       .getLoader(
         key,
