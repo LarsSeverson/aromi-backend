@@ -57,7 +57,7 @@ export class AssetMutationResolvers extends BaseResolver<MutationResolvers> {
     const { input } = args
     const { services } = context
 
-    this.checkAuthenticated(context)
+    const me = this.checkAuthenticated(context)
 
     const { id } = input
     const { assets } = services
@@ -65,7 +65,12 @@ export class AssetMutationResolvers extends BaseResolver<MutationResolvers> {
     const row = await unwrapOrThrow(
       assets
         .uploads
-        .softDeleteOne(eb => eb('id', '=', id))
+        .softDeleteOne(
+          where => where.and([
+            where('id', '=', id),
+            where('userId', '=', me.id)
+          ])
+        )
     )
 
     await assets.deleteFromS3(row.s3Key)

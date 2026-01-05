@@ -1,4 +1,5 @@
-import { VALID_IMAGE_TYPES, VALID_VIDEO_TYPES, ValidVote } from '@aromi/shared'
+import { Result } from 'neverthrow'
+import { BackendError, getSanitizedTiptapContent, VALID_IMAGE_TYPES, VALID_VIDEO_TYPES, ValidVote } from '@aromi/shared'
 import { PostType } from '@src/graphql/gql-types.js'
 import z from 'zod'
 
@@ -7,21 +8,21 @@ export const MAX_POST_TITLE_LENGTH = 300
 
 export const MIN_POST_CONTENT_LENGTH = 0
 export const MAX_POST_CONTENT_LENGTH = 5000
-export const MIN_POST_REPLY_CONTENT_LENGTH = 1
-export const MAX_POST_REPLY_CONTENT_LENGTH = 2000
+export const MIN_POST_COMMENT_CONTENT_LENGTH = 1
+export const MAX_POST_COMMENT_CONTENT_LENGTH = 2000
 
 export const MAX_POST_ASSETS = 4
-export const MAX_POST_REPLY_ASSETS = 4
+export const MAX_POST_COMMENT_ASSETS = 4
 
 export const VALID_POST_IMAGE_TYPES = VALID_IMAGE_TYPES
 export const VALID_POST_VIDEO_TYPES = VALID_VIDEO_TYPES
-export const VALID_POST_REPLY_IMAGE_TYPES = VALID_IMAGE_TYPES
-export const VALID_POST_REPLY_VIDEO_TYPES = VALID_VIDEO_TYPES
+export const VALID_POST_COMMENT_IMAGE_TYPES = VALID_IMAGE_TYPES
+export const VALID_POST_COMMENT_VIDEO_TYPES = VALID_VIDEO_TYPES
 
-export const MAX_POST_ASSET_SIZE = 50 * 1024 * 1024 // 20 MB
-export const MAX_POST_REPLY_ASSET_SIZE = 20 * 1024 * 1024 // 20 MB
+export const MAX_POST_ASSET_SIZE = 20 * 1024 * 1024 // 20 MB
+export const MAX_POST_COMMENT_ASSET_SIZE = 20 * 1024 * 1024 // 20 MB
 
-export const MAX_POST_REPLY_DEPTH = 2
+export const MAX_POST_COMMENT_DEPTH = 2
 
 export const ValidPostType = z.enum(Object.values(PostType))
 
@@ -37,25 +38,39 @@ export const ValidPostTitle = z
   )
 
 export const ValidPostContent = z
-  .string()
-  .min(
-    MIN_POST_CONTENT_LENGTH,
-    `Post content must be at least ${MIN_POST_CONTENT_LENGTH} characters long`
-  )
-  .max(
-    MAX_POST_CONTENT_LENGTH,
-    `Post content must be at most ${MAX_POST_CONTENT_LENGTH} characters long`
-  )
+  .any()
+  .transform((value, ctx) => {
+    if (value == null) return null
+
+    const processContent = Result.fromThrowable(() =>
+      getSanitizedTiptapContent(value, MAX_POST_CONTENT_LENGTH)
+    )()
+
+    if (processContent.isErr()) {
+      const error = processContent.error
+
+      const errorMessage = error instanceof BackendError ? error.message : 'Post content is not valid'
+
+      ctx.addIssue({
+        code: 'custom',
+        message: errorMessage
+      })
+
+      return z.NEVER
+    }
+
+    return processContent.value
+  })
 
 export const ValidPostCommentContent = z
   .string()
   .min(
-    MIN_POST_REPLY_CONTENT_LENGTH,
-    `Post comment content must be at least ${MIN_POST_REPLY_CONTENT_LENGTH} characters long`
+    MIN_POST_COMMENT_CONTENT_LENGTH,
+    `Post comment content must be at least ${MIN_POST_COMMENT_CONTENT_LENGTH} characters long`
   )
   .max(
-    MAX_POST_REPLY_CONTENT_LENGTH,
-    `Post comment content must be at most ${MAX_POST_REPLY_CONTENT_LENGTH} characters long`
+    MAX_POST_COMMENT_CONTENT_LENGTH,
+    `Post comment content must be at most ${MAX_POST_COMMENT_CONTENT_LENGTH} characters long`
   )
 
 export const ValidPostFragranceId = z.string().nullish()
@@ -66,7 +81,7 @@ export const ValidPostAssetType = z
   .enum([...VALID_POST_IMAGE_TYPES, ...VALID_POST_VIDEO_TYPES])
 
 export const ValidPostCommentAssetType = z
-  .enum([...VALID_POST_REPLY_IMAGE_TYPES, ...VALID_POST_REPLY_VIDEO_TYPES])
+  .enum([...VALID_POST_COMMENT_IMAGE_TYPES, ...VALID_POST_COMMENT_VIDEO_TYPES])
 
 export const ValidPostAssetSize = z
   .number()
@@ -80,8 +95,8 @@ export const ValidPostCommentAssetSize = z
   .number()
   .int()
   .max(
-    MAX_POST_REPLY_ASSET_SIZE,
-    `Asset size cannot exceed ${MAX_POST_REPLY_ASSET_SIZE / (1024 * 1024)} MB`
+    MAX_POST_COMMENT_ASSET_SIZE,
+    `Asset size cannot exceed ${MAX_POST_COMMENT_ASSET_SIZE / (1024 * 1024)} MB`
   )
 
 export const ValidPostAsset = z
@@ -128,8 +143,8 @@ export const CreatePostSchemaAssets = z
 export const CreatePostCommentSchemaAssets = z
   .array(CreatePostCommentSchemaAsset)
   .max(
-    MAX_POST_REPLY_ASSETS,
-    `Cannot attach more than ${MAX_POST_REPLY_ASSETS} assets to a post comment`
+    MAX_POST_COMMENT_ASSETS,
+    `Cannot attach more than ${MAX_POST_COMMENT_ASSETS} assets to a post comment`
   )
 
 export const UpdatePostSchemaAsset = CreatePostSchemaAsset
@@ -154,8 +169,8 @@ export const UpdatePostSchemaAssets = z
 export const UpdatePostCommentSchemaAssets = z
   .array(UpdatePostCommentSchemaAsset)
   .max(
-    MAX_POST_REPLY_ASSETS,
-    `Cannot attach more than ${MAX_POST_REPLY_ASSETS} assets to a post comment`
+    MAX_POST_COMMENT_ASSETS,
+    `Cannot attach more than ${MAX_POST_COMMENT_ASSETS} assets to a post comment`
   )
 
 export const CreatePostSchema = z

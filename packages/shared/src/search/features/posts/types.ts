@@ -10,7 +10,8 @@ export interface PostDocFragrance {
   name: string
 }
 
-export interface PostDoc extends PostRow {
+export interface PostDoc extends Omit<PostRow, 'content'> {
+  content?: string
   user: PostDocUser
   fragrance?: PostDocFragrance | null
 }

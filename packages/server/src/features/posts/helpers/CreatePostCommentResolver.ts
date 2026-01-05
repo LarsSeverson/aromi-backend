@@ -1,7 +1,7 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
-import { CreatePostCommentSchema, MAX_POST_REPLY_DEPTH } from '../utils/validation.js'
+import { CreatePostCommentSchema, MAX_POST_COMMENT_DEPTH } from '../utils/validation.js'
 import { BackendError, INDEXATION_JOB_NAMES, parseOrThrow, unwrapOrThrow, type PostCommentRow } from '@aromi/shared'
 import type { CreatePostCommentSchemaType } from '../types.js'
 import { errAsync, okAsync } from 'neverthrow'
@@ -109,10 +109,10 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
 
   private checkPostCommentDepth (parent: PostCommentRow | null) {
     if (parent == null) return
-    if (parent.depth >= MAX_POST_REPLY_DEPTH) {
+    if (parent.depth >= MAX_POST_COMMENT_DEPTH) {
       throw new BackendError(
         'BAD_REQUEST',
-        `Cannot comment to a post comment with depth >= ${MAX_POST_REPLY_DEPTH}`,
+        `Cannot comment to a post comment with depth >= ${MAX_POST_COMMENT_DEPTH}`,
         400
       )
     }

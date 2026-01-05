@@ -3,6 +3,7 @@ import { SearchService } from '@src/search/services/SearchService.js'
 import type { PostDoc, PostFromRowParams } from '../types.js'
 import { INDEX_NAMES } from '@src/search/types.js'
 import { PostCommentSearchService } from './PostCommentSearchService.js'
+import { getTextFromContent } from '@src/utils/tiptap.js'
 
 export class PostSearchService extends SearchService<PostDoc> {
   comments: PostCommentSearchService
@@ -27,8 +28,11 @@ export class PostSearchService extends SearchService<PostDoc> {
         name: fragrance.name
       }
 
+    const content = getTextFromContent(post.content)
+    const postWithContent = { ...post, content }
+
     return {
-      ...post,
+      ...postWithContent,
       user: postUser,
       fragrance: postFragrance
     }
