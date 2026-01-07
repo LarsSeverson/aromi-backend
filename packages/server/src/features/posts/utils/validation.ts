@@ -183,7 +183,16 @@ export const CreatePostSchema = z
   })
   .strip()
   .refine(data => {
-    if (data.type === PostType.Fragrance && data.fragranceId == null) {
+    const { type } = data
+    const isFragrance = type === PostType.Fragrance
+    const isMedia = type === PostType.Media
+
+    if (isFragrance && data.fragranceId == null) {
+      return false
+    }
+
+    const assets = data.assets ?? []
+    if (isMedia && assets.length === 0) {
       return false
     }
 
