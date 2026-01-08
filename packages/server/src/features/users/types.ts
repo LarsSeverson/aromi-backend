@@ -7,6 +7,7 @@ export interface IUserSummary extends
   'brandRequests' |
   'accordRequests' |
   'noteRequests' |
+  'posts' |
   'collections' |
   'collection' |
   'likes' |

@@ -19,6 +19,8 @@ type User {
   accordRequests(input: RequestPaginationInput): AccordRequestConnection!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
 
+  posts(input: PostPaginationInput): PostConnection!
+
   collection(id: ID!): FragranceCollection!
   collections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
 

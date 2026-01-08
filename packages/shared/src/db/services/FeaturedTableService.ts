@@ -125,9 +125,11 @@ export abstract class FeaturedTableService<R, T extends ServicableTablesMatching
   paginate <C>(
     input: CursorPaginationInput<C>
   ): ResultAsync<R[], BackendError> {
-    const query = this
+    let query = this.Table.find(this.Table.filterDeleted())
+
+    query = this
       .Table
-      .paginatedQuery(input)
+      .paginatedQuery(input, query)
 
     return ResultAsync
       .fromPromise(

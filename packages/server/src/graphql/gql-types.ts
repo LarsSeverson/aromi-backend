@@ -2267,8 +2267,10 @@ export type UpdatePostCommentInput = {
 export type UpdatePostInput = {
   assets?: InputMaybe<Array<UpdatePostAssetInput>>;
   content?: InputMaybe<Scalars['JSON']['input']>;
+  fragranceId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
+  type: PostType;
 };
 
 export type User = {
@@ -2287,6 +2289,7 @@ export type User = {
   id: Scalars['ID']['output'];
   likes: FragranceVoteConnection;
   noteRequests: NoteRequestConnection;
+  posts: PostConnection;
   relationship: RelationshipStatus;
   review: FragranceReview;
   reviews: FragranceReviewConnection;
@@ -2336,6 +2339,11 @@ export type UserLikesArgs = {
 
 export type UserNoteRequestsArgs = {
   input?: InputMaybe<RequestPaginationInput>;
+};
+
+
+export type UserPostsArgs = {
+  input?: InputMaybe<PostPaginationInput>;
 };
 
 
@@ -3822,6 +3830,7 @@ export type UserResolvers<ContextType = ServerContext, ParentType extends Resolv
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   likes?: Resolver<ResolversTypes['FragranceVoteConnection'], ParentType, ContextType, Partial<UserLikesArgs>>;
   noteRequests?: Resolver<ResolversTypes['NoteRequestConnection'], ParentType, ContextType, Partial<UserNoteRequestsArgs>>;
+  posts?: Resolver<ResolversTypes['PostConnection'], ParentType, ContextType, Partial<UserPostsArgs>>;
   relationship?: Resolver<ResolversTypes['RelationshipStatus'], ParentType, ContextType>;
   review?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<UserReviewArgs, 'id'>>;
   reviews?: Resolver<ResolversTypes['FragranceReviewConnection'], ParentType, ContextType, Partial<UserReviewsArgs>>;

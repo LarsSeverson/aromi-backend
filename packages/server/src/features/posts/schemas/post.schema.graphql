@@ -60,8 +60,10 @@ input CreatePostInput {
 
 input UpdatePostInput {
   id: ID!
+  type: PostType!
   title: String
   content: JSON
+  fragranceId: ID
 
   assets: [UpdatePostAssetInput!]
 }

@@ -1513,8 +1513,10 @@ input UpdatePostCommentInput {
 input UpdatePostInput {
   assets: [UpdatePostAssetInput!]
   content: JSON
+  fragranceId: ID
   id: ID!
   title: String
+  type: PostType!
 }
 
 type User {
@@ -1532,6 +1534,7 @@ type User {
   id: ID!
   likes(input: FragranceVotePaginationInput): FragranceVoteConnection!
   noteRequests(input: RequestPaginationInput): NoteRequestConnection!
+  posts(input: PostPaginationInput): PostConnection!
   relationship: RelationshipStatus!
   review(id: ID!): FragranceReview!
   reviews(input: FragranceReviewPaginationInput): FragranceReviewConnection!

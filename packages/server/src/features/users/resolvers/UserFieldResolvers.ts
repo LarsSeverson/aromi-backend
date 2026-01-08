@@ -10,6 +10,7 @@ import { FragranceCollectionPaginationFactory, FragranceReviewPaginationFactory 
 import { UserFollowPaginationFactory } from '../factories/UserPaginationFactory.js'
 import { UserLikesPaginationFactory } from '../factories/UserLikesPaginationFactory.js'
 import { VOTE_TYPES } from '@src/utils/constants.js'
+import { PostPaginationFactory } from '@src/features/posts/factories/PostPaginationFactory.js'
 
 export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly requestPagination = new RequestPaginationFactory()
@@ -17,6 +18,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
   private readonly reviewPagination = new FragranceReviewPaginationFactory()
   private readonly userFollowPagination = new UserFollowPaginationFactory()
   private readonly userLikesPagination = new UserLikesPaginationFactory()
+  private readonly postPagination = new PostPaginationFactory()
 
   email: UserResolvers['email'] = (
     parent,
@@ -80,6 +82,31 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
     )
 
     return count
+  }
+
+  posts: UserResolvers['posts'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const { id } = parent
+    const { input } = args
+    const { services } = context
+
+    const { posts } = services
+    const pagination = this.postPagination.parse(input)
+
+    const userPosts = await unwrapOrThrow(
+      posts.find(
+        where => where('userId', '=', id),
+        { pagination }
+      )
+    )
+
+    const connection = this.pageFactory.paginate(userPosts, pagination)
+
+    return connection
   }
 
   collection: UserResolvers['collection'] = async (
@@ -488,6 +515,7 @@ export class UserFieldResolvers extends BaseResolver<UserResolvers> {
       avatar: this.avatar,
       followerCount: this.followerCount,
       followingCount: this.followingCount,
+      posts: this.posts,
       collection: this.collection,
       collections: this.collections,
       likes: this.likes,
