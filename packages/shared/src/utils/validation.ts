@@ -25,12 +25,12 @@ export const parseOrErr = <T extends ZodType>(
 
 export const removeNullish = <T extends Record<string, unknown>>(
   input: T
-): Partial<T> => {
+): { [K in keyof T]?: Exclude<T[K], null> | undefined } => {
   return Object.fromEntries(
     Object
       .entries(input)
       .filter(([, v]) => v != null)
-  ) as Partial<T>
+  ) as { [K in keyof T]?: Exclude<T[K], null> | undefined }
 }
 
 export const removeUndefined = <T extends Record<string, unknown>>(

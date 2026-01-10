@@ -1498,25 +1498,14 @@ input UpdatePostAssetInput {
   id: ID
 }
 
-input UpdatePostCommentAssetInput {
-  assetId: ID!
-  displayOrder: Int!
-  id: ID
-}
-
 input UpdatePostCommentInput {
-  assets: [UpdatePostCommentAssetInput!]
   content: String!
   id: ID!
 }
 
 input UpdatePostInput {
-  assets: [UpdatePostAssetInput!]
   content: JSON
-  fragranceId: ID
   id: ID!
-  title: String
-  type: PostType!
 }
 
 type User {

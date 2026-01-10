@@ -2252,25 +2252,14 @@ export type UpdatePostAssetInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
 };
 
-export type UpdatePostCommentAssetInput = {
-  assetId: Scalars['ID']['input'];
-  displayOrder: Scalars['Int']['input'];
-  id?: InputMaybe<Scalars['ID']['input']>;
-};
-
 export type UpdatePostCommentInput = {
-  assets?: InputMaybe<Array<UpdatePostCommentAssetInput>>;
   content: Scalars['String']['input'];
   id: Scalars['ID']['input'];
 };
 
 export type UpdatePostInput = {
-  assets?: InputMaybe<Array<UpdatePostAssetInput>>;
   content?: InputMaybe<Scalars['JSON']['input']>;
-  fragranceId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
-  title?: InputMaybe<Scalars['String']['input']>;
-  type: PostType;
 };
 
 export type User = {
@@ -2772,7 +2761,6 @@ export type ResolversTypes = ResolversObject<{
   UpdateMeInput: ResolverTypeWrapper<Partial<UpdateMeInput>>;
   UpdateNoteRequestInput: ResolverTypeWrapper<Partial<UpdateNoteRequestInput>>;
   UpdatePostAssetInput: ResolverTypeWrapper<Partial<UpdatePostAssetInput>>;
-  UpdatePostCommentAssetInput: ResolverTypeWrapper<Partial<UpdatePostCommentAssetInput>>;
   UpdatePostCommentInput: ResolverTypeWrapper<Partial<UpdatePostCommentInput>>;
   UpdatePostInput: ResolverTypeWrapper<Partial<UpdatePostInput>>;
   User: ResolverTypeWrapper<IUserSummary>;
@@ -3008,7 +2996,6 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateMeInput: Partial<UpdateMeInput>;
   UpdateNoteRequestInput: Partial<UpdateNoteRequestInput>;
   UpdatePostAssetInput: Partial<UpdatePostAssetInput>;
-  UpdatePostCommentAssetInput: Partial<UpdatePostCommentAssetInput>;
   UpdatePostCommentInput: Partial<UpdatePostCommentInput>;
   UpdatePostInput: Partial<UpdatePostInput>;
   User: IUserSummary;

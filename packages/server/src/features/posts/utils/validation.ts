@@ -147,32 +147,6 @@ export const CreatePostCommentSchemaAssets = z
     `Cannot attach more than ${MAX_POST_COMMENT_ASSETS} assets to a post comment`
   )
 
-export const UpdatePostSchemaAsset = CreatePostSchemaAsset
-  .extend({
-    id: z.string().nullish()
-  })
-  .strip()
-
-export const UpdatePostCommentSchemaAsset = CreatePostCommentSchemaAsset
-  .extend({
-    id: z.string().nullish()
-  })
-  .strip()
-
-export const UpdatePostSchemaAssets = z
-  .array(UpdatePostSchemaAsset)
-  .max(
-    MAX_POST_ASSETS,
-    `Cannot attach more than ${MAX_POST_ASSETS} assets to a post`
-  )
-
-export const UpdatePostCommentSchemaAssets = z
-  .array(UpdatePostCommentSchemaAsset)
-  .max(
-    MAX_POST_COMMENT_ASSETS,
-    `Cannot attach more than ${MAX_POST_COMMENT_ASSETS} assets to a post comment`
-  )
-
 export const CreatePostSchema = z
   .object({
     type: ValidPostType,
@@ -211,35 +185,14 @@ export const CreatePostCommentSchema = z
 export const UpdatePostSchema = z
   .object({
     id: z.string(),
-    type: ValidPostType,
-    title: ValidPostTitle.nullish(),
-    content: ValidPostContent.nullish(),
-    fragranceId: ValidPostFragranceId.nullish(),
-    assets: UpdatePostSchemaAssets.nullish()
+    content: ValidPostContent.nullish()
   })
   .strip()
-  .refine(data => {
-    const { type } = data
-    const isFragrance = type === PostType.Fragrance
-    const isMedia = type === PostType.Media
-
-    if (isFragrance && data.fragranceId == null) {
-      return false
-    }
-
-    const assets = data.assets ?? []
-    if (isMedia && assets.length === 0) {
-      return false
-    }
-
-    return true
-  })
 
 export const UpdatePostCommentSchema = z
   .object({
     id: z.string(),
-    content: ValidPostCommentContent.nullish(),
-    assets: UpdatePostCommentSchemaAssets.nullish()
+    content: ValidPostCommentContent.nullish()
   })
   .strip()
 

@@ -48,7 +48,6 @@ input CreatePostCommentInput {
 input UpdatePostCommentInput {
   id: ID!
   content: String!
-  assets: [UpdatePostCommentAssetInput!]
 }
 
 input DeletePostCommentInput {

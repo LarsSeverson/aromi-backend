@@ -11,9 +11,3 @@ input CreatePostCommentAssetInput {
   assetId: ID!
   displayOrder: Int!
 }
-
-input UpdatePostCommentAssetInput {
-  id: ID
-  assetId: ID!
-  displayOrder: Int!
-}
