@@ -12,7 +12,7 @@ export const MIN_POST_COMMENT_CONTENT_LENGTH = 1
 export const MAX_POST_COMMENT_CONTENT_LENGTH = 2000
 
 export const MAX_POST_ASSETS = 4
-export const MAX_POST_COMMENT_ASSETS = 4
+export const MAX_POST_COMMENT_ASSETS = 1
 
 export const VALID_POST_IMAGE_TYPES = VALID_IMAGE_TYPES
 export const VALID_POST_VIDEO_TYPES = VALID_VIDEO_TYPES
@@ -43,7 +43,7 @@ export const ValidPostContent = z
     if (value == null) return null
 
     const processContent = Result.fromThrowable(() =>
-      getSanitizedTiptapContent(value, MAX_POST_CONTENT_LENGTH)
+      getSanitizedTiptapContent(value, MIN_POST_CONTENT_LENGTH, MAX_POST_CONTENT_LENGTH)
     )()
 
     if (processContent.isErr()) {
@@ -63,25 +63,46 @@ export const ValidPostContent = z
   })
 
 export const ValidPostCommentContent = z
-  .string()
-  .min(
-    MIN_POST_COMMENT_CONTENT_LENGTH,
-    `Post comment content must be at least ${MIN_POST_COMMENT_CONTENT_LENGTH} characters long`
-  )
-  .max(
-    MAX_POST_COMMENT_CONTENT_LENGTH,
-    `Post comment content must be at most ${MAX_POST_COMMENT_CONTENT_LENGTH} characters long`
-  )
+  .any()
+  .transform((value, ctx) => {
+    if (value == null) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Content is required'
+      })
+
+      return z.NEVER
+    }
+
+    const processContent = Result.fromThrowable(() =>
+      getSanitizedTiptapContent(value, MIN_POST_COMMENT_CONTENT_LENGTH, MAX_POST_COMMENT_CONTENT_LENGTH)
+    )()
+
+    if (processContent.isErr()) {
+      const error = processContent.error
+
+      const errorMessage = error instanceof BackendError ? error.message : 'Comment content is not valid'
+
+      ctx.addIssue({
+        code: 'custom',
+        message: errorMessage
+      })
+
+      return z.NEVER
+    }
+
+    return processContent.value
+  })
 
 export const ValidPostFragranceId = z.string().nullish()
 export const ValidPostCommentPostId = z.string()
 export const ValidPostCommentParentId = z.string().nullish()
 
 export const ValidPostAssetType = z
-  .enum([...VALID_POST_IMAGE_TYPES, ...VALID_POST_VIDEO_TYPES])
+  .enum([...VALID_POST_IMAGE_TYPES])
 
 export const ValidPostCommentAssetType = z
-  .enum([...VALID_POST_COMMENT_IMAGE_TYPES, ...VALID_POST_COMMENT_VIDEO_TYPES])
+  .enum([...VALID_POST_COMMENT_IMAGE_TYPES])
 
 export const ValidPostAssetSize = z
   .number()
@@ -177,10 +198,22 @@ export const CreatePostCommentSchema = z
   .object({
     postId: ValidPostCommentPostId,
     parentId: ValidPostCommentParentId.nullish(),
-    content: ValidPostCommentContent,
+    content: ValidPostCommentContent.nullish(),
     assets: CreatePostCommentSchemaAssets.nullish()
   })
   .strip()
+  .refine(
+    data => {
+      const hasContent = data.content != null
+      const hasAssets = (data.assets?.length ?? 0) > 0
+
+      return hasContent || hasAssets
+    },
+    {
+      error: 'Comment must contain either text content or at least one asset',
+      path: ['content']
+    }
+  )
 
 export const UpdatePostSchema = z
   .object({

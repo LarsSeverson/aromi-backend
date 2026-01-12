@@ -628,7 +628,7 @@ export interface PostCommentAsset {
 }
 
 export interface PostComment {
-  content: string;
+  content: Json;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   depth: Generated<number>;

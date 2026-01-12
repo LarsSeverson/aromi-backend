@@ -27,9 +27,34 @@ export class PostAssetFieldResolvers extends BaseResolver<PostAssetResolvers> {
     return asset
   }
 
+  post: PostAssetResolvers['post'] = async (
+    postAsset,
+    args,
+    context,
+    info
+  ) => {
+    const { loaders } = context
+    const { postId } = postAsset
+
+    const post = await unwrapOrThrow(
+      loaders.posts.load(postId)
+    )
+
+    if (post == null) {
+      throw new BackendError(
+        'NOT_FOUND',
+        `Post with ID "${postId}" not found`,
+        404
+      )
+    }
+
+    return post
+  }
+
   getResolvers (): PostAssetResolvers {
     return {
-      asset: this.asset
+      asset: this.asset,
+      post: this.post
     }
   }
 }

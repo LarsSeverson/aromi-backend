@@ -5,7 +5,7 @@ type PostComment {
   parent: PostComment
   post: Post!
   user: User!
-  content: String!
+  content: JSON!
 
   comments(input: PostCommentPaginationInput): PostCommentConnection!
   assets: [PostCommentAsset!]!
@@ -41,7 +41,7 @@ input PostCommentPaginationInput {
 input CreatePostCommentInput {
   postId: ID!
   parentId: ID
-  content: String!
+  content: String
   assets: [CreatePostCommentAssetInput!]
 }
 

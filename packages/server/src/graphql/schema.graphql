@@ -353,7 +353,7 @@ input CreatePostCommentAssetInput {
 
 input CreatePostCommentInput {
   assets: [CreatePostCommentAssetInput!]
-  content: String!
+  content: String
   parentId: ID
   postId: ID!
 }
@@ -1040,7 +1040,7 @@ type PostAsset {
 type PostComment {
   assets: [PostCommentAsset!]!
   comments(input: PostCommentPaginationInput): PostCommentConnection!
-  content: String!
+  content: JSON!
   createdAt: String!
   depth: Int!
   id: ID!

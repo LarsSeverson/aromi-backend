@@ -416,7 +416,7 @@ export type CreatePostCommentAssetInput = {
 
 export type CreatePostCommentInput = {
   assets?: InputMaybe<Array<CreatePostCommentAssetInput>>;
-  content: Scalars['String']['input'];
+  content?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
   postId: Scalars['ID']['input'];
 };
@@ -1566,7 +1566,7 @@ export type PostComment = {
   __typename?: 'PostComment';
   assets: Array<PostCommentAsset>;
   comments: PostCommentConnection;
-  content: Scalars['String']['output'];
+  content: Scalars['JSON']['output'];
   createdAt: Scalars['String']['output'];
   depth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
@@ -3606,7 +3606,7 @@ export type PostAssetResolvers<ContextType = ServerContext, ParentType extends R
 export type PostCommentResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostComment'] = ResolversParentTypes['PostComment']> = ResolversObject<{
   assets?: Resolver<Array<ResolversTypes['PostCommentAsset']>, ParentType, ContextType>;
   comments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<PostCommentCommentsArgs>>;
-  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   depth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

@@ -6,8 +6,42 @@ import type { JsonValue } from '@src/db/db-schema.js'
 
 export const extensions = [StarterKit]
 
-export const getSanitizedTiptapContent = (value: unknown, maxLength: number) => {
-  const content = value as JSONContent
+export const trimTiptapNode = (node: JSONContent): JSONContent => {
+  console.log('Trimming node:', node)
+  console.log('\n')
+  if (node.content == null) return node
+
+  const cleanedContent = node.content.reduce<JSONContent[]>((acc, child) => {
+    const isText = child.type === 'text'
+    const isBlock = ['paragraph', 'heading', 'blockquote', 'listItem'].includes(child.type ?? '')
+
+    if (isText && child.text != null) {
+      const trimmedText = child.text.trim()
+      if (trimmedText === '') return acc
+
+      acc.push({ ...child, text: trimmedText })
+      return acc
+    }
+
+    const processedChild = trimTiptapNode(child)
+
+    const isEmptyBlock = isBlock && (processedChild.content == null || processedChild.content.length === 0)
+
+    if (!isEmptyBlock) {
+      acc.push(processedChild)
+    }
+
+    return acc
+  }, [])
+
+  return {
+    ...node,
+    content: cleanedContent
+  }
+}
+
+export const getSanitizedTiptapContent = (value: unknown, minLength: number, maxLength: number) => {
+  const content = trimTiptapNode(value as JSONContent)
 
   const text = generateText(
     content,
@@ -28,14 +62,6 @@ export const getSanitizedTiptapContent = (value: unknown, maxLength: number) => 
   )
 
   const newContent = generateJSON(html, extensions)
-
-  if (JSON.stringify(newContent) !== JSON.stringify(content)) {
-    throw new BackendError(
-      'INVALID_CONTENT',
-      'Content contains invalid or unsafe elements',
-      400
-    )
-  }
 
   return newContent
 }
