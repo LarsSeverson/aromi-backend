@@ -1,7 +1,7 @@
-import { BackendError, type PostCommentAssetRow, type PostCommentRow, unwrapOrThrow } from '@aromi/shared'
+import { BackendError, type PostCommentAssetRow, type PostCommentRow, type PostCommentScoreRow, type PostCommentVoteRow, unwrapOrThrow } from '@aromi/shared'
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import DataLoader from 'dataloader'
-import { ResultAsync } from 'neverthrow'
+import { okAsync, ResultAsync } from 'neverthrow'
 
 export class PostCommentLoaders extends BaseLoader {
   load (id: string) {
@@ -11,9 +11,25 @@ export class PostCommentLoaders extends BaseLoader {
     )
   }
 
-  loadAssets (postId: string) {
+  loadAssets (commentId: string) {
     return ResultAsync.fromPromise(
-      this.getPostCommentAssetsLoader().load(postId),
+      this.getPostCommentAssetsLoader().load(commentId),
+      error => BackendError.fromLoader(error)
+    )
+  }
+
+  loadScore (commentId: string) {
+    return ResultAsync.fromPromise(
+      this.getPostCommentScoreLoader().load(commentId),
+      error => BackendError.fromLoader(error)
+    )
+  }
+
+  loadUserVote (commentId: string, userId?: string) {
+    if (userId == null) return okAsync(null)
+
+    return ResultAsync.fromPromise(
+      this.getUserVoteLoader(userId).load(commentId),
       error => BackendError.fromLoader(error)
     )
   }
@@ -31,6 +47,22 @@ export class PostCommentLoaders extends BaseLoader {
     return this.getLoader(
       key,
       () => this.createPostCommentAssetsLoader()
+    )
+  }
+
+  private getPostCommentScoreLoader () {
+    const key = this.genKey('score')
+    return this.getLoader(
+      key,
+      () => this.createPostCommentScoreLoader()
+    )
+  }
+
+  private getUserVoteLoader (userId: string) {
+    const key = this.genKey(`userVote:${userId}`)
+    return this.getLoader(
+      key,
+      () => this.createUserVoteLoader(userId)
     )
   }
 
@@ -78,6 +110,48 @@ export class PostCommentLoaders extends BaseLoader {
         })
 
         return keys.map(key => rowsMap.get(key) ?? [])
+      }
+    )
+  }
+
+  private createPostCommentScoreLoader () {
+    const { posts } = this.services
+
+    return new DataLoader<string, PostCommentScoreRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          posts.comments.scores.findDistinct(
+            where => where('commentId', 'in', keys),
+            'commentId'
+          )
+        )
+
+        const rowMap = new Map(rows.map(row => [row.commentId, row]))
+
+        return keys.map(key => rowMap.get(key) ?? null)
+      }
+    )
+  }
+
+  private createUserVoteLoader (userId: string) {
+    const { posts } = this.services
+
+    return new DataLoader<string, PostCommentVoteRow | null>(
+      async keys => {
+        const rows = await unwrapOrThrow(
+          posts.comments.votes.findDistinct(
+            where => where
+              .and([
+                where('commentId', 'in', keys),
+                where('userId', '=', userId)
+              ]),
+            'commentId'
+          )
+        )
+
+        const rowMap = new Map(rows.map(row => [row.commentId, row]))
+
+        return keys.map(key => rowMap.get(key) ?? null)
       }
     )
   }

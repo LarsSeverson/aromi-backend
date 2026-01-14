@@ -628,7 +628,7 @@ export interface PostCommentAsset {
 }
 
 export interface PostComment {
-  content: Json;
+  content: Json | null;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   depth: Generated<number>;
@@ -637,6 +637,25 @@ export interface PostComment {
   postId: string;
   updatedAt: Generated<Timestamp>;
   userId: string;
+}
+
+export interface PostCommentScore {
+  commentCount: Generated<number>;
+  commentId: string;
+  downvotes: Generated<number>;
+  score: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
+export interface PostCommentVote {
+  commentId: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  vote: number;
 }
 
 export interface Post {
@@ -776,6 +795,8 @@ export interface DB {
   postAssets: PostAsset;
   postCommentAssets: PostCommentAsset;
   postComments: PostComment;
+  postCommentScores: PostCommentScore;
+  postCommentVotes: PostCommentVote;
   posts: Post;
   postScores: PostScore;
   postVotes: PostVote;

@@ -2,7 +2,7 @@ import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 import { CreatePostCommentSchema, MAX_POST_COMMENT_DEPTH } from '../utils/validation.js'
-import { BackendError, INDEXATION_JOB_NAMES, parseOrThrow, unwrapOrThrow, type PostCommentRow } from '@aromi/shared'
+import { AGGREGATION_JOB_NAMES, BackendError, INDEXATION_JOB_NAMES, parseOrThrow, unwrapOrThrow, type PostCommentRow } from '@aromi/shared'
 import type { CreatePostCommentSchemaType } from '../types.js'
 import { errAsync, okAsync } from 'neverthrow'
 
@@ -21,6 +21,7 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
     })
 
     await this.handleIndex(comment)
+    await this.handleAggregation(comment.postId)
 
     return comment
   }
@@ -47,6 +48,31 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
       jobName: INDEXATION_JOB_NAMES.INDEX_POST_COMMENT,
       data: comment
     })
+  }
+
+  private handleAggregation (postId: string, parentId?: string) {
+    const { queues } = this.context
+    const batch = queues.aggregations.batch()
+
+    batch.enqueue({
+      jobName: AGGREGATION_JOB_NAMES.AGGREGATE_POST,
+      data: {
+        postId,
+        type: 'comments'
+      }
+    })
+
+    if (parentId != null) {
+      batch.enqueue({
+        jobName: AGGREGATION_JOB_NAMES.AGGREGATE_POST_COMMENT,
+        data: {
+          commentId: parentId,
+          type: 'comments'
+        }
+      })
+    }
+
+    return batch.run()
   }
 
   private validateArguments () {

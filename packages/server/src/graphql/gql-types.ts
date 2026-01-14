@@ -416,7 +416,7 @@ export type CreatePostCommentAssetInput = {
 
 export type CreatePostCommentInput = {
   assets?: InputMaybe<Array<CreatePostCommentAssetInput>>;
-  content?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['JSON']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
   postId: Scalars['ID']['input'];
 };
@@ -1061,6 +1061,7 @@ export type Mutation = {
   voteOnFragranceTrait: FragranceTraitVote;
   voteOnNoteRequest: NoteRequest;
   voteOnPost: Post;
+  voteOnPostComment: PostComment;
 };
 
 
@@ -1413,6 +1414,11 @@ export type MutationVoteOnPostArgs = {
   input: VoteOnPostInput;
 };
 
+
+export type MutationVoteOnPostCommentArgs = {
+  input: VoteOnPostCommentInput;
+};
+
 export type Note = {
   __typename?: 'Note';
   id: Scalars['ID']['output'];
@@ -1565,14 +1571,16 @@ export type PostAsset = {
 export type PostComment = {
   __typename?: 'PostComment';
   assets: Array<PostCommentAsset>;
+  commentCount: Scalars['Int']['output'];
   comments: PostCommentConnection;
-  content: Scalars['JSON']['output'];
+  content?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['String']['output'];
   depth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   parent?: Maybe<PostComment>;
   post: Post;
   user: User;
+  votes: VoteInfo;
 };
 
 
@@ -1613,6 +1621,42 @@ export const PostCommentSortBy = {
 export type PostCommentSortBy = typeof PostCommentSortBy[keyof typeof PostCommentSortBy];
 export type PostCommentSortInput = {
   by?: InputMaybe<PostCommentSortBy>;
+  direction?: InputMaybe<SortDirection>;
+};
+
+export type PostCommentVote = {
+  __typename?: 'PostCommentVote';
+  comment: PostComment;
+  id: Scalars['ID']['output'];
+  user: User;
+  vote: Scalars['Int']['output'];
+};
+
+export type PostCommentVoteConnection = {
+  __typename?: 'PostCommentVoteConnection';
+  edges: Array<PostCommentVoteEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PostCommentVoteEdge = {
+  __typename?: 'PostCommentVoteEdge';
+  cursor: Scalars['String']['output'];
+  node: PostCommentVote;
+};
+
+export type PostCommentVotePaginationInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<PostCommentVoteSortInput>;
+};
+
+export const PostCommentVoteSortBy = {
+  Recent: 'RECENT'
+} as const;
+
+export type PostCommentVoteSortBy = typeof PostCommentVoteSortBy[keyof typeof PostCommentVoteSortBy];
+export type PostCommentVoteSortInput = {
+  by?: InputMaybe<PostCommentVoteSortBy>;
   direction?: InputMaybe<SortDirection>;
 };
 
@@ -2253,7 +2297,7 @@ export type UpdatePostAssetInput = {
 };
 
 export type UpdatePostCommentInput = {
-  content: Scalars['String']['input'];
+  content: Scalars['JSON']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -2438,6 +2482,11 @@ export type VoteOnFragranceTraitInput = {
 
 export type VoteOnNoteRequestInput = {
   requestId: Scalars['ID']['input'];
+  vote: Scalars['Int']['input'];
+};
+
+export type VoteOnPostCommentInput = {
+  commentId: Scalars['ID']['input'];
   vote: Scalars['Int']['input'];
 };
 
@@ -2691,6 +2740,12 @@ export type ResolversTypes = ResolversObject<{
   PostCommentPaginationInput: ResolverTypeWrapper<Partial<PostCommentPaginationInput>>;
   PostCommentSortBy: ResolverTypeWrapper<Partial<PostCommentSortBy>>;
   PostCommentSortInput: ResolverTypeWrapper<Partial<PostCommentSortInput>>;
+  PostCommentVote: ResolverTypeWrapper<Partial<Omit<PostCommentVote, 'comment' | 'user'> & { comment: ResolversTypes['PostComment'], user: ResolversTypes['User'] }>>;
+  PostCommentVoteConnection: ResolverTypeWrapper<Partial<Omit<PostCommentVoteConnection, 'edges'> & { edges: Array<ResolversTypes['PostCommentVoteEdge']> }>>;
+  PostCommentVoteEdge: ResolverTypeWrapper<Partial<Omit<PostCommentVoteEdge, 'node'> & { node: ResolversTypes['PostCommentVote'] }>>;
+  PostCommentVotePaginationInput: ResolverTypeWrapper<Partial<PostCommentVotePaginationInput>>;
+  PostCommentVoteSortBy: ResolverTypeWrapper<Partial<PostCommentVoteSortBy>>;
+  PostCommentVoteSortInput: ResolverTypeWrapper<Partial<PostCommentVoteSortInput>>;
   PostConnection: ResolverTypeWrapper<Partial<Omit<PostConnection, 'edges'> & { edges: Array<ResolversTypes['PostEdge']> }>>;
   PostEdge: ResolverTypeWrapper<Partial<Omit<PostEdge, 'node'> & { node: ResolversTypes['Post'] }>>;
   PostPaginationInput: ResolverTypeWrapper<Partial<PostPaginationInput>>;
@@ -2781,6 +2836,7 @@ export type ResolversTypes = ResolversObject<{
   VoteOnFragranceReviewInput: ResolverTypeWrapper<Partial<VoteOnFragranceReviewInput>>;
   VoteOnFragranceTraitInput: ResolverTypeWrapper<Partial<VoteOnFragranceTraitInput>>;
   VoteOnNoteRequestInput: ResolverTypeWrapper<Partial<VoteOnNoteRequestInput>>;
+  VoteOnPostCommentInput: ResolverTypeWrapper<Partial<VoteOnPostCommentInput>>;
   VoteOnPostInput: ResolverTypeWrapper<Partial<VoteOnPostInput>>;
 }>;
 
@@ -2935,6 +2991,11 @@ export type ResolversParentTypes = ResolversObject<{
   PostCommentEdge: Partial<Omit<PostCommentEdge, 'node'> & { node: ResolversParentTypes['PostComment'] }>;
   PostCommentPaginationInput: Partial<PostCommentPaginationInput>;
   PostCommentSortInput: Partial<PostCommentSortInput>;
+  PostCommentVote: Partial<Omit<PostCommentVote, 'comment' | 'user'> & { comment: ResolversParentTypes['PostComment'], user: ResolversParentTypes['User'] }>;
+  PostCommentVoteConnection: Partial<Omit<PostCommentVoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostCommentVoteEdge']> }>;
+  PostCommentVoteEdge: Partial<Omit<PostCommentVoteEdge, 'node'> & { node: ResolversParentTypes['PostCommentVote'] }>;
+  PostCommentVotePaginationInput: Partial<PostCommentVotePaginationInput>;
+  PostCommentVoteSortInput: Partial<PostCommentVoteSortInput>;
   PostConnection: Partial<Omit<PostConnection, 'edges'> & { edges: Array<ResolversParentTypes['PostEdge']> }>;
   PostEdge: Partial<Omit<PostEdge, 'node'> & { node: ResolversParentTypes['Post'] }>;
   PostPaginationInput: Partial<PostPaginationInput>;
@@ -3015,6 +3076,7 @@ export type ResolversParentTypes = ResolversObject<{
   VoteOnFragranceReviewInput: Partial<VoteOnFragranceReviewInput>;
   VoteOnFragranceTraitInput: Partial<VoteOnFragranceTraitInput>;
   VoteOnNoteRequestInput: Partial<VoteOnNoteRequestInput>;
+  VoteOnPostCommentInput: Partial<VoteOnPostCommentInput>;
   VoteOnPostInput: Partial<VoteOnPostInput>;
 }>;
 
@@ -3513,6 +3575,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   voteOnFragranceTrait?: Resolver<ResolversTypes['FragranceTraitVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceTraitArgs, 'input'>>;
   voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
   voteOnPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationVoteOnPostArgs, 'input'>>;
+  voteOnPostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<MutationVoteOnPostCommentArgs, 'input'>>;
 }>;
 
 export type NoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Note'] = ResolversParentTypes['Note']> = ResolversObject<{
@@ -3605,14 +3668,16 @@ export type PostAssetResolvers<ContextType = ServerContext, ParentType extends R
 
 export type PostCommentResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostComment'] = ResolversParentTypes['PostComment']> = ResolversObject<{
   assets?: Resolver<Array<ResolversTypes['PostCommentAsset']>, ParentType, ContextType>;
+  commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   comments?: Resolver<ResolversTypes['PostCommentConnection'], ParentType, ContextType, Partial<PostCommentCommentsArgs>>;
-  content?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   depth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   parent?: Resolver<Maybe<ResolversTypes['PostComment']>, ParentType, ContextType>;
   post?: Resolver<ResolversTypes['Post'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
 }>;
 
 export type PostCommentAssetResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentAsset'] = ResolversParentTypes['PostCommentAsset']> = ResolversObject<{
@@ -3630,6 +3695,23 @@ export type PostCommentConnectionResolvers<ContextType = ServerContext, ParentTy
 export type PostCommentEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentEdge'] = ResolversParentTypes['PostCommentEdge']> = ResolversObject<{
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType>;
+}>;
+
+export type PostCommentVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentVote'] = ResolversParentTypes['PostCommentVote']> = ResolversObject<{
+  comment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  vote?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
+export type PostCommentVoteConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentVoteConnection'] = ResolversParentTypes['PostCommentVoteConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['PostCommentVoteEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+}>;
+
+export type PostCommentVoteEdgeResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostCommentVoteEdge'] = ResolversParentTypes['PostCommentVoteEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['PostCommentVote'], ParentType, ContextType>;
 }>;
 
 export type PostConnectionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['PostConnection'] = ResolversParentTypes['PostConnection']> = ResolversObject<{
@@ -3927,6 +4009,9 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   PostCommentAsset?: PostCommentAssetResolvers<ContextType>;
   PostCommentConnection?: PostCommentConnectionResolvers<ContextType>;
   PostCommentEdge?: PostCommentEdgeResolvers<ContextType>;
+  PostCommentVote?: PostCommentVoteResolvers<ContextType>;
+  PostCommentVoteConnection?: PostCommentVoteConnectionResolvers<ContextType>;
+  PostCommentVoteEdge?: PostCommentVoteEdgeResolvers<ContextType>;
   PostConnection?: PostConnectionResolvers<ContextType>;
   PostEdge?: PostEdgeResolvers<ContextType>;
   PostVote?: PostVoteResolvers<ContextType>;

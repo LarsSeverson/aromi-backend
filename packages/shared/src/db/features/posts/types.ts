@@ -8,3 +8,6 @@ export type PostCommentAssetRow = Selectable<DB['postCommentAssets']>
 
 export type PostVoteRow = Selectable<DB['postVotes']>
 export type PostScoreRow = Selectable<DB['postScores']>
+
+export type PostCommentVoteRow = Selectable<DB['postCommentVotes']>
+export type PostCommentScoreRow = Selectable<DB['postCommentScores']>

@@ -1,0 +1,40 @@
+type PostCommentVote {
+  id: ID!
+  user: User!
+  comment: PostComment!
+  vote: Int!
+}
+
+type PostCommentVoteEdge {
+  node: PostCommentVote!
+  cursor: String!
+}
+
+type PostCommentVoteConnection {
+  edges: [PostCommentVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum PostCommentVoteSortBy {
+  RECENT
+}
+
+input PostCommentVoteSortInput {
+  direction: SortDirection
+  by: PostCommentVoteSortBy
+}
+
+input PostCommentVotePaginationInput {
+  first: Int
+  after: String
+  sort: PostCommentVoteSortInput
+}
+
+input VoteOnPostCommentInput {
+  commentId: ID!
+  vote: Int!
+}
+
+extend type Mutation {
+  voteOnPostComment(input: VoteOnPostCommentInput!): PostComment!
+}

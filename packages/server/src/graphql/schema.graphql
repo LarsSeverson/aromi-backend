@@ -353,7 +353,7 @@ input CreatePostCommentAssetInput {
 
 input CreatePostCommentInput {
   assets: [CreatePostCommentAssetInput!]
-  content: String
+  content: JSON
   parentId: ID
   postId: ID!
 }
@@ -911,6 +911,7 @@ type Mutation {
   voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
   voteOnPost(input: VoteOnPostInput!): Post!
+  voteOnPostComment(input: VoteOnPostCommentInput!): PostComment!
 }
 
 type Note {
@@ -1039,14 +1040,16 @@ type PostAsset {
 
 type PostComment {
   assets: [PostCommentAsset!]!
+  commentCount: Int!
   comments(input: PostCommentPaginationInput): PostCommentConnection!
-  content: JSON!
+  content: JSON
   createdAt: String!
   depth: Int!
   id: ID!
   parent: PostComment
   post: Post!
   user: User!
+  votes: VoteInfo!
 }
 
 type PostCommentAsset {
@@ -1078,6 +1081,38 @@ enum PostCommentSortBy {
 
 input PostCommentSortInput {
   by: PostCommentSortBy
+  direction: SortDirection
+}
+
+type PostCommentVote {
+  comment: PostComment!
+  id: ID!
+  user: User!
+  vote: Int!
+}
+
+type PostCommentVoteConnection {
+  edges: [PostCommentVoteEdge!]!
+  pageInfo: PageInfo!
+}
+
+type PostCommentVoteEdge {
+  cursor: String!
+  node: PostCommentVote!
+}
+
+input PostCommentVotePaginationInput {
+  after: String
+  first: Int
+  sort: PostCommentVoteSortInput
+}
+
+enum PostCommentVoteSortBy {
+  RECENT
+}
+
+input PostCommentVoteSortInput {
+  by: PostCommentVoteSortBy
   direction: SortDirection
 }
 
@@ -1499,7 +1534,7 @@ input UpdatePostAssetInput {
 }
 
 input UpdatePostCommentInput {
-  content: String!
+  content: JSON!
   id: ID!
 }
 
@@ -1618,6 +1653,11 @@ input VoteOnFragranceTraitInput {
 
 input VoteOnNoteRequestInput {
   requestId: ID!
+  vote: Int!
+}
+
+input VoteOnPostCommentInput {
+  commentId: ID!
   vote: Int!
 }
 

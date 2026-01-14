@@ -235,3 +235,10 @@ export const VoteOnPostInputSchema = z
     vote: ValidVote
   })
   .strip()
+
+export const VoteOnPostCommentInputSchema = z
+  .object({
+    commentId: z.string(),
+    vote: ValidVote
+  })
+  .strip()
