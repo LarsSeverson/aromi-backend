@@ -12,7 +12,7 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
   private trxServices?: ServerServices
 
   async resolve () {
-    const { context } = this
+    const { args, context } = this
     const { services } = context
 
     const { comment } = await services.withTransaction(async trx => {
@@ -21,7 +21,7 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
     })
 
     await this.handleIndex(comment)
-    await this.handleAggregation(comment.postId)
+    await this.handleAggregation(comment.postId, args.input.parentId)
 
     return comment
   }
@@ -50,7 +50,7 @@ export class CreatePostCommentResolver extends MutationResolver<Mutation> {
     })
   }
 
-  private handleAggregation (postId: string, parentId?: string) {
+  private handleAggregation (postId: string, parentId?: string | null) {
     const { queues } = this.context
     const batch = queues.aggregations.batch()
 

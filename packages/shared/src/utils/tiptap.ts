@@ -7,8 +7,6 @@ import type { JsonValue } from '@src/db/db-schema.js'
 export const extensions = [StarterKit]
 
 export const trimTiptapNode = (node: JSONContent): JSONContent => {
-  console.log('Trimming node:', node)
-  console.log('\n')
   if (node.content == null) return node
 
   const cleanedContent = node.content.reduce<JSONContent[]>((acc, child) => {

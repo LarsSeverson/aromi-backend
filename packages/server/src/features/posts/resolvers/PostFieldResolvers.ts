@@ -99,7 +99,10 @@ export class PostFieldResolvers extends BaseResolver<PostResolvers> {
 
     const comments = await unwrapOrThrow(
       posts.comments.find(
-        where => where('postId', '=', postId),
+        where => where.and([
+          where('postId', '=', postId),
+          where('parentId', 'is', null)
+        ]),
         { pagination }
       )
     )
