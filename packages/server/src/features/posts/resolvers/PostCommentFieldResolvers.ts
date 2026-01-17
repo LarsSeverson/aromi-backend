@@ -7,6 +7,30 @@ import { PostCommentPaginationFactory } from '../factories/PostCommentPagination
 export class PostCommentFieldResolvers extends BaseResolver<PostCommentResolvers> {
   private readonly commentPagination = new PostCommentPaginationFactory()
 
+  post: PostCommentResolvers['post'] = async (
+    comment,
+    args,
+    context,
+    info
+  ) => {
+    const { loaders } = context
+    const { postId } = comment
+
+    const post = await unwrapOrThrow(
+      loaders.posts.load(postId)
+    )
+
+    if (post == null) {
+      throw new BackendError(
+        'NOT_FOUND',
+        `Post with ID "${postId}" not found`,
+        404
+      )
+    }
+
+    return post
+  }
+
   parent: PostCommentResolvers['parent'] = async (
     comment,
     args,
@@ -144,6 +168,7 @@ export class PostCommentFieldResolvers extends BaseResolver<PostCommentResolvers
 
   getResolvers (): PostCommentResolvers {
     return {
+      post: this.post,
       parent: this.parent,
       user: this.user,
       assets: this.assets,

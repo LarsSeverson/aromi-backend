@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --build ; tsc-alias -p tsconfig.json",
+    "build": "tsc --build && tsc-alias -p tsconfig.json",
     "gen:db": "kysely-codegen && tsx src/scripts/fix-schema-db.ts",
     "copy:db": "tsx src/scripts/copy-db.ts",
     "init:db": "tsx src/scripts/init-db.ts",
