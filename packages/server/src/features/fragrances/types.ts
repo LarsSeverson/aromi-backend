@@ -1,5 +1,7 @@
 import type { FragranceService } from '@aromi/shared'
 import type { Fragrance, FragranceCollection, FragranceCollectionItem, FragranceEdit, FragranceImage, FragranceRequest, FragranceReview, FragranceVote } from '@src/graphql/gql-types.js'
+import type z from 'zod'
+import type { MoveFragranceCollectionItemsInputSchema, MoveFragranceCollectionsInputSchema } from './utils/validation.js'
 
 export interface IFragranceSummary extends Omit<
   Fragrance,
@@ -63,3 +65,6 @@ export interface UpdateVoteParams {
   oldVote: number | null
   newVote: number
 }
+
+export type MoveFragranceCollectionItemsInputType = z.infer<typeof MoveFragranceCollectionItemsInputSchema>
+export type MoveFragranceCollectionsInputType = z.infer<typeof MoveFragranceCollectionsInputSchema>

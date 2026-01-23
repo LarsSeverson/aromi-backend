@@ -17,7 +17,7 @@ export abstract class MQueueService<
     queueName: QueueName
   ) {
     this.redis = sources.redis
-    this.queue = new Queue(queueName, { connection: this.redis.client })
+    this.queue = new Queue(queueName, { connection: this.redis.client.options })
   }
 
   abstract getJobId<K extends J>(

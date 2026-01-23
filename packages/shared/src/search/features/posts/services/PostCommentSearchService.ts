@@ -29,7 +29,7 @@ export class PostCommentSearchService extends SearchService<PostCommentDoc> {
   override configureIndex () {
     return super.configureIndex({
       searchableAttributes: [
-        'content',
+        'searchableContent',
         'user.username'
       ],
       filterableAttributes: [

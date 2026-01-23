@@ -1,6 +1,6 @@
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { MoveFragranceCollectionItemsResolver } from '../helpers/MoveFragranceCollectionItemResolver.js'
+import { MoveFragranceCollectionItemsResolver } from '../helpers/MoveFragranceCollectionItemsResolver.js'
 import { CreateFragranceCollectionItemResolver } from '../helpers/CreateFragranceCollectionItemResolver.js'
 import { DeleteFragranceCollectionItemResolver } from '../helpers/DeleteFragranceCollectionItemResolver.js'
 import { AddFragranceToCollectionsResolver } from '../helpers/AddFragranceToCollectionsResolver.js'

@@ -11,7 +11,6 @@
     "removeComments": true,
     "noImplicitAny": false,
     "importHelpers": true,
-    "baseUrl": ".",
     "paths": {
       "@aromi/shared/*": [
         "packages/shared/src/*"

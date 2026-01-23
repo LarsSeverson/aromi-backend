@@ -551,6 +551,7 @@ input FragranceCollectionPaginationInput {
 }
 
 enum FragranceCollectionSortBy {
+  POSITION
   RECENT
 }
 
@@ -838,6 +839,12 @@ input MoveFragranceCollectionItemsInput {
   rangeStart: ID!
 }
 
+input MoveFragranceCollectionsInput {
+  insertBefore: ID
+  rangeLength: Int
+  rangeStart: ID!
+}
+
 type Mutation {
   addFragranceToCollections(input: AddFragranceToCollectionsInput!): [FragranceCollectionItem!]!
   changePassword(input: ChangePasswordInput!): Boolean!
@@ -872,6 +879,7 @@ type Mutation {
   logIn(input: LogInInput!): AuthTokenPayload!
   logOut: Boolean!
   moveFragranceCollectionItems(input: MoveFragranceCollectionItemsInput!): [FragranceCollectionItem!]!
+  moveFragranceCollections(input: MoveFragranceCollectionsInput!): [FragranceCollection!]!
   refresh: AuthTokenPayload
   removeFragranceFromCollections(input: RemoveFragranceFromCollectionsInput!): [FragranceCollectionItem!]!
   resendSignUpCode(input: ResendSignUpCodeInput!): AuthDeliveryResult!
@@ -1534,7 +1542,7 @@ input UpdatePostAssetInput {
 }
 
 input UpdatePostCommentInput {
-  content: JSON!
+  content: JSON
   id: ID!
 }
 

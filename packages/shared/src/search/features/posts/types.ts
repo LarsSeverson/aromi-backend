@@ -10,8 +10,8 @@ export interface PostDocFragrance {
   name: string
 }
 
-export interface PostDoc extends Omit<PostRow, 'content'> {
-  content?: string
+export interface PostDoc extends PostRow {
+  searchableContent?: string
   user: PostDocUser
   fragrance?: PostDocFragrance | null
 }
@@ -28,6 +28,7 @@ export interface PostCommentDocUser {
 }
 
 export interface PostCommentDoc extends PostCommentRow {
+  searchableContent?: string
   user: PostCommentDocUser
 }
 

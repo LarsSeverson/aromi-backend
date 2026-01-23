@@ -28,11 +28,11 @@ export class PostSearchService extends SearchService<PostDoc> {
         name: fragrance.name
       }
 
-    const content = getTextFromContent(post.content)
-    const postWithContent = { ...post, content }
+    const searchableContent = getTextFromContent(post.content)
 
     return {
-      ...postWithContent,
+      ...post,
+      searchableContent,
       user: postUser,
       fragrance: postFragrance
     }
@@ -46,7 +46,7 @@ export class PostSearchService extends SearchService<PostDoc> {
     return super.configureIndex({
       searchableAttributes: [
         'title',
-        'content',
+        'searchableContent',
         'user.username',
         'fragrance.name'
       ],

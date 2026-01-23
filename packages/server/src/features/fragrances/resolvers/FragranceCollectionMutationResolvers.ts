@@ -2,7 +2,9 @@ import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { FragranceCollectionItemMutationResolvers } from './FragranceCollectionItemMutationResolvers.js'
 import { BackendError, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
-import { CreateCollectionInputSchema, UpdateCollectionInputSchema } from '../utils/validation.js'
+import { UpdateCollectionInputSchema } from '../utils/validation.js'
+import { CreateFragranceCollectionResolver } from '../helpers/CreateFragranceCollectionResolver.js'
+import { MoveFragranceCollectionsResolver } from '../helpers/MoveFragranceCollectionsResolver.js'
 
 export class FragranceCollectionMutationResolvers extends BaseResolver<MutationResolvers> {
   private readonly items = new FragranceCollectionItemMutationResolvers()
@@ -13,18 +15,8 @@ export class FragranceCollectionMutationResolvers extends BaseResolver<MutationR
     context,
     info
   ) => {
-    const { input } = args
-    const { services } = context
-    const me = this.checkAuthenticated(context)
-
-    const parsed = parseOrThrow(CreateCollectionInputSchema, input)
-    const { users } = services
-
-    const collection = await unwrapOrThrow(
-      users.collections.createOne({ ...parsed, userId: me.id })
-    )
-
-    return collection
+    const resolver = new CreateFragranceCollectionResolver({ parent, args, context, info })
+    return await resolver.resolve()
   }
 
   updateFragranceCollection: MutationResolvers['updateFragranceCollection'] = async (
@@ -101,12 +93,23 @@ export class FragranceCollectionMutationResolvers extends BaseResolver<MutationR
     return deleted
   }
 
+  moveFragranceCollections: MutationResolvers['moveFragranceCollections'] = async (
+    parent,
+    args,
+    context,
+    info
+  ) => {
+    const resolver = new MoveFragranceCollectionsResolver({ parent, args, context, info })
+    return await resolver.resolve()
+  }
+
   getResolvers (): MutationResolvers {
     return {
       ...this.items.getResolvers(),
       createFragranceCollection: this.createFragranceCollection,
       updateFragranceCollection: this.updateFragranceCollection,
-      deleteFragranceCollection: this.deleteFragranceCollection
+      deleteFragranceCollection: this.deleteFragranceCollection,
+      moveFragranceCollections: this.moveFragranceCollections
     }
   }
 }

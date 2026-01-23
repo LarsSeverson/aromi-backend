@@ -323,6 +323,7 @@ export interface FragranceCollection {
   deletedAt: Timestamp | null;
   id: Generated<string>;
   name: string;
+  rank: number;
   updatedAt: Generated<Timestamp>;
   userId: string;
 }

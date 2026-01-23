@@ -658,6 +658,7 @@ export type FragranceCollectionPaginationInput = {
 };
 
 export const FragranceCollectionSortBy = {
+  Position: 'POSITION',
   Recent: 'RECENT'
 } as const;
 
@@ -987,6 +988,12 @@ export type MoveFragranceCollectionItemsInput = {
   rangeStart: Scalars['ID']['input'];
 };
 
+export type MoveFragranceCollectionsInput = {
+  insertBefore?: InputMaybe<Scalars['ID']['input']>;
+  rangeLength?: InputMaybe<Scalars['Int']['input']>;
+  rangeStart: Scalars['ID']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addFragranceToCollections: Array<FragranceCollectionItem>;
@@ -1022,6 +1029,7 @@ export type Mutation = {
   logIn: AuthTokenPayload;
   logOut: Scalars['Boolean']['output'];
   moveFragranceCollectionItems: Array<FragranceCollectionItem>;
+  moveFragranceCollections: Array<FragranceCollection>;
   refresh?: Maybe<AuthTokenPayload>;
   removeFragranceFromCollections: Array<FragranceCollectionItem>;
   resendSignUpCode: AuthDeliveryResult;
@@ -1222,6 +1230,11 @@ export type MutationLogInArgs = {
 
 export type MutationMoveFragranceCollectionItemsArgs = {
   input: MoveFragranceCollectionItemsInput;
+};
+
+
+export type MutationMoveFragranceCollectionsArgs = {
+  input: MoveFragranceCollectionsInput;
 };
 
 
@@ -2297,7 +2310,7 @@ export type UpdatePostAssetInput = {
 };
 
 export type UpdatePostCommentInput = {
-  content: Scalars['JSON']['input'];
+  content?: InputMaybe<Scalars['JSON']['input']>;
   id: Scalars['ID']['input'];
 };
 
@@ -2713,6 +2726,7 @@ export type ResolversTypes = ResolversObject<{
   JSON: ResolverTypeWrapper<Partial<Scalars['JSON']['output']>>;
   LogInInput: ResolverTypeWrapper<Partial<LogInInput>>;
   MoveFragranceCollectionItemsInput: ResolverTypeWrapper<Partial<MoveFragranceCollectionItemsInput>>;
+  MoveFragranceCollectionsInput: ResolverTypeWrapper<Partial<MoveFragranceCollectionsInput>>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Note: ResolverTypeWrapper<INoteSummary>;
   NoteConnection: ResolverTypeWrapper<Partial<Omit<NoteConnection, 'edges'> & { edges: Array<ResolversTypes['NoteEdge']> }>>;
@@ -2968,6 +2982,7 @@ export type ResolversParentTypes = ResolversObject<{
   JSON: Partial<Scalars['JSON']['output']>;
   LogInInput: Partial<LogInInput>;
   MoveFragranceCollectionItemsInput: Partial<MoveFragranceCollectionItemsInput>;
+  MoveFragranceCollectionsInput: Partial<MoveFragranceCollectionsInput>;
   Mutation: Record<PropertyKey, never>;
   Note: INoteSummary;
   NoteConnection: Partial<Omit<NoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['NoteEdge']> }>;
@@ -3536,6 +3551,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   logIn?: Resolver<ResolversTypes['AuthTokenPayload'], ParentType, ContextType, RequireFields<MutationLogInArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   moveFragranceCollectionItems?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionItemsArgs, 'input'>>;
+  moveFragranceCollections?: Resolver<Array<ResolversTypes['FragranceCollection']>, ParentType, ContextType, RequireFields<MutationMoveFragranceCollectionsArgs, 'input'>>;
   refresh?: Resolver<Maybe<ResolversTypes['AuthTokenPayload']>, ParentType, ContextType>;
   removeFragranceFromCollections?: Resolver<Array<ResolversTypes['FragranceCollectionItem']>, ParentType, ContextType, RequireFields<MutationRemoveFragranceFromCollectionsArgs, 'input'>>;
   resendSignUpCode?: Resolver<ResolversTypes['AuthDeliveryResult'], ParentType, ContextType, RequireFields<MutationResendSignUpCodeArgs, 'input'>>;

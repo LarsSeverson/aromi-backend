@@ -66,7 +66,7 @@ export const UpdateCollectionInputSchema = z
   })
   .strip()
 
-export const MoveFragranceCollectionItemInputSchema = z
+export const MoveFragranceCollectionItemsInputSchema = z
   .object({
     insertBefore: z
       .uuid('Insert before must be a valid UUID')
@@ -84,6 +84,8 @@ export const MoveFragranceCollectionItemInputSchema = z
     'Insert before cannot be the same as range start'
   )
   .strip()
+
+export const MoveFragranceCollectionsInputSchema = MoveFragranceCollectionItemsInputSchema
 
 export const CreateFragranceReviewInputSchema = ValidFragranceReview
 export const UpdateFragranceReviewInputSchema = ValidFragranceReview

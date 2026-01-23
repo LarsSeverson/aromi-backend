@@ -1,8 +1,8 @@
 import { BackendError, type FragranceCollectionItemRow, type FragranceCollectionRow, type FragranceCollectionService, parseOrThrow, unwrapOrThrow } from '@aromi/shared'
 import type { MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
-import { MoveFragranceCollectionItemInputSchema } from '../utils/validation.js'
-import type z from 'zod'
+import { MoveFragranceCollectionItemsInputSchema } from '../utils/validation.js'
+import type { MoveFragranceCollectionItemsInputType } from '../types.js'
 
 type Mutation = MutationResolvers['moveFragranceCollectionItems']
 
@@ -31,7 +31,7 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
   async moveItems () {
     const { args } = this
 
-    const parsedInput = parseOrThrow(MoveFragranceCollectionItemInputSchema, args.input)
+    const parsedInput = parseOrThrow(MoveFragranceCollectionItemsInputSchema, args.input)
 
     const collection = await unwrapOrThrow(this.getCollection())
     this.checkAuthorized(collection)
@@ -98,7 +98,7 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
     )
   }
 
-  private getSplitRange (items: FragranceCollectionItemRow[], input: z.infer<typeof MoveFragranceCollectionItemInputSchema>) {
+  private getSplitRange (items: FragranceCollectionItemRow[], input: MoveFragranceCollectionItemsInputType) {
     const { rangeStart, rangeLength } = input
 
     const startIndex = items.findIndex(i => i.id === rangeStart)
@@ -118,7 +118,7 @@ export class MoveFragranceCollectionItemsResolver extends MutationResolver<Mutat
 
   private getInsertIndex (
     items: FragranceCollectionItemRow[],
-    input: z.infer<typeof MoveFragranceCollectionItemInputSchema>,
+    input: MoveFragranceCollectionItemsInputType,
     startIndex: number
   ) {
     const { insertBefore, rangeLength } = input

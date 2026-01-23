@@ -1,10 +1,15 @@
 type FragranceCollection {
   id: ID!
+
   name: String!
+
   items(input: FragranceCollectionItemPaginationInput): FragranceCollectionItemConnection!
   previewItems: [FragranceCollectionItem!]!
+
   hasFragrance(fragranceId: ID!): Boolean!
+
   user: User!
+
   info: FragranceCollectionInfo!
 }
 
@@ -24,6 +29,7 @@ type FragranceCollectionConnection {
 
 enum FragranceCollectionSortBy {
   RECENT
+  POSITION
 }
 
 input FragranceCollectionSortInput {
@@ -50,6 +56,12 @@ input DeleteFragranceCollectionInput {
   collectionId: ID!
 }
 
+input MoveFragranceCollectionsInput {
+  insertBefore: ID
+  rangeStart: ID!
+  rangeLength: Int
+}
+
 extend type Query {
   fragranceCollection(id: ID!): FragranceCollection!
   fragranceCollections(input: FragranceCollectionPaginationInput): FragranceCollectionConnection!
@@ -59,4 +71,6 @@ extend type Mutation {
   createFragranceCollection(input: CreateFragranceCollectionInput!): FragranceCollection!
   updateFragranceCollection(input: UpdateFragranceCollectionInput!): FragranceCollection!
   deleteFragranceCollection(input: DeleteFragranceCollectionInput!): FragranceCollection!
+
+  moveFragranceCollections(input: MoveFragranceCollectionsInput!): [FragranceCollection!]!
 }

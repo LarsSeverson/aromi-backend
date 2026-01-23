@@ -50,7 +50,7 @@ input CreatePostCommentInput {
 
 input UpdatePostCommentInput {
   id: ID!
-  content: JSON!
+  content: JSON
 }
 
 input DeletePostCommentInput {

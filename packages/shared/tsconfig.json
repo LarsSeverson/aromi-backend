@@ -5,18 +5,17 @@
     "declaration": true,
     "rootDir": "src",
     "outDir": "dist",
-    "baseUrl": ".",
     "module": "nodenext",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "paths": {
       "@src/*": [
-        "src/*"
+        "./src/*"
       ],
       "@aromi/*": [
-        "src/*"
+        "./src/*"
       ],
       "@generated/*": [
-        "src/generated/*"
+        "./src/generated/*"
       ]
     }
   },
