@@ -1,5 +1,5 @@
 {
-  "app": "node --loader ts-node/esm bin/app.ts",
+  "app": "npx tsx bin/app.ts",
   "context": {
     "env": "production"
   }
