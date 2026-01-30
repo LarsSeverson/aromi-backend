@@ -44,5 +44,8 @@
     "eslint-config-love": "^133.0.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0"
+  },
+  "resolutions": {
+    "ioredis": "^5.7.0"
   }
 }
