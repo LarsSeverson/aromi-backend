@@ -61,7 +61,7 @@ export const baseConfig: BaseConfig = {
       version: AuroraPostgresEngineVersion.VER_17_6
     }),
 
-    minCapacity: 0,
+    minCapacity: 0.5,
     maxCapacity: AuroraCapacityUnit.ACU_2,
 
     removalPolicy: RemovalPolicy.SNAPSHOT
