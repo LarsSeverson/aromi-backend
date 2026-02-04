@@ -775,12 +775,14 @@ enum FragranceStatus {
 }
 
 type FragranceTrait {
+  fragrance: Fragrance!
   id: ID!
   myVote: FragranceTraitVote
   name: String!
   options: [TraitOption!]!
   stats: TraitStats!
   type: TraitTypeEnum!
+  typeId: ID!
 }
 
 input FragranceTraitInput {

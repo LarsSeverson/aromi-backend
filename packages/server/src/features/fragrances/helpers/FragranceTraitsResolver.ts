@@ -64,18 +64,21 @@ export class FragranceTraitsResolver extends RequestResolver<Query> {
       .from(groupedTraits.entries())
       .map(
         ([traitId, group]) => {
-          const { name } = group.at(0)!
+          const { id, name } = group.at(0)!
           const options = this.getOptions(group)
           const stats = this.getStats(group, votesMap)
           const myVote = this.getMyVote(traitId, group, myVotesMap)
 
           return {
-            id: traitId,
+            id: `${traitId}:${this.parent.id}`,
+            typeId: id,
             type: DBTraitToGQLTrait[name],
             name,
             options,
             stats,
-            myVote
+            myVote,
+
+            fragrance: this.parent
           }
         }
       )
@@ -178,7 +181,7 @@ export class FragranceTraitsResolver extends RequestResolver<Query> {
     if (option == null) return null
 
     return {
-      id: option.optionId,
+      id: `${traitId}:${this.parent.id}`,
       type: DBTraitToGQLTrait[option.name],
       option: {
         id: option.optionId,

@@ -13,8 +13,8 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
         this.handleVote(),
         error => error as BackendError
       )
-      .map(({ traitRow, optionRow }) => ({
-        id: traitRow.id,
+      .map(({ traitRow, optionRow, fragranceId }) => ({
+        id: `${traitRow.id}:${fragranceId}`,
         type: DBTraitToGQLTrait[traitRow.name],
         option: optionRow
       }))
@@ -24,7 +24,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { args } = this
     const { input } = args
 
-    const { traitTypeId, traitOptionId } = input
+    const { fragranceId, traitTypeId, traitOptionId } = input
     const shouldDeleteVote = traitOptionId == null
 
     if (shouldDeleteVote) await unwrapOrThrow(this.deleteExistingVote())
@@ -33,7 +33,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const traitRow = await unwrapOrThrow(this.getTraitRow(traitTypeId))
     const optionRow = await unwrapOrThrow(this.getOptionRow())
 
-    return { traitRow, optionRow }
+    return { traitRow, optionRow, fragranceId }
   }
 
   private upsertVote (traitOptionId: string) {
@@ -52,7 +52,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
         { fragranceId, userId, traitTypeId, traitOptionId },
         oc => oc
           .columns(['fragranceId', 'userId', 'traitTypeId'])
-          .doUpdateSet({ traitOptionId })
+          .doUpdateSet({ traitOptionId, deletedAt: null })
       )
   }
 
