@@ -36,13 +36,12 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     const combined = await Promise.all([
       this.migrateImage(request, fragrance),
       this.migrateAccords(request, fragrance),
-      this.migrateNotes(request, fragrance),
-      this.migrateTraits(request, fragrance)
+      this.migrateNotes(request, fragrance)
     ])
 
-    const [image, accords, notes, traits] = combined
+    const [image, accords, notes] = combined
 
-    return { fragrance, image, accords, notes, traits }
+    return { fragrance, image, accords, notes }
   }
 
   private enqueueIndex (fragranceId: string) {
@@ -181,30 +180,6 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     return votes
   }
 
-  private async migrateTraits (
-    request: FragranceRequestRow,
-    fragrance: FragranceRow
-  ) {
-    const { services } = this.context
-    const { fragrances } = services
-
-    const { userId } = request
-    const { id: fragranceId } = fragrance
-
-    const traits = await unwrapOrThrow(this.getTraits(request))
-    if (traits.length === 0) return []
-
-    const values = traits.map(
-      ({ traitTypeId, traitOptionId }) => ({ fragranceId, userId, traitTypeId, traitOptionId })
-    )
-
-    return await unwrapOrThrow(
-      fragrances
-        .traitVotes
-        .create(values)
-    )
-  }
-
   private getImage (request: FragranceRequestRow) {
     const { services } = this.context
     const { assets } = services
@@ -235,18 +210,6 @@ export class FragrancePromoter extends BasePromoter<PromotionJobPayload[JobKey],
     return fragrances
       .requests
       .notes
-      .find(
-        eb => eb('requestId', '=', request.id)
-      )
-  }
-
-  private getTraits (request: FragranceRequestRow) {
-    const { services } = this.context
-    const { fragrances } = services
-
-    return fragrances
-      .requests
-      .traits
       .find(
         eb => eb('requestId', '=', request.id)
       )

@@ -5,7 +5,7 @@ import { UserFieldResolvers, UserFollowFieldResolvers, UserMutationResolvers, Us
 import { BrandEditFieldResolvers, BrandFieldResolvers, BrandMutationResolvers, BrandQueryResolvers, BrandRequestFieldResolvers } from '@src/features/brands/index.js'
 import { AccordEditFieldResolvers, AccordMutationResolvers, AccordQueryResolvers, AccordRequestFieldResolvers } from '@src/features/accords/index.js'
 import { NoteEditFieldResolvers, NoteFieldResolvers, NoteMutationResolvers, NoteQueryResolvers, NoteRequestFieldResolvers } from '@src/features/notes/index.js'
-import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers, FragranceVoteFieldResolvers } from '@src/features/fragrances/index.js'
+import { FragranceQueryResolvers, FragranceFieldResolvers, FragranceMutationResolvers, FragranceEditFieldResolvers, FragranceRequestFieldResolvers, FragranceCollectionFieldResolvers, FragranceCollectionItemFieldResolvers, FragranceReviewFieldResolvers, FragranceImageFieldResolvers, FragranceVoteFieldResolvers, FragranceTraitFieldResolvers, FragranceTraitOptionFieldResolvers } from '@src/features/fragrances/index.js'
 import { AssetFieldResolvers, AssetMutationResolvers } from '@src/features/assets/index.js'
 import { HealthQueryResolvers } from '@src/features/health/index.js'
 import { PostAssetFieldResolvers, PostCommentAssetFieldResolvers, PostCommentFieldResolvers, PostFieldResolvers, PostMutationResolvers, PostQueryResolvers } from '@src/features/posts/index.js'
@@ -31,6 +31,8 @@ const fragranceMutations = new FragranceMutationResolvers()
 const fragranceEditFieldResolvers = new FragranceEditFieldResolvers()
 const fragranceRequestFieldResolvers = new FragranceRequestFieldResolvers()
 const fragranceVoteFieldResolvers = new FragranceVoteFieldResolvers()
+const fragranceTraitFieldResolvers = new FragranceTraitFieldResolvers()
+const fragranceTraitOptionFieldResolvers = new FragranceTraitOptionFieldResolvers()
 
 const brandQueries = new BrandQueryResolvers()
 const brandMutations = new BrandMutationResolvers()
@@ -115,6 +117,10 @@ export const ApiResolvers: Resolvers = {
   FragranceEdit: fragranceEditFieldResolvers.getResolvers(),
 
   FragranceRequest: fragranceRequestFieldResolvers.getResolvers(),
+
+  FragranceTrait: fragranceTraitFieldResolvers.getResolvers(),
+
+  FragranceTraitOption: fragranceTraitOptionFieldResolvers.getResolvers(),
 
   Brand: brandFieldResolvers.getResolvers(),
 

@@ -1,6 +1,5 @@
-import { type BackendError, unwrapOrThrow } from '@aromi/shared'
-import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers.js'
-import type { MutationResolvers } from '@src/graphql/gql-types.js'
+import { AGGREGATION_JOB_NAMES, type BackendError, unwrapOrThrow } from '@aromi/shared'
+import type { FragranceTraitTypeEnum, MutationResolvers } from '@src/graphql/gql-types.js'
 import { MutationResolver } from '@src/resolvers/MutationResolver.js'
 import { okAsync, ResultAsync } from 'neverthrow'
 
@@ -13,27 +12,51 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
         this.handleVote(),
         error => error as BackendError
       )
-      .map(({ traitRow, optionRow, fragranceId }) => ({
-        id: `${traitRow.id}:${fragranceId}`,
-        type: DBTraitToGQLTrait[traitRow.name],
-        option: optionRow
+      .map(({ traitRow, fragranceId }) => ({
+        ...traitRow,
+        fragranceId,
+        type: traitRow.name.toUpperCase() as FragranceTraitTypeEnum
       }))
   }
 
   private async handleVote () {
     const { args } = this
     const { input } = args
+    const { fragranceId, traitId, traitOptionId: newOptionId } = input
 
-    const { fragranceId, traitTypeId, traitOptionId } = input
-    const shouldDeleteVote = traitOptionId == null
+    const existingVote = await this.getExistingVote().unwrapOr(undefined)
+    const oldOptionId = existingVote?.traitOptionId
 
-    if (shouldDeleteVote) await unwrapOrThrow(this.deleteExistingVote())
-    else await unwrapOrThrow(this.upsertVote(traitOptionId))
+    const shouldDeleteVote = newOptionId == null
 
-    const traitRow = await unwrapOrThrow(this.getTraitRow(traitTypeId))
+    shouldDeleteVote
+      ? await unwrapOrThrow(this.deleteExistingVote())
+      : await unwrapOrThrow(this.upsertVote(newOptionId))
+
+    const traitRow = await unwrapOrThrow(this.getTraitRow(traitId))
     const optionRow = await unwrapOrThrow(this.getOptionRow())
 
+    await unwrapOrThrow(this.enqueueAggregations(oldOptionId, newOptionId ?? undefined))
+
     return { traitRow, optionRow, fragranceId }
+  }
+
+  private enqueueAggregations (oldOptionId?: string, newOptionId?: string) {
+    const { context, args } = this
+    const { queues } = context
+    const { fragranceId, traitId } = args.input
+
+    const optionIds = Array.from(new Set([oldOptionId, newOptionId].filter(id => id != null)))
+
+    return optionIds
+      .reduce(
+        (batch, optionId) => batch.enqueue({
+          jobName: AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_TRAIT_VOTES,
+          data: { fragranceId, traitId, optionId }
+        }),
+        queues.aggregations.batch()
+      )
+      .run()
   }
 
   private upsertVote (traitOptionId: string) {
@@ -42,16 +65,17 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { input } = args
     const { services } = context
 
-    const { fragranceId, traitTypeId } = input
+    const { fragranceId, traitId } = input
     const { fragrances } = services
     const userId = me.id
 
     return fragrances
-      .traitVotes
+      .traits
+      .votes
       .upsert(
-        { fragranceId, userId, traitTypeId, traitOptionId },
+        { fragranceId, userId, traitId, traitOptionId },
         oc => oc
-          .columns(['fragranceId', 'userId', 'traitTypeId'])
+          .columns(['fragranceId', 'userId', 'traitId'])
           .doUpdateSet({ traitOptionId, deletedAt: null })
       )
   }
@@ -62,7 +86,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { input } = args
     const { services } = context
 
-    const { traitTypeId, traitOptionId } = input
+    const { traitId, traitOptionId } = input
     const { traits } = services
 
     if (traitOptionId == null) return okAsync(null)
@@ -71,7 +95,7 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
       .options
       .findOne(eb => eb.and([
         eb('id', '=', traitOptionId),
-        eb('traitTypeId', '=', traitTypeId)
+        eb('traitTypeId', '=', traitId)
       ]))
   }
 
@@ -81,7 +105,6 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { traits } = services
 
     return traits
-      .types
       .findOne(eb => eb('id', '=', traitTypeId))
   }
 
@@ -91,17 +114,18 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { input } = args
     const { services } = context
 
-    const { fragranceId, traitTypeId } = input
+    const { fragranceId, traitId } = input
     const { fragrances } = services
     const userId = me.id
 
     return fragrances
-      .traitVotes
+      .traits
+      .votes
       .findOne(
         where => where.and([
           where('fragranceId', '=', fragranceId),
           where('userId', '=', userId),
-          where('traitTypeId', '=', traitTypeId)
+          where('traitId', '=', traitId)
         ])
       )
   }
@@ -112,17 +136,18 @@ export class VoteOnTraitResolver extends MutationResolver<Mutation> {
     const { input } = args
     const { services } = context
 
-    const { fragranceId, traitTypeId } = input
+    const { fragranceId, traitId } = input
     const { fragrances } = services
     const userId = me.id
 
     return fragrances
-      .traitVotes
+      .traits
+      .votes
       .softDeleteOne(
         where => where.and([
           where('fragranceId', '=', fragranceId),
           where('userId', '=', userId),
-          where('traitTypeId', '=', traitTypeId)
+          where('traitId', '=', traitId)
         ])
       )
   }

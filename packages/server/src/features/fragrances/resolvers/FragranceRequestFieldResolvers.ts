@@ -1,7 +1,6 @@
 import { throwError, unwrapOrThrow } from '@aromi/shared'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
-import { mapCombinedTraitRowToRequestTrait, mapDBNoteLayerToGQLNoteLayer } from '../utils/mappers.js'
-import { GQLTraitToDBTrait } from '@src/features/traits/utils/mappers.js'
+import { mapDBNoteLayerToGQLNoteLayer } from '../utils/mappers.js'
 import { mapGQLNoteLayerToDBNoteLayer } from '@src/features/fragrances/utils/mappers.js'
 import type { FragranceRequestResolvers } from '@src/graphql/gql-types.js'
 import { mapUserRowToUserSummary } from '@src/features/users/utils/mappers.js'
@@ -47,57 +46,6 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
     )
 
     return asset
-  }
-
-  trait: FragranceRequestResolvers['trait'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const { id } = parent
-    const { type } = args
-    const { services } = context
-
-    const dbType = GQLTraitToDBTrait[type]
-    const { fragrances } = services
-
-    const trait = await unwrapOrThrow(
-      fragrances
-        .requests
-        .traits
-        .findTrait(
-          eb => eb.and([
-            eb('requestId', '=', id),
-            eb('traitTypes.name', '=', dbType)
-          ])
-        )
-    )
-
-    return mapCombinedTraitRowToRequestTrait(trait)
-  }
-
-  traits: FragranceRequestResolvers['traits'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const { id } = parent
-    const { services } = context
-
-    const { fragrances } = services
-
-    const traits = await unwrapOrThrow(
-      fragrances
-        .requests
-        .traits
-        .findTraits(
-          eb => eb('requestId', '=', id)
-        )
-    )
-
-    return traits.map(mapCombinedTraitRowToRequestTrait)
   }
 
   accords: FragranceRequestResolvers['accords'] = async (
@@ -207,8 +155,6 @@ export class FragranceRequestFieldResolvers extends BaseResolver<FragranceReques
     return {
       brand: this.brand,
       image: this.image,
-      trait: this.trait,
-      traits: this.traits,
       accords: this.accords,
       notes: this.notes,
       votes: this.votes,

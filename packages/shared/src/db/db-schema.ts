@@ -520,13 +520,24 @@ export interface FragranceScore {
   upvotes: Generated<number>;
 }
 
+export interface FragranceTraitScore {
+  deletedAt: Timestamp | null;
+  downvotes: Generated<number>;
+  fragranceId: string;
+  optionId: string;
+  score: Generated<number>;
+  traitId: string;
+  updatedAt: Generated<Timestamp>;
+  upvotes: Generated<number>;
+}
+
 export interface FragranceTraitVote {
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
   fragranceId: string;
   id: Generated<string>;
+  traitId: string;
   traitOptionId: string;
-  traitTypeId: string;
   userId: string;
 }
 
@@ -704,11 +715,11 @@ export interface RequestJob {
 export interface TraitOption {
   id: Generated<string>;
   label: string;
-  score: number;
   traitTypeId: string;
+  value: number;
 }
 
-export interface TraitType {
+export interface Trait {
   id: Generated<string>;
   name: string;
 }
@@ -785,6 +796,7 @@ export interface DB {
   fragranceReviewVotes: FragranceReviewVote;
   fragrances: Fragrance;
   fragranceScores: FragranceScore;
+  fragranceTraitScores: FragranceTraitScore;
   fragranceTraitVotes: FragranceTraitVote;
   fragranceVotes: FragranceVote;
   noteEdits: NoteEdit;
@@ -803,7 +815,7 @@ export interface DB {
   postVotes: PostVote;
   requestJobs: RequestJob;
   traitOptions: TraitOption;
-  traitTypes: TraitType;
+  traits: Trait;
   userFollows: UserFollow;
   userImages: UserImage;
   users: User;

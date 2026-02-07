@@ -12,7 +12,7 @@ type FragranceRequest {
 
   image: Asset
 
-  trait(type: TraitTypeEnum!): FragranceRequestTrait!
+  trait(type: FragranceTraitTypeEnum!): FragranceRequestTrait!
   traits: [FragranceRequestTrait!]!
 
   accords: [Accord!]!

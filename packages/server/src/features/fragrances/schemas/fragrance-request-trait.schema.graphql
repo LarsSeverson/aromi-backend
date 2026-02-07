@@ -1,12 +1,12 @@
 type FragranceRequestTrait {
-  traitType: TraitTypeEnum!
-  selectedOption: TraitOption!
+  traitType: FragranceTraitTypeEnum!
+  selectedOption: FragranceTraitOption!
 }
 
 input SetFragranceRequestTraitInput {
   requestId: ID!
   score: Int!
-  traitType: TraitTypeEnum!
+  traitType: FragranceTraitTypeEnum!
 }
 
 extend type Mutation {

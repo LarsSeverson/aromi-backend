@@ -1,13 +1,11 @@
 import { INVALID_ID, unwrapOrThrow } from '@aromi/shared'
-import type { FragranceResolvers } from '@src/graphql/gql-types.js'
+import type { FragranceResolvers, FragranceTraitTypeEnum } from '@src/graphql/gql-types.js'
 import { BaseResolver } from '@src/resolvers/BaseResolver.js'
 import { FragranceImagesResolver } from '../helpers/FragranceImagesResolver.js'
 import { FragranceAccordsResolver } from '../helpers/FragranceAccordsResolver.js'
 import { FragranceNotesResolver } from '../helpers/FragranceNotesResolver.js'
-import { FragranceTraitsResolver } from '../helpers/FragranceTraitsResolver.js'
 import { FragranceReviewPaginationFactory } from '../factories/FragranceReviewPaginationFactory.js'
 import { mapFragranceReviewRowToFragranceReview, mapGQLNoteLayerToDBNoteLayer } from '../utils/mappers.js'
-import { DBTraitToGQLTrait } from '@src/features/traits/utils/mappers.js'
 import { VOTE_TYPES } from '@src/utils/constants.js'
 
 export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
@@ -147,66 +145,28 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
     return await unwrapOrThrow(resolver.resolve())
   }
 
-  myTraits: FragranceResolvers['myTraits'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const { id } = parent
-    const { me, services, loaders } = context
-
-    if (me == null) return []
-
-    const { fragrances } = loaders
-    const { traits } = services
-
-    const votes = await unwrapOrThrow(
-      fragrances.loadUserTraitVotes(id, me.id)
-    )
-
-    const types = await unwrapOrThrow(
-      traits.types.find(
-        where => where('id', 'in', votes.map(v => v.traitTypeId)
-        )
-      )
-    )
-
-    const options = await unwrapOrThrow(
-      traits.options.find(
-        where => where.and([
-          where('traitTypeId', 'in', votes.map(v => v.traitTypeId)),
-          where('id', 'in', votes.map(v => v.traitOptionId))
-        ])
-      )
-    )
-
-    const typeMap = new Map(types.map(t => [t.id, t]))
-    const optionMap = new Map(options.map(o => [o.traitTypeId, o]))
-
-    const myTraits = votes.map(vote => {
-      const { id } = vote
-      const type = typeMap.get(vote.traitTypeId)!
-      const option = optionMap.get(vote.traitTypeId)!
-
-      return {
-        id,
-        type: DBTraitToGQLTrait[type.name],
-        option
-      }
-    })
-
-    return myTraits
-  }
-
   traits: FragranceResolvers['traits'] = async (
     parent,
     args,
     context,
     info
   ) => {
-    const resolver = new FragranceTraitsResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
+    const { id } = parent
+    const { services } = context
+
+    const { traits } = services
+
+    const rows = await unwrapOrThrow(
+      traits.find()
+    )
+
+    const mapped = rows.map(row => ({
+      ...row,
+      fragranceId: id,
+      type: row.name.toUpperCase() as FragranceTraitTypeEnum
+    }))
+
+    return mapped
   }
 
   myReview: FragranceResolvers['myReview'] = async (
@@ -330,7 +290,6 @@ export class FragranceFieldResolvers extends BaseResolver<FragranceResolvers> {
       myNotes: this.myNotes,
       notes: this.notes,
 
-      myTraits: this.myTraits,
       traits: this.traits,
 
       myReview: this.myReview,

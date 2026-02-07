@@ -13,6 +13,7 @@ import { ReviewAggregator } from '../jobs/ReviewAggregator.js'
 import { FragranceReviewsAggregator } from '../jobs/FragranceReviewsAggregator.js'
 import { PostAggregator } from '../jobs/PostAggregator.js'
 import { PostCommentAggregator } from '../jobs/PostCommentAggregator.js'
+import { FragranceTraitsAggregator } from '../jobs/FragranceTraitsAggregator.js'
 
 export class AggregationService extends WorkerService<keyof AggregationJobPayload, AggregationJobPayload> {
   constructor (context: WorkerContext) {
@@ -72,6 +73,11 @@ export class AggregationService extends WorkerService<keyof AggregationJobPayloa
       .register(
         AGGREGATION_JOB_NAMES.AGGREGATE_POST_COMMENT,
         new PostCommentAggregator(sources)
+      )
+
+      .register(
+        AGGREGATION_JOB_NAMES.AGGREGATE_FRAGRANCE_TRAIT_VOTES,
+        new FragranceTraitsAggregator(sources)
       )
   }
 }

@@ -1,4 +1,4 @@
-import { AccordService, AssetService, AuthService, BrandService, type DataSources, FragranceService, NoteService, PostService, SearchServices, TraitService, UserService } from '@aromi/shared'
+import { AccordService, AssetService, AuthService, BrandService, type DataSources, FragranceService, NoteService, PostService, SearchServices, UserService, TraitService } from '@aromi/shared'
 
 export class ServerServices {
   readonly sources: DataSources

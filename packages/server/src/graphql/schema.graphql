@@ -446,7 +446,6 @@ type Fragrance {
   myAccords: [Accord!]!
   myNotes(layer: NoteLayer!): [Note!]!
   myReview: FragranceReview
-  myTraits: [FragranceTraitVote!]!
   name: String!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
   releaseYear: Int!
@@ -685,7 +684,7 @@ type FragranceRequest {
   notes(layer: NoteLayer!): [FragranceRequestNote!]!
   releaseYear: Int
   requestStatus: RequestStatus!
-  trait(type: TraitTypeEnum!): FragranceRequestTrait!
+  trait(type: FragranceTraitTypeEnum!): FragranceRequestTrait!
   traits: [FragranceRequestTrait!]!
   user: User!
   version: Int!
@@ -709,8 +708,8 @@ type FragranceRequestNote {
 }
 
 type FragranceRequestTrait {
-  selectedOption: TraitOption!
-  traitType: TraitTypeEnum!
+  selectedOption: FragranceTraitOption!
+  traitType: FragranceTraitTypeEnum!
 }
 
 type FragranceReview {
@@ -777,22 +776,27 @@ enum FragranceStatus {
 type FragranceTrait {
   fragrance: Fragrance!
   id: ID!
-  myVote: FragranceTraitVote
   name: String!
-  options: [TraitOption!]!
-  stats: TraitStats!
-  type: TraitTypeEnum!
-  typeId: ID!
+  options: [FragranceTraitOption!]!
+  type: FragranceTraitTypeEnum!
 }
 
-input FragranceTraitInput {
-  type: TraitTypeEnum!
-}
-
-type FragranceTraitVote {
+type FragranceTraitOption {
   id: ID!
-  option: TraitOption
-  type: TraitTypeEnum!
+  label: String!
+  value: Int!
+  votes: VoteInfo!
+}
+
+enum FragranceTraitTypeEnum {
+  APPEAL
+  BALANCE
+  COMPLEXITY
+  GENDER
+  LONGEVITY
+  PROJECTION
+  SEASON
+  TIME
 }
 
 type FragranceVote {
@@ -918,7 +922,7 @@ type Mutation {
   voteOnFragranceNote(input: VoteOnFragranceNoteInput!): Note!
   voteOnFragranceRequest(input: VoteOnFragranceRequestInput!): FragranceRequest!
   voteOnFragranceReview(input: VoteOnFragranceReviewInput!): FragranceReview!
-  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTrait!
   voteOnNoteRequest(input: VoteOnNoteRequestInput!): NoteRequest!
   voteOnPost(input: VoteOnPostInput!): Post!
   voteOnPostComment(input: VoteOnPostCommentInput!): PostComment!
@@ -1417,7 +1421,7 @@ input SetFragranceRequestNotesInput {
 input SetFragranceRequestTraitInput {
   requestId: ID!
   score: Int!
-  traitType: TraitTypeEnum!
+  traitType: FragranceTraitTypeEnum!
 }
 
 input SetMyAvatarInput {
@@ -1455,34 +1459,6 @@ input SubmitFragranceRequestInput {
 
 input SubmitNoteRequestInput {
   id: ID!
-}
-
-type TraitOption {
-  id: ID!
-  label: String!
-  score: Int!
-}
-
-type TraitStats {
-  averageScore: Float!
-  distribution: [TraitVoteDistribution!]!
-  totalVotes: Int!
-}
-
-enum TraitTypeEnum {
-  APPEAL
-  BALANCE
-  COMPLEXITY
-  GENDER
-  LONGEVITY
-  PROJECTION
-  SEASON
-  TIME
-}
-
-type TraitVoteDistribution {
-  option: TraitOption!
-  votes: Int!
 }
 
 input UnfollowUserInput {
@@ -1657,8 +1633,8 @@ input VoteOnFragranceReviewInput {
 
 input VoteOnFragranceTraitInput {
   fragranceId: ID!
+  traitId: ID!
   traitOptionId: ID
-  traitTypeId: ID!
 }
 
 input VoteOnNoteRequestInput {

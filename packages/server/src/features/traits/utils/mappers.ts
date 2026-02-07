@@ -1,6 +1,6 @@
-import { TraitTypeEnum } from '@src/graphql/gql-types.js'
+import { FragranceTraitTypeEnum } from '@src/graphql/gql-types.js'
 
-export const GQLTraitToDBTrait: Record<TraitTypeEnum, string> = {
+export const GQLTraitToDBTrait: Record<FragranceTraitTypeEnum, string> = {
   GENDER: 'Gender',
   TIME: 'Time',
   SEASON: 'Season',
@@ -11,13 +11,13 @@ export const GQLTraitToDBTrait: Record<TraitTypeEnum, string> = {
   PROJECTION: 'Projection'
 }
 
-export const DBTraitToGQLTrait: Record<string, TraitTypeEnum> = {
-  Appeal: TraitTypeEnum.Appeal,
-  Time: TraitTypeEnum.Time,
-  Season: TraitTypeEnum.Season,
-  Balance: TraitTypeEnum.Balance,
-  Complexity: TraitTypeEnum.Complexity,
-  Gender: TraitTypeEnum.Gender,
-  Longevity: TraitTypeEnum.Longevity,
-  Projection: TraitTypeEnum.Projection
+export const DBTraitToGQLTrait: Record<string, FragranceTraitTypeEnum> = {
+  Appeal: FragranceTraitTypeEnum.Appeal,
+  Time: FragranceTraitTypeEnum.Time,
+  Season: FragranceTraitTypeEnum.Season,
+  Balance: FragranceTraitTypeEnum.Balance,
+  Complexity: FragranceTraitTypeEnum.Complexity,
+  Gender: FragranceTraitTypeEnum.Gender,
+  Longevity: FragranceTraitTypeEnum.Longevity,
+  Projection: FragranceTraitTypeEnum.Projection
 }

@@ -1,33 +1,39 @@
+enum FragranceTraitTypeEnum {
+  GENDER
+  TIME
+  SEASON
+  LONGEVITY
+  PROJECTION
+  COMPLEXITY
+  BALANCE
+  APPEAL
+}
+
 type FragranceTrait {
   id: ID!
-  
-  typeId: ID!
-  type: TraitTypeEnum!
 
+  type: FragranceTraitTypeEnum!
   name: String!
-  options: [TraitOption!]!
-  stats: TraitStats!
-  myVote: FragranceTraitVote
 
   fragrance: Fragrance!
+
+  options: [FragranceTraitOption!]!
 }
 
-type FragranceTraitVote {
+type FragranceTraitOption {
   id: ID!
-  type: TraitTypeEnum!
-  option: TraitOption
-}
+  label: String!
+  value: Int!
 
-input FragranceTraitInput {
-  type: TraitTypeEnum!
+  votes: VoteInfo!
 }
 
 input VoteOnFragranceTraitInput {
   fragranceId: ID!
-  traitTypeId: ID!
+  traitId: ID!
   traitOptionId: ID
 }
 
 extend type Mutation {
-  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTraitVote!
+  voteOnFragranceTrait(input: VoteOnFragranceTraitInput!): FragranceTrait!
 }

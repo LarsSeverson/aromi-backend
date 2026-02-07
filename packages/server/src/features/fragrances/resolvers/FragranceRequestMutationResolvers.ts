@@ -8,7 +8,6 @@ import { SubmitFragranceRequestResolver } from '../helpers/SubmitFragranceReques
 import { SetFragranceRequestBrandResolver } from '../helpers/SetFragranceRequestBrandResolver.js'
 import { SetFragranceRequestAccordsResolver } from '../helpers/SetFragranceRequestAccordsResolver.js'
 import { SetFragranceRequestNotesResolver } from '../helpers/SetFragranceRequestNotesResolver.js'
-import { SetFragranceRequestTraitResolver } from '../helpers/SetFragranceRequestTraitResolver.js'
 import { VoteOnFragranceRequestResolver } from '../helpers/VoteOnFragranceRequestResolver.js'
 
 export class FragranceRequestMutationResolvers extends BaseResolver<MutationResolvers> {
@@ -82,16 +81,6 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
     return await unwrapOrThrow(resolver.resolve())
   }
 
-  setFragranceRequestTrait: MutationResolvers['setFragranceRequestTrait'] = async (
-    parent,
-    args,
-    context,
-    info
-  ) => {
-    const resolver = new SetFragranceRequestTraitResolver({ parent, args, context, info })
-    return await unwrapOrThrow(resolver.resolve())
-  }
-
   voteOnFragranceRequest: MutationResolvers['voteOnFragranceRequest'] = async (
     parent,
     args,
@@ -111,7 +100,6 @@ export class FragranceRequestMutationResolvers extends BaseResolver<MutationReso
       setFragranceRequestBrand: this.setFragranceRequestBrand,
       setFragranceRequestAccords: this.setFragranceRequestAccords,
       setFragranceRequestNotes: this.setFragranceRequestNotes,
-      setFragranceRequestTrait: this.setFragranceRequestTrait,
       voteOnFragranceRequest: this.voteOnFragranceRequest
     }
   }

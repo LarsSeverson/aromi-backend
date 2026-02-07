@@ -1,5 +1,5 @@
-import { type NoteLayerEnum, type FragranceStatus as DBFragranceStatus, type FragranceConcentration, type FragranceRow, type FragranceImageRow, parseOrThrow, removeNullish, type CombinedTraitRow, type FragranceRequestRow, type FragranceReviewRow } from '@aromi/shared'
-import type { FragranceStatus, Concentration, NoteLayer, FragranceImage, CreateFragranceRequestInput, FragranceRequestTrait, RequestStatus, TraitTypeEnum, UpdateFragranceRequestInput } from '@src/graphql/gql-types.js'
+import { type NoteLayerEnum, type FragranceStatus as DBFragranceStatus, type FragranceConcentration, type FragranceRow, type FragranceImageRow, parseOrThrow, removeNullish, type FragranceRequestRow, type FragranceReviewRow } from '@aromi/shared'
+import type { FragranceStatus, Concentration, NoteLayer, FragranceImage, CreateFragranceRequestInput, RequestStatus, UpdateFragranceRequestInput } from '@src/graphql/gql-types.js'
 import { CreateFragranceRequestSchema, UpdateFragranceRequestSchema } from './validation.js'
 import type { IFragranceRequestSummary, IFragranceReviewSummary, IFragranceSummary } from '../types.js'
 
@@ -120,21 +120,6 @@ export const mapFragranceRequestRowToFragranceRequest = (
     fragranceStatus: mappedFragranceStatus,
     concentration: mappedConcentration,
     ...rest
-  }
-}
-
-export const mapCombinedTraitRowToRequestTrait = (
-  row: CombinedTraitRow
-): FragranceRequestTrait => {
-  const { traitType, traitOption } = row
-
-  return {
-    traitType: traitType.name.toUpperCase() as TraitTypeEnum,
-    selectedOption: {
-      id: traitOption.id,
-      label: traitOption.label,
-      score: traitOption.score
-    }
   }
 }
 

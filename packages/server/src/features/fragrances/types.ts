@@ -1,5 +1,5 @@
 import type { FragranceService } from '@aromi/shared'
-import type { Fragrance, FragranceCollection, FragranceCollectionItem, FragranceEdit, FragranceImage, FragranceRequest, FragranceReview, FragranceVote } from '@src/graphql/gql-types.js'
+import type { Fragrance, FragranceCollection, FragranceCollectionItem, FragranceEdit, FragranceImage, FragranceRequest, FragranceReview, FragranceTrait, FragranceTraitOption, FragranceVote } from '@src/graphql/gql-types.js'
 import type z from 'zod'
 import type { MoveFragranceCollectionItemsInputSchema, MoveFragranceCollectionsInputSchema } from './utils/validation.js'
 
@@ -46,6 +46,15 @@ export interface IFragranceReviewSummary extends Omit<FragranceReview, 'fragranc
 export interface IFragranceVoteSummary extends Omit<FragranceVote, 'fragrance' | 'user'> {
   fragranceId: string
   userId: string
+}
+
+export interface IFragranceTraitSummary extends Omit<FragranceTrait, 'fragrance' | 'options'> {
+  fragranceId: string
+}
+
+export interface IFragranceTraitOptionSummary extends Omit<FragranceTraitOption, 'votes'> {
+  traitId: string
+  fragranceId: string
 }
 
 export type FragranceLoadersKey = string

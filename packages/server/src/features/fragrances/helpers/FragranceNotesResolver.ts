@@ -75,10 +75,10 @@ export class FragranceNotesResolver extends RequestResolver<Field> {
     row: CombinedFragranceNoteScoreRow,
     myVoteRowsMap: Map<string, FragranceNoteVoteRow>
   ) {
-    const id = `${row.id}:${row.fragranceId}`
     const myVote = myVoteRowsMap.get(row.noteId) == null ? null : 1
 
     const {
+      id,
       layer,
       upvotes,
       downvotes,

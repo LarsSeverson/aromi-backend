@@ -34,7 +34,6 @@ type Fragrance {
   myNotes(layer: NoteLayer!): [Note!]!
   notes(input: FragranceNotePaginationInput): FragranceNoteConnection!
 
-  myTraits: [FragranceTraitVote!]!
   traits: [FragranceTrait!]!
 
   myReview: FragranceReview

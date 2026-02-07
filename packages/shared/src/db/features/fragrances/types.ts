@@ -15,6 +15,7 @@ export type FragranceNoteVoteRow = Selectable<DB['fragranceNoteVotes']>
 export type FragranceNoteScoreRow = Selectable<DB['fragranceNoteScores']>
 
 export type FragranceTraitVoteRow = Selectable<DB['fragranceTraitVotes']>
+export type FragranceTraitScoreRow = Selectable<DB['fragranceTraitScores']>
 
 export type FragranceReviewRow = Selectable<DB['fragranceReviews']>
 export type FragranceReviewVoteRow = Selectable<DB['fragranceReviewVotes']>

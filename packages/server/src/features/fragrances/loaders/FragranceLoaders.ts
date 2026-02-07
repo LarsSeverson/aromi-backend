@@ -1,20 +1,23 @@
 import { BaseLoader } from '@src/loaders/BaseLoader.js'
 import type { FragranceLoadersKey } from '../types.js'
 import DataLoader from 'dataloader'
-import { BackendError, type AggFragranceTraitVoteRow, type CombinedTraitRow2, type FragranceImageRow, unwrapOrThrow, type FragranceTraitVoteRow, type FragranceAccordVoteRow, type FragranceNoteVoteRow, type FragranceScoreRow, type FragranceVoteRow, type FragranceRow } from '@aromi/shared'
+import { BackendError, type FragranceImageRow, unwrapOrThrow, type FragranceAccordVoteRow, type FragranceNoteVoteRow, type FragranceScoreRow, type FragranceVoteRow, type FragranceRow } from '@aromi/shared'
 import { okAsync, ResultAsync } from 'neverthrow'
 import { FragranceCollectionLoaders } from './FragranceCollectionLoaders.js'
 import type { ServerServices } from '@src/services/ServerServices.js'
 import { FragranceReviewLoaders } from './FragranceReviewLoaders.js'
+import { FragranceTraitLoaders } from './FragranceTraitLoaders.js'
 
 export class FragranceLoaders extends BaseLoader {
   collections: FragranceCollectionLoaders
   reviews: FragranceReviewLoaders
+  traits: FragranceTraitLoaders
 
   constructor (services: ServerServices) {
     super(services)
     this.collections = new FragranceCollectionLoaders(services)
     this.reviews = new FragranceReviewLoaders(services)
+    this.traits = new FragranceTraitLoaders(services)
   }
 
   load (id: FragranceLoadersKey) {
@@ -41,14 +44,6 @@ export class FragranceLoaders extends BaseLoader {
       )
   }
 
-  loadTraits (id: FragranceLoadersKey) {
-    return ResultAsync
-      .fromPromise(
-        this.getTraitsLoader().load(id),
-        error => BackendError.fromLoader(error)
-      )
-  }
-
   loadScore (id: FragranceLoadersKey) {
     return ResultAsync
       .fromPromise(
@@ -66,25 +61,6 @@ export class FragranceLoaders extends BaseLoader {
     return ResultAsync
       .fromPromise(
         this.getUserVoteLoader(userId).load(id),
-        error => BackendError.fromLoader(error)
-      )
-  }
-
-  loadTraitVotes (id: FragranceLoadersKey) {
-    return ResultAsync
-      .fromPromise(
-        this.getTraitVotesLoader().load(id),
-        error => BackendError.fromLoader(error)
-      )
-  }
-
-  loadUserTraitVotes (
-    id: FragranceLoadersKey,
-    userId: string
-  ) {
-    return ResultAsync
-      .fromPromise(
-        this.getUserTraitVoteLoader(userId).load(id),
         error => BackendError.fromLoader(error)
       )
   }
@@ -153,33 +129,6 @@ export class FragranceLoaders extends BaseLoader {
       .getLoader(
         key,
         () => this.createUserVoteLoader(userId)
-      )
-  }
-
-  private getTraitsLoader () {
-    const key = this.genKey('traits')
-    return this
-      .getLoader(
-        key,
-        () => this.createTraitsLoader()
-      )
-  }
-
-  private getTraitVotesLoader () {
-    const key = this.genKey('traitVotes')
-    return this
-      .getLoader(
-        key,
-        () => this.createTraitVotesLoader()
-      )
-  }
-
-  private getUserTraitVoteLoader (userId: string) {
-    const key = this.genKey('myTraitVote', userId)
-    return this
-      .getLoader(
-        key,
-        () => this.createUserTraitVoteLoader(userId)
       )
   }
 
@@ -323,72 +272,6 @@ export class FragranceLoaders extends BaseLoader {
         })
 
         return keys.map(id => rowsMap.get(id) ?? null)
-      }
-    )
-  }
-
-  private createTraitsLoader () {
-    const { traits } = this.services
-
-    return new DataLoader<FragranceLoadersKey, CombinedTraitRow2[]>(
-      async keys => {
-        const rows = await unwrapOrThrow(traits.types.findTraits())
-        return keys.map(_ => rows)
-      }
-    )
-  }
-
-  private createTraitVotesLoader () {
-    const { fragrances } = this.services
-
-    return new DataLoader<FragranceLoadersKey, AggFragranceTraitVoteRow[]>(
-      async keys => {
-        const rows = await unwrapOrThrow(
-          fragrances
-            .traitVotes
-            .findVotesAgg(
-              eb => eb('fragranceId', 'in', keys)
-            )
-        )
-
-        const rowsMap = new Map<string, AggFragranceTraitVoteRow[]>()
-
-        rows.forEach(row => {
-          const arr = rowsMap.get(row.fragranceId) ?? []
-          arr.push(row)
-          rowsMap.set(row.fragranceId, arr)
-        })
-
-        return keys.map(id => rowsMap.get(id) ?? [])
-      }
-    )
-  }
-
-  private createUserTraitVoteLoader (userId: string) {
-    const { fragrances } = this.services
-
-    return new DataLoader<FragranceLoadersKey, FragranceTraitVoteRow[]>(
-      async keys => {
-        const rows = await unwrapOrThrow(
-          fragrances
-            .traitVotes
-            .find(
-              eb => eb.and([
-                eb('fragranceId', 'in', keys),
-                eb('userId', '=', userId)
-              ])
-            )
-        )
-
-        const rowsMap = new Map<string, FragranceTraitVoteRow[]>()
-
-        rows.forEach(row => {
-          const arr = rowsMap.get(row.fragranceId) ?? []
-          arr.push(row)
-          rowsMap.set(row.fragranceId, arr)
-        })
-
-        return keys.map(id => rowsMap.get(id) ?? [])
       }
     )
   }

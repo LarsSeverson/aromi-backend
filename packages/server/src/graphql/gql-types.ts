@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IAssetResult } from '../features/assets/types.js';
 import { IUserSummary, IUserFollowSummary } from '../features/users/types.js';
-import { IFragranceSummary, IFragranceImageSummary, IFragranceEditSummary, IFragranceRequestSummary, IFragranceCollectionSummary, IFragranceCollectionItemSummary, IFragranceReviewSummary, IFragranceVoteSummary } from '../features/fragrances/types.js';
+import { IFragranceSummary, IFragranceImageSummary, IFragranceEditSummary, IFragranceRequestSummary, IFragranceCollectionSummary, IFragranceCollectionItemSummary, IFragranceReviewSummary, IFragranceVoteSummary, IFragranceTraitSummary, IFragranceTraitOptionSummary } from '../features/fragrances/types.js';
 import { IBrandSummary, IBrandEditSummary, IBrandRequestSummary } from '../features/brands/types.js';
 import { IAccordEditSummary, IAccordRequestSummary } from '../features/accords/types.js';
 import { INoteSummary, INoteEditSummary, INoteRequestSummary } from '../features/notes/types.js';
@@ -511,7 +511,6 @@ export type Fragrance = {
   myAccords: Array<Accord>;
   myNotes: Array<Note>;
   myReview?: Maybe<FragranceReview>;
-  myTraits: Array<FragranceTraitVote>;
   name: Scalars['String']['output'];
   notes: FragranceNoteConnection;
   releaseYear: Scalars['Int']['output'];
@@ -822,7 +821,7 @@ export type FragranceRequestNotesArgs = {
 
 
 export type FragranceRequestTraitArgs = {
-  type: TraitTypeEnum;
+  type: FragranceTraitTypeEnum;
 };
 
 export type FragranceRequestConnection = {
@@ -846,8 +845,8 @@ export type FragranceRequestNote = {
 
 export type FragranceRequestTrait = {
   __typename?: 'FragranceRequestTrait';
-  selectedOption: TraitOption;
-  traitType: TraitTypeEnum;
+  selectedOption: FragranceTraitOption;
+  traitType: FragranceTraitTypeEnum;
 };
 
 export type FragranceReview = {
@@ -923,25 +922,31 @@ export type FragranceTrait = {
   __typename?: 'FragranceTrait';
   fragrance: Fragrance;
   id: Scalars['ID']['output'];
-  myVote?: Maybe<FragranceTraitVote>;
   name: Scalars['String']['output'];
-  options: Array<TraitOption>;
-  stats: TraitStats;
-  type: TraitTypeEnum;
-  typeId: Scalars['ID']['output'];
+  options: Array<FragranceTraitOption>;
+  type: FragranceTraitTypeEnum;
 };
 
-export type FragranceTraitInput = {
-  type: TraitTypeEnum;
-};
-
-export type FragranceTraitVote = {
-  __typename?: 'FragranceTraitVote';
+export type FragranceTraitOption = {
+  __typename?: 'FragranceTraitOption';
   id: Scalars['ID']['output'];
-  option?: Maybe<TraitOption>;
-  type: TraitTypeEnum;
+  label: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
+  votes: VoteInfo;
 };
 
+export const FragranceTraitTypeEnum = {
+  Appeal: 'APPEAL',
+  Balance: 'BALANCE',
+  Complexity: 'COMPLEXITY',
+  Gender: 'GENDER',
+  Longevity: 'LONGEVITY',
+  Projection: 'PROJECTION',
+  Season: 'SEASON',
+  Time: 'TIME'
+} as const;
+
+export type FragranceTraitTypeEnum = typeof FragranceTraitTypeEnum[keyof typeof FragranceTraitTypeEnum];
 export type FragranceVote = {
   __typename?: 'FragranceVote';
   fragrance: Fragrance;
@@ -1068,7 +1073,7 @@ export type Mutation = {
   voteOnFragranceNote: Note;
   voteOnFragranceRequest: FragranceRequest;
   voteOnFragranceReview: FragranceReview;
-  voteOnFragranceTrait: FragranceTraitVote;
+  voteOnFragranceTrait: FragranceTrait;
   voteOnNoteRequest: NoteRequest;
   voteOnPost: Post;
   voteOnPostComment: PostComment;
@@ -2180,7 +2185,7 @@ export type SetFragranceRequestNotesInput = {
 export type SetFragranceRequestTraitInput = {
   requestId: Scalars['ID']['input'];
   score: Scalars['Int']['input'];
-  traitType: TraitTypeEnum;
+  traitType: FragranceTraitTypeEnum;
 };
 
 export type SetMyAvatarInput = {
@@ -2219,38 +2224,6 @@ export type SubmitFragranceRequestInput = {
 
 export type SubmitNoteRequestInput = {
   id: Scalars['ID']['input'];
-};
-
-export type TraitOption = {
-  __typename?: 'TraitOption';
-  id: Scalars['ID']['output'];
-  label: Scalars['String']['output'];
-  score: Scalars['Int']['output'];
-};
-
-export type TraitStats = {
-  __typename?: 'TraitStats';
-  averageScore: Scalars['Float']['output'];
-  distribution: Array<TraitVoteDistribution>;
-  totalVotes: Scalars['Int']['output'];
-};
-
-export const TraitTypeEnum = {
-  Appeal: 'APPEAL',
-  Balance: 'BALANCE',
-  Complexity: 'COMPLEXITY',
-  Gender: 'GENDER',
-  Longevity: 'LONGEVITY',
-  Projection: 'PROJECTION',
-  Season: 'SEASON',
-  Time: 'TIME'
-} as const;
-
-export type TraitTypeEnum = typeof TraitTypeEnum[keyof typeof TraitTypeEnum];
-export type TraitVoteDistribution = {
-  __typename?: 'TraitVoteDistribution';
-  option: TraitOption;
-  votes: Scalars['Int']['output'];
 };
 
 export type UnfollowUserInput = {
@@ -2491,8 +2464,8 @@ export type VoteOnFragranceReviewInput = {
 
 export type VoteOnFragranceTraitInput = {
   fragranceId: Scalars['ID']['input'];
+  traitId: Scalars['ID']['input'];
   traitOptionId?: InputMaybe<Scalars['ID']['input']>;
-  traitTypeId: Scalars['ID']['input'];
 };
 
 export type VoteOnNoteRequestInput = {
@@ -2702,7 +2675,7 @@ export type ResolversTypes = ResolversObject<{
   FragranceRequestConnection: ResolverTypeWrapper<Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceRequestEdge']> }>>;
   FragranceRequestEdge: ResolverTypeWrapper<Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversTypes['FragranceRequest'] }>>;
   FragranceRequestNote: ResolverTypeWrapper<Partial<Omit<FragranceRequestNote, 'note'> & { note: ResolversTypes['Note'] }>>;
-  FragranceRequestTrait: ResolverTypeWrapper<Partial<FragranceRequestTrait>>;
+  FragranceRequestTrait: ResolverTypeWrapper<Partial<Omit<FragranceRequestTrait, 'selectedOption'> & { selectedOption: ResolversTypes['FragranceTraitOption'] }>>;
   FragranceReview: ResolverTypeWrapper<IFragranceReviewSummary>;
   FragranceReviewConnection: ResolverTypeWrapper<Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceReviewEdge']> }>>;
   FragranceReviewEdge: ResolverTypeWrapper<Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversTypes['FragranceReview'] }>>;
@@ -2714,9 +2687,9 @@ export type ResolversTypes = ResolversObject<{
   FragranceSortBy: ResolverTypeWrapper<Partial<FragranceSortBy>>;
   FragranceSortInput: ResolverTypeWrapper<Partial<FragranceSortInput>>;
   FragranceStatus: ResolverTypeWrapper<Partial<FragranceStatus>>;
-  FragranceTrait: ResolverTypeWrapper<Partial<Omit<FragranceTrait, 'fragrance'> & { fragrance: ResolversTypes['Fragrance'] }>>;
-  FragranceTraitInput: ResolverTypeWrapper<Partial<FragranceTraitInput>>;
-  FragranceTraitVote: ResolverTypeWrapper<Partial<FragranceTraitVote>>;
+  FragranceTrait: ResolverTypeWrapper<IFragranceTraitSummary>;
+  FragranceTraitOption: ResolverTypeWrapper<IFragranceTraitOptionSummary>;
+  FragranceTraitTypeEnum: ResolverTypeWrapper<Partial<FragranceTraitTypeEnum>>;
   FragranceVote: ResolverTypeWrapper<IFragranceVoteSummary>;
   FragranceVoteConnection: ResolverTypeWrapper<Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversTypes['FragranceVoteEdge']> }>>;
   FragranceVoteEdge: ResolverTypeWrapper<Partial<Omit<FragranceVoteEdge, 'node'> & { node: ResolversTypes['FragranceVote'] }>>;
@@ -2819,10 +2792,6 @@ export type ResolversTypes = ResolversObject<{
   SubmitBrandRequestInput: ResolverTypeWrapper<Partial<SubmitBrandRequestInput>>;
   SubmitFragranceRequestInput: ResolverTypeWrapper<Partial<SubmitFragranceRequestInput>>;
   SubmitNoteRequestInput: ResolverTypeWrapper<Partial<SubmitNoteRequestInput>>;
-  TraitOption: ResolverTypeWrapper<Partial<TraitOption>>;
-  TraitStats: ResolverTypeWrapper<Partial<TraitStats>>;
-  TraitTypeEnum: ResolverTypeWrapper<Partial<TraitTypeEnum>>;
-  TraitVoteDistribution: ResolverTypeWrapper<Partial<TraitVoteDistribution>>;
   UnfollowUserInput: ResolverTypeWrapper<Partial<UnfollowUserInput>>;
   UpdateAccordRequestInput: ResolverTypeWrapper<Partial<UpdateAccordRequestInput>>;
   UpdateBrandRequestInput: ResolverTypeWrapper<Partial<UpdateBrandRequestInput>>;
@@ -2962,7 +2931,7 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceRequestConnection: Partial<Omit<FragranceRequestConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceRequestEdge']> }>;
   FragranceRequestEdge: Partial<Omit<FragranceRequestEdge, 'node'> & { node: ResolversParentTypes['FragranceRequest'] }>;
   FragranceRequestNote: Partial<Omit<FragranceRequestNote, 'note'> & { note: ResolversParentTypes['Note'] }>;
-  FragranceRequestTrait: Partial<FragranceRequestTrait>;
+  FragranceRequestTrait: Partial<Omit<FragranceRequestTrait, 'selectedOption'> & { selectedOption: ResolversParentTypes['FragranceTraitOption'] }>;
   FragranceReview: IFragranceReviewSummary;
   FragranceReviewConnection: Partial<Omit<FragranceReviewConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceReviewEdge']> }>;
   FragranceReviewEdge: Partial<Omit<FragranceReviewEdge, 'node'> & { node: ResolversParentTypes['FragranceReview'] }>;
@@ -2971,9 +2940,8 @@ export type ResolversParentTypes = ResolversObject<{
   FragranceReviewPaginationInput: Partial<FragranceReviewPaginationInput>;
   FragranceReviewSortInput: Partial<FragranceReviewSortInput>;
   FragranceSortInput: Partial<FragranceSortInput>;
-  FragranceTrait: Partial<Omit<FragranceTrait, 'fragrance'> & { fragrance: ResolversParentTypes['Fragrance'] }>;
-  FragranceTraitInput: Partial<FragranceTraitInput>;
-  FragranceTraitVote: Partial<FragranceTraitVote>;
+  FragranceTrait: IFragranceTraitSummary;
+  FragranceTraitOption: IFragranceTraitOptionSummary;
   FragranceVote: IFragranceVoteSummary;
   FragranceVoteConnection: Partial<Omit<FragranceVoteConnection, 'edges'> & { edges: Array<ResolversParentTypes['FragranceVoteEdge']> }>;
   FragranceVoteEdge: Partial<Omit<FragranceVoteEdge, 'node'> & { node: ResolversParentTypes['FragranceVote'] }>;
@@ -3062,9 +3030,6 @@ export type ResolversParentTypes = ResolversObject<{
   SubmitBrandRequestInput: Partial<SubmitBrandRequestInput>;
   SubmitFragranceRequestInput: Partial<SubmitFragranceRequestInput>;
   SubmitNoteRequestInput: Partial<SubmitNoteRequestInput>;
-  TraitOption: Partial<TraitOption>;
-  TraitStats: Partial<TraitStats>;
-  TraitVoteDistribution: Partial<TraitVoteDistribution>;
   UnfollowUserInput: Partial<UnfollowUserInput>;
   UpdateAccordRequestInput: Partial<UpdateAccordRequestInput>;
   UpdateBrandRequestInput: Partial<UpdateBrandRequestInput>;
@@ -3268,7 +3233,6 @@ export type FragranceResolvers<ContextType = ServerContext, ParentType extends R
   myAccords?: Resolver<Array<ResolversTypes['Accord']>, ParentType, ContextType>;
   myNotes?: Resolver<Array<ResolversTypes['Note']>, ParentType, ContextType, RequireFields<FragranceMyNotesArgs, 'layer'>>;
   myReview?: Resolver<Maybe<ResolversTypes['FragranceReview']>, ParentType, ContextType>;
-  myTraits?: Resolver<Array<ResolversTypes['FragranceTraitVote']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['FragranceNoteConnection'], ParentType, ContextType, Partial<FragranceNotesArgs>>;
   releaseYear?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -3448,8 +3412,8 @@ export type FragranceRequestNoteResolvers<ContextType = ServerContext, ParentTyp
 }>;
 
 export type FragranceRequestTraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceRequestTrait'] = ResolversParentTypes['FragranceRequestTrait']> = ResolversObject<{
-  selectedOption?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
-  traitType?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
+  selectedOption?: Resolver<ResolversTypes['FragranceTraitOption'], ParentType, ContextType>;
+  traitType?: Resolver<ResolversTypes['FragranceTraitTypeEnum'], ParentType, ContextType>;
 }>;
 
 export type FragranceReviewResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceReview'] = ResolversParentTypes['FragranceReview']> = ResolversObject<{
@@ -3486,18 +3450,16 @@ export type FragranceReviewInfoDistributionResolvers<ContextType = ServerContext
 export type FragranceTraitResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTrait'] = ResolversParentTypes['FragranceTrait']> = ResolversObject<{
   fragrance?: Resolver<ResolversTypes['Fragrance'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  myVote?: Resolver<Maybe<ResolversTypes['FragranceTraitVote']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  options?: Resolver<Array<ResolversTypes['TraitOption']>, ParentType, ContextType>;
-  stats?: Resolver<ResolversTypes['TraitStats'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
-  typeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['FragranceTraitOption']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['FragranceTraitTypeEnum'], ParentType, ContextType>;
 }>;
 
-export type FragranceTraitVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTraitVote'] = ResolversParentTypes['FragranceTraitVote']> = ResolversObject<{
+export type FragranceTraitOptionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceTraitOption'] = ResolversParentTypes['FragranceTraitOption']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  option?: Resolver<Maybe<ResolversTypes['TraitOption']>, ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['TraitTypeEnum'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  votes?: Resolver<ResolversTypes['VoteInfo'], ParentType, ContextType>;
 }>;
 
 export type FragranceVoteResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['FragranceVote'] = ResolversParentTypes['FragranceVote']> = ResolversObject<{
@@ -3592,7 +3554,7 @@ export type MutationResolvers<ContextType = ServerContext, ParentType extends Re
   voteOnFragranceNote?: Resolver<ResolversTypes['Note'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceNoteArgs, 'input'>>;
   voteOnFragranceRequest?: Resolver<ResolversTypes['FragranceRequest'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceRequestArgs, 'input'>>;
   voteOnFragranceReview?: Resolver<ResolversTypes['FragranceReview'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceReviewArgs, 'input'>>;
-  voteOnFragranceTrait?: Resolver<ResolversTypes['FragranceTraitVote'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceTraitArgs, 'input'>>;
+  voteOnFragranceTrait?: Resolver<ResolversTypes['FragranceTrait'], ParentType, ContextType, RequireFields<MutationVoteOnFragranceTraitArgs, 'input'>>;
   voteOnNoteRequest?: Resolver<ResolversTypes['NoteRequest'], ParentType, ContextType, RequireFields<MutationVoteOnNoteRequestArgs, 'input'>>;
   voteOnPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationVoteOnPostArgs, 'input'>>;
   voteOnPostComment?: Resolver<ResolversTypes['PostComment'], ParentType, ContextType, RequireFields<MutationVoteOnPostCommentArgs, 'input'>>;
@@ -3887,23 +3849,6 @@ export type SearchUserEdgeResolvers<ContextType = ServerContext, ParentType exte
   offset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 }>;
 
-export type TraitOptionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitOption'] = ResolversParentTypes['TraitOption']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-}>;
-
-export type TraitStatsResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitStats'] = ResolversParentTypes['TraitStats']> = ResolversObject<{
-  averageScore?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  distribution?: Resolver<Array<ResolversTypes['TraitVoteDistribution']>, ParentType, ContextType>;
-  totalVotes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-}>;
-
-export type TraitVoteDistributionResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['TraitVoteDistribution'] = ResolversParentTypes['TraitVoteDistribution']> = ResolversObject<{
-  option?: Resolver<ResolversTypes['TraitOption'], ParentType, ContextType>;
-  votes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-}>;
-
 export type UserResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   accordRequests?: Resolver<ResolversTypes['AccordRequestConnection'], ParentType, ContextType, Partial<UserAccordRequestsArgs>>;
   avatar?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType>;
@@ -4007,7 +3952,7 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   FragranceReviewInfo?: FragranceReviewInfoResolvers<ContextType>;
   FragranceReviewInfoDistribution?: FragranceReviewInfoDistributionResolvers<ContextType>;
   FragranceTrait?: FragranceTraitResolvers<ContextType>;
-  FragranceTraitVote?: FragranceTraitVoteResolvers<ContextType>;
+  FragranceTraitOption?: FragranceTraitOptionResolvers<ContextType>;
   FragranceVote?: FragranceVoteResolvers<ContextType>;
   FragranceVoteConnection?: FragranceVoteConnectionResolvers<ContextType>;
   FragranceVoteEdge?: FragranceVoteEdgeResolvers<ContextType>;
@@ -4054,9 +3999,6 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
   SearchPostEdge?: SearchPostEdgeResolvers<ContextType>;
   SearchUserConnection?: SearchUserConnectionResolvers<ContextType>;
   SearchUserEdge?: SearchUserEdgeResolvers<ContextType>;
-  TraitOption?: TraitOptionResolvers<ContextType>;
-  TraitStats?: TraitStatsResolvers<ContextType>;
-  TraitVoteDistribution?: TraitVoteDistributionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserFollow?: UserFollowResolvers<ContextType>;
   UserFollowConnection?: UserFollowConnectionResolvers<ContextType>;
